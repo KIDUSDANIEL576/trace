@@ -15,7 +15,7 @@ try {
 }
 
 const FALLBACK_PRICE = '$29.99';
-let configured = false;
+let configuredUserId: string | null = null;
 
 function apiKey(): string | undefined {
   return Platform.OS === 'ios'
@@ -23,25 +23,33 @@ function apiKey(): string | undefined {
     : process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY;
 }
 
-/** Ties purchases to the Supabase user id so the webhook can find the couple. */
+/**
+ * Ties purchases to the Supabase user id so the webhook can find the couple.
+ * On account switch we log the SDK into the new user — otherwise a purchase
+ * would credit the previous user's couple.
+ */
 export function configurePurchases(userId: string): void {
   const key = apiKey();
-  if (!Purchases || !key || configured) return;
+  if (!Purchases || !key || configuredUserId === userId) return;
   try {
-    Purchases.configure({ apiKey: key, appUserID: userId });
-    configured = true;
+    if (configuredUserId === null) {
+      Purchases.configure({ apiKey: key, appUserID: userId });
+    } else {
+      Purchases.logIn(userId).catch(() => {});
+    }
+    configuredUserId = userId;
   } catch {
     // native module unavailable (Expo Go) — paywall will show setup hint
   }
 }
 
 export function purchasesAvailable(): boolean {
-  return configured;
+  return configuredUserId !== null;
 }
 
 /** Localized store price of the Trace Forever package (fallback when offline). */
 export async function foreverPrice(): Promise<string> {
-  if (!Purchases || !configured) return FALLBACK_PRICE;
+  if (!Purchases || configuredUserId === null) return FALLBACK_PRICE;
   try {
     const offerings = await Purchases.getOfferings();
     return offerings.current?.availablePackages[0]?.product.priceString ?? FALLBACK_PRICE;
@@ -52,7 +60,7 @@ export async function foreverPrice(): Promise<string> {
 
 /** Runs the store purchase flow. Resolves true when the purchase went through. */
 export async function purchaseForever(): Promise<boolean> {
-  if (!Purchases || !configured) return false;
+  if (!Purchases || configuredUserId === null) return false;
   try {
     const offerings = await Purchases.getOfferings();
     const pkg = offerings.current?.availablePackages[0];
@@ -66,7 +74,7 @@ export async function purchaseForever(): Promise<boolean> {
 
 /** Restore a previous purchase (reinstall / new phone). */
 export async function restoreForever(): Promise<boolean> {
-  if (!Purchases || !configured) return false;
+  if (!Purchases || configuredUserId === null) return false;
   try {
     const info = await Purchases.restorePurchases();
     return Object.keys(info.entitlements.active).length > 0;

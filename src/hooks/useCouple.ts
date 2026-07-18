@@ -1,23 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { RPCS, TABLES } from '@/lib/backend';
 import { supabase } from '@/lib/supabase';
 import type { CanvasInfo, Membership } from '@/types';
 
 /**
  * Loads the caller's couple membership + the couple's shared canvas.
- * Returns membership=null (loading=false) when the user hasn't paired yet.
+ * Returns membership=null (loading=false) only when the user genuinely hasn't
+ * paired yet. Transient fetch failures never null out a loaded membership, and
+ * before the first successful load they keep `loading` true and retry — a
+ * network blip must not dump a paired user onto the pairing screen.
  */
 export function useCouple(userId: string | undefined) {
   const [membership, setMembership] = useState<Membership | null>(null);
   const [loading, setLoading] = useState(true);
+  const membershipRef = useRef<Membership | null>(null);
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
     if (!userId) {
+      membershipRef.current = null;
       setMembership(null);
       setLoading(false);
       return;
     }
-    setLoading(true);
     try {
       const { data: member, error } = await supabase
         .from(TABLES.members)
@@ -26,7 +31,9 @@ export function useCouple(userId: string | undefined) {
         .maybeSingle();
       if (error) throw error;
       if (!member) {
+        membershipRef.current = null;
         setMembership(null);
+        setLoading(false);
         return;
       }
 
@@ -51,7 +58,7 @@ export function useCouple(userId: string | undefined) {
         createdAt: c.created_at,
       }));
       const couple = Array.isArray(member.couples) ? member.couples[0] : member.couples;
-      setMembership({
+      const next: Membership = {
         coupleId: member.couple_id,
         inviteCode: couple?.invite_code ?? '',
         displayName: member.display_name ?? '',
@@ -59,14 +66,29 @@ export function useCouple(userId: string | undefined) {
         canvases,
         partnerName: partner?.display_name ?? null,
         premium: couple?.premium ?? false,
-      });
-    } finally {
+      };
+      membershipRef.current = next;
+      setMembership(next);
       setLoading(false);
+    } catch {
+      if (membershipRef.current) {
+        // background refresh failed — keep what we have
+        setLoading(false);
+      } else {
+        // nothing loaded yet: stay in loading and try again shortly
+        if (retryRef.current) clearTimeout(retryRef.current);
+        retryRef.current = setTimeout(() => {
+          refresh();
+        }, 3000);
+      }
     }
   }, [userId]);
 
   useEffect(() => {
-    refresh().catch(() => setLoading(false));
+    refresh();
+    return () => {
+      if (retryRef.current) clearTimeout(retryRef.current);
+    };
   }, [refresh]);
 
   return { membership, loading, refresh };

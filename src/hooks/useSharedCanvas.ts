@@ -53,6 +53,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const currentStrokeRef = useRef<Stroke | null>(null);
+  const strokeCanvasRef = useRef(canvasId); // canvas the in-flight stroke belongs to
+  const canvasIdRef = useRef(canvasId); // guards late refetches after a switch
   const pendingPointsRef = useRef<Point[]>([]);
   const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // ref so a changing callback doesn't tear down the channel subscription
@@ -60,7 +62,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
   onCanvasNewRef.current = onCanvasNew;
 
   const send = useCallback((event: string, payload: unknown) => {
-    channelRef.current?.send({ type: 'broadcast', event, payload });
+    return channelRef.current?.send({ type: 'broadcast', event, payload });
   }, []);
 
   const trackPresence = useCallback(
@@ -89,6 +91,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       points: row.points as Point[],
     }));
     setStrokes((prev) => {
+      // a slow SELECT for a canvas we've since switched away from must not land
+      if (canvasIdRef.current !== canvasId) return prev;
       const unpersisted = prev.filter((s) => s.dbId == null);
       return [...fromDb, ...unpersisted];
     });
@@ -99,6 +103,11 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     let disposed = false;
     let attempt = 0;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // fresh canvas, fresh state — never leak strokes across canvases
+    canvasIdRef.current = canvasId;
+    setStrokes([]);
+    setLiveStrokes({});
 
     function connect() {
       if (disposed) return;
@@ -133,13 +142,17 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         })
         .on('broadcast', { event: 'stroke:end' }, ({ payload }) => {
           const p = payload as StrokeEndPayload;
+          // capture in the first updater, promote in a sibling one — updaters
+          // must stay pure (StrictMode double-invokes them)
+          let ended: Stroke | null = null;
           setLiveStrokes((prev) => {
             const s = prev[p.strokeId];
             if (!s) return prev;
+            ended = { ...s, dbId: p.dbId ?? undefined };
             const { [p.strokeId]: _done, ...rest } = prev;
-            setStrokes((list) => [...list, { ...s, dbId: p.dbId ?? undefined }]);
             return rest;
           });
+          setStrokes((list) => (ended && !list.includes(ended) ? [...list, ended] : list));
           // feel the partner's stroke land
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         })
@@ -197,6 +210,10 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     return () => {
       disposed = true;
       if (retryTimer) clearTimeout(retryTimer);
+      if (flushTimerRef.current) {
+        clearInterval(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
       appState.remove();
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
@@ -211,8 +228,10 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       const strokeId = Crypto.randomUUID();
       const stroke: Stroke = { id: strokeId, authorId: userId, brush, color, width, points: [] };
       currentStrokeRef.current = stroke;
+      strokeCanvasRef.current = canvasId; // in case the user switches mid-stroke
       pendingPointsRef.current = [];
-      setLiveStrokes((prev) => ({ ...prev, [strokeId]: stroke }));
+      // state gets its OWN copy — the ref copy is mutated for persistence only
+      setLiveStrokes((prev) => ({ ...prev, [strokeId]: { ...stroke, points: [] } }));
       send('stroke:start', {
         strokeId,
         canvasId,
@@ -242,7 +261,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     setLiveStrokes((prev) => {
       const s = prev[strokeId];
       if (!s) return prev;
-      return { ...prev, [strokeId]: { ...s, points: [...s.points] } };
+      return { ...prev, [strokeId]: { ...s, points: [...s.points, pt] } };
     });
   }, []);
 
@@ -270,12 +289,14 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       }
 
       // persist, then broadcast end with the row id so both sides can undo it later
+      // (to the canvas the stroke STARTED on, even if the user switched mid-stroke)
+      const strokeCanvasId = strokeCanvasRef.current;
       let dbId: number | null = null;
       try {
         const { data } = await supabase
           .from(TABLES.strokes)
           .insert({
-            canvas_id: canvasId,
+            canvas_id: strokeCanvasId,
             author_id: userId,
             brush: finished.brush,
             color: finished.color,
@@ -294,21 +315,27 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         const { [strokeId]: _done, ...rest } = prev;
         return rest;
       });
-      setStrokes((list) => [...list, { ...finished!, dbId: dbId ?? undefined }]);
+      // only promote into the visible list if we're still on that canvas
+      if (strokeCanvasId === canvasIdRef.current) {
+        setStrokes((list) => [...list, { ...finished!, dbId: dbId ?? undefined }]);
+      }
 
-      // streak mark + throttled partner push (both best-effort)
+      // streak mark lands before we resolve, so the caller's refresh sees it
       const today = new Date().toISOString().slice(0, 10);
-      supabase
-        .from(TABLES.dailyMarks)
-        .upsert(
-          { couple_id: coupleId, day: today, user_id: userId },
-          { onConflict: 'couple_id,day,user_id', ignoreDuplicates: true }
-        )
-        .then(() => {});
+      try {
+        await supabase
+          .from(TABLES.dailyMarks)
+          .upsert(
+            { couple_id: coupleId, day: today, user_id: userId },
+            { onConflict: 'couple_id,day,user_id', ignoreDuplicates: true }
+          );
+      } catch {
+        // best-effort
+      }
       notifyPartner(coupleId);
       requestSnapshot(coupleId); // keep the widget PNG fresh
     },
-    [canvasId, coupleId, send, trackPresence, userId]
+    [coupleId, send, trackPresence, userId]
   );
 
   // ---- undo own last stroke ----
@@ -333,9 +360,10 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
   }, [canvasId, coupleId, send]);
 
   // ---- tell the partner a new (photo) canvas exists ----
+  // awaited so the send flushes before the caller switches canvas (channel teardown)
   const announceNewCanvas = useCallback(
-    (newCanvasId: string) => {
-      send('canvas:new', { canvasId: newCanvasId } satisfies CanvasNewPayload);
+    async (newCanvasId: string) => {
+      await send('canvas:new', { canvasId: newCanvasId } satisfies CanvasNewPayload);
     },
     [send]
   );

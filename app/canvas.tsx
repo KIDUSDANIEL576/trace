@@ -1,5 +1,5 @@
-import { Redirect, router } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { Redirect, router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
@@ -101,6 +101,13 @@ function SharedCanvas({
     configurePurchases(userId);
   }, [userId]);
 
+  // returning from the paywall/replay must pick up a fresh premium flag
+  useFocusEffect(
+    useCallback(() => {
+      refreshMembership();
+    }, [refreshMembership])
+  );
+
   // keep the home-screen widgets pointed at a fresh signed snapshot URL
   useEffect(() => {
     refreshWidget(coupleId);
@@ -176,10 +183,11 @@ function SharedCanvas({
       if (!uri) return;
       setPhotoBusy(true);
       const newId = await createPhotoCanvas(coupleId, uri);
+      // announce on the still-live channel BEFORE switching tears it down
+      await announceNewCanvas(newId);
+      notifyPartner(coupleId, 'photo');
       await refreshMembership();
       setActiveCanvasId(newId);
-      announceNewCanvas(newId);
-      notifyPartner(coupleId, 'photo');
       toast.show('Photo canvas ready ✏️');
     } catch {
       toast.show('Could not add the photo — try again');
