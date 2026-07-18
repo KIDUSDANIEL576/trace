@@ -124,6 +124,7 @@ function tracePath(ctx: CanvasRenderingContext2D, pts: Pt[]) {
 
 /** Brush characters approximating the app's StrokeRenderer (blur → shadowBlur). */
 function drawStroke(ctx: CanvasRenderingContext2D, s: StrokeRow) {
+  if (s.brush === 'invisible') return; // secrets never land on home screens
   const pts = s.points;
   if (!Array.isArray(pts) || pts.length < 2) return;
   const w = s.width * W;

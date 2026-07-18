@@ -63,6 +63,8 @@ export default function Replay() {
   const strokes = premium ? allStrokes : allStrokes.slice(-FREE_REPLAY_STROKES);
   const capped = strokes.length < allStrokes.length;
   const total = strokes.length;
+  // count is initialized to the FULL history length before premium resolves
+  const shown = Math.min(count, total);
   const scrubTo = (x: number) => {
     if (!trackW || !total) return;
     const frac = Math.min(1, Math.max(0, x / trackW));
@@ -73,7 +75,7 @@ export default function Replay() {
     .onBegin((e) => scrubTo(e.x))
     .onUpdate((e) => scrubTo(e.x));
 
-  const frac = total ? count / total : 0;
+  const frac = total ? shown / total : 0;
 
   return (
     <Screen>
@@ -94,7 +96,7 @@ export default function Replay() {
         </Pressable>
       )}
 
-      <ReplayBoard strokes={strokes} photoUrl={photoUrl} count={count} />
+      <ReplayBoard strokes={strokes} photoUrl={photoUrl} count={shown} />
 
       {total === 0 ? (
         <Text style={styles.empty}>Nothing here yet — go draw something first.</Text>
@@ -109,7 +111,7 @@ export default function Replay() {
             </View>
           </GestureDetector>
           <Text style={styles.label}>
-            stroke {count} / {total}
+            stroke {shown} / {total}
           </Text>
         </>
       )}
