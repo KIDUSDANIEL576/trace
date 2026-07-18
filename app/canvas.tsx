@@ -1,6 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
 import { PresencePill } from '@/components/PresencePill';
@@ -14,6 +14,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
+import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
 import { colors, radius, swatches } from '@/theme/tokens';
 import type { Brush, CanvasInfo, Membership } from '@/types';
@@ -89,6 +90,15 @@ function SharedCanvas({
   useEffect(() => {
     registerPushToken(userId);
   }, [userId]);
+
+  // keep the home-screen widgets pointed at a fresh signed snapshot URL
+  useEffect(() => {
+    refreshWidget(coupleId);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshWidget(coupleId);
+    });
+    return () => sub.remove();
+  }, [coupleId]);
 
   // resolve the active canvas's photo (signed URL from the private bucket)
   useEffect(() => {
@@ -251,7 +261,11 @@ function SharedCanvas({
         onBegin={beginStroke}
         onPoint={addPoint}
         onEnd={(id) => {
-          endStroke(id).then(refreshStreak);
+          endStroke(id).then(() => {
+            refreshStreak();
+            // give the server a moment to re-render, then reload the widgets
+            setTimeout(() => refreshWidget(coupleId), 5000);
+          });
         }}
       />
 

@@ -115,8 +115,38 @@ src/theme/      design tokens from the approved prototype
 supabase/       schema + RLS migration, notify-partner edge function
 ```
 
+## The widgets (Phase 3)
+
+Both widgets display the server-rendered snapshot PNG and reload the moment the
+app hands them a fresh signed URL (on app open and ~5s after every stroke), with
+15–30 min polling as a safety net.
+
+- **iOS**: WidgetKit target in `targets/widget/` (via `@bacons/apple-targets`),
+  small/medium/large + lock-screen rectangular. Shares data through the
+  `group.com.digirafthub.trace` app group.
+- **Android**: home-screen widget inside the local `modules/widget-bridge`
+  Expo module (classic `AppWidgetProvider` + RemoteViews — chosen over Glance
+  for build simplicity; swap later if Glance interactivity is ever needed).
+- `modules/widget-bridge` is the tiny native bridge (`setSnapshot(url)`) the
+  app calls from `src/lib/widget.ts`. It no-ops in Expo Go.
+
+**Widgets require a native build** (they cannot run in Expo Go):
+
+```bash
+# one-time: set your Apple Team ID for the widget extension signing
+#   app.json → "ios": { "appleTeamId": "XXXXXXXXXX" }
+npx expo prebuild --clean
+npx expo run:ios      # or: eas build -p ios
+npx expo run:android  # or: eas build -p android
+```
+
+Then long-press the home screen → add the **Trace** widget. Caveat: the signed
+snapshot URL lives 7 days; opening the app refreshes it, so a widget only goes
+stale if the app hasn't been opened in a week.
+
 ## What's deliberately not here
 
-The native widget targets (iOS WidgetKit / Android Glance — they consume the
-snapshot PNG above and need EAS/Xcode builds), Phase 4 (RevenueCat), and
-everything in the Non-goals list. See CLAUDE.md — Ponytail discipline applies.
+Phase 4 (RevenueCat), push-triggered instant widget reload on the *partner's*
+phone (their widget updates on next poll/app-open; needs a notification service
+extension), and everything in the Non-goals list. See CLAUDE.md — Ponytail
+discipline applies.

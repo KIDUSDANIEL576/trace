@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.digirafthub.trace"
+      "bundleIdentifier": "com.digirafthub.trace",
+      "entitlements": {
+        "com.apple.security.application-groups": ["group.com.digirafthub.trace"]
+      }
     },
     "android": {
       "package": "com.digirafthub.trace",
@@ -40,7 +43,8 @@
           "photosPermission": "Trace uses your photos so you can draw on one together.",
           "cameraPermission": "Trace uses the camera so you can take a photo to draw on together."
         }
-      ]
+      ],
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": false
