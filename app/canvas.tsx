@@ -14,6 +14,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
+import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
 import { colors, radius, swatches } from '@/theme/tokens';
@@ -51,8 +52,15 @@ function SharedCanvas({
   membership: Membership;
   refreshMembership: () => Promise<void>;
 }) {
-  const { coupleId, canvasId: sharedCanvasId, displayName, inviteCode, partnerName, canvases } =
-    membership;
+  const {
+    coupleId,
+    canvasId: sharedCanvasId,
+    displayName,
+    inviteCode,
+    partnerName,
+    canvases,
+    premium,
+  } = membership;
   const insets = useSafeAreaInsets();
   const toast = useToast();
   const [brush, setBrush] = useState<Brush>('marker');
@@ -60,6 +68,7 @@ function SharedCanvas({
   const [activeCanvasId, setActiveCanvasId] = useState(sharedCanvasId);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [reveal, setReveal] = useState(false);
 
   const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
   const activePhotoPath = activeCanvas?.photoPath ?? null;
@@ -89,6 +98,7 @@ function SharedCanvas({
 
   useEffect(() => {
     registerPushToken(userId);
+    configurePurchases(userId);
   }, [userId]);
 
   // keep the home-screen widgets pointed at a fresh signed snapshot URL
@@ -150,7 +160,17 @@ function SharedCanvas({
     ]);
   }
 
+  function photoAllowedToday(): boolean {
+    if (premium) return true;
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    return !canvases.some((c) => c.kind === 'photo' && c.createdAt.slice(0, 10) === todayUtc);
+  }
+
   async function addPhoto(source: 'library' | 'camera') {
+    if (!photoAllowedToday()) {
+      router.push('/paywall');
+      return;
+    }
     try {
       const uri = await pickPhoto(source);
       if (!uri) return;
@@ -251,25 +271,44 @@ function SharedCanvas({
         </ScrollView>
       )}
 
-      <CanvasBoard
-        strokes={strokes}
-        liveStrokes={liveStrokes}
+      <View>
+        <CanvasBoard
+          strokes={strokes}
+          liveStrokes={liveStrokes}
+          brush={brush}
+          color={color}
+          brushWidth={BRUSHES[brush].width}
+          photoUrl={photoUrl}
+          revealInvisible={reveal}
+          onBegin={beginStroke}
+          onPoint={addPoint}
+          onEnd={(id) => {
+            endStroke(id).then(() => {
+              refreshStreak();
+              // give the server a moment to re-render, then reload the widgets
+              setTimeout(() => refreshWidget(coupleId), 5000);
+            });
+          }}
+        />
+        {strokes.some((s) => s.brush === 'invisible') && (
+          <Pressable
+            onPressIn={() => setReveal(true)}
+            onPressOut={() => setReveal(false)}
+            style={styles.revealChip}
+          >
+            <Text style={styles.revealText}>👁 hold to reveal</Text>
+          </Pressable>
+        )}
+      </View>
+
+      <Toolbar
         brush={brush}
         color={color}
-        brushWidth={BRUSHES[brush].width}
-        photoUrl={photoUrl}
-        onBegin={beginStroke}
-        onPoint={addPoint}
-        onEnd={(id) => {
-          endStroke(id).then(() => {
-            refreshStreak();
-            // give the server a moment to re-render, then reload the widgets
-            setTimeout(() => refreshWidget(coupleId), 5000);
-          });
-        }}
+        premium={premium}
+        onBrush={setBrush}
+        onColor={setColor}
+        onLockedBrush={() => router.push('/paywall')}
       />
-
-      <Toolbar brush={brush} color={color} onBrush={setBrush} onColor={setColor} />
 
       <View style={styles.actions}>
         <View style={{ flex: 1 }}>
@@ -335,4 +374,16 @@ const styles = StyleSheet.create({
   chipTextOn: { color: '#ffb9c2' },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
   actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  revealChip: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(10,9,13,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  revealText: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
 });

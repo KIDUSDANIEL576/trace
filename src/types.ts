@@ -1,4 +1,4 @@
-export type Brush = 'marker' | 'glow' | 'neon' | 'chalk';
+export type Brush = 'marker' | 'glow' | 'neon' | 'chalk' | 'invisible';
 
 // Points are normalized 0..1 so canvases render identically across screen sizes.
 export type Point = [number, number];
@@ -61,4 +61,5 @@ export interface Membership {
   canvasId: string; // the couple's shared canvas
   canvases: CanvasInfo[]; // shared + photo canvases, oldest first
   partnerName: string | null;
+  premium: boolean; // Trace Forever — one purchase unlocks both partners
 }

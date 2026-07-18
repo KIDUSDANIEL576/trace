@@ -6,19 +6,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReplayBoard } from '@/components/ReplayBoard';
 import { Loading, Screen, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { useCouple } from '@/hooks/useCouple';
 import { TABLES } from '@/lib/backend';
 import { signedPhotoUrl } from '@/lib/photos';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, radius } from '@/theme/tokens';
 import type { Brush, Point, Stroke } from '@/types';
 
+const FREE_REPLAY_STROKES = 20; // Trace Forever unlocks the full history
+
 /** Relationship Replay: scrub through the canvas's strokes in the order they landed. */
 export default function Replay() {
   const { session, loading } = useAuth();
+  const { membership } = useCouple(session?.user.id);
   const { canvasId, photoPath } = useLocalSearchParams<{ canvasId: string; photoPath?: string }>();
   const insets = useSafeAreaInsets();
+  const premium = membership?.premium ?? false;
 
-  const [strokes, setStrokes] = useState<Stroke[] | null>(null);
+  const [allStrokes, setAllStrokes] = useState<Stroke[] | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [trackW, setTrackW] = useState(0);
@@ -40,7 +45,7 @@ export default function Replay() {
           width: row.width,
           points: row.points as Point[],
         }));
-        setStrokes(loaded);
+        setAllStrokes(loaded);
         setCount(loaded.length); // start fully drawn; scrub back to the beginning
       });
   }, [canvasId]);
@@ -52,8 +57,11 @@ export default function Replay() {
   if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
   if (!canvasId) return <Redirect href="/canvas" />;
-  if (!strokes) return <Loading />;
+  if (!allStrokes) return <Loading />;
 
+  // free tier replays only the most recent strokes
+  const strokes = premium ? allStrokes : allStrokes.slice(-FREE_REPLAY_STROKES);
+  const capped = strokes.length < allStrokes.length;
   const total = strokes.length;
   const scrubTo = (x: number) => {
     if (!trackW || !total) return;
@@ -77,6 +85,14 @@ export default function Replay() {
       </View>
 
       <Text style={styles.title}>Replay</Text>
+
+      {capped && (
+        <Pressable style={styles.upsell} onPress={() => router.push('/paywall')}>
+          <Text style={styles.upsellText}>
+            Replaying the last {FREE_REPLAY_STROKES} strokes · unlock your full story →
+          </Text>
+        </Pressable>
+      )}
 
       <ReplayBoard strokes={strokes} photoUrl={photoUrl} count={count} />
 
@@ -140,4 +156,13 @@ const styles = StyleSheet.create({
   },
   label: { color: colors.muted, fontSize: 13, textAlign: 'center', marginTop: 2 },
   empty: { color: colors.muted, fontSize: 14, textAlign: 'center', marginTop: 18 },
+  upsell: {
+    alignSelf: 'center',
+    backgroundColor: colors.inkSoft,
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginBottom: 10,
+  },
+  upsellText: { color: '#ffb9c2', fontSize: 12.5, fontWeight: '500' },
 });

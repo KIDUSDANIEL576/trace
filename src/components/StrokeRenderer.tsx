@@ -58,5 +58,15 @@ export const StrokeRenderer = React.memo(function StrokeRenderer({ stroke, width
       );
     case 'chalk':
       return <Path {...common} color={stroke.color} strokeWidth={w} opacity={0.55} />;
+    case 'invisible':
+      // silvery shimmer, shown only while drawing / revealing (filtered upstream)
+      return (
+        <>
+          <Path {...common} color="#ffffff" strokeWidth={w * 2.2} opacity={0.22}>
+            <BlurMask blur={8} style="normal" />
+          </Path>
+          <Path {...common} color="#ffffff" strokeWidth={w} opacity={0.5} />
+        </>
+      );
   }
 });

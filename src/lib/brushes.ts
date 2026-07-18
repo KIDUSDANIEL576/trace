@@ -6,6 +6,10 @@ export const BRUSHES: Record<Brush, { label: string; width: number }> = {
   glow: { label: 'Glow pen', width: 9 / 400 },
   neon: { label: 'Neon', width: 4 / 400 },
   chalk: { label: 'Chalk', width: 7 / 400 },
+  invisible: { label: 'Invisible ink', width: 9 / 400 },
 };
 
-export const BRUSH_ORDER: Brush[] = ['marker', 'glow', 'neon', 'chalk'];
+export const BRUSH_ORDER: Brush[] = ['marker', 'glow', 'neon', 'chalk', 'invisible'];
+
+// Free tier: marker + chalk. Trace Forever unlocks the rest (spec §Phase 4).
+export const PREMIUM_BRUSHES: ReadonlySet<Brush> = new Set(['glow', 'neon', 'invisible']);

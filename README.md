@@ -144,9 +144,33 @@ Then long-press the home screen → add the **Trace** widget. Caveat: the signed
 snapshot URL lives 7 days; opening the app refreshes it, so a widget only goes
 stale if the app hasn't been opened in a week.
 
+## Trace Forever (Phase 4)
+
+**$29.99 one-time · one purchase unlocks both partners.** Free tier: shared
+canvas, marker + chalk, one photo canvas/day, last-20-strokes replay, widget.
+Forever: all brushes (glow, neon, **invisible ink** — vanishes when it lands,
+"hold to reveal" to see it), unlimited photos, full replay.
+
+How it works: the app runs the store purchase via `react-native-purchases`
+(app user id = Supabase user id); RevenueCat calls the
+`trace-revenuecat-webhook` edge function, which flips `premium` on the buyer's
+**couple** — so the partner unlocks automatically. The photo/day limit is also
+enforced server-side by a DB trigger, and `premium` is only writable by the
+webhook (service role).
+
+To go live (all in dashboards, no code):
+1. Create the products in App Store Connect / Play Console and a RevenueCat
+   project with a `trace_forever` entitlement + default offering.
+2. Put the RevenueCat public SDK keys in `.env`
+   (`EXPO_PUBLIC_REVENUECAT_IOS_KEY` / `..._ANDROID_KEY`).
+3. Add the webhook in RevenueCat → Integrations, pointing at
+   `/functions/v1/trace-revenuecat-webhook`, with an Authorization header
+   `Bearer <secret>`; store the same secret as the `REVENUECAT_WEBHOOK_SECRET`
+   function secret in Supabase. (Until set, the webhook answers 503 —
+   verified: it fails closed.)
+
 ## What's deliberately not here
 
-Phase 4 (RevenueCat), push-triggered instant widget reload on the *partner's*
-phone (their widget updates on next poll/app-open; needs a notification service
-extension), and everything in the Non-goals list. See CLAUDE.md — Ponytail
-discipline applies.
+Push-triggered instant widget reload on the *partner's* phone (their widget
+updates on next poll/app-open; needs a notification service extension) and
+everything in the Non-goals list. See CLAUDE.md — Ponytail discipline applies.

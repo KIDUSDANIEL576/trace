@@ -14,6 +14,7 @@ interface Props {
   color: string;
   brushWidth: number;
   photoUrl?: string | null;
+  revealInvisible?: boolean;
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
   onEnd: (strokeId: string) => void;
@@ -32,6 +33,7 @@ export function CanvasBoard({
   color,
   brushWidth,
   photoUrl,
+  revealInvisible,
   onBegin,
   onPoint,
   onEnd,
@@ -88,9 +90,12 @@ export function CanvasBoard({
         {w > 0 && (
           <Canvas style={StyleSheet.absoluteFill}>
             <CanvasBackdrop w={w} h={h} photoUrl={photoUrl} />
-            {strokes.map((s) => (
-              <StrokeRenderer key={s.id} stroke={s} width={w} height={h} />
-            ))}
+            {/* invisible ink vanishes once landed; live strokes always show */}
+            {strokes
+              .filter((s) => s.brush !== 'invisible' || revealInvisible)
+              .map((s) => (
+                <StrokeRenderer key={s.id} stroke={s} width={w} height={h} />
+              ))}
             {Object.values(liveStrokes).map((s) => (
               <StrokeRenderer key={s.id} stroke={s} width={w} height={h} />
             ))}
