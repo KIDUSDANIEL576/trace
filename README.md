@@ -32,6 +32,15 @@ free tier caps active projects at two. Everything is namespaced and additive:
 - Storage: private `trace-photos` bucket (10MB/object, couple-scoped RLS via
   `{couple_id}/…` paths, signed URLs) — dedicated-project version is `photos` in
   `supabase/migrations/20260718000001_phase2_photos.sql`
+- Widget snapshot pipeline (Phase 3 backbone): `trace-render-snapshot` edge
+  function re-renders the couple's latest-drawn canvas server-side (same
+  midpoint smoothing + brush styles) to `trace-widgets/{couple_id}/snapshot.png`
+  on every stroke end / undo / clear. Bucket is private; members read via
+  signed URLs. Dedicated versions: `render-snapshot` fn + `widgets` bucket
+  (`supabase/migrations/20260718000002_phase3_widget_snapshots.sql`).
+  **E2E verified 2026-07-18** in-infra via pg_net: render 200 in 2.4s cold,
+  116KB valid PNG, anon caller rejected 401. The `trace-e2e-render-test`
+  function is a retired stub — safe to delete.
 
 `.env` in this repo already points at it — the app works out of the box.
 The names live in one file: `src/lib/backend.ts`.
@@ -108,5 +117,6 @@ supabase/       schema + RLS migration, notify-partner edge function
 
 ## What's deliberately not here
 
-Phases 3–4 (widgets, RevenueCat) and everything in the Non-goals list.
-See CLAUDE.md — Ponytail discipline applies.
+The native widget targets (iOS WidgetKit / Android Glance — they consume the
+snapshot PNG above and need EAS/Xcode builds), Phase 4 (RevenueCat), and
+everything in the Non-goals list. See CLAUDE.md — Ponytail discipline applies.

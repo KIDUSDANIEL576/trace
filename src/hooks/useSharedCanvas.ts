@@ -6,6 +6,7 @@ import { AppState } from 'react-native';
 import { coupleChannel, TABLES } from '@/lib/backend';
 import { supabase } from '@/lib/supabase';
 import { notifyPartner } from '@/lib/notifications';
+import { requestSnapshot } from '@/lib/snapshots';
 import type {
   Brush,
   CanvasClearPayload,
@@ -305,6 +306,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         )
         .then(() => {});
       notifyPartner(coupleId);
+      requestSnapshot(coupleId); // keep the widget PNG fresh
     },
     [canvasId, coupleId, send, trackPresence, userId]
   );
@@ -318,7 +320,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     if (mine.dbId != null) {
       await supabase.from(TABLES.strokes).delete().eq('id', mine.dbId);
     }
-  }, [send, strokes, userId]);
+    requestSnapshot(coupleId);
+  }, [coupleId, send, strokes, userId]);
 
   // ---- clear the whole canvas ----
   const clearCanvas = useCallback(async () => {
@@ -326,7 +329,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     setLiveStrokes({});
     send('canvas:clear', { canvasId } satisfies CanvasClearPayload);
     await supabase.from(TABLES.strokes).delete().eq('canvas_id', canvasId);
-  }, [canvasId, send]);
+    requestSnapshot(coupleId);
+  }, [canvasId, coupleId, send]);
 
   // ---- tell the partner a new (photo) canvas exists ----
   const announceNewCanvas = useCallback(

@@ -19,10 +19,12 @@ export const RPCS = {
 
 export const EDGE_FUNCTIONS = {
   notifyPartner: 'trace-notify-partner',
+  renderSnapshot: 'trace-render-snapshot',
 } as const;
 
 export const BUCKETS = {
   photos: 'trace-photos',
+  widgets: 'trace-widgets',
 } as const;
 
 export const coupleChannel = (coupleId: string) => `trace:couple:${coupleId}`;
