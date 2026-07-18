@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Trace",
+    "slug": "trace",
+    "version": "0.1.0",
+    "scheme": "trace",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0c0b10",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0c0b10"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.digirafthub.trace"
+    },
+    "android": {
+      "package": "com.digirafthub.trace",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0c0b10"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#e23343"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
