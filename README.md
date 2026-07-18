@@ -3,9 +3,10 @@
 **"Leave me a trace."** A couples app where whatever one partner draws appears on the
 other's phone in real time. Two people, one canvas, forever.
 
-This is the **Phase 1** build from [CLAUDE.md](./CLAUDE.md): live shared canvas,
-stroke streaming over Supabase Realtime Broadcast, presence, persistence + replay-ready
-history, and throttled partner push.
+This is the **Phase 1 + Phase 2** build from [CLAUDE.md](./CLAUDE.md): live shared canvas,
+stroke streaming over Supabase Realtime Broadcast, presence, persistence, throttled partner
+push — plus draw-on-photos (private Storage bucket), Relationship Replay (scrub through
+your history stroke by stroke), and the Daily Love Streak.
 
 ## Stack
 
@@ -26,8 +27,11 @@ free tier caps active projects at two. Everything is namespaced and additive:
   `trace_daily_marks`, `trace_push_tokens`, `trace_push_log` — all RLS-locked
   to couple membership
 - RPCs: `trace_create_couple`, `trace_join_couple`
-- Edge function: `trace-notify-partner` (throttled partner push)
+- Edge function: `trace-notify-partner` (throttled partner push; `kind: 'photo'` varies the copy)
 - Private realtime channels on topics `trace:couple:{id}`
+- Storage: private `trace-photos` bucket (10MB/object, couple-scoped RLS via
+  `{couple_id}/…` paths, signed URLs) — dedicated-project version is `photos` in
+  `supabase/migrations/20260718000001_phase2_photos.sql`
 
 `.env` in this repo already points at it — the app works out of the box.
 The names live in one file: `src/lib/backend.ts`.
@@ -104,5 +108,5 @@ supabase/       schema + RLS migration, notify-partner edge function
 
 ## What's deliberately not here
 
-Phases 2–4 (photos, replay scrubber, widgets, RevenueCat) and everything in the
-Non-goals list. See CLAUDE.md — Ponytail discipline applies.
+Phases 3–4 (widgets, RevenueCat) and everything in the Non-goals list.
+See CLAUDE.md — Ponytail discipline applies.

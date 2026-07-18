@@ -1,15 +1,10 @@
-import {
-  Canvas,
-  LinearGradient,
-  RadialGradient,
-  Rect,
-  vec,
-} from '@shopify/react-native-skia';
+import { Canvas } from '@shopify/react-native-skia';
 import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { colors, fonts, radius } from '@/theme/tokens';
 import type { Brush, Point, Stroke } from '@/types';
+import { CanvasBackdrop } from './CanvasBackdrop';
 import { StrokeRenderer } from './StrokeRenderer';
 
 interface Props {
@@ -18,6 +13,7 @@ interface Props {
   brush: Brush;
   color: string;
   brushWidth: number;
+  photoUrl?: string | null;
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
   onEnd: (strokeId: string) => void;
@@ -35,6 +31,7 @@ export function CanvasBoard({
   brush,
   color,
   brushWidth,
+  photoUrl,
   onBegin,
   onPoint,
   onEnd,
@@ -90,22 +87,7 @@ export function CanvasBoard({
       >
         {w > 0 && (
           <Canvas style={StyleSheet.absoluteFill}>
-            {/* dusk "photo" backdrop — multiply-blend marker ink needs light ground */}
-            <Rect x={0} y={0} width={w} height={h}>
-              <LinearGradient
-                start={vec(0, 0)}
-                end={vec(0, h)}
-                colors={['#33445f', '#5c5f78', '#8a6b73', '#2e2733']}
-                positions={[0, 0.45, 0.7, 1]}
-              />
-            </Rect>
-            <Rect x={0} y={0} width={w} height={h}>
-              <RadialGradient
-                c={vec(w * 0.7, h * 0.18)}
-                r={w * 0.62}
-                colors={['rgba(247,217,176,0.85)', 'rgba(247,217,176,0)']}
-              />
-            </Rect>
+            <CanvasBackdrop w={w} h={h} photoUrl={photoUrl} />
             {strokes.map((s) => (
               <StrokeRenderer key={s.id} stroke={s} width={w} height={h} />
             ))}

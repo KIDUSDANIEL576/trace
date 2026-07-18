@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { notifyPartner } from '@/lib/notifications';
 import type {
   Brush,
+  CanvasClearPayload,
+  CanvasNewPayload,
   Point,
   PresenceState,
   Stroke,
@@ -28,6 +30,7 @@ interface Args {
   canvasId: string;
   userId: string;
   displayName: string;
+  onCanvasNew?: () => void;
 }
 
 /**
@@ -40,7 +43,7 @@ interface Args {
  * - persistence on stroke end, daily mark, throttled partner push
  * - undo-own-stroke and clear, mirrored to the partner via broadcast
  */
-export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Args) {
+export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCanvasNew }: Args) {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [liveStrokes, setLiveStrokes] = useState<Record<string, Stroke>>({});
   const [partnerDrawing, setPartnerDrawing] = useState<string | null>(null);
@@ -51,6 +54,9 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
   const currentStrokeRef = useRef<Stroke | null>(null);
   const pendingPointsRef = useRef<Point[]>([]);
   const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // ref so a changing callback doesn't tear down the channel subscription
+  const onCanvasNewRef = useRef(onCanvasNew);
+  onCanvasNewRef.current = onCanvasNew;
 
   const send = useCallback((event: string, payload: unknown) => {
     channelRef.current?.send({ type: 'broadcast', event, payload });
@@ -103,6 +109,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
       channel
         .on('broadcast', { event: 'stroke:start' }, ({ payload }) => {
           const p = payload as StrokeStartPayload;
+          if (p.canvasId !== canvasId) return; // partner is drawing on another canvas
           setLiveStrokes((prev) => ({
             ...prev,
             [p.strokeId]: {
@@ -141,9 +148,14 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
             list.filter((s) => s.id !== p.strokeId && (p.dbId == null || s.dbId !== p.dbId))
           );
         })
-        .on('broadcast', { event: 'canvas:clear' }, () => {
+        .on('broadcast', { event: 'canvas:clear' }, ({ payload }) => {
+          const p = payload as CanvasClearPayload;
+          if (p.canvasId !== canvasId) return;
           setStrokes([]);
           setLiveStrokes({});
+        })
+        .on('broadcast', { event: 'canvas:new' }, () => {
+          onCanvasNewRef.current?.();
         })
         .on('presence', { event: 'sync' }, () => {
           const entries = Object.values(channel.presenceState<PresenceState>()).flat();
@@ -202,6 +214,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
       setLiveStrokes((prev) => ({ ...prev, [strokeId]: stroke }));
       send('stroke:start', {
         strokeId,
+        canvasId,
         authorId: userId,
         brush,
         color,
@@ -218,7 +231,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
 
       return strokeId;
     },
-    [send, trackPresence, userId]
+    [canvasId, send, trackPresence, userId]
   );
 
   const addPoint = useCallback((strokeId: string, pt: Point) => {
@@ -311,9 +324,17 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
   const clearCanvas = useCallback(async () => {
     setStrokes([]);
     setLiveStrokes({});
-    send('canvas:clear', {});
+    send('canvas:clear', { canvasId } satisfies CanvasClearPayload);
     await supabase.from(TABLES.strokes).delete().eq('canvas_id', canvasId);
   }, [canvasId, send]);
+
+  // ---- tell the partner a new (photo) canvas exists ----
+  const announceNewCanvas = useCallback(
+    (newCanvasId: string) => {
+      send('canvas:new', { canvasId: newCanvasId } satisfies CanvasNewPayload);
+    },
+    [send]
+  );
 
   return {
     strokes,
@@ -326,6 +347,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName }: Arg
     endStroke,
     undoLast,
     clearCanvas,
+    announceNewCanvas,
     canUndo: strokes.some((s) => s.authorId === userId),
   };
 }

@@ -1,6 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
 import { PresencePill } from '@/components/PresencePill';
@@ -10,28 +10,32 @@ import { Button, Loading, Screen, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useSharedCanvas } from '@/hooks/useSharedCanvas';
+import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
-import { registerPushToken } from '@/lib/notifications';
+import { notifyPartner, registerPushToken } from '@/lib/notifications';
+import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { supabase } from '@/lib/supabase';
 import { colors, radius, swatches } from '@/theme/tokens';
-import type { Brush } from '@/types';
+import type { Brush, CanvasInfo, Membership } from '@/types';
 
 export default function CanvasScreen() {
   const { session, loading } = useAuth();
   const { membership, loading: coupleLoading, refresh } = useCouple(session?.user.id);
 
-  if (loading || coupleLoading) return <Loading />;
+  if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
-  if (!membership || !membership.canvasId) return <Redirect href="/pair" />;
+  // Only block on the couple fetch before the FIRST load — background refreshes
+  // (new photo canvas, partner joined) must not unmount the canvas + channel.
+  if (!membership) {
+    if (coupleLoading) return <Loading />;
+    return <Redirect href="/pair" />;
+  }
+  if (!membership.canvasId) return <Redirect href="/pair" />;
 
   return (
     <SharedCanvas
       userId={session.user.id}
-      coupleId={membership.coupleId}
-      canvasId={membership.canvasId}
-      displayName={membership.displayName}
-      inviteCode={membership.inviteCode}
-      partnerName={membership.partnerName}
+      membership={membership}
       refreshMembership={refresh}
     />
   );
@@ -39,25 +43,25 @@ export default function CanvasScreen() {
 
 function SharedCanvas({
   userId,
-  coupleId,
-  canvasId,
-  displayName,
-  inviteCode,
-  partnerName,
+  membership,
   refreshMembership,
 }: {
   userId: string;
-  coupleId: string;
-  canvasId: string;
-  displayName: string;
-  inviteCode: string;
-  partnerName: string | null;
+  membership: Membership;
   refreshMembership: () => Promise<void>;
 }) {
+  const { coupleId, canvasId: sharedCanvasId, displayName, inviteCode, partnerName, canvases } =
+    membership;
   const insets = useSafeAreaInsets();
   const toast = useToast();
   const [brush, setBrush] = useState<Brush>('marker');
   const [color, setColor] = useState<string>(swatches[0]);
+  const [activeCanvasId, setActiveCanvasId] = useState(sharedCanvasId);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
+  const activePhotoPath = activeCanvas?.photoPath ?? null;
 
   const {
     strokes,
@@ -70,12 +74,35 @@ function SharedCanvas({
     endStroke,
     undoLast,
     clearCanvas,
+    announceNewCanvas,
     canUndo,
-  } = useSharedCanvas({ coupleId, canvasId, userId, displayName });
+  } = useSharedCanvas({
+    coupleId,
+    canvasId: activeCanvasId,
+    userId,
+    displayName,
+    onCanvasNew: refreshMembership,
+  });
+
+  const { streak, refresh: refreshStreak } = useStreak(coupleId);
 
   useEffect(() => {
     registerPushToken(userId);
   }, [userId]);
+
+  // resolve the active canvas's photo (signed URL from the private bucket)
+  useEffect(() => {
+    setPhotoUrl(null);
+    if (activePhotoPath) {
+      let stale = false;
+      signedPhotoUrl(activePhotoPath).then((url) => {
+        if (!stale) setPhotoUrl(url);
+      });
+      return () => {
+        stale = true;
+      };
+    }
+  }, [activePhotoPath]);
 
   // the moment the partner first shows up, celebrate + load their name
   const partnerSeenRef = useRef(false);
@@ -113,12 +140,55 @@ function SharedCanvas({
     ]);
   }
 
+  async function addPhoto(source: 'library' | 'camera') {
+    try {
+      const uri = await pickPhoto(source);
+      if (!uri) return;
+      setPhotoBusy(true);
+      const newId = await createPhotoCanvas(coupleId, uri);
+      await refreshMembership();
+      setActiveCanvasId(newId);
+      announceNewCanvas(newId);
+      notifyPartner(coupleId, 'photo');
+      toast.show('Photo canvas ready ✏️');
+    } catch {
+      toast.show('Could not add the photo — try again');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  function onAddPhoto() {
+    Alert.alert('Draw on a photo', 'Add a photo you both can draw on.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Take photo', onPress: () => addPhoto('camera') },
+      { text: 'Choose from library', onPress: () => addPhoto('library') },
+    ]);
+  }
+
+  function openReplay() {
+    router.push({
+      pathname: '/replay',
+      params: { canvasId: activeCanvasId, photoPath: activePhotoPath ?? '' },
+    });
+  }
+
+  function chipLabel(c: CanvasInfo) {
+    if (c.kind === 'shared') return 'our canvas';
+    return new Date(c.createdAt)
+      .toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      .toLowerCase();
+  }
+
   return (
     <Screen>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <Pressable onLongPress={onWordmarkLongPress}>
-          <Wordmark />
-        </Pressable>
+        <View style={styles.brandRow}>
+          <Pressable onLongPress={onWordmarkLongPress}>
+            <Wordmark />
+          </Pressable>
+          {streak > 0 && <Text style={styles.streak}>🔥 {streak}</Text>}
+        </View>
         {partnerDrawing ? (
           <PresencePill name={partnerDrawing} />
         ) : partnerName || partnerOnline ? (
@@ -146,15 +216,43 @@ function SharedCanvas({
         </View>
       )}
 
+      {canvases.length > 1 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipStrip}
+          contentContainerStyle={styles.chipStripContent}
+        >
+          {canvases.map((c) => {
+            const on = c.id === activeCanvasId;
+            return (
+              <Pressable
+                key={c.id}
+                onPress={() => setActiveCanvasId(c.id)}
+                style={[styles.chip, on && styles.chipOn]}
+              >
+                <Text style={[styles.chipText, on && styles.chipTextOn]}>
+                  {c.kind === 'photo' ? '📷 ' : ''}
+                  {chipLabel(c)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      )}
+
       <CanvasBoard
         strokes={strokes}
         liveStrokes={liveStrokes}
         brush={brush}
         color={color}
         brushWidth={BRUSHES[brush].width}
+        photoUrl={photoUrl}
         onBegin={beginStroke}
         onPoint={addPoint}
-        onEnd={endStroke}
+        onEnd={(id) => {
+          endStroke(id).then(refreshStreak);
+        }}
       />
 
       <Toolbar brush={brush} color={color} onBrush={setBrush} onColor={setColor} />
@@ -165,6 +263,14 @@ function SharedCanvas({
         </View>
         <View style={{ flex: 1 }}>
           <Button title="↺ Undo" variant="ghost" onPress={undoLast} disabled={!canUndo} />
+        </View>
+      </View>
+      <View style={styles.actionsBottom}>
+        <View style={{ flex: 1 }}>
+          <Button title="＋ Photo" variant="ghost" onPress={onAddPhoto} loading={photoBusy} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button title="▶ Replay" variant="ghost" onPress={openReplay} />
         </View>
       </View>
     </Screen>
@@ -178,6 +284,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: 14,
   },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  streak: { color: colors.gold, fontSize: 14, fontWeight: '600' },
   withRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   presenceDot: { width: 8, height: 8, borderRadius: 4 },
   partner: { color: colors.muted, fontSize: 13 },
@@ -198,5 +306,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   connText: { color: '#ffb9c2', fontSize: 12, fontWeight: '500' },
+  chipStrip: { flexGrow: 0, marginBottom: 10 },
+  chipStripContent: { gap: 8 },
+  chip: {
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 13,
+  },
+  chipOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
+  chipText: { color: colors.muted, fontSize: 12.5, fontWeight: '500' },
+  chipTextOn: { color: '#ffb9c2' },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
 });

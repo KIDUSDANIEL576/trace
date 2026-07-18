@@ -16,6 +16,7 @@ export interface Stroke {
 // Realtime broadcast payloads (channel `couple:{couple_id}`)
 export interface StrokeStartPayload {
   strokeId: string;
+  canvasId: string;
   authorId: string;
   brush: Brush;
   color: string;
@@ -33,6 +34,12 @@ export interface StrokeUndoPayload {
   strokeId: string;
   dbId: number | null;
 }
+export interface CanvasClearPayload {
+  canvasId: string;
+}
+export interface CanvasNewPayload {
+  canvasId: string;
+}
 
 export interface PresenceState {
   userId: string;
@@ -40,10 +47,18 @@ export interface PresenceState {
   drawing: boolean;
 }
 
+export interface CanvasInfo {
+  id: string;
+  kind: 'shared' | 'photo';
+  photoPath: string | null; // storage path within the photos bucket
+  createdAt: string;
+}
+
 export interface Membership {
   coupleId: string;
   inviteCode: string;
   displayName: string;
-  canvasId: string;
+  canvasId: string; // the couple's shared canvas
+  canvases: CanvasInfo[]; // shared + photo canvases, oldest first
   partnerName: string | null;
 }

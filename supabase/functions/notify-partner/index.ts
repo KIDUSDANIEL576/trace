@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     } = await userClient.auth.getUser();
     if (!user) return json({ error: 'unauthorized' }, 401);
 
-    const { coupleId } = await req.json().catch(() => ({}));
+    const { coupleId, kind } = await req.json().catch(() => ({}));
     if (!coupleId) return json({ error: 'coupleId required' }, 400);
 
     const admin = createClient(
@@ -55,13 +55,14 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!tokenRow?.token) return json({ skipped: 'partner has no push token' });
 
+    const verb = kind === 'photo' ? 'shared a photo to draw on 📸' : 'left you a trace ❤️';
     const res = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: tokenRow.token,
         title: 'trace',
-        body: `${me.display_name ?? 'Your person'} left you a trace ❤️`,
+        body: `${me.display_name ?? 'Your person'} ${verb}`,
         sound: 'default',
       }),
     });

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RPCS, TABLES } from '@/lib/backend';
 import { supabase } from '@/lib/supabase';
-import type { Membership } from '@/types';
+import type { CanvasInfo, Membership } from '@/types';
 
 /**
  * Loads the caller's couple membership + the couple's shared canvas.
@@ -30,15 +30,12 @@ export function useCouple(userId: string | undefined) {
         return;
       }
 
-      const [{ data: canvas }, { data: partner }] = await Promise.all([
+      const [{ data: canvasRows }, { data: partner }] = await Promise.all([
         supabase
           .from(TABLES.canvases)
-          .select('id')
+          .select('id, kind, photo_url, created_at')
           .eq('couple_id', member.couple_id)
-          .eq('kind', 'shared')
-          .order('created_at', { ascending: true })
-          .limit(1)
-          .maybeSingle(),
+          .order('created_at', { ascending: true }),
         supabase
           .from(TABLES.members)
           .select('display_name')
@@ -47,12 +44,19 @@ export function useCouple(userId: string | undefined) {
           .maybeSingle(),
       ]);
 
+      const canvases: CanvasInfo[] = (canvasRows ?? []).map((c) => ({
+        id: c.id,
+        kind: c.kind as 'shared' | 'photo',
+        photoPath: c.photo_url ?? null,
+        createdAt: c.created_at,
+      }));
       const couple = Array.isArray(member.couples) ? member.couples[0] : member.couples;
       setMembership({
         coupleId: member.couple_id,
         inviteCode: couple?.invite_code ?? '',
         displayName: member.display_name ?? '',
-        canvasId: canvas?.id ?? '',
+        canvasId: canvases.find((c) => c.kind === 'shared')?.id ?? '',
+        canvases,
         partnerName: partner?.display_name ?? null,
       });
     } finally {

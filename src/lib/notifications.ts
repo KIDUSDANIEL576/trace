@@ -50,6 +50,8 @@ export async function registerPushToken(userId: string): Promise<void> {
 }
 
 /** Fire-and-forget: asks the edge function to notify the partner (throttled server-side). */
-export function notifyPartner(coupleId: string): void {
-  supabase.functions.invoke(EDGE_FUNCTIONS.notifyPartner, { body: { coupleId } }).catch(() => {});
+export function notifyPartner(coupleId: string, kind?: 'photo'): void {
+  supabase.functions
+    .invoke(EDGE_FUNCTIONS.notifyPartner, { body: { coupleId, kind } })
+    .catch(() => {});
 }

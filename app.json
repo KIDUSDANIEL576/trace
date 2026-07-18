@@ -33,6 +33,13 @@
           "icon": "./assets/notification-icon.png",
           "color": "#e23343"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Trace uses your photos so you can draw on one together.",
+          "cameraPermission": "Trace uses the camera so you can take a photo to draw on together."
+        }
       ]
     ],
     "experiments": {

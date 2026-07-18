@@ -21,4 +21,8 @@ export const EDGE_FUNCTIONS = {
   notifyPartner: 'trace-notify-partner',
 } as const;
 
+export const BUCKETS = {
+  photos: 'trace-photos',
+} as const;
+
 export const coupleChannel = (coupleId: string) => `trace:couple:${coupleId}`;
