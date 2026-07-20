@@ -68,6 +68,17 @@ Deno.serve(async (req) => {
     });
     if (!res.ok) return json({ error: 'expo push failed' }, 502);
 
+    // Expo answers 200 with a per-message receipt; a rejected push must not
+    // consume the throttle, and a dead token should be pruned.
+    const receipt = await res.json().catch(() => null);
+    const ticket = Array.isArray(receipt?.data) ? receipt.data[0] : receipt?.data;
+    if (ticket?.status === 'error') {
+      if (ticket.details?.error === 'DeviceNotRegistered') {
+        await admin.from('push_tokens').delete().eq('user_id', partner.user_id);
+      }
+      return json({ skipped: 'push rejected', detail: ticket.details?.error ?? 'unknown' });
+    }
+
     await admin
       .from('push_log')
       .insert({ couple_id: coupleId, recipient_id: partner.user_id });

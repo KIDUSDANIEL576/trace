@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import UIKit
 
 // The app writes a signed snapshot URL here (modules/widget-bridge) and asks
 // WidgetKit to reload; the server re-renders the PNG on every stroke change.
