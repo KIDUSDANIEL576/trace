@@ -20,6 +20,7 @@ export const RPCS = {
 export const EDGE_FUNCTIONS = {
   notifyPartner: 'trace-notify-partner',
   renderSnapshot: 'trace-render-snapshot',
+  deleteAccount: 'trace-delete-account',
 } as const;
 
 export const BUCKETS = {

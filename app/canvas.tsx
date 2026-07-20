@@ -13,6 +13,7 @@ import { useSharedCanvas } from '@/hooks/useSharedCanvas';
 import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
+import { deleteAccount } from '@/lib/account';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
@@ -156,14 +157,33 @@ function SharedCanvas({
     ]);
   }
 
+  function confirmDeleteAccount() {
+    Alert.alert(
+      'Delete your account?',
+      'This is permanent. If you are the last one here, the whole canvas history goes too.',
+      [
+        { text: 'Keep it', style: 'cancel' },
+        {
+          text: 'Delete forever',
+          style: 'destructive',
+          onPress: async () => {
+            const ok = await deleteAccount();
+            if (ok) router.replace('/sign-in');
+            else toast.show('Could not delete — try again');
+          },
+        },
+      ]
+    );
+  }
+
   function onWordmarkLongPress() {
-    Alert.alert('Sign out?', undefined, [
+    Alert.alert('Account', undefined, [
       { text: 'Stay', style: 'cancel' },
       {
         text: 'Sign out',
-        style: 'destructive',
         onPress: () => supabase.auth.signOut().then(() => router.replace('/sign-in')),
       },
+      { text: 'Delete account…', style: 'destructive', onPress: confirmDeleteAccount },
     ]);
   }
 

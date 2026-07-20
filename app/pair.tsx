@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
 import { createCouple, joinCouple } from '@/hooks/useCouple';
+import { deleteAccount } from '@/lib/account';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts, radius } from '@/theme/tokens';
 
@@ -140,6 +141,23 @@ export default function Pair() {
             style={styles.signOut}
           >
             <Text style={styles.signOutText}>Sign out</Text>
+          </Pressable>
+          <Pressable
+            onPress={() =>
+              Alert.alert('Delete your account?', 'This is permanent.', [
+                { text: 'Keep it', style: 'cancel' },
+                {
+                  text: 'Delete forever',
+                  style: 'destructive',
+                  onPress: async () => {
+                    if (await deleteAccount()) router.replace('/sign-in');
+                  },
+                },
+              ])
+            }
+            style={styles.signOut}
+          >
+            <Text style={styles.signOutText}>Delete account</Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>

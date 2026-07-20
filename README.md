@@ -27,6 +27,8 @@ free tier caps active projects at two. Everything is namespaced and additive:
   `trace_daily_marks`, `trace_push_tokens`, `trace_push_log` — all RLS-locked
   to couple membership
 - RPCs: `trace_create_couple`, `trace_join_couple`
+- Edge function: `trace-delete-account` (in-app account deletion, App Store
+  5.1.1(v) — E2E verified: removes user + last-member couple data + storage)
 - Edge function: `trace-notify-partner` (throttled partner push; `kind: 'photo'` varies the copy)
 - Private realtime channels on topics `trace:couple:{id}`
 - Storage: private `trace-photos` bucket (10MB/object, couple-scoped RLS via

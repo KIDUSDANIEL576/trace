@@ -59,6 +59,13 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Unlimited photos + full replay after unlock
 - [ ] Restore purchase works after reinstall
 
+## 6 · Account deletion (App Store compliance)
+
+- [ ] Long-press the wordmark → Delete account → double confirm → lands on
+      sign-in; the same email can sign up fresh afterwards
+- [ ] If the partner remains, their canvas survives; if you were the last one,
+      everything is gone
+
 ## When something fails
 
 Grab the red-box/console error (`npx expo start` terminal) or, for backend
