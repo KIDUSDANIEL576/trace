@@ -27,6 +27,13 @@ Deno.serve(async (req) => {
   const revoke = REVOKE_EVENTS.includes(event.type);
   if (!grant && !revoke) return json({ ignored: event.type });
 
+  // Restores can arrive under RevenueCat's anonymous id; the Supabase user id
+  // is then in original_app_user_id (we always configure with the user id).
+  const candidates = [event.app_user_id, event.original_app_user_id].filter(
+    (id: unknown): id is string => typeof id === 'string' && !id.startsWith('$RCAnonymousID:')
+  );
+  if (!candidates.length) return json({ ignored: 'anonymous purchaser' });
+
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -35,7 +42,8 @@ Deno.serve(async (req) => {
   const { data: member } = await admin
     .from('members')
     .select('couple_id')
-    .eq('user_id', event.app_user_id)
+    .in('user_id', candidates)
+    .limit(1)
     .maybeSingle();
   if (!member) return json({ error: 'no couple for user' }, 404);
 
