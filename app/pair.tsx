@@ -32,6 +32,7 @@ export default function Pair() {
   }
 
   async function onCreate() {
+    if (busy) return;
     const n = requireName();
     if (!n) return;
     setBusy('create');
@@ -46,6 +47,7 @@ export default function Pair() {
   }
 
   async function onJoin() {
+    if (busy) return;
     const n = requireName();
     if (!n) return;
     if (code.trim().length !== 6) {

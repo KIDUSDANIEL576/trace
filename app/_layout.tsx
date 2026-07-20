@@ -11,13 +11,14 @@ import { colors } from '@/theme/tokens';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ Caveat_500Medium, Caveat_700Bold });
+  const [fontsLoaded, fontError] = useFonts({ Caveat_500Medium, Caveat_700Bold });
+  const ready = fontsLoaded || fontError != null; // never hang on a font failure
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
-  }, [fontsLoaded]);
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
 
-  if (!fontsLoaded) return null;
+  if (!ready) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.night }}>

@@ -45,8 +45,9 @@ class TraceWidgetProvider : AppWidgetProvider() {
 
   private fun fetchBitmap(url: String): Bitmap? = try {
     val conn = URL(url).openConnection() as HttpURLConnection
-    conn.connectTimeout = 10_000
-    conn.readTimeout = 10_000
+    // goAsync() only guarantees ~10s total — stay well inside it
+    conn.connectTimeout = 4_000
+    conn.readTimeout = 4_000
     conn.inputStream.use { BitmapFactory.decodeStream(it) }
   } catch (e: Exception) {
     null

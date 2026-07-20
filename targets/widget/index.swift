@@ -44,10 +44,18 @@ struct SnapshotProvider: TimelineProvider {
 
 struct TraceWidgetView: View {
   var entry: SnapshotEntry
+  @Environment(\.widgetFamily) private var family
 
   var body: some View {
     Group {
-      if let image = entry.image {
+      if family == .accessoryRectangular {
+        // lock-screen accessories render desaturated — a photo would be mush
+        HStack(spacing: 6) {
+          Image(systemName: "scribble.variable")
+          Text(entry.image != nil ? "a trace is waiting" : "leave me a trace")
+            .font(.system(size: 13, design: .rounded))
+        }
+      } else if let image = entry.image {
         Image(uiImage: image)
           .resizable()
           .aspectRatio(contentMode: .fill)

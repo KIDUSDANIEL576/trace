@@ -10,6 +10,7 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false);
 
   async function sendCode() {
+    if (busy) return; // keyboard submit isn't disabled like the button is
     const target = email.trim().toLowerCase();
     if (!target.includes('@')) {
       Alert.alert('Enter your email', 'We send a one-time code — no passwords.');
