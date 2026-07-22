@@ -87,6 +87,7 @@ export default function Replay() {
       </View>
 
       <Text style={styles.title}>Replay</Text>
+      {total > 0 && <Text style={styles.replayHint}>Drag the slider to rewind your story.</Text>}
 
       {capped && (
         <Pressable style={styles.upsell} onPress={() => router.push('/paywall')}>
@@ -132,9 +133,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.handwriting,
     fontSize: 34,
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: 4,
   },
-  trackHit: { justifyContent: 'center', paddingVertical: 18, marginTop: 10 },
+  replayHint: { color: colors.muted, fontSize: 14, marginBottom: 14 },
+  trackHit: { justifyContent: 'center', paddingVertical: 22, marginTop: 12 },
   track: {
     height: 6,
     borderRadius: radius.pill,

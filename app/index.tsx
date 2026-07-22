@@ -11,7 +11,7 @@ export default function Index() {
 
   if (authLoading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
-  if (coupleLoading) return <Loading />;
+  if (coupleLoading) return <Loading label="Finding your canvas…" />;
   if (!membership) return <Redirect href="/pair" />;
   return <Redirect href="/canvas" />;
 }

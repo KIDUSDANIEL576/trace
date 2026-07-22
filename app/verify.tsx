@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Button, Input, Screen } from '@/components/ui';
+import { notifySuccess, notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts } from '@/theme/tokens';
 
@@ -36,9 +37,12 @@ export default function Verify() {
     setBusy(false);
     if (error) {
       submittedRef.current = false;
-      Alert.alert('Wrong code', 'Check the digits and try again.');
+      notifyWarn();
+      setCode('');
+      Alert.alert('Hmm, that code didn’t work', 'Double-check the 6 numbers and try again.');
       return;
     }
+    notifySuccess();
     router.replace('/');
   }
 
@@ -64,9 +68,12 @@ export default function Verify() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.center}
       >
-        <Text style={styles.h1}>Check your inbox</Text>
-        <Text style={styles.sub}>We sent a 6-digit code to {email}.</Text>
-        <View style={{ height: 24 }} />
+        <Text style={styles.h1}>Check your email</Text>
+        <Text style={styles.sub}>
+          We sent a 6-digit code to{'\n'}
+          <Text style={styles.email}>{email}</Text>. Enter it below.
+        </Text>
+        <View style={{ height: 28 }} />
         <Input
           placeholder="123456"
           keyboardType="number-pad"
@@ -96,9 +103,10 @@ export default function Verify() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
-  h1: { fontFamily: fonts.handwriting, fontSize: 42, color: colors.text },
-  sub: { color: colors.muted, fontSize: 15, marginTop: 8 },
-  code: { textAlign: 'center', fontSize: 24, letterSpacing: 8 },
+  h1: { fontFamily: fonts.handwriting, fontSize: 44, color: colors.text },
+  sub: { color: colors.muted, fontSize: 15.5, marginTop: 10, lineHeight: 23 },
+  email: { color: colors.text, fontWeight: '600' },
+  code: { textAlign: 'center', fontSize: 30, letterSpacing: 12, fontWeight: '600' },
   resend: { alignSelf: 'center', marginTop: 18, padding: 8 },
   resendText: { color: colors.glow, fontSize: 14, fontWeight: '500' },
 });

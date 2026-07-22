@@ -6,6 +6,7 @@ import { useToast } from '@/components/Toast';
 import { Button, Loading, Screen, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
+import { notifySuccess } from '@/lib/haptics';
 import {
   foreverPrice,
   purchaseForever,
@@ -15,9 +16,10 @@ import {
 import { colors, fonts, radius } from '@/theme/tokens';
 
 const PERKS = [
-  ['🖊', 'All brushes — glow, neon, and invisible ink'],
-  ['📷', 'Unlimited photo canvases'],
-  ['⏪', 'Full Relationship Replay, from stroke one'],
+  ['🖊', 'Every brush', 'Glow, neon, and invisible ink'],
+  ['📷', 'Unlimited photos', 'Draw on as many as you like'],
+  ['⏪', 'Full replay', 'Relive every stroke, from the first'],
+  ['💞', 'Unlocks for both', 'One buys it — you both get it, forever'],
 ] as const;
 
 /** Trace Forever: one purchase, both partners unlocked — forever. */
@@ -41,6 +43,7 @@ export default function Paywall() {
   useEffect(() => {
     if (membership?.premium) {
       if (pollRef.current) clearInterval(pollRef.current);
+      notifySuccess();
       toast.show('Trace Forever unlocked for you both ❤️');
       router.back();
     }
@@ -91,31 +94,34 @@ export default function Paywall() {
         <Text style={styles.h1}>
           Trace <Text style={{ color: colors.ink }}>Forever.</Text>
         </Text>
-        <Text style={styles.sub}>
-          One purchase. Both of you, unlocked — forever. No subscription.
-        </Text>
+        <Text style={styles.sub}>Everything unlocked, for both of you — forever.</Text>
 
         <View style={styles.card}>
-          {PERKS.map(([icon, text]) => (
-            <View key={text} style={styles.perk}>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>ONE-TIME · NO SUBSCRIPTION</Text>
+          </View>
+          {PERKS.map(([icon, title, desc]) => (
+            <View key={title} style={styles.perk}>
               <Text style={styles.perkIcon}>{icon}</Text>
-              <Text style={styles.perkText}>{text}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.perkTitle}>{title}</Text>
+                <Text style={styles.perkDesc}>{desc}</Text>
+              </View>
             </View>
           ))}
-          <View style={styles.perk}>
-            <Text style={styles.perkIcon}>💞</Text>
-            <Text style={styles.perkText}>Unlocks for your person too, automatically</Text>
-          </View>
         </View>
 
         <Button title={`Unlock for ${price}`} onPress={onBuy} loading={busy === 'buy'} />
-        <View style={{ height: 10 }} />
-        <Button
-          title="Restore purchase"
-          variant="ghost"
+        <Text style={styles.oneTime}>One payment. Yours to keep, on every device.</Text>
+        <Pressable
           onPress={onRestore}
-          loading={busy === 'restore'}
-        />
+          disabled={busy === 'restore'}
+          style={styles.restore}
+          accessibilityRole="button"
+          accessibilityLabel="Restore purchase"
+        >
+          <Text style={styles.restoreText}>Already bought it? Restore purchase</Text>
+        </Pressable>
       </View>
     </Screen>
   );
@@ -132,17 +138,32 @@ const styles = StyleSheet.create({
   closeText: { color: colors.muted, fontSize: 14.5 },
   center: { flex: 1, justifyContent: 'center', paddingBottom: 40 },
   h1: { fontFamily: fonts.handwriting, fontSize: 52, lineHeight: 56, color: colors.text },
-  sub: { color: colors.muted, fontSize: 15.5, marginTop: 8, marginBottom: 22 },
+  sub: { color: colors.muted, fontSize: 15.5, marginTop: 8, marginBottom: 24 },
   card: {
     backgroundColor: colors.panel,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: 'rgba(244,198,107,0.35)',
     borderRadius: radius.card,
-    padding: 20,
-    gap: 14,
-    marginBottom: 24,
+    padding: 22,
+    paddingTop: 26,
+    gap: 18,
+    marginBottom: 26,
   },
-  perk: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  perkIcon: { fontSize: 18 },
-  perkText: { color: colors.text, fontSize: 14.5, flex: 1 },
+  badge: {
+    position: 'absolute',
+    top: -11,
+    alignSelf: 'center',
+    backgroundColor: colors.gold,
+    borderRadius: radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  badgeText: { color: '#2e2733', fontSize: 10.5, fontWeight: '800', letterSpacing: 0.8 },
+  perk: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  perkIcon: { fontSize: 22, width: 28, textAlign: 'center' },
+  perkTitle: { color: colors.text, fontSize: 15.5, fontWeight: '600' },
+  perkDesc: { color: colors.muted, fontSize: 13, marginTop: 1 },
+  oneTime: { color: colors.muted, fontSize: 12.5, textAlign: 'center', marginTop: 12 },
+  restore: { alignSelf: 'center', marginTop: 16, padding: 8 },
+  restoreText: { color: colors.glow, fontSize: 14, fontWeight: '500' },
 });

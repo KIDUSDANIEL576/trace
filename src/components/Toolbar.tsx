@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BRUSHES, BRUSH_ORDER, PREMIUM_BRUSHES } from '@/lib/brushes';
+import { tapLight } from '@/lib/haptics';
 import { colors, radius, swatches } from '@/theme/tokens';
 import type { Brush } from '@/types';
 
@@ -13,6 +14,14 @@ interface Props {
   onLockedBrush: () => void;
 }
 
+const COLOR_NAMES: Record<string, string> = {
+  '#e23343': 'red',
+  '#ff7a9c': 'pink',
+  '#ffffff': 'white',
+  '#f4c66b': 'gold',
+  '#7ec8ff': 'blue',
+};
+
 export function Toolbar({ brush, color, premium, onBrush, onColor, onLockedBrush }: Props) {
   return (
     <View>
@@ -23,8 +32,18 @@ export function Toolbar({ brush, color, premium, onBrush, onColor, onLockedBrush
           return (
             <Pressable
               key={b}
-              onPress={() => (locked ? onLockedBrush() : onBrush(b))}
-              style={[styles.tool, on && styles.toolOn]}
+              onPress={() => {
+                tapLight();
+                locked ? onLockedBrush() : onBrush(b);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: on }}
+              accessibilityLabel={`${BRUSHES[b].label}${locked ? ', locked' : ''}`}
+              style={({ pressed }) => [
+                styles.tool,
+                on && styles.toolOn,
+                pressed && styles.pressed,
+              ]}
             >
               <Text style={[styles.toolText, on && styles.toolTextOn, locked && styles.toolLocked]}>
                 {locked ? '🔒 ' : ''}
@@ -35,13 +54,25 @@ export function Toolbar({ brush, color, premium, onBrush, onColor, onLockedBrush
         })}
       </View>
       <View style={styles.swRow}>
-        {swatches.map((c) => (
-          <Pressable
-            key={c}
-            onPress={() => onColor(c)}
-            style={[styles.sw, { backgroundColor: c }, c === color && styles.swOn]}
-          />
-        ))}
+        {swatches.map((c) => {
+          const on = c === color;
+          return (
+            <Pressable
+              key={c}
+              onPress={() => {
+                tapLight();
+                onColor(c);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: on }}
+              accessibilityLabel={`${COLOR_NAMES[c] ?? c} ink`}
+              hitSlop={8}
+              style={({ pressed }) => [styles.swWrap, pressed && styles.pressed]}
+            >
+              <View style={[styles.sw, { backgroundColor: c }, on && styles.swOn]} />
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
@@ -54,14 +85,33 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.panel,
     borderRadius: radius.tool,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    minHeight: 44,
+    paddingVertical: 11,
+    paddingHorizontal: 15,
+    justifyContent: 'center',
   },
   toolOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
-  toolText: { color: colors.text, fontSize: 13.5, fontWeight: '500' },
+  toolText: { color: colors.text, fontSize: 14, fontWeight: '500' },
   toolLocked: { color: colors.muted },
-  toolTextOn: { color: '#ffb9c2' },
-  swRow: { flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: 12 },
-  sw: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: 'transparent' },
-  swOn: { borderColor: '#ffffff' },
+  toolTextOn: { color: '#ffb9c2', fontWeight: '600' },
+  pressed: { transform: [{ scale: 0.94 }], opacity: 0.9 },
+  swRow: { flexDirection: 'row', gap: 14, alignItems: 'center', marginTop: 14 },
+  swWrap: { padding: 3, borderRadius: 24 },
+  sw: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  swOn: {
+    borderColor: '#ffffff',
+    borderWidth: 3,
+    transform: [{ scale: 1.15 }],
+    shadowColor: '#ffffff',
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 4,
+  },
 });

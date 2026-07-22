@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
+import { notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
 import { colors, fonts } from '@/theme/tokens';
 
@@ -12,8 +13,9 @@ export default function SignIn() {
   async function sendCode() {
     if (busy) return; // keyboard submit isn't disabled like the button is
     const target = email.trim().toLowerCase();
-    if (!target.includes('@')) {
-      Alert.alert('Enter your email', 'We send a one-time code — no passwords.');
+    if (!target.includes('@') || !target.includes('.')) {
+      notifyWarn();
+      Alert.alert('Enter your email', 'We’ll email you a one-time code — no password to remember.');
       return;
     }
     setBusy(true);
@@ -23,6 +25,7 @@ export default function SignIn() {
     });
     setBusy(false);
     if (error) {
+      notifyWarn();
       Alert.alert('Could not send code', error.message);
       return;
     }
@@ -45,18 +48,21 @@ export default function SignIn() {
           Whatever one of you draws appears on the other&apos;s phone — stroke by stroke, in
           real time.
         </Text>
-        <View style={{ height: 28 }} />
+        <View style={{ height: 32 }} />
+        <Text style={styles.fieldLabel}>Your email</Text>
         <Input
           placeholder="you@example.com"
           autoCapitalize="none"
           autoComplete="email"
           keyboardType="email-address"
+          returnKeyType="go"
           value={email}
           onChangeText={setEmail}
           onSubmitEditing={sendCode}
         />
         <View style={{ height: 12 }} />
         <Button title="Send me a code" onPress={sendCode} loading={busy} />
+        <Text style={styles.reassure}>No password. We email you a 6-digit code to sign in.</Text>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -70,5 +76,20 @@ const styles = StyleSheet.create({
     lineHeight: 58,
     color: colors.text,
   },
-  sub: { color: colors.muted, fontSize: 15.5, marginTop: 12, maxWidth: 320 },
+  sub: { color: colors.muted, fontSize: 15.5, marginTop: 12, maxWidth: 320, lineHeight: 23 },
+  fieldLabel: {
+    color: colors.muted,
+    fontSize: 12.5,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  reassure: {
+    color: colors.muted,
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 16,
+    lineHeight: 19,
+  },
 });

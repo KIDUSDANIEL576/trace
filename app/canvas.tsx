@@ -14,6 +14,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount } from '@/lib/account';
+import { notifySuccess, tapLight } from '@/lib/haptics';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
@@ -30,7 +31,7 @@ export default function CanvasScreen() {
   // Only block on the couple fetch before the FIRST load — background refreshes
   // (new photo canvas, partner joined) must not unmount the canvas + channel.
   if (!membership) {
-    if (coupleLoading) return <Loading />;
+    if (coupleLoading) return <Loading label="Opening your canvas…" />;
     return <Redirect href="/pair" />;
   }
   if (!membership.canvasId) return <Redirect href="/pair" />;
@@ -138,8 +139,9 @@ function SharedCanvas({
     if (partnerOnline && !partnerSeenRef.current) {
       partnerSeenRef.current = true;
       if (!partnerName) {
+        notifySuccess();
         refreshMembership();
-        toast.show(`${partnerOnline} is here ✏️`);
+        toast.show(`${partnerOnline} is here — say hi ✏️`);
       }
     }
   }, [partnerOnline, partnerName, refreshMembership, toast]);
@@ -286,8 +288,18 @@ function SharedCanvas({
             return (
               <Pressable
                 key={c.id}
-                onPress={() => setActiveCanvasId(c.id)}
-                style={[styles.chip, on && styles.chipOn]}
+                onPress={() => {
+                  tapLight();
+                  setActiveCanvasId(c.id);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={`${chipLabel(c)} canvas`}
+                style={({ pressed }) => [
+                  styles.chip,
+                  on && styles.chipOn,
+                  pressed && styles.chipPressed,
+                ]}
               >
                 <Text style={[styles.chipText, on && styles.chipTextOn]}>
                   {c.kind === 'photo' ? '📷 ' : ''}
@@ -320,8 +332,13 @@ function SharedCanvas({
         />
         {strokes.some((s) => s.brush === 'invisible') && (
           <Pressable
-            onPressIn={() => setReveal(true)}
+            onPressIn={() => {
+              tapLight();
+              setReveal(true);
+            }}
             onPressOut={() => setReveal(false)}
+            accessibilityRole="button"
+            accessibilityLabel="Hold to reveal the invisible ink"
             style={styles.revealChip}
           >
             <Text style={styles.revealText}>👁 hold to reveal</Text>
@@ -366,7 +383,16 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
   },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  streak: { color: colors.gold, fontSize: 14, fontWeight: '600' },
+  streak: {
+    color: colors.gold,
+    fontSize: 13,
+    fontWeight: '700',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(244,198,107,0.14)',
+    borderRadius: radius.pill,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+  },
   withRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   presenceDot: { width: 8, height: 8, borderRadius: 4 },
   partner: { color: colors.muted, fontSize: 13 },
@@ -398,6 +424,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13,
   },
   chipOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
+  chipPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
   chipText: { color: colors.muted, fontSize: 12.5, fontWeight: '500' },
   chipTextOn: { color: '#ffb9c2' },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
