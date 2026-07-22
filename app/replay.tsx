@@ -8,6 +8,7 @@ import { Loading, Screen, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { TABLES } from '@/lib/backend';
+import { tapLight } from '@/lib/haptics';
 import { signedPhotoUrl } from '@/lib/photos';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -30,6 +31,7 @@ export default function Replay() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [trackW, setTrackW] = useState(0);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     if (!canvasId) return;
@@ -57,6 +59,27 @@ export default function Replay() {
     if (photoPath) signedPhotoUrl(photoPath).then(setPhotoUrl);
   }, [photoPath]);
 
+  // autoplay: long stories compress to ~7s; short ones play stroke-by-stroke
+  // (60–400ms per frame) so a small story still feels like a story
+  useEffect(() => {
+    if (!playing || !allStrokes) return;
+    const totalNow = premium ? allStrokes.length : Math.min(allStrokes.length, FREE_REPLAY_STROKES);
+    if (!totalNow) return;
+    const step = Math.max(1, Math.round(totalNow / 120));
+    const interval = Math.min(400, Math.max(60, Math.round(7000 / (totalNow / step))));
+    const t = setInterval(() => {
+      setCount((c) => Math.min(Math.min(c, totalNow) + step, totalNow));
+    }, interval);
+    return () => clearInterval(t);
+  }, [playing, allStrokes, premium]);
+
+  // reached the end → stop
+  useEffect(() => {
+    if (!playing || !allStrokes) return;
+    const totalNow = premium ? allStrokes.length : Math.min(allStrokes.length, FREE_REPLAY_STROKES);
+    if (count >= totalNow) setPlaying(false);
+  }, [count, playing, allStrokes, premium]);
+
   if (loading) return <Loading />;
   if (!session) return <Redirect href="/sign-in" />;
   if (!canvasId) return <Redirect href="/canvas" />;
@@ -70,9 +93,20 @@ export default function Replay() {
   const shown = Math.min(count, total);
   const scrubTo = (x: number) => {
     if (!trackW || !total) return;
+    setPlaying(false); // hands on the slider always win
     const frac = Math.min(1, Math.max(0, x / trackW));
     setCount(Math.round(frac * total));
   };
+
+  function togglePlay() {
+    tapLight();
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    if (shown >= total) setCount(0); // at the end: play again from stroke one
+    setPlaying(true);
+  }
   const pan = Gesture.Pan()
     .runOnJS(true)
     .onBegin((e) => scrubTo(e.x))
@@ -90,7 +124,9 @@ export default function Replay() {
       </View>
 
       <Text style={styles.title}>Replay</Text>
-      {total > 0 && <Text style={styles.replayHint}>Drag the slider to rewind your story.</Text>}
+      {total > 0 && (
+        <Text style={styles.replayHint}>Watch your story draw itself, or drag to rewind.</Text>
+      )}
 
       {capped && (
         <Pressable style={styles.upsell} onPress={() => router.push('/paywall')}>
@@ -114,9 +150,19 @@ export default function Replay() {
               <View style={[styles.thumb, { left: Math.max(0, frac * trackW - 11) }]} />
             </View>
           </GestureDetector>
-          <Text style={styles.label}>
-            stroke {shown} / {total}
-          </Text>
+          <View style={styles.controls}>
+            <Pressable
+              onPress={togglePlay}
+              accessibilityRole="button"
+              accessibilityLabel={playing ? 'Pause replay' : 'Play your story'}
+              style={({ pressed }) => [styles.playChip, pressed && { opacity: 0.8 }]}
+            >
+              <Text style={styles.playChipText}>{playing ? '⏸ Pause' : '▶ Play story'}</Text>
+            </Pressable>
+            <Text style={styles.label}>
+              stroke {shown} / {total}
+            </Text>
+          </View>
         </>
       )}
     </Screen>
@@ -162,6 +208,23 @@ const makeStyles = (colors: Palette) =>
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
+  controls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  playChip: {
+    backgroundColor: colors.inkSoft,
+    borderWidth: 1,
+    borderColor: colors.ink,
+    borderRadius: radius.pill,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  playChipText: { color: colors.ink, fontSize: 14, fontWeight: '700' },
   label: { color: colors.muted, fontSize: 13, textAlign: 'center', marginTop: 2 },
   empty: { color: colors.muted, fontSize: 14, textAlign: 'center', marginTop: 18 },
   upsell: {

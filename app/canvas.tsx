@@ -107,6 +107,7 @@ function SharedCanvas({
 
   const [bloomKey, setBloomKey] = useState(0);
   const [burst, setBurst] = useState(false);
+  const homeScreenToastRef = useRef(false);
   // Mutual Heartbeat: both press within this window → the canvas erupts
   const MUTUAL_WINDOW_MS = 2500;
   const lastSentRef = useRef(0);
@@ -190,18 +191,19 @@ function SharedCanvas({
     }
   }, [activePhotoPath]);
 
-  // the moment the partner first shows up, celebrate + load their name
+  // the moment the partner joins for the very first time, the canvas erupts —
+  // this is the emotional peak of onboarding, not a footnote
   const partnerSeenRef = useRef(false);
   useEffect(() => {
     if (partnerOnline && !partnerSeenRef.current) {
       partnerSeenRef.current = true;
       if (!partnerName) {
-        notifySuccess();
         refreshMembership();
-        toast.show(`${partnerOnline} is here — say hi ✏️`);
+        erupt();
+        toast.show(`${partnerOnline} is here — it's you two now ❤️`);
       }
     }
-  }, [partnerOnline, partnerName, refreshMembership, toast]);
+  }, [partnerOnline, partnerName, refreshMembership, toast]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function shareCode() {
     Share.share({
@@ -383,6 +385,11 @@ function SharedCanvas({
               refreshStreak();
               // give the server a moment to re-render, then reload the widgets
               setTimeout(() => refreshWidget(coupleId), 5000);
+              // once per session, tie the stroke to the widget promise
+              if (!homeScreenToastRef.current && (partnerName || partnerOnline)) {
+                homeScreenToastRef.current = true;
+                setTimeout(() => toast.show('Left on their home screen ✓'), 6500);
+              }
             });
           }}
         />
