@@ -37,6 +37,17 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Sign out and Delete account both work from the sheet (no Android 3-button
       Alert truncation)
 
+## 2c · Heartbeat + daily prompt
+
+- [ ] Empty canvas shows "draw here ✏️" plus today's prompt (same prompt on
+      both phones; changes tomorrow)
+- [ ] Tap **❤ Send a heartbeat** → heart blooms on BOTH phones; the receiving
+      phone does a two-beat buzz and shows "… is thinking of you ❤️"
+- [ ] **Mutual Heartbeat**: both tap within ~2s of each other → three hearts
+      erupt on both screens, double lub-dub, "You pressed at the same time 💥❤️"
+- [ ] Partner away from the app → they get the "is thinking of you ❤️" push
+      (max 1 per 10 min)
+
 ## 3 · Photos + replay + streak (Phase 2)
 
 - [ ] A: ＋ Photo → library pick → photo canvas appears active; chip strip shows

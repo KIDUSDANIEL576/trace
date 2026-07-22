@@ -16,6 +16,7 @@ interface Props {
   brushWidth: number;
   photoUrl?: string | null;
   revealInvisible?: boolean;
+  prompt?: string; // today's idea, shown only while the canvas is empty
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
   onEnd: (strokeId: string) => void;
@@ -35,6 +36,7 @@ export function CanvasBoard({
   brushWidth,
   photoUrl,
   revealInvisible,
+  prompt,
   onBegin,
   onPoint,
   onEnd,
@@ -107,6 +109,7 @@ export function CanvasBoard({
         {!hasInk && (
           <View pointerEvents="none" style={styles.hintWrap}>
             <Text style={styles.hint}>draw here ✏️</Text>
+            {prompt ? <Text style={styles.prompt}>today: {prompt}</Text> : null}
           </View>
         )}
       </View>
@@ -133,5 +136,13 @@ const makeStyles = (colors: Palette) =>
       fontSize: 30,
       // reads over both light and dark canvas grounds
       color: colors.barStyle === 'dark' ? 'rgba(43,32,41,0.55)' : 'rgba(255,255,255,0.85)',
+    },
+    prompt: {
+      fontFamily: fonts.handwritingMedium,
+      fontSize: 21,
+      marginTop: 6,
+      paddingHorizontal: 24,
+      textAlign: 'center',
+      color: colors.barStyle === 'dark' ? 'rgba(43,32,41,0.45)' : 'rgba(255,255,255,0.65)',
     },
   });

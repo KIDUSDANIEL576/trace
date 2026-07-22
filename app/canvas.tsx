@@ -18,6 +18,7 @@ import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
+import { dailyPrompt } from '@/lib/prompts';
 import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
@@ -105,21 +106,48 @@ function SharedCanvas({
   });
 
   const [bloomKey, setBloomKey] = useState(0);
+  const [burst, setBurst] = useState(false);
+  // Mutual Heartbeat: both press within this window → the canvas erupts
+  const MUTUAL_WINDOW_MS = 2500;
+  const lastSentRef = useRef(0);
+  const lastReceivedRef = useRef(0);
+
+  function erupt() {
+    setBurst(true);
+    heartbeat();
+    setTimeout(() => heartbeat(), 350); // double lub-dub — a racing heart
+    notifySuccess();
+    setBloomKey((k) => k + 1);
+    toast.show('You pressed at the same time 💥❤️');
+  }
 
   function sendHeartbeat() {
     heartbeat();
     sendPulse();
     notifyPartner(coupleId, 'pulse');
-    setBloomKey((k) => k + 1);
+    lastSentRef.current = Date.now();
+    if (Date.now() - lastReceivedRef.current < MUTUAL_WINDOW_MS) {
+      erupt();
+    } else {
+      setBurst(false);
+      setBloomKey((k) => k + 1);
+    }
   }
 
-  // partner sent a Heartbeat: bloom + a felt lub-dub + a soft toast
+  // partner sent a Heartbeat: bloom + a felt lub-dub + a soft toast —
+  // and if we pressed within the same moment, erupt together
   const firstPulseRef = useRef(true);
   useEffect(() => {
     if (firstPulseRef.current) {
       firstPulseRef.current = false;
       return;
     }
+    lastReceivedRef.current = Date.now();
+    if (Date.now() - lastSentRef.current < MUTUAL_WINDOW_MS) {
+      erupt();
+      return;
+    }
+    setBurst(false);
     heartbeat();
     setBloomKey((k) => k + 1);
     toast.show(`${partnerName ?? partnerOnline ?? 'Your person'} is thinking of you ❤️`);
@@ -347,6 +375,7 @@ function SharedCanvas({
           brushWidth={BRUSHES[brush].width}
           photoUrl={photoUrl}
           revealInvisible={reveal}
+          prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
           onBegin={beginStroke}
           onPoint={addPoint}
           onEnd={(id) => {
@@ -371,7 +400,7 @@ function SharedCanvas({
             <Text style={styles.revealText}>👁 hold to reveal</Text>
           </Pressable>
         )}
-        <HeartBloom trigger={bloomKey} />
+        <HeartBloom trigger={bloomKey} burst={burst} />
       </View>
 
       <Pressable
