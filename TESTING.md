@@ -27,6 +27,16 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Airplane mode 30s while B draws → back online → banner clears and the
       missed strokes appear after reconnect
 
+## 2b · Appearance / themes
+
+- [ ] Long-press the **trace** wordmark → Settings sheet slides up
+- [ ] Under Appearance, tap **Dusk / Candlelight / Daylight** → the whole app
+      (including the open sheet) recolours instantly; the canvas gradient changes
+- [ ] Daylight flips to a light theme with a dark status bar; text stays legible
+- [ ] Close and reopen the app → your chosen theme is remembered
+- [ ] Sign out and Delete account both work from the sheet (no Android 3-button
+      Alert truncation)
+
 ## 3 · Photos + replay + streak (Phase 2)
 
 - [ ] A: ＋ Photo → library pick → photo canvas appears active; chip strip shows

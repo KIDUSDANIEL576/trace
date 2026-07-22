@@ -1,9 +1,10 @@
 import { Redirect, router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
 import { PresencePill } from '@/components/PresencePill';
+import { SettingsSheet } from '@/components/SettingsSheet';
 import { useToast } from '@/components/Toast';
 import { Toolbar } from '@/components/Toolbar';
 import { Button, Loading, Screen, Wordmark } from '@/components/ui';
@@ -19,7 +20,8 @@ import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
-import { colors, radius, swatches } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { radius, swatches, type Palette } from '@/theme/tokens';
 import type { Brush, CanvasInfo, Membership } from '@/types';
 
 export default function CanvasScreen() {
@@ -65,7 +67,10 @@ function SharedCanvas({
   } = membership;
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [brush, setBrush] = useState<Brush>('marker');
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [color, setColor] = useState<string>(swatches[0]);
   const [activeCanvasId, setActiveCanvasId] = useState(sharedCanvasId);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -178,15 +183,9 @@ function SharedCanvas({
     );
   }
 
-  function onWordmarkLongPress() {
-    Alert.alert('Account', undefined, [
-      { text: 'Stay', style: 'cancel' },
-      {
-        text: 'Sign out',
-        onPress: () => supabase.auth.signOut().then(() => router.replace('/sign-in')),
-      },
-      { text: 'Delete account…', style: 'destructive', onPress: confirmDeleteAccount },
-    ]);
+  function onSignOut() {
+    setSettingsOpen(false);
+    supabase.auth.signOut().then(() => router.replace('/sign-in'));
   }
 
   function photoAllowedToday(): boolean {
@@ -244,7 +243,11 @@ function SharedCanvas({
     <Screen>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <View style={styles.brandRow}>
-          <Pressable onLongPress={onWordmarkLongPress}>
+          <Pressable
+            onLongPress={() => setSettingsOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+          >
             <Wordmark />
           </Pressable>
           {streak > 0 && <Text style={styles.streak}>🔥 {streak}</Text>}
@@ -371,11 +374,22 @@ function SharedCanvas({
           <Button title="▶ Replay" variant="ghost" onPress={openReplay} />
         </View>
       </View>
+
+      <SettingsSheet
+        visible={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onSignOut={onSignOut}
+        onDelete={() => {
+          setSettingsOpen(false);
+          confirmDeleteAccount();
+        }}
+      />
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',

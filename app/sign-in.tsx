@@ -1,12 +1,15 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
 import { notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
-import { colors, fonts } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, type Palette } from '@/theme/tokens';
 
 export default function SignIn() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -68,7 +71,8 @@ export default function SignIn() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
   h1: {
     fontFamily: fonts.handwriting,

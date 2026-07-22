@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,13 +9,18 @@ import {
   View,
 } from 'react-native';
 import { tapLight } from '@/lib/haptics';
-import { colors, fonts, radius } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, radius, type Palette } from '@/theme/tokens';
 
 export function Screen({ children }: { children: React.ReactNode }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return <View style={styles.screen}>{children}</View>;
 }
 
 export function Wordmark({ size = 30 }: { size?: number }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <Text
       style={[styles.wordmark, { fontSize: size }]}
@@ -40,6 +45,8 @@ export function Button({
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const off = disabled || loading;
   return (
     <Pressable
@@ -66,6 +73,8 @@ export function Button({
 }
 
 export function Input(props: TextInputProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <TextInput
       placeholderTextColor={colors.muted}
@@ -78,6 +87,8 @@ export function Input(props: TextInputProps) {
 }
 
 export function Loading({ label }: { label?: string }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={[styles.screen, styles.loadingWrap]}>
       <ActivityIndicator color={colors.ink} size="large" />
@@ -86,41 +97,42 @@ export function Loading({ label }: { label?: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.night, paddingHorizontal: 22 },
-  loadingWrap: { alignItems: 'center', justifyContent: 'center', gap: 16 },
-  loadingText: { color: colors.muted, fontSize: 14, fontFamily: fonts.handwritingMedium },
-  wordmark: { fontFamily: fonts.handwriting, color: colors.text },
-  btn: {
-    borderRadius: radius.button,
-    minHeight: 54, // comfortable tap target (Apple HIG: 44pt minimum)
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnPrimary: {
-    backgroundColor: colors.ink,
-    shadowColor: colors.ink,
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
-  },
-  btnGhost: { backgroundColor: colors.panel2, borderWidth: 1, borderColor: colors.line },
-  btnPressed: { transform: [{ scale: 0.97 }], opacity: 0.92 },
-  btnOff: { opacity: 0.45 },
-  btnText: { color: '#ffffff', fontSize: 16, fontWeight: '600', letterSpacing: 0.2 },
-  btnTextGhost: { color: colors.text },
-  input: {
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.button,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    color: colors.text,
-    fontSize: 17,
-    minHeight: 54,
-  },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.night, paddingHorizontal: 22 },
+    loadingWrap: { alignItems: 'center', justifyContent: 'center', gap: 16 },
+    loadingText: { color: colors.muted, fontSize: 14, fontFamily: fonts.handwritingMedium },
+    wordmark: { fontFamily: fonts.handwriting, color: colors.text },
+    btn: {
+      borderRadius: radius.button,
+      minHeight: 54,
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    btnPrimary: {
+      backgroundColor: colors.ink,
+      shadowColor: colors.ink,
+      shadowOpacity: 0.35,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 5,
+    },
+    btnGhost: { backgroundColor: colors.panel2, borderWidth: 1, borderColor: colors.line },
+    btnPressed: { transform: [{ scale: 0.97 }], opacity: 0.92 },
+    btnOff: { opacity: 0.45 },
+    btnText: { color: '#ffffff', fontSize: 16, fontWeight: '600', letterSpacing: 0.2 },
+    btnTextGhost: { color: colors.text },
+    input: {
+      backgroundColor: colors.panel,
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: radius.button,
+      paddingHorizontal: 18,
+      paddingVertical: 16,
+      color: colors.text,
+      fontSize: 17,
+      minHeight: 54,
+    },
+  });

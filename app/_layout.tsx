@@ -6,9 +6,30 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/hooks/useAuth';
-import { colors } from '@/theme/tokens';
+import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/** Everything under the theme: root background, status bar, and screens. */
+function Shell() {
+  const { colors } = useTheme();
+  return (
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.night }}>
+      <AuthProvider>
+        <ToastProvider>
+          <StatusBar style={colors.barStyle} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.night },
+              animation: 'fade',
+            }}
+          />
+        </ToastProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Caveat_500Medium, Caveat_700Bold });
@@ -21,19 +42,8 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.night }}>
-      <AuthProvider>
-        <ToastProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.night },
-              animation: 'fade',
-            }}
-          />
-        </ToastProvider>
-      </AuthProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <Shell />
+    </ThemeProvider>
   );
 }

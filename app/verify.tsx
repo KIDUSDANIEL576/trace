@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,11 +12,14 @@ import {
 import { Button, Input, Screen } from '@/components/ui';
 import { notifySuccess, notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
-import { colors, fonts } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, type Palette } from '@/theme/tokens';
 
 const RESEND_COOLDOWN_S = 30;
 
 export default function Verify() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { email } = useLocalSearchParams<{ email: string }>();
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -101,7 +104,8 @@ export default function Verify() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
   h1: { fontFamily: fonts.handwriting, fontSize: 44, color: colors.text },
   sub: { color: colors.muted, fontSize: 15.5, marginTop: 10, lineHeight: 23 },

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -16,9 +16,12 @@ import { createCouple, joinCouple } from '@/hooks/useCouple';
 import { deleteAccount } from '@/lib/account';
 import { notifySuccess, notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
-import { colors, fonts, radius } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, radius, type Palette } from '@/theme/tokens';
 
 export default function Pair() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [inviteCode, setInviteCode] = useState<string | null>(null);
@@ -202,7 +205,8 @@ export default function Pair() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   scroll: { paddingTop: 70, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   h1: {

@@ -1,8 +1,9 @@
 import { Canvas } from '@shopify/react-native-skia';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { colors, fonts, radius } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, radius, type Palette } from '@/theme/tokens';
 import type { Brush, Point, Stroke } from '@/types';
 import { CanvasBackdrop } from './CanvasBackdrop';
 import { StrokeRenderer } from './StrokeRenderer';
@@ -23,8 +24,8 @@ interface Props {
 const MIN_SEGMENT_PX = 1.5; // same point-thinning as the prototype
 
 /**
- * The shared canvas: a dusk-gradient "photo" background (from the prototype)
- * with all persisted + in-flight strokes on top, and finger drawing input.
+ * The shared canvas: a theme-gradient "photo" background with all persisted +
+ * in-flight strokes on top, and finger drawing input.
  */
 export function CanvasBoard({
   strokes,
@@ -38,6 +39,8 @@ export function CanvasBoard({
   onPoint,
   onEnd,
 }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const activeIdRef = useRef<string | null>(null);
   const lastPxRef = useRef<{ x: number; y: number } | null>(null);
@@ -89,7 +92,7 @@ export function CanvasBoard({
       >
         {w > 0 && (
           <Canvas style={StyleSheet.absoluteFill}>
-            <CanvasBackdrop w={w} h={h} photoUrl={photoUrl} />
+            <CanvasBackdrop w={w} h={h} board={colors.board} photoUrl={photoUrl} />
             {/* invisible ink vanishes once landed; live strokes always show */}
             {strokes
               .filter((s) => s.brush !== 'invisible' || revealInvisible)
@@ -111,22 +114,24 @@ export function CanvasBoard({
   );
 }
 
-const styles = StyleSheet.create({
-  board: {
-    aspectRatio: 1 / 1.1,
-    borderRadius: radius.card,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  hintWrap: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hint: {
-    fontFamily: fonts.handwriting,
-    fontSize: 30,
-    color: 'rgba(255,255,255,0.85)',
-  },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    board: {
+      aspectRatio: 1 / 1.1,
+      borderRadius: radius.card,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.line,
+    },
+    hintWrap: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    hint: {
+      fontFamily: fonts.handwriting,
+      fontSize: 30,
+      // reads over both light and dark canvas grounds
+      color: colors.barStyle === 'dark' ? 'rgba(43,32,41,0.55)' : 'rgba(255,255,255,0.85)',
+    },
+  });

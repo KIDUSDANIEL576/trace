@@ -1,5 +1,5 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,13 +10,16 @@ import { useCouple } from '@/hooks/useCouple';
 import { TABLES } from '@/lib/backend';
 import { signedPhotoUrl } from '@/lib/photos';
 import { supabase } from '@/lib/supabase';
-import { colors, fonts, radius } from '@/theme/tokens';
+import { useTheme } from '@/theme/ThemeProvider';
+import { fonts, radius, type Palette } from '@/theme/tokens';
 import type { Brush, Point, Stroke } from '@/types';
 
 const FREE_REPLAY_STROKES = 20; // Trace Forever unlocks the full history
 
 /** Relationship Replay: scrub through the canvas's strokes in the order they landed. */
 export default function Replay() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { session, loading } = useAuth();
   const { membership } = useCouple(session?.user.id);
   const { canvasId, photoPath } = useLocalSearchParams<{ canvasId: string; photoPath?: string }>();
@@ -120,7 +123,8 @@ export default function Replay() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
