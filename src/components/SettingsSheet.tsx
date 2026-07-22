@@ -7,6 +7,7 @@ import { PALETTES, radius, THEME_LABELS, THEME_ORDER, type Palette } from '@/the
 
 interface Props {
   visible: boolean;
+  subtitle?: string; // "Drawing together since July 2026 · 214 traces"
   onClose: () => void;
   onSignOut: () => void;
   onLeaveCouple: () => void;
@@ -18,7 +19,14 @@ interface Props {
  * look and the sheet itself re-colours), and it avoids Android's 3-button
  * Alert limit that a menu this size would hit.
  */
-export function SettingsSheet({ visible, onClose, onSignOut, onLeaveCouple, onDelete }: Props) {
+export function SettingsSheet({
+  visible,
+  subtitle,
+  onClose,
+  onSignOut,
+  onLeaveCouple,
+  onDelete,
+}: Props) {
   const { colors, theme, setTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -29,6 +37,7 @@ export function SettingsSheet({ visible, onClose, onSignOut, onLeaveCouple, onDe
         <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
           <View style={styles.grab} />
           <Text style={styles.title}>Settings</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
 
           <Text style={styles.section}>APPEARANCE</Text>
           {THEME_ORDER.map((t) => {
@@ -119,7 +128,8 @@ const makeStyles = (colors: Palette) =>
       alignSelf: 'center',
       marginBottom: 14,
     },
-    title: { color: colors.text, fontSize: 20, fontWeight: '700', marginBottom: 18 },
+    title: { color: colors.text, fontSize: 20, fontWeight: '700', marginBottom: 4 },
+    subtitle: { color: colors.muted, fontSize: 13.5, marginBottom: 18 },
     section: {
       color: colors.muted,
       fontSize: 11,

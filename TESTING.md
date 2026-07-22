@@ -95,6 +95,14 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Wrong code at join now says "That code didn't work…" (and >10 wrong tries
       in an hour says "Too many attempts")
 
+## 8 · Share, together-since, reviewer login
+
+- [ ] Canvas with ink shows the ↗ share chip (bottom-left) → share sheet opens
+      with a PNG of the canvas; post it somewhere and check it looks right
+- [ ] Settings sheet shows "Drawing together since <month year> · N traces"
+- [ ] Sign in as `review@trace.demo` (password path, no email needed) → lands
+      on the premium REVIEW couple's canvas with seeded strokes
+
 ## When something fails
 
 Grab the red-box/console error (`npx expo start` terminal) or, for backend

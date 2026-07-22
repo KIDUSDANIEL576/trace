@@ -26,7 +26,7 @@ export function useCouple(userId: string | undefined) {
     try {
       const { data: member, error } = await supabase
         .from(TABLES.members)
-        .select(`couple_id, display_name, couples:${TABLES.couples}(invite_code, premium)`)
+        .select(`couple_id, display_name, couples:${TABLES.couples}(invite_code, premium, created_at)`)
         .eq('user_id', userId)
         .maybeSingle();
       if (error) throw error;
@@ -66,6 +66,7 @@ export function useCouple(userId: string | undefined) {
         canvases,
         partnerName: partner?.display_name ?? null,
         premium: couple?.premium ?? false,
+        coupleSince: couple?.created_at ?? null,
       };
       membershipRef.current = next;
       setMembership(next);

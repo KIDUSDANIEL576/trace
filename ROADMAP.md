@@ -60,13 +60,11 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
 ## Tier 3 · Store-ready (when Tier 1–2 feel good)
 
 - [ ] **Apple Developer ($99/yr) + Google Play ($25)** accounts.
-- [ ] 🔴 **The reviewer-login problem** (vibe coders always hit this wall): Trace is
-      OTP-only — an App Store reviewer *cannot receive your emails*, and Apple rejects
-      apps they can't log into. Fix options (pick one, I implement):
-      (a) demo account whose inbox you control + credentials in review notes,
-      (b) a hidden review-mode login (special email → fixed code), or
-      (c) Sign in with Apple (Apple *requires* it anyway if you ever add other
-      social logins — worth knowing now).
+- [x] 🔴 **The reviewer-login problem** — DONE: the email `review@trace.demo` takes a
+      hidden password path (no OTP). Live demo couple "REVIEW" is premium (so paid
+      features are reviewable) with a partner "Sam" and seeded strokes; credentials
+      verified end-to-end against live auth. **App Review notes**: sign in with
+      `review@trace.demo` / `trace-review-2026!`.
 - [ ] **App Store privacy "nutrition labels"** — declare email, photos, purchase state
       (PRIVACY.md already maps 1:1 to the answers).
 - [ ] **Host the privacy policy at a URL** (GitHub Pages of PRIVACY.md is enough) +

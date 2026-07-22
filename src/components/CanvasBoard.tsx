@@ -1,4 +1,4 @@
-import { Canvas } from '@shopify/react-native-skia';
+import { Canvas, type useCanvasRef } from '@shopify/react-native-skia';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -17,6 +17,7 @@ interface Props {
   photoUrl?: string | null;
   revealInvisible?: boolean;
   prompt?: string; // today's idea, shown only while the canvas is empty
+  canvasRef?: ReturnType<typeof useCanvasRef>; // parent-owned, for share snapshots
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
   onEnd: (strokeId: string) => void;
@@ -37,6 +38,7 @@ export function CanvasBoard({
   photoUrl,
   revealInvisible,
   prompt,
+  canvasRef,
   onBegin,
   onPoint,
   onEnd,
@@ -93,7 +95,7 @@ export function CanvasBoard({
         }
       >
         {w > 0 && (
-          <Canvas style={StyleSheet.absoluteFill}>
+          <Canvas ref={canvasRef} style={StyleSheet.absoluteFill}>
             <CanvasBackdrop w={w} h={h} board={colors.board} photoUrl={photoUrl} />
             {/* invisible ink vanishes once landed; live strokes always show */}
             {strokes

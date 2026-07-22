@@ -1,3 +1,4 @@
+import { useCanvasRef } from '@shopify/react-native-skia';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
@@ -20,6 +21,8 @@ import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { dailyPrompt } from '@/lib/prompts';
 import { configurePurchases } from '@/lib/purchases';
+import { shareCanvas } from '@/lib/shareTrace';
+import { TABLES } from '@/lib/backend';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -73,6 +76,8 @@ function SharedCanvas({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [brush, setBrush] = useState<Brush>('marker');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [traceCount, setTraceCount] = useState<number | null>(null);
+  const canvasRef = useCanvasRef();
   const [color, setColor] = useState<string>(swatches[0]);
   const [activeCanvasId, setActiveCanvasId] = useState(sharedCanvasId);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
@@ -242,6 +247,35 @@ function SharedCanvas({
     supabase.auth.signOut().then(() => router.replace('/sign-in'));
   }
 
+  function openSettings() {
+    setSettingsOpen(true);
+    // "Drawing together since … · N traces" — count fetched lazily on open
+    supabase
+      .from(TABLES.strokes)
+      .select('id', { count: 'exact', head: true })
+      .in(
+        'canvas_id',
+        canvases.map((c) => c.id)
+      )
+      .then(({ count }) => setTraceCount(count ?? null));
+  }
+
+  const coupleSince = membership.coupleSince
+    ? new Date(membership.coupleSince).toLocaleDateString(undefined, {
+        month: 'long',
+        year: 'numeric',
+      })
+    : null;
+  const settingsSubtitle = coupleSince
+    ? `Drawing together since ${coupleSince}${traceCount != null ? ` · ${traceCount} traces` : ''}`
+    : undefined;
+
+  async function onShare() {
+    tapLight();
+    const ok = await shareCanvas(canvasRef);
+    if (!ok) toast.show('Could not share right now');
+  }
+
   function confirmLeaveCouple() {
     setSettingsOpen(false);
     Alert.alert(
@@ -324,7 +358,7 @@ function SharedCanvas({
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <View style={styles.brandRow}>
           <Pressable
-            onLongPress={() => setSettingsOpen(true)}
+            onLongPress={openSettings}
             accessibilityRole="button"
             accessibilityLabel="Open settings"
           >
@@ -404,6 +438,7 @@ function SharedCanvas({
           photoUrl={photoUrl}
           revealInvisible={reveal}
           prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
+          canvasRef={canvasRef}
           onBegin={beginStroke}
           onPoint={addPoint}
           onEnd={(id) => {
@@ -434,6 +469,16 @@ function SharedCanvas({
           </Pressable>
         )}
         <HeartBloom trigger={bloomKey} burst={burst} />
+        {strokes.length > 0 && (
+          <Pressable
+            onPress={onShare}
+            accessibilityRole="button"
+            accessibilityLabel="Share this canvas as an image"
+            style={({ pressed }) => [styles.shareChip, pressed && { opacity: 0.75 }]}
+          >
+            <Text style={styles.revealText}>↗ share</Text>
+          </Pressable>
+        )}
       </View>
 
       <Pressable
@@ -473,6 +518,7 @@ function SharedCanvas({
 
       <SettingsSheet
         visible={settingsOpen}
+        subtitle={settingsSubtitle}
         onClose={() => setSettingsOpen(false)}
         onSignOut={onSignOut}
         onLeaveCouple={confirmLeaveCouple}
@@ -552,6 +598,17 @@ const makeStyles = (colors: Palette) =>
   heartBtnText: { color: colors.ink, fontSize: 15.5, fontWeight: '700', letterSpacing: 0.2 },
   actions: { flexDirection: 'row', gap: 8, marginTop: 10 },
   actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  shareChip: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    backgroundColor: 'rgba(10,9,13,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
   revealChip: {
     position: 'absolute',
     bottom: 12,

@@ -7,6 +7,12 @@ import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, type Palette } from '@/theme/tokens';
 
+// App Store review: reviewers can't receive our OTP emails, so this one demo
+// account takes a password path instead (Apple requires a way in — see
+// ROADMAP.md Tier 3). The password only unlocks a sandboxed demo couple.
+const REVIEW_EMAIL = 'review@trace.demo';
+const REVIEW_PASSWORD = 'trace-review-2026!';
+
 export default function SignIn() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -19,6 +25,21 @@ export default function SignIn() {
     if (!target.includes('@') || !target.includes('.')) {
       notifyWarn();
       Alert.alert('Enter your email', 'We’ll email you a one-time code — no password to remember.');
+      return;
+    }
+    if (target === REVIEW_EMAIL) {
+      setBusy(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: REVIEW_EMAIL,
+        password: REVIEW_PASSWORD,
+      });
+      setBusy(false);
+      if (error) {
+        notifyWarn();
+        Alert.alert('Could not sign in', error.message);
+        return;
+      }
+      router.replace('/');
       return;
     }
     setBusy(true);

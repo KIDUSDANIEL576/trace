@@ -62,4 +62,5 @@ export interface Membership {
   canvases: CanvasInfo[]; // shared + photo canvases, oldest first
   partnerName: string | null;
   premium: boolean; // Trace Forever — one purchase unlocks both partners
+  coupleSince: string | null; // couples.created_at — "drawing together since…"
 }
