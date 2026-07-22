@@ -9,6 +9,7 @@ interface Props {
   visible: boolean;
   onClose: () => void;
   onSignOut: () => void;
+  onLeaveCouple: () => void;
   onDelete: () => void;
 }
 
@@ -17,7 +18,7 @@ interface Props {
  * look and the sheet itself re-colours), and it avoids Android's 3-button
  * Alert limit that a menu this size would hit.
  */
-export function SettingsSheet({ visible, onClose, onSignOut, onDelete }: Props) {
+export function SettingsSheet({ visible, onClose, onSignOut, onLeaveCouple, onDelete }: Props) {
   const { colors, theme, setTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -65,6 +66,14 @@ export function SettingsSheet({ visible, onClose, onSignOut, onDelete }: Props) 
             accessibilityLabel="Sign out"
           >
             <Text style={styles.actionText}>Sign out</Text>
+          </Pressable>
+          <Pressable
+            onPress={onLeaveCouple}
+            style={({ pressed }) => [styles.action, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Leave this couple"
+          >
+            <Text style={styles.deleteText}>Leave this couple…</Text>
           </Pressable>
           <Pressable
             onPress={onDelete}

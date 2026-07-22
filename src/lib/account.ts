@@ -13,3 +13,12 @@ export async function deleteAccount(): Promise<boolean> {
   await supabase.auth.signOut().catch(() => {});
   return true;
 }
+
+/**
+ * Unpairs the caller from their couple without deleting the account (wrong
+ * code, breakup). If they were the last member, the couple's data goes too.
+ */
+export async function leaveCouple(): Promise<boolean> {
+  const { error } = await supabase.functions.invoke(EDGE_FUNCTIONS.leaveCouple, { body: {} });
+  return !error;
+}

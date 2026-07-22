@@ -15,7 +15,7 @@ import { useSharedCanvas } from '@/hooks/useSharedCanvas';
 import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
-import { deleteAccount } from '@/lib/account';
+import { deleteAccount, leaveCouple } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { dailyPrompt } from '@/lib/prompts';
@@ -242,6 +242,32 @@ function SharedCanvas({
     supabase.auth.signOut().then(() => router.replace('/sign-in'));
   }
 
+  function confirmLeaveCouple() {
+    setSettingsOpen(false);
+    Alert.alert(
+      'Leave this couple?',
+      partnerName
+        ? `You'll be unpaired from ${partnerName}. If you're the last one here, the canvas history goes too.`
+        : `If you're the last one here, the canvas history goes too.`,
+      [
+        { text: 'Stay', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            const ok = await leaveCouple();
+            if (ok) {
+              await refreshMembership();
+              router.replace('/pair');
+            } else {
+              toast.show('Could not leave — try again');
+            }
+          },
+        },
+      ]
+    );
+  }
+
   function photoAllowedToday(): boolean {
     if (premium) return true;
     const todayUtc = new Date().toISOString().slice(0, 10);
@@ -449,6 +475,7 @@ function SharedCanvas({
         visible={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onSignOut={onSignOut}
+        onLeaveCouple={confirmLeaveCouple}
         onDelete={() => {
           setSettingsOpen(false);
           confirmDeleteAccount();

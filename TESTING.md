@@ -87,6 +87,14 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] If the partner remains, their canvas survives; if you were the last one,
       everything is gone
 
+## 7 · Leave couple
+
+- [ ] Settings sheet → "Leave this couple…" → confirm → lands on the pairing
+      screen; the same account can create/join a new couple immediately
+- [ ] Partner's app stops showing your name after their next refresh
+- [ ] Wrong code at join now says "That code didn't work…" (and >10 wrong tries
+      in an hour says "Too many attempts")
+
 ## When something fails
 
 Grab the red-box/console error (`npx expo start` terminal) or, for backend

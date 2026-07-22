@@ -107,5 +107,10 @@ export async function joinCouple(code: string, displayName: string) {
     p_display_name: displayName,
   });
   if (error) throw error;
+  // null = wrong code or full couple (the RPC returns null instead of raising
+  // so the join attempt still counts against the brute-force throttle)
+  if (data == null) {
+    throw new Error('That code didn’t work — double-check it with your person.');
+  }
   return data as string; // couple_id
 }

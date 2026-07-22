@@ -21,6 +21,7 @@ export const EDGE_FUNCTIONS = {
   notifyPartner: 'trace-notify-partner',
   renderSnapshot: 'trace-render-snapshot',
   deleteAccount: 'trace-delete-account',
+  leaveCouple: 'trace-leave-couple',
 } as const;
 
 export const BUCKETS = {
