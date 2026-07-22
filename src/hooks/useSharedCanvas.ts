@@ -50,6 +50,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
   const [partnerDrawing, setPartnerDrawing] = useState<string | null>(null);
   const [partnerOnline, setPartnerOnline] = useState<string | null>(null);
   const [connection, setConnection] = useState<ConnectionState>('connecting');
+  const [partnerPulse, setPartnerPulse] = useState(0); // ticks when partner sends a Heartbeat
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const currentStrokeRef = useRef<Stroke | null>(null);
@@ -170,6 +171,9 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         })
         .on('broadcast', { event: 'canvas:new' }, () => {
           onCanvasNewRef.current?.();
+        })
+        .on('broadcast', { event: 'pulse' }, () => {
+          setPartnerPulse((n) => n + 1);
         })
         .on('presence', { event: 'sync' }, () => {
           const entries = Object.values(channel.presenceState<PresenceState>()).flat();
@@ -368,6 +372,11 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     [send]
   );
 
+  // ---- send a Heartbeat to the partner (ephemeral, not persisted) ----
+  const sendPulse = useCallback(() => {
+    send('pulse', {});
+  }, [send]);
+
   return {
     strokes,
     liveStrokes,
@@ -380,6 +389,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     undoLast,
     clearCanvas,
     announceNewCanvas,
+    sendPulse,
+    partnerPulse,
     canUndo: strokes.some((s) => s.authorId === userId),
   };
 }

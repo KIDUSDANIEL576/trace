@@ -13,3 +13,9 @@ export const notifySuccess = () =>
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 export const notifyWarn = () =>
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+
+/** A two-beat "lub-dub" — the felt half of the Heartbeat. */
+export const heartbeat = () => {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+  setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {}), 150);
+};

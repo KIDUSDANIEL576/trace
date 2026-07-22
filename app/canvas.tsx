@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
+import { HeartBloom } from '@/components/HeartBloom';
 import { PresencePill } from '@/components/PresencePill';
 import { SettingsSheet } from '@/components/SettingsSheet';
 import { useToast } from '@/components/Toast';
@@ -15,7 +16,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount } from '@/lib/account';
-import { notifySuccess, tapLight } from '@/lib/haptics';
+import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
 import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
 import { configurePurchases } from '@/lib/purchases';
 import { refreshWidget } from '@/lib/widget';
@@ -92,6 +93,8 @@ function SharedCanvas({
     undoLast,
     clearCanvas,
     announceNewCanvas,
+    sendPulse,
+    partnerPulse,
     canUndo,
   } = useSharedCanvas({
     coupleId,
@@ -100,6 +103,27 @@ function SharedCanvas({
     displayName,
     onCanvasNew: refreshMembership,
   });
+
+  const [bloomKey, setBloomKey] = useState(0);
+
+  function sendHeartbeat() {
+    heartbeat();
+    sendPulse();
+    notifyPartner(coupleId, 'pulse');
+    setBloomKey((k) => k + 1);
+  }
+
+  // partner sent a Heartbeat: bloom + a felt lub-dub + a soft toast
+  const firstPulseRef = useRef(true);
+  useEffect(() => {
+    if (firstPulseRef.current) {
+      firstPulseRef.current = false;
+      return;
+    }
+    heartbeat();
+    setBloomKey((k) => k + 1);
+    toast.show(`${partnerName ?? partnerOnline ?? 'Your person'} is thinking of you ❤️`);
+  }, [partnerPulse]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { streak, refresh: refreshStreak } = useStreak(coupleId);
 
@@ -347,7 +371,17 @@ function SharedCanvas({
             <Text style={styles.revealText}>👁 hold to reveal</Text>
           </Pressable>
         )}
+        <HeartBloom trigger={bloomKey} />
       </View>
+
+      <Pressable
+        onPress={sendHeartbeat}
+        accessibilityRole="button"
+        accessibilityLabel="Send a heartbeat"
+        style={({ pressed }) => [styles.heartBtn, pressed && styles.heartBtnPressed]}
+      >
+        <Text style={styles.heartBtnText}>❤  Send a heartbeat</Text>
+      </Pressable>
 
       <Toolbar
         brush={brush}
@@ -441,7 +475,19 @@ const makeStyles = (colors: Palette) =>
   chipPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
   chipText: { color: colors.muted, fontSize: 12.5, fontWeight: '500' },
   chipTextOn: { color: '#ffb9c2' },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  heartBtn: {
+    marginTop: 14,
+    minHeight: 50,
+    borderRadius: radius.button,
+    backgroundColor: colors.inkSoft,
+    borderWidth: 1,
+    borderColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartBtnPressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
+  heartBtnText: { color: colors.ink, fontSize: 15.5, fontWeight: '700', letterSpacing: 0.2 },
+  actions: { flexDirection: 'row', gap: 8, marginTop: 10 },
   actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
   revealChip: {
     position: 'absolute',

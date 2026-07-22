@@ -55,7 +55,12 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!tokenRow?.token) return json({ skipped: 'partner has no push token' });
 
-    const verb = kind === 'photo' ? 'shared a photo to draw on 📸' : 'left you a trace ❤️';
+    const verb =
+      kind === 'photo'
+        ? 'shared a photo to draw on 📸'
+        : kind === 'pulse'
+          ? 'is thinking of you ❤️'
+          : 'left you a trace ❤️';
     const res = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
