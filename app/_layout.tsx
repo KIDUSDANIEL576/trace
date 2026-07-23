@@ -7,9 +7,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/hooks/useAuth';
+import { initSentry, wrapRootComponent } from '@/lib/sentry';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+initSentry(); // no-op until EXPO_PUBLIC_SENTRY_DSN is set — SENTRY_SETUP.md
 
 /** Everything under the theme: root background, status bar, and screens. */
 function Shell() {
@@ -32,7 +34,7 @@ function Shell() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Caveat_500Medium, Caveat_700Bold });
   const ready = fontsLoaded || fontError != null; // never hang on a font failure
 
@@ -50,3 +52,5 @@ export default function RootLayout() {
     </ErrorBoundary>
   );
 }
+
+export default wrapRootComponent(RootLayout);

@@ -47,9 +47,10 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
 - [ ] **Dev builds on both phones** (`npx expo run:android` free; iOS needs
       `ios.appleTeamId` in app.json + a Mac or EAS). Unlocks: push notifications,
       camera capture, **widgets** — the moat is untestable in Expo Go.
-- [ ] **Crash reporting (Sentry via `sentry-expo`)** — currently if it breaks on her
-      phone, *nobody ever knows*. This is the #1 thing separating hobby apps from real
-      ones. ~30 min, I can wire it when you say go.
+- [x] **Crash reporting (Sentry)** — DONE (code side): `@sentry/react-native`
+      installed, ErrorBoundary + root layout wired to report every caught crash.
+      100% inert until you add a DSN — **[SENTRY_SETUP.md](SENTRY_SETUP.md)**,
+      ~5 min, just a free sentry.io signup + one line in `.env`.
 - [x] **"Leave couple" flow** — DONE: `trace-leave-couple` edge function (last member
       out takes the couple's data + storage with them) + "Leave this couple…" in the
       settings sheet. Verify on device (TESTING.md §7).

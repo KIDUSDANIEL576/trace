@@ -53,7 +53,8 @@
           "cameraPermission": "Trace uses the camera so you can take a photo to draw on together."
         }
       ],
-      "@bacons/apple-targets"
+      "@bacons/apple-targets",
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": false

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { captureException } from '@/lib/sentry';
 // Deliberately the static dusk palette, NOT useTheme(): this fallback has to
 // render even when the failure is inside ThemeProvider itself, so it must not
 // depend on any React context.
@@ -15,8 +16,8 @@ interface State {
 /**
  * App-wide safety net. Without it, any render error unmounts the whole tree to
  * a blank screen with no way back and no signal to us. This catches it, shows a
- * calm, plain-language recovery screen, and logs the crash. `reportCrash` is the
- * single seam where a crash reporter (Sentry) plugs in later — see ROADMAP Tier 2.
+ * calm, plain-language recovery screen, and logs the crash. `reportCrash` sends
+ * it to Sentry (no-op until EXPO_PUBLIC_SENTRY_DSN is set — SENTRY_SETUP.md).
  */
 export class ErrorBoundary extends React.Component<Props, State> {
   state: State = { error: null };
@@ -54,10 +55,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
-/** One place for crash telemetry. Console today; wire Sentry here when ready. */
+/** One place for crash telemetry: console always, Sentry once a DSN exists. */
 function reportCrash(error: Error, componentStack?: string): void {
   console.error('[trace] uncaught render error:', error.message, componentStack ?? '');
-  // TODO(Tier 2): Sentry.Native.captureException(error, { extra: { componentStack } });
+  captureException(error, componentStack ? { componentStack } : undefined);
 }
 
 const styles = StyleSheet.create({
