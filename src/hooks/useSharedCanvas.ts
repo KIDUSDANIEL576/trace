@@ -54,6 +54,11 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const currentStrokeRef = useRef<Stroke | null>(null);
+  // Mirror of liveStrokes so the stroke:end handler can read the finished
+  // stroke synchronously — state updaters run in hook order, not call order,
+  // so capturing across two updaters would lose the partner's stroke.
+  const liveStrokesRef = useRef<Record<string, Stroke>>({});
+  liveStrokesRef.current = liveStrokes; // re-synced every render, before any handler can fire
   const strokeCanvasRef = useRef(canvasId); // canvas the in-flight stroke belongs to
   const canvasIdRef = useRef(canvasId); // guards late refetches after a switch
   const pendingPointsRef = useRef<Point[]>([]);
@@ -143,17 +148,21 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         })
         .on('broadcast', { event: 'stroke:end' }, ({ payload }) => {
           const p = payload as StrokeEndPayload;
-          // capture in the first updater, promote in a sibling one — updaters
-          // must stay pure (StrictMode double-invokes them)
-          let ended: Stroke | null = null;
-          setLiveStrokes((prev) => {
-            const s = prev[p.strokeId];
-            if (!s) return prev;
-            ended = { ...s, dbId: p.dbId ?? undefined };
-            const { [p.strokeId]: _done, ...rest } = prev;
-            return rest;
-          });
-          setStrokes((list) => (ended && !list.includes(ended) ? [...list, ended] : list));
+          // Read the finished stroke from the ref, synchronously, BEFORE any
+          // setState. Capturing it inside one updater and reading it from a
+          // sibling updater would fail: React runs updaters in hook-declaration
+          // order (strokes before liveStrokes), so the promote would see null
+          // and the partner's stroke would vanish on finger-lift.
+          const s = liveStrokesRef.current[p.strokeId];
+          if (s) {
+            const ended: Stroke = { ...s, dbId: p.dbId ?? undefined };
+            setStrokes((list) => (list.some((x) => x.id === ended.id) ? list : [...list, ended]));
+            setLiveStrokes((prev) => {
+              if (!prev[p.strokeId]) return prev;
+              const { [p.strokeId]: _done, ...rest } = prev;
+              return rest;
+            });
+          }
           // feel the partner's stroke land
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         })
@@ -246,6 +255,9 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       } satisfies StrokeStartPayload);
       trackPresence(true);
 
+      // an overlapping stroke (multi-touch, palm rest) must not leak the prior
+      // interval — it would keep draining the shared point buffer forever
+      if (flushTimerRef.current) clearInterval(flushTimerRef.current);
       flushTimerRef.current = setInterval(() => {
         const pts = pendingPointsRef.current;
         if (!pts.length) return;

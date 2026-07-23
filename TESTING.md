@@ -16,6 +16,8 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 ## 2 · The magic (Phase 1 bar: <300ms)
 
 - [ ] A draws → **B sees the stroke appear live, in visibly under a beat**
+- [ ] **A lifts their finger → the finished stroke STAYS on B's screen** (it must
+      not flash in and vanish on stroke-end — the receive-path promotion bug)
 - [ ] The drawer sees their own ink *while* dragging (regression check — this
       was the critical review find)
 - [ ] "…is drawing" pill shows on the idle phone while the other draws
