@@ -16,9 +16,9 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
 
 ## Tier 0 · The One Thing (today, 15 minutes)
 
-- [ ] 🔴 **Magic Link template**: Supabase dashboard → project `digirafthub-aicos`
-      (hnjjxvhutpgcdwyzmito) → Authentication → Email Templates → Magic Link tab →
-      paste `<h2>Your Trace code: {{ .Token }}</h2>` into the body → Save.
+- [ ] 🔴 **Magic Link template**: paste `supabase/templates/magic-link.html` into
+      Supabase → Authentication → Emails → Magic Link → Save. Must keep `{{ .Token }}`.
+      **Full steps: [EMAIL_SETUP.md](EMAIL_SETUP.md) Part 1.**
       *`{{ .Token }}` is a placeholder you type, not a thing you fetch. Free plan is fine.*
 - [ ] 🔴 **First stroke**: `git clone` → `npm install` → `cp .env.example .env` →
       `npx expo start` → Expo Go on TWO phones → sign in, pair, draw.
@@ -30,9 +30,10 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       failure back to me with the step number — that's my work queue.
 - [ ] **Watch your partner use it cold.** Say nothing. Write down every hesitation.
       That list outranks any feature idea either of us has.
-- [ ] **Custom SMTP** (Resend free tier, ~15 min in Supabase dashboard).
-      🔴 before any third person: built-in email caps at **~2 sign-in emails/hour** —
-      it WILL eat your first demo to friends.
+- [ ] **Custom SMTP** (Resend free tier, ~15 min). 🔴 before any third person:
+      built-in email caps at **~2 sign-in emails/hour** — it WILL eat your first demo
+      to friends. **Full steps (account → domain DNS → SMTP → rate limit):
+      [EMAIL_SETUP.md](EMAIL_SETUP.md) Part 2.**
 - [ ] **Fix what device-reality reveals**: font sizes on real pixels, keyboard overlap,
       animation feel (spring/bloom timing), gesture conflicts. These are invisible from
       a container — this is the tuning pass that makes it feel "senior designer".

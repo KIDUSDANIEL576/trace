@@ -10,7 +10,9 @@ crash to fight.
 ## Task 2 · First stroke (Expo Go — no build, ~15 min)
 
 Prereq: the Magic Link email template has `{{ .Token }}` (else the code never
-arrives). See README §Setup.
+arrives). Full click-by-click steps — template + Resend SMTP — are in
+[EMAIL_SETUP.md](EMAIL_SETUP.md). Do Part 1 before this; Part 2 before you demo
+to anyone.
 
 ```bash
 git clone https://github.com/KIDUSDANIEL576/trace && cd trace

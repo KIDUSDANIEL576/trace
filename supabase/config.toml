@@ -1,0 +1,45 @@
+# Supabase project config (infrastructure-as-code).
+#
+# IMPORTANT — how this applies today vs. later:
+#   • Trace currently co-tenants a shared Supabase project, so you configure
+#     auth email + SMTP through the DASHBOARD (see EMAIL_SETUP.md). This file
+#     does NOT auto-apply to that shared project — treat the [auth] blocks below
+#     as the documented source of truth for what to enter in the dashboard.
+#   • When you move to your own dedicated project and use the Supabase CLI
+#     (`supabase link` then `supabase config push`), this file applies directly.
+#
+# Set `project_id` to your project ref when you link the CLI.
+project_id = ""
+
+[auth]
+# The site URL + redirects matter for magic-LINK flows; Trace uses the 6-digit
+# OTP code, so these are mostly here for completeness.
+site_url = "trace://"
+additional_redirect_urls = ["trace://"]
+
+[auth.email]
+enable_signup = true
+# Trace signs in with a one-time CODE, so confirmations are code-based.
+enable_confirmations = false
+# Point the Magic Link email at the branded template in this repo.
+# (Dashboard equivalent: Authentication → Email Templates → Magic Link → paste
+#  the contents of supabase/templates/magic-link.html — it MUST contain
+#  {{ .Token }}.)
+
+[auth.email.template.magic_link]
+subject = "Your Trace sign-in code"
+content_path = "./supabase/templates/magic-link.html"
+
+# Custom SMTP via Resend. The built-in email service caps at ~2 emails/hour and
+# will strangle your first demo — set this up before inviting anyone.
+# Secrets come from the environment, never hard-coded here:
+#   export RESEND_API_KEY="re_xxxxxxxx"   (from resend.com/api-keys)
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+# Must be an address at a domain you've verified in Resend:
+admin_email = "trace@yourdomain.com"
+sender_name = "Trace"
