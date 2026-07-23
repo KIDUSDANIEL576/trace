@@ -13,6 +13,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#0c0b10"
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/REPLACE_WITH_EAS_PROJECT_ID"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.digirafthub.trace",

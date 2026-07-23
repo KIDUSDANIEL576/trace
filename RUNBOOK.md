@@ -77,6 +77,29 @@ After a dev build, long-press the home screen → add the **Trace** widget.
 Draw → your widget updates within ~10s; your partner's on their next
 app-open/poll.
 
+### 4e. `eas update:configure` — turn on OTA (ship JS fixes without a store review)
+
+`expo-updates` is already installed and app.json/eas.json are wired for it, but
+the update URL still has a placeholder (`REPLACE_WITH_EAS_PROJECT_ID`) until you
+run `eas init` (4a). After that:
+
+```bash
+eas update:configure   # swaps the placeholder for your real project id
+```
+
+From then on, to ship a JS-only fix (no native code change) to everyone on a
+build without waiting on App Store/Play review:
+
+```bash
+eas update --branch production --message "fix: whatever you fixed"
+```
+
+Users get it the next time they fully close and reopen the app (checks on
+launch, `fallbackToCacheTimeout: 0` — never blocks the launch waiting on it).
+Use `--branch development` / `--branch preview` to push to just those builds
+first. Anything that touches native code (new native module, Info.plist/
+AndroidManifest change) still needs a real `eas build`, not an OTA update.
+
 ---
 
 ## What unlocks what

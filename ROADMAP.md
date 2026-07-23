@@ -80,8 +80,12 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
 - [ ] **Name check**: search both stores for "Trace" collisions *before* you love the
       name more than you already do; grab a domain (gettrace.app style) for the
       support/privacy URLs.
-- [ ] **`expo-updates` (OTA)** — after store launch, waiting 24–48h on review for every
-      bug fix is deadly; OTA lets JS fixes ship in minutes. Add before submission.
+- [x] **`expo-updates` (OTA)** — DONE (code side): package installed, app.json
+      `runtimeVersion`/`updates` configured, eas.json has a `channel` per build
+      profile. **Yours to finish:** run `eas init` then `eas update:configure`
+      (RUNBOOK.md §4e) to swap in your real project id — one-time, ~2 min.
+      After that, `eas update --branch production -m "..."` ships JS fixes in
+      minutes instead of waiting on review.
 - [ ] **RevenueCat**: products in both stores → `trace_forever` entitlement → SDK keys
       in eas.json → webhook secret in Supabase (fails closed 503 until set — verified).
 - [ ] **Store assets**: screenshots (the preview artifact is your template), a 30s
