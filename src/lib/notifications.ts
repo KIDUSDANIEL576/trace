@@ -39,13 +39,24 @@ export async function registerPushToken(userId: string): Promise<void> {
 
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+    if (!projectId) {
+      // The #1 silent push failure: getExpoPushTokenAsync needs an EAS project
+      // id. It's written to app.json by `eas init`. Make the cause loud instead
+      // of swallowing it, so a dev build without eas init isn't a mystery.
+      console.warn(
+        '[trace] push disabled: no EAS projectId. Run `eas init` (writes ' +
+          'expo.extra.eas.projectId to app.json), then rebuild.'
+      );
+      return;
+    }
     const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
 
     await supabase
       .from(TABLES.pushTokens)
       .upsert({ user_id: userId, token, updated_at: new Date().toISOString() });
-  } catch {
-    // Push is best-effort in Phase 1 — drawing must work without it.
+  } catch (e) {
+    // Push is best-effort — drawing must work without it — but surface why.
+    console.warn('[trace] push registration failed:', e instanceof Error ? e.message : e);
   }
 }
 
