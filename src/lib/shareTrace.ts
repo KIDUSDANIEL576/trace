@@ -16,7 +16,9 @@ export async function shareCanvas(ref: CanvasRef): Promise<boolean> {
     const image = ref.current?.makeImageSnapshot();
     if (!image) return false;
     const base64 = image.encodeToBase64();
-    const uri = `${FileSystem.cacheDirectory}trace.png`;
+    // Unique filename per share: a fixed path lets a rapid double-tap overwrite
+    // the file while the share sheet is still reading it (corrupt/partial PNG).
+    const uri = `${FileSystem.cacheDirectory}trace-${Date.now()}.png`;
     await FileSystem.writeAsStringAsync(uri, base64, {
       encoding: FileSystem.EncodingType.Base64,
     });

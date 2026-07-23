@@ -45,14 +45,7 @@ Deno.serve(async (req) => {
         // last one out: remove the couple's storage, then the couple
         // (canvases/strokes/daily_marks/push_log cascade via FK)
         for (const bucket of ['photos', 'widgets']) {
-          const { data: objects } = await admin.storage
-            .from(bucket)
-            .list(member.couple_id, { limit: 1000 });
-          if (objects?.length) {
-            await admin.storage
-              .from(bucket)
-              .remove(objects.map((o) => `${member.couple_id}/${o.name}`));
-          }
+          await purgeFolder(admin, bucket, member.couple_id);
         }
         await admin.from('couples').delete().eq('id', member.couple_id);
       }
@@ -66,6 +59,25 @@ Deno.serve(async (req) => {
     return json({ error: e instanceof Error ? e.message : 'unknown' }, 500);
   }
 });
+
+// Deletes every object under `${folder}/` in a bucket, paging past the 1000-row
+// list cap — a premium couple can have >1000 photos, and orphaned objects in a
+// private bucket are unreachable forever once the couple row is gone.
+async function purgeFolder(
+  admin: ReturnType<typeof createClient>,
+  bucket: string,
+  folder: string
+): Promise<void> {
+  const PAGE = 1000;
+  for (;;) {
+    const { data: objects } = await admin.storage
+      .from(bucket)
+      .list(folder, { limit: PAGE });
+    if (!objects?.length) break;
+    await admin.storage.from(bucket).remove(objects.map((o) => `${folder}/${o.name}`));
+    if (objects.length < PAGE) break;
+  }
+}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

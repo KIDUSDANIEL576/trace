@@ -1,4 +1,4 @@
-name: typecheck
+name: ci
 
 on:
   push:
@@ -16,3 +16,27 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  bundle:
+    # Proves every `@/` import resolves and Metro can produce a bundle — the
+    # first-run crash that no unit test or typecheck would catch.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform ios --output-dir /tmp/trace-bundle
