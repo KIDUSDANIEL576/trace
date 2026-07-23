@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/hooks/useAuth';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -42,8 +43,10 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <ThemeProvider>
-      <Shell />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <Shell />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
