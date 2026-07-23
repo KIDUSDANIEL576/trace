@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trace — Privacy Policy</title>
+    <meta name="description" content="Trace privacy policy. Privacy is the product: your canvas is visible to exactly one other person — your partner — and no one else." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --night: #0c0b10;
+        --panel: #16151c;
+        --line: rgba(255, 255, 255, 0.08);
+        --text: #f3f0f4;
+        --muted: #9a93a5;
+        --ink: #e23343;
+        --glow: #ff7a9c;
+        --hand: 'Caveat', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+        --ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--night);
+        color: var(--text);
+        font-family: var(--ui);
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.62;
+      }
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 56px 22px 80px;
+      }
+      .back {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      .back:hover {
+        color: var(--text);
+      }
+      .wordmark {
+        font-family: var(--hand);
+        font-weight: 700;
+        font-size: 40px;
+        line-height: 1;
+        margin: 18px 0 4px;
+      }
+      .wordmark .ce {
+        color: var(--ink);
+      }
+      h1 {
+        font-family: var(--hand);
+        font-weight: 700;
+        font-size: 34px;
+        margin: 22px 0 4px;
+      }
+      .updated {
+        color: var(--muted);
+        font-size: 13.5px;
+        margin: 0 0 8px;
+      }
+      .lead {
+        color: var(--text);
+        font-size: 16.5px;
+      }
+      h2 {
+        font-size: 19px;
+        margin: 38px 0 10px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+      }
+      p,
+      li {
+        color: var(--muted);
+        font-size: 15.5px;
+      }
+      strong {
+        color: var(--text);
+        font-weight: 650;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      li {
+        margin-bottom: 10px;
+      }
+      a {
+        color: var(--glow);
+        word-break: break-word;
+      }
+      footer {
+        margin-top: 48px;
+        color: var(--muted);
+        font-size: 13.5px;
+        font-family: var(--hand);
+        font-size: 17px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="index.html">← trace</a>
+      <div class="wordmark">tra<span class="ce">ce</span></div>
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: July 19, 2026</p>
+      <p class="lead">
+        Trace is a drawing app for two people. Privacy is the product: your canvas is visible to
+        exactly one other person — your partner — and to no one else.
+      </p>
+
+      <h2>What we store</h2>
+      <ul>
+        <li><strong>Your email address</strong> — used only to sign you in (one-time codes). No passwords, no marketing.</li>
+        <li><strong>A display name</strong> you choose — shown only to your partner.</li>
+        <li>
+          <strong>Your drawings</strong> (stroke data) and <strong>photos you add</strong> to draw
+          on — stored in our database and private storage (Supabase, hosted in the EU,
+          eu-central-1), readable only by the two members of your couple, enforced by row-level
+          security.
+        </li>
+        <li>
+          <strong>A widget snapshot</strong> — a rendered image of your latest canvas so your
+          home-screen widget can display it. Invisible-ink strokes are never included.
+        </li>
+        <li>
+          <strong>A push notification token</strong> (if you allow notifications) so your partner’s
+          drawings can reach you.
+        </li>
+        <li>
+          <strong>Purchase state</strong> — whether your couple unlocked Trace Forever. Payments are
+          processed by Apple/Google and RevenueCat; we never see card details.
+        </li>
+      </ul>
+
+      <h2>What we don’t do</h2>
+      <ul>
+        <li>No analytics SDKs, no ad networks, no trackers.</li>
+        <li>
+          No selling or sharing of data with third parties beyond the processors named above
+          (Supabase, Expo push delivery, RevenueCat, Apple/Google).
+        </li>
+        <li>No AI training on your drawings. Your traces are yours.</li>
+      </ul>
+
+      <h2>Deleting your data</h2>
+      <p>
+        Delete your account any time in the app (long-press the <strong>trace</strong> wordmark →
+        Delete account, or from the pairing screen). Deletion is immediate and permanent: your
+        login, name, and push token are erased. If you are the last member of your couple, every
+        drawing, photo, and snapshot goes with you. If your partner remains, the shared canvases
+        stay with them — they were made by both of you.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or data requests: open an issue at
+        <a href="https://github.com/KIDUSDANIEL576/trace">github.com/KIDUSDANIEL576/trace</a>
+        or contact the developer.
+      </p>
+
+      <footer>made for two.</footer>
+    </div>
+  </body>
+</html>

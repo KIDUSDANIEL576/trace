@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trace — leave me a trace</title>
+    <meta
+      name="description"
+      content="A drawing app for two. Whatever one of you draws appears on the other's phone — stroke by stroke, in real time."
+    />
+    <meta property="og:title" content="Trace — leave me a trace" />
+    <meta
+      property="og:description"
+      content="Whatever one of you draws appears on the other's phone, in real time. A tiny private canvas, just for two."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --night: #0c0b10;
+        --panel: #16151c;
+        --panel2: #1d1b24;
+        --line: rgba(255, 255, 255, 0.08);
+        --text: #f3f0f4;
+        --muted: #9a93a5;
+        --ink: #e23343;
+        --glow: #ff7a9c;
+        --gold: #f4c66b;
+        --hand: 'Caveat', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+        --ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--night);
+        color: var(--text);
+        font-family: var(--ui);
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.55;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      /* ── Hero ──────────────────────────────────────────── */
+      header {
+        position: relative;
+        text-align: center;
+        padding: 92px 0 72px;
+        overflow: hidden;
+      }
+      .hero-glow {
+        position: absolute;
+        inset: -30% 0 auto 0;
+        height: 460px;
+        background: radial-gradient(
+          60% 70% at 50% 30%,
+          rgba(255, 122, 156, 0.18),
+          rgba(226, 51, 67, 0.06) 45%,
+          transparent 70%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      header .wrap {
+        position: relative;
+        z-index: 1;
+      }
+      .wordmark {
+        font-family: var(--hand);
+        font-weight: 700;
+        font-size: clamp(46px, 11vw, 88px);
+        letter-spacing: 0.5px;
+        line-height: 1;
+      }
+      .wordmark .ce {
+        color: var(--ink);
+      }
+      .tagline {
+        font-family: var(--hand);
+        font-weight: 500;
+        font-size: clamp(26px, 6vw, 40px);
+        color: var(--text);
+        margin: 18px 0 0;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: clamp(15px, 3.4vw, 18px);
+        max-width: 460px;
+        margin: 18px auto 0;
+      }
+      .cta {
+        display: inline-flex;
+        gap: 12px;
+        margin-top: 34px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .btn {
+        display: inline-block;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15.5px;
+        padding: 14px 24px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        transition: transform 0.12s ease, opacity 0.12s ease;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: var(--ink);
+        color: #fff;
+        box-shadow: 0 8px 22px rgba(226, 51, 67, 0.32);
+      }
+      .btn-ghost {
+        background: var(--panel2);
+        color: var(--text);
+        border-color: var(--line);
+      }
+
+      /* ── Canvas motif ──────────────────────────────────── */
+      .canvas-motif {
+        position: relative;
+        max-width: 320px;
+        margin: 48px auto 0;
+        aspect-ratio: 3 / 4;
+        border-radius: 28px;
+        background: linear-gradient(160deg, #33445f 0%, #5c5f78 45%, #8a6b73 70%, #2e2733 100%);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--line);
+        overflow: hidden;
+      }
+      .canvas-motif .sun {
+        position: absolute;
+        top: 18%;
+        left: 50%;
+        width: 200px;
+        height: 200px;
+        transform: translateX(-50%);
+        background: radial-gradient(circle, rgba(247, 217, 176, 0.85), transparent 62%);
+      }
+      .canvas-motif svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .stroke {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 620;
+        stroke-dashoffset: 620;
+        animation: draw 2.6s ease forwards;
+      }
+      .stroke.ink {
+        stroke: var(--ink);
+        stroke-width: 7;
+        opacity: 0.86;
+      }
+      .stroke.pink {
+        stroke: var(--glow);
+        stroke-width: 5;
+        animation-delay: 1.1s;
+        filter: drop-shadow(0 0 6px rgba(255, 122, 156, 0.6));
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .stroke {
+          animation: none;
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* ── Features ──────────────────────────────────────── */
+      section {
+        padding: 70px 0;
+      }
+      .section-title {
+        font-family: var(--hand);
+        font-weight: 700;
+        font-size: clamp(28px, 6vw, 38px);
+        text-align: center;
+        margin: 0 0 8px;
+      }
+      .section-lead {
+        text-align: center;
+        color: var(--muted);
+        max-width: 480px;
+        margin: 0 auto 44px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 26px 24px;
+      }
+      .card .emoji {
+        font-size: 26px;
+        display: block;
+        margin-bottom: 12px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 650;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14.5px;
+        line-height: 1.5;
+      }
+
+      /* ── Privacy strip ─────────────────────────────────── */
+      .privacy-strip {
+        background: linear-gradient(180deg, var(--panel) 0%, var(--night) 100%);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .privacy-strip .wrap {
+        text-align: center;
+      }
+      .privacy-strip p {
+        color: var(--muted);
+        max-width: 520px;
+        margin: 10px auto 0;
+      }
+
+      footer {
+        padding: 48px 0 64px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      footer a {
+        color: var(--glow);
+        text-decoration: none;
+        margin: 0 10px;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+      .madewith {
+        margin-top: 20px;
+        font-family: var(--hand);
+        font-size: 18px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="hero-glow"></div>
+      <div class="wrap">
+        <div class="wordmark">tra<span class="ce">ce</span></div>
+        <h1 class="tagline">Leave me a trace.</h1>
+        <p class="sub">
+          Whatever one of you draws appears on the other’s phone — stroke by stroke, in real time. A
+          tiny private canvas, just for two.
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#how">See how it works</a>
+          <a class="btn btn-ghost" href="privacy.html">Privacy</a>
+        </div>
+
+        <div class="canvas-motif" aria-hidden="true">
+          <div class="sun"></div>
+          <svg viewBox="0 0 240 320" preserveAspectRatio="xMidYMid meet">
+            <path
+              class="stroke ink"
+              d="M55 210 C 80 150, 120 150, 120 200 C 120 150, 160 150, 185 210"
+            />
+            <path class="stroke pink" d="M92 250 C 110 268, 130 268, 148 250" />
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <section id="how">
+      <div class="wrap">
+        <h2 class="section-title">Five things, polished</h2>
+        <p class="section-lead">
+          No feed, no chat, no noise. Just the little moments you leave for each other.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <span class="emoji">✏️</span>
+            <h3>Draw, live</h3>
+            <p>Your ink lands on their phone in well under a second. It feels like the same page.</p>
+          </div>
+          <div class="card">
+            <span class="emoji">❤️</span>
+            <h3>Send a heartbeat</h3>
+            <p>Tap once and a heart blooms on both screens. Tap together and it erupts.</p>
+          </div>
+          <div class="card">
+            <span class="emoji">📸</span>
+            <h3>Draw on photos</h3>
+            <p>Scribble on a shared picture. Doodle a moustache. Circle the thing you mean.</p>
+          </div>
+          <div class="card">
+            <span class="emoji">▶️</span>
+            <h3>Replay your story</h3>
+            <p>Scrub back through every stroke you’ve ever made together, in order.</p>
+          </div>
+          <div class="card">
+            <span class="emoji">🔥</span>
+            <h3>Keep the streak</h3>
+            <p>Both of you draw in a day and the streak grows. A quiet daily nudge to say hi.</p>
+          </div>
+          <div class="card">
+            <span class="emoji">🏠</span>
+            <h3>Live on the home screen</h3>
+            <p>The widget shows your latest canvas. Their last trace, right where you’ll see it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy-strip">
+      <div class="wrap">
+        <h2 class="section-title">Privacy is the product</h2>
+        <p>
+          Your canvas is visible to exactly one other person — your partner — and to no one else. No
+          analytics, no ad networks, no trackers, and never any AI trained on your drawings. Your
+          traces are yours.
+        </p>
+        <div class="cta" style="justify-content: center">
+          <a class="btn btn-ghost" href="privacy.html">Read the privacy policy</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <a href="privacy.html">Privacy</a>·
+        <a href="https://github.com/KIDUSDANIEL576/trace">Support</a>·
+        <a href="https://github.com/KIDUSDANIEL576/trace/issues">Contact</a>
+        <div class="madewith">made for two.</div>
+      </div>
+    </footer>
+  </body>
+</html>

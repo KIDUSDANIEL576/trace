@@ -67,8 +67,12 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       `review@trace.demo` / `trace-review-2026!`.
 - [ ] **App Store privacy "nutrition labels"** — declare email, photos, purchase state
       (PRIVACY.md already maps 1:1 to the answers).
-- [ ] **Host the privacy policy at a URL** (GitHub Pages of PRIVACY.md is enough) +
-      a one-page Terms of Service.
+- [x] **Host the privacy policy at a URL** — DONE: `docs/` is a styled static site
+      (landing + privacy policy in Trace's own dusk palette). **To publish:** repo
+      Settings → Pages → Source: "Deploy from a branch" → Branch: `main` `/docs` →
+      Save. Live in ~1 min at `https://kidusdaniel576.github.io/trace/` (privacy at
+      `/trace/privacy.html`). That's your App Store privacy + support URL. (A Terms
+      of Service is still worth adding as a third page.)
 - [ ] **Name check**: search both stores for "Trace" collisions *before* you love the
       name more than you already do; grab a domain (gettrace.app style) for the
       support/privacy URLs.
