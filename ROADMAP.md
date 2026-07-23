@@ -71,8 +71,11 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       (landing + privacy policy in Trace's own dusk palette). **To publish:** repo
       Settings → Pages → Source: "Deploy from a branch" → Branch: `main` `/docs` →
       Save. Live in ~1 min at `https://kidusdaniel576.github.io/trace/` (privacy at
-      `/trace/privacy.html`). That's your App Store privacy + support URL. (A Terms
-      of Service is still worth adding as a third page.)
+      `/trace/privacy.html`). That's your App Store privacy + support URL.
+- [x] **Terms of Service** — DONE: `docs/terms.html`, plain-language and matched to
+      how the app actually works (one-time purchase, your-content-is-yours, deletion,
+      as-is). Linked from the landing footer + privacy page. It's a solid template —
+      have a lawyer glance at §5/§7 before you take real money, but it's launch-ready.
 - [ ] **Name check**: search both stores for "Trace" collisions *before* you love the
       name more than you already do; grab a domain (gettrace.app style) for the
       support/privacy URLs.
