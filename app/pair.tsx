@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { CodeInput } from '@/components/CodeInput';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
 import { createCouple, joinCouple } from '@/hooks/useCouple';
 import { deleteAccount } from '@/lib/account';
@@ -158,15 +159,7 @@ export default function Pair() {
             <Text style={styles.cardTitle}>Join your person</Text>
             <Text style={styles.cardSub}>Type the code they sent you.</Text>
             <View style={{ height: 14 }} />
-            <Input
-              placeholder="ABC123"
-              autoCapitalize="characters"
-              autoCorrect={false}
-              maxLength={6}
-              value={code}
-              onChangeText={setCode}
-              style={styles.codeInput}
-            />
+            <CodeInput mode="code" value={code} onChange={setCode} />
             <View style={{ height: 12 }} />
             <Button title="Join" variant="ghost" onPress={onJoin} loading={busy === 'join'} />
           </View>
@@ -249,12 +242,6 @@ const makeStyles = (colors: Palette) =>
   },
   cardTitle: { color: colors.text, fontSize: 18, fontWeight: '600' },
   cardSub: { color: colors.muted, fontSize: 14, marginTop: 4, lineHeight: 20 },
-  codeInput: {
-    textAlign: 'center',
-    letterSpacing: 8,
-    fontSize: 22,
-    fontWeight: '600',
-  },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 16 },
   orLine: { flex: 1, height: 1, backgroundColor: colors.line },
   orText: { color: colors.muted, fontSize: 13, fontWeight: '500' },

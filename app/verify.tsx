@@ -9,7 +9,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Button, Input, Screen } from '@/components/ui';
+import { CodeInput } from '@/components/CodeInput';
+import { Button, Screen } from '@/components/ui';
 import { notifySuccess, notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -50,9 +51,7 @@ export default function Verify() {
   }
 
   function onChange(next: string) {
-    const digits = next.replace(/[^0-9]/g, '');
-    setCode(digits);
-    if (digits.length === 6) verify(digits); // auto-submit on 6th digit
+    setCode(next); // CodeInput already strips non-digits; auto-submits via onComplete
   }
 
   async function resend() {
@@ -77,16 +76,7 @@ export default function Verify() {
           <Text style={styles.email}>{email}</Text>. Enter it below.
         </Text>
         <View style={{ height: 28 }} />
-        <Input
-          placeholder="123456"
-          keyboardType="number-pad"
-          maxLength={6}
-          value={code}
-          onChangeText={onChange}
-          onSubmitEditing={() => verify(code)}
-          style={styles.code}
-          autoFocus
-        />
+        <CodeInput value={code} onChange={onChange} onComplete={verify} autoFocus />
         <View style={{ height: 12 }} />
         <Button
           title="Verify"
@@ -110,7 +100,6 @@ const makeStyles = (colors: Palette) =>
   h1: { fontFamily: fonts.handwriting, fontSize: 44, color: colors.text },
   sub: { color: colors.muted, fontSize: 15.5, marginTop: 10, lineHeight: 23 },
   email: { color: colors.text, fontWeight: '600' },
-  code: { textAlign: 'center', fontSize: 30, letterSpacing: 12, fontWeight: '600' },
   resend: { alignSelf: 'center', marginTop: 18, padding: 8 },
   resendText: { color: colors.glow, fontSize: 14, fontWeight: '500' },
 });
