@@ -1,4 +1,4 @@
-import { TABLES } from '@/lib/backend';
+import { RPCS, TABLES } from '@/lib/backend';
 import { supabase } from '@/lib/supabase';
 import type { CapsuleMeta, CapsuleStroke, Stroke } from '@/types';
 
@@ -12,7 +12,6 @@ export { isOpen, opensInLabel } from '@/lib/capsuleTime';
 
 export async function sealCapsule(
   coupleId: string,
-  authorId: string,
   strokes: Stroke[],
   opensAt: Date,
   note?: string
@@ -23,25 +22,15 @@ export async function sealCapsule(
     width: s.width,
     points: s.points,
   }));
-  const { data, error } = await supabase
-    .from(TABLES.capsules)
-    .insert({
-      couple_id: coupleId,
-      author_id: authorId,
-      note: note?.trim() || null,
-      opens_at: opensAt.toISOString(),
-    })
-    .select('id')
-    .single();
+  // one atomic SECURITY DEFINER transaction — clients have no direct INSERT,
+  // so a half-written "hollow" capsule can't exist (review finding #2)
+  const { error } = await supabase.rpc(RPCS.sealCapsule, {
+    p_couple_id: coupleId,
+    p_opens_at: opensAt.toISOString(),
+    p_strokes: content,
+    p_note: note?.trim() || null,
+  });
   if (error) throw error;
-  const { error: contentError } = await supabase
-    .from(TABLES.capsuleContents)
-    .insert({ capsule_id: data.id, strokes: content });
-  if (contentError) {
-    // don't leave a hollow capsule behind
-    await supabase.from(TABLES.capsules).delete().eq('id', data.id);
-    throw contentError;
-  }
 }
 
 export async function listCapsules(coupleId: string): Promise<CapsuleMeta[]> {
@@ -70,11 +59,15 @@ export async function openCapsule(capsule: CapsuleMeta): Promise<CapsuleStroke[]
     .maybeSingle();
   if (error || !data) return null;
   if (!capsule.openedAt) {
-    supabase
-      .from(TABLES.capsules)
-      .update({ opened_at: new Date().toISOString() })
-      .eq('id', capsule.id)
-      .then(() => {});
+    // awaited so a following listCapsules can't race it and re-show the pill
+    try {
+      await supabase
+        .from(TABLES.capsules)
+        .update({ opened_at: new Date().toISOString() })
+        .eq('id', capsule.id);
+    } catch {
+      // offline: the reveal replays next launch — acceptable
+    }
   }
   return data.strokes as CapsuleStroke[];
 }

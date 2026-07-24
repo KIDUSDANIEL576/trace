@@ -17,6 +17,7 @@ export const TABLES = {
 export const RPCS = {
   createCouple: 'trace_create_couple',
   joinCouple: 'trace_join_couple',
+  sealCapsule: 'trace_seal_capsule',
 } as const;
 
 export const EDGE_FUNCTIONS = {

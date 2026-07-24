@@ -48,8 +48,9 @@ export function SealCapsuleSheet({ visible, strokeCount, onClose, onSeal }: Seal
           <View style={styles.grab} />
           <Text style={styles.title}>Seal this drawing ⏳</Text>
           <Text style={styles.subtitle}>
-            The canvas as it is right now — {strokeCount} stroke{strokeCount === 1 ? '' : 's'} —
-            locked away until the day it opens. Not even you can peek.
+            The canvas exactly as it is right now — {strokeCount} stroke
+            {strokeCount === 1 ? '' : 's'} — kept safe even after the canvas moves on. It opens
+            for you both on the day.
           </Text>
 
           <Text style={styles.section}>OPENS</Text>

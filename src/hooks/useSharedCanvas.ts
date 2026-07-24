@@ -334,9 +334,10 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       });
       // only promote into the visible list if we're still on that canvas
       if (strokeCanvasId === canvasIdRef.current) {
+        const promotedAt = Date.now(); // outside the updater — updaters stay pure
         setStrokes((list) => [
           ...list,
-          { ...finished!, dbId: dbId ?? undefined, createdAt: Date.now() },
+          { ...finished!, dbId: dbId ?? undefined, createdAt: promotedAt },
         ]);
       }
 

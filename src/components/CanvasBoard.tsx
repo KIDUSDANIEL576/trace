@@ -62,6 +62,9 @@ export function CanvasBoard({
   }, []);
   const stars = useMemo(() => (seedId ? starField(seedId) : undefined), [seedId]);
   const night = nightness(new Date(nowMs));
+  // bloom moves on a scale of days — an hourly quantum keeps StrokeRenderer's
+  // memo effective instead of re-rendering every stroke once a minute
+  const bloomNowMs = Math.floor(nowMs / 3_600_000) * 3_600_000;
   const activeIdRef = useRef<string | null>(null);
   const lastPxRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -125,7 +128,7 @@ export function CanvasBoard({
             {strokes
               .filter((s) => s.brush !== 'invisible' || revealInvisible)
               .map((s) => (
-                <StrokeRenderer key={s.id} stroke={s} width={w} height={h} nowMs={nowMs} />
+                <StrokeRenderer key={s.id} stroke={s} width={w} height={h} nowMs={bloomNowMs} />
               ))}
             {Object.values(liveStrokes).map((s) => (
               <StrokeRenderer key={s.id} stroke={s} width={w} height={h} />

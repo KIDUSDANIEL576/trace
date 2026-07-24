@@ -65,9 +65,12 @@ export function starField(seed: string, count = 18): Star[] {
   }));
 }
 
-/** Slow twinkle, deterministic from wall-clock time — no animation state. */
+/** Slow shimmer, deterministic from the wall-clock MINUTE — quantized so two
+ * phones whose render ticks fire at different moments still sample the same
+ * sky, and so opacity only changes when the minute does. */
 export function starOpacity(star: Star, nowMs: number, night: number): number {
-  const phase = (nowMs / 4000 + star.twinkle * Math.PI * 2) % (Math.PI * 2);
+  const minute = Math.floor(nowMs / 60_000);
+  const phase = (minute / 3 + star.twinkle * Math.PI * 2) % (Math.PI * 2);
   const tw = 0.55 + 0.45 * Math.sin(phase);
   return night * tw * 0.85;
 }

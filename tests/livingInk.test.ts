@@ -81,7 +81,14 @@ test('star opacity is 0 in daylight and bounded at night', () => {
   }
 });
 
-test('hashSeed is stable (locked value — a change would move every constellation)', () => {
-  assert.equal(hashSeed('trace'), hashSeed('trace'));
+test('hashSeed is pinned (changing the hash would move every couple’s constellation)', () => {
+  assert.equal(hashSeed('trace'), 2168288686);
   assert.notEqual(hashSeed('trace'), hashSeed('tracf'));
+});
+
+test('star opacity is identical for two phones sampling the same minute', () => {
+  const star = starField('seed')[0];
+  const t = 1_700_000_100_000; // arbitrary
+  const sameMinuteLater = t + 30_000;
+  assert.equal(starOpacity(star, t, 1), starOpacity(star, sameMinuteLater, 1));
 });

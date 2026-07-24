@@ -184,7 +184,7 @@ function SharedCanvas({
   async function onSealCapsule(opensAt: Date, note: string) {
     setSealOpen(false);
     try {
-      await sealCapsule(coupleId, userId, strokes, opensAt, note);
+      await sealCapsule(coupleId, strokes, opensAt, note);
       notifyPartner(coupleId, 'capsule');
       notifySuccess();
       toast.show(`Sealed until ${opensAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} 🎁`);
@@ -544,7 +544,9 @@ function SharedCanvas({
             <Text style={styles.revealText}>↗ share</Text>
           </Pressable>
         )}
-        {strokes.length > 0 && (
+        {strokes.length > 0 && activeCanvas?.kind !== 'photo' && (
+          // photo canvases can't be sealed: the capsule stores only strokes,
+          // and annotations without their photo open as context-free scribbles
           <Pressable
             onPress={() => {
               tapLight();
