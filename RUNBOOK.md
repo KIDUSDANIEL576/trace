@@ -14,8 +14,24 @@ arrives). Full click-by-click steps — template + Resend SMTP — are in
 [EMAIL_SETUP.md](EMAIL_SETUP.md). Do Part 1 before this; Part 2 before you demo
 to anyone.
 
+Get the code onto your computer (either way):
+- **No terminal:** github.com/KIDUSDANIEL576/trace → green **Code** button →
+  **Download ZIP** → unzip it (e.g. onto your Desktop).
+- **Terminal:** `git clone https://github.com/KIDUSDANIEL576/trace`
+
+**Easiest launch — double-click (no typing):**
+- **Windows:** open the `trace` folder → double-click **`start-windows.bat`**.
+  (Phones on different Wi-Fi and the QR won't connect? Use
+  **`start-windows-tunnel.bat`** instead.)
+- **Mac:** right-click **`start-mac.command`** → **Open** (first time only, to
+  clear the security prompt).
+
+The launcher runs from the right folder, installs everything on first run,
+creates `.env` for you, and shows the QR code. That's the whole setup.
+
+**Or by hand in a terminal:**
 ```bash
-git clone https://github.com/KIDUSDANIEL576/trace && cd trace
+cd trace
 npm install
 cp .env.example .env          # already filled with the live backend
 npx expo start                # a QR code appears
