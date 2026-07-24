@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CanvasBoard } from '@/components/CanvasBoard';
+import { OpenCapsuleModal, SealCapsuleSheet } from '@/components/CapsuleSheet';
 import { HeartBloom } from '@/components/HeartBloom';
 import { PresencePill } from '@/components/PresencePill';
 import { SettingsSheet } from '@/components/SettingsSheet';
@@ -15,6 +16,7 @@ import { useCouple } from '@/hooks/useCouple';
 import { useSharedCanvas } from '@/hooks/useSharedCanvas';
 import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
+import { isOpen, listCapsules, openCapsule, opensInLabel, sealCapsule } from '@/lib/capsules';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount, leaveCouple } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
@@ -27,7 +29,7 @@ import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, swatches, type Palette } from '@/theme/tokens';
-import type { Brush, CanvasInfo, Membership } from '@/types';
+import type { Brush, CanvasInfo, CapsuleMeta, CapsuleStroke, Membership } from '@/types';
 
 export default function CanvasScreen() {
   const { session, loading } = useAuth();
@@ -83,6 +85,11 @@ function SharedCanvas({
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [reveal, setReveal] = useState(false);
+  // Phase 5 · Time Capsules
+  const [capsules, setCapsules] = useState<CapsuleMeta[]>([]);
+  const [sealOpen, setSealOpen] = useState(false);
+  const [viewingCapsule, setViewingCapsule] = useState<CapsuleMeta | null>(null);
+  const [viewingStrokes, setViewingStrokes] = useState<CapsuleStroke[] | null>(null);
 
   const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
   const activePhotoPath = activeCanvas?.photoPath ?? null;
@@ -160,6 +167,44 @@ function SharedCanvas({
   }, [partnerPulse]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { streak, refresh: refreshStreak } = useStreak(coupleId);
+
+  // capsules: load on mount and whenever the app foregrounds (a partner may
+  // have sealed one, or a sealed one may have come due)
+  useEffect(() => {
+    listCapsules(coupleId).then(setCapsules);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') listCapsules(coupleId).then(setCapsules);
+    });
+    return () => sub.remove();
+  }, [coupleId]);
+
+  const readyCapsule = capsules.find((c) => isOpen(c) && !c.openedAt) ?? null;
+  const nextSealed = capsules.find((c) => !isOpen(c)) ?? null;
+
+  async function onSealCapsule(opensAt: Date, note: string) {
+    setSealOpen(false);
+    try {
+      await sealCapsule(coupleId, userId, strokes, opensAt, note);
+      notifySuccess();
+      toast.show(`Sealed until ${opensAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} 🎁`);
+      listCapsules(coupleId).then(setCapsules);
+    } catch {
+      toast.show('Could not seal it — try again');
+    }
+  }
+
+  async function onOpenCapsule(c: CapsuleMeta) {
+    tapLight();
+    const content = await openCapsule(c);
+    if (!content) {
+      toast.show('Not quite time yet…');
+      return;
+    }
+    heartbeat();
+    setViewingCapsule(c);
+    setViewingStrokes(content);
+    listCapsules(coupleId).then(setCapsules);
+  }
 
   useEffect(() => {
     registerPushToken(userId);
@@ -428,6 +473,24 @@ function SharedCanvas({
         </ScrollView>
       )}
 
+      {readyCapsule ? (
+        <Pressable
+          onPress={() => onOpenCapsule(readyCapsule)}
+          accessibilityRole="button"
+          accessibilityLabel="A time capsule is ready — open it"
+          style={({ pressed }) => [styles.capsulePill, styles.capsulePillReady, pressed && { opacity: 0.8 }]}
+        >
+          <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
+        </Pressable>
+      ) : nextSealed ? (
+        <View style={styles.capsulePill}>
+          <Text style={styles.capsuleText}>
+            ⏳ {nextSealed.authorId === userId ? 'your' : `${partnerName ?? 'their'}`} capsule ·{' '}
+            {opensInLabel(nextSealed)}
+          </Text>
+        </View>
+      ) : null}
+
       <View>
         <CanvasBoard
           strokes={strokes}
@@ -438,6 +501,7 @@ function SharedCanvas({
           photoUrl={photoUrl}
           revealInvisible={reveal}
           prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
+          seedId={activeCanvasId}
           canvasRef={canvasRef}
           onBegin={beginStroke}
           onPoint={addPoint}
@@ -479,6 +543,19 @@ function SharedCanvas({
             <Text style={styles.revealText}>↗ share</Text>
           </Pressable>
         )}
+        {strokes.length > 0 && (
+          <Pressable
+            onPress={() => {
+              tapLight();
+              setSealOpen(true);
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Seal this drawing in a time capsule"
+            style={({ pressed }) => [styles.capsuleChip, pressed && { opacity: 0.75 }]}
+          >
+            <Text style={styles.revealText}>⏳ capsule</Text>
+          </Pressable>
+        )}
       </View>
 
       <Pressable
@@ -515,6 +592,24 @@ function SharedCanvas({
           <Button title="▶ Replay" variant="ghost" onPress={openReplay} />
         </View>
       </View>
+
+      <SealCapsuleSheet
+        visible={sealOpen}
+        strokeCount={strokes.length}
+        onClose={() => setSealOpen(false)}
+        onSeal={onSealCapsule}
+      />
+      <OpenCapsuleModal
+        capsule={viewingCapsule}
+        strokes={viewingStrokes}
+        authorName={
+          viewingCapsule?.authorId === userId ? 'you' : (partnerName ?? 'your person')
+        }
+        onClose={() => {
+          setViewingCapsule(null);
+          setViewingStrokes(null);
+        }}
+      />
 
       <SettingsSheet
         visible={settingsOpen}
@@ -602,6 +697,30 @@ const makeStyles = (colors: Palette) =>
     position: 'absolute',
     bottom: 12,
     left: 12,
+    backgroundColor: 'rgba(10,9,13,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  capsulePill: {
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radius.pill,
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    marginBottom: 10,
+  },
+  capsulePillReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.14)' },
+  capsuleText: { color: colors.muted, fontSize: 12 },
+  capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
+  capsuleChip: {
+    position: 'absolute',
+    bottom: 12,
+    left: 86,
     backgroundColor: 'rgba(10,9,13,0.62)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',

@@ -95,6 +95,17 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       the six real moments on-device into `store/raw/` and rerun (store/README.md),
       plus the 30s Replay screen-recording — that's the ad.
 
+## Phase 5 · What was never built — SHIPPED (verify on device, TESTING.md §9)
+
+- [x] **Time Capsules** — seal the current canvas until a date ("In a week/month/
+      year/5 years" + a note). Sealed content is RLS-locked server-side (E2E
+      verified: metadata visible, sealed strokes return zero rows — even to the
+      author). Gold "ready" pill → full-screen reveal with the note.
+- [x] **Presence Painting** — the canvas is alive, deterministically: ink
+      "blooms" +8% over its first week (easeOut), and each canvas has its own
+      constellation that fades in after 20:00 local — same stars on both phones
+      (seeded PRNG from the canvas id). One 60s tick; no servers, no batteries hurt.
+
 ## Tier 4 · Make it live (post-launch spine)
 
 - [ ] **Dedicated Supabase project** (Pro $25/mo or a freed slot): run the un-prefixed

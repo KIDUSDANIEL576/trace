@@ -105,6 +105,23 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Sign in as `review@trace.demo` (password path, no email needed) → lands
       on the premium REVIEW couple's canvas with seeded strokes
 
+## 9 · Phase 5 — Time Capsules + Presence Painting
+
+- [ ] Draw something → ⏳ capsule chip (bottom-left, next to share) → sheet opens
+- [ ] Pick "In a week", add a note, **Seal it 🎁** → toast shows the open date
+- [ ] The ⏳ pill appears above the canvas ("your capsule · opens in 7 days")
+- [ ] Partner's phone shows the same pill on next app open ("<name>'s capsule…")
+- [ ] Neither phone can see the sealed drawing anywhere (not even the author)
+- [ ] When due (test: seal "In a week", then adjust `opens_at` in the DB to the
+      past): pill turns gold "🎁 a time capsule is ready — tap to open" → the
+      full-screen reveal shows the drawing + note; haptic heartbeat plays
+- [ ] After opening once, the gold pill goes away (opened_at set)
+- [ ] **Presence Painting**: after 21:00 local, the empty/shared canvas (not
+      photo canvases) shows a faint constellation in the upper sky; by day it's
+      gone; both phones show the SAME star pattern
+- [ ] Week-old strokes look imperceptibly fuller than fresh ones (ink bloom,
+      max +8% — verify no layout/drawing weirdness rather than the effect itself)
+
 ## When something fails
 
 Grab the red-box/console error (`npx expo start` terminal) or, for backend

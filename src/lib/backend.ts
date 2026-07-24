@@ -10,6 +10,8 @@ export const TABLES = {
   strokes: 'trace_strokes',
   dailyMarks: 'trace_daily_marks',
   pushTokens: 'trace_push_tokens',
+  capsules: 'trace_capsules',
+  capsuleContents: 'trace_capsule_contents',
 } as const;
 
 export const RPCS = {

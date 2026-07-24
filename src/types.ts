@@ -11,6 +11,7 @@ export interface Stroke {
   color: string;
   width: number; // normalized to canvas width (px / canvasWidth)
   points: Point[];
+  createdAt?: number; // epoch ms — drives Presence Painting's ink bloom
 }
 
 // Realtime broadcast payloads (channel `couple:{couple_id}`)
@@ -52,6 +53,22 @@ export interface CanvasInfo {
   kind: 'shared' | 'photo';
   photoPath: string | null; // storage path within the photos bucket
   createdAt: string;
+}
+
+// Phase 5 · Time Capsules — a drawing sealed until a date.
+export interface CapsuleMeta {
+  id: string;
+  authorId: string;
+  note: string | null;
+  opensAt: string; // timestamptz ISO
+  openedAt: string | null;
+  createdAt: string;
+}
+export interface CapsuleStroke {
+  brush: Brush;
+  color: string;
+  width: number;
+  points: Point[];
 }
 
 export interface Membership {

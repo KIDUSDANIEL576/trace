@@ -1,4 +1,5 @@
 import {
+  Circle,
   Image as SkiaImage,
   LinearGradient,
   RadialGradient,
@@ -7,6 +8,7 @@ import {
   vec,
 } from '@shopify/react-native-skia';
 import React from 'react';
+import { starOpacity, type Star } from '@/lib/livingInk';
 import type { BoardPalette } from '@/theme/tokens';
 
 interface Props {
@@ -14,6 +16,10 @@ interface Props {
   h: number;
   board: BoardPalette;
   photoUrl?: string | null;
+  /** Presence Painting: the couple's constellation, visible only at night. */
+  stars?: Star[];
+  night?: number; // 0 = day, 1 = deep night
+  nowMs?: number;
 }
 
 /** Same rgba colour with its alpha forced to 0 (for the highlight's outer stop). */
@@ -26,7 +32,7 @@ function fade(rgba: string): string {
  * the theme's gradient — multiply-blend marker ink needs a light ground either
  * way. Falls back to the gradient while a photo is still loading.
  */
-export function CanvasBackdrop({ w, h, board, photoUrl }: Props) {
+export function CanvasBackdrop({ w, h, board, photoUrl, stars, night = 0, nowMs = 0 }: Props) {
   const image = useImage(photoUrl ?? null);
 
   if (photoUrl && image) {
@@ -50,6 +56,17 @@ export function CanvasBackdrop({ w, h, board, photoUrl }: Props) {
           colors={[board.highlight, fade(board.highlight)]}
         />
       </Rect>
+      {night > 0 &&
+        stars?.map((s, i) => (
+          <Circle
+            key={i}
+            cx={s.x * w}
+            cy={s.y * h}
+            r={Math.max(1, s.r * w)}
+            color="#fff8ea"
+            opacity={starOpacity(s, nowMs, night)}
+          />
+        ))}
     </>
   );
 }

@@ -1,16 +1,23 @@
 import { BlurMask, Path } from '@shopify/react-native-skia';
 import React, { useMemo } from 'react';
 import { buildSmoothPath } from '@/lib/geometry';
+import { bloomScale } from '@/lib/livingInk';
 import type { Stroke } from '@/types';
 
 interface Props {
   stroke: Stroke;
   width: number; // canvas px width
   height: number; // canvas px height
+  nowMs?: number; // Presence Painting: enables ink bloom for aged strokes
 }
 
 /** Renders one stroke with its brush character (matches the prototype's canvas brushes). */
-export const StrokeRenderer = React.memo(function StrokeRenderer({ stroke, width, height }: Props) {
+export const StrokeRenderer = React.memo(function StrokeRenderer({
+  stroke,
+  width,
+  height,
+  nowMs,
+}: Props) {
   const path = useMemo(
     () => buildSmoothPath(stroke.points, width, height),
     // points array is append-only, so length is a sufficient dependency
@@ -19,7 +26,8 @@ export const StrokeRenderer = React.memo(function StrokeRenderer({ stroke, width
 
   if (stroke.points.length < 2) return null;
 
-  const w = stroke.width * width;
+  const bloom = nowMs && stroke.createdAt ? bloomScale(stroke.createdAt, nowMs) : 1;
+  const w = stroke.width * width * bloom;
   const common = {
     path,
     style: 'stroke' as const,

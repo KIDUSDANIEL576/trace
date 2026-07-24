@@ -83,7 +83,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
   const refetchStrokes = useCallback(async () => {
     const { data, error } = await supabase
       .from(TABLES.strokes)
-      .select('id, author_id, brush, color, width, points')
+      .select('id, author_id, brush, color, width, points, created_at')
       .eq('canvas_id', canvasId)
       .order('id', { ascending: true });
     if (error || !data) return;
@@ -95,6 +95,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       color: row.color,
       width: row.width,
       points: row.points as Point[],
+      createdAt: row.created_at ? Date.parse(row.created_at) : undefined,
     }));
     setStrokes((prev) => {
       // a slow SELECT for a canvas we've since switched away from must not land
@@ -155,7 +156,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
           // and the partner's stroke would vanish on finger-lift.
           const s = liveStrokesRef.current[p.strokeId];
           if (s) {
-            const ended: Stroke = { ...s, dbId: p.dbId ?? undefined };
+            const ended: Stroke = { ...s, dbId: p.dbId ?? undefined, createdAt: Date.now() };
             setStrokes((list) => (list.some((x) => x.id === ended.id) ? list : [...list, ended]));
             setLiveStrokes((prev) => {
               if (!prev[p.strokeId]) return prev;
@@ -333,7 +334,10 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
       });
       // only promote into the visible list if we're still on that canvas
       if (strokeCanvasId === canvasIdRef.current) {
-        setStrokes((list) => [...list, { ...finished!, dbId: dbId ?? undefined }]);
+        setStrokes((list) => [
+          ...list,
+          { ...finished!, dbId: dbId ?? undefined, createdAt: Date.now() },
+        ]);
       }
 
       // streak mark lands before we resolve, so the caller's refresh sees it
