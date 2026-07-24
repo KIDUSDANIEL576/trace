@@ -1,6 +1,14 @@
 import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Alert,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
 import { notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
@@ -18,6 +26,12 @@ export default function SignIn() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
+  // gentle entrance: the hero breathes in instead of popping
+  const enter = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(enter, { toValue: 1, duration: 550, useNativeDriver: true }).start();
+  }, [enter]);
+  const rise = enter.interpolate({ inputRange: [0, 1], outputRange: [14, 0] });
 
   async function sendCode() {
     if (busy) return; // keyboard submit isn't disabled like the button is
@@ -62,16 +76,18 @@ export default function SignIn() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.center}
       >
-        <View style={{ marginBottom: 8 }}>
-          <Wordmark size={34} />
-        </View>
-        <Text style={styles.h1}>
-          Leave me{'\n'}a <Text style={{ color: colors.ink }}>trace.</Text>
-        </Text>
-        <Text style={styles.sub}>
-          Whatever one of you draws appears on the other&apos;s phone — stroke by stroke, in
-          real time.
-        </Text>
+        <Animated.View style={{ opacity: enter, transform: [{ translateY: rise }] }}>
+          <View style={{ marginBottom: 8 }}>
+            <Wordmark size={34} />
+          </View>
+          <Text style={styles.h1}>
+            Leave me{'\n'}a <Text style={{ color: colors.ink }}>trace.</Text>
+          </Text>
+          <Text style={styles.sub}>
+            Whatever one of you draws appears on the other&apos;s phone — stroke by stroke, in
+            real time.
+          </Text>
+        </Animated.View>
         <View style={{ height: 32 }} />
         <Text style={styles.fieldLabel}>Your email</Text>
         <Input

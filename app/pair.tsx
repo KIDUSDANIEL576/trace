@@ -96,7 +96,13 @@ export default function Pair() {
             accessibilityLabel={`Your invite code is ${inviteCode.split('').join(' ')}. Tap to share.`}
           >
             <Text style={styles.codeCardLabel}>YOUR INVITE CODE</Text>
-            <Text style={styles.bigCode}>{inviteCode}</Text>
+            <View style={styles.codeCells}>
+              {inviteCode.split('').map((ch, i) => (
+                <View key={i} style={styles.codeCell}>
+                  <Text style={styles.codeCellChar}>{ch}</Text>
+                </View>
+              ))}
+            </View>
             <Text style={styles.tapShare}>tap to share</Text>
           </Pressable>
           <Text style={styles.hint}>
@@ -261,7 +267,18 @@ const makeStyles = (colors: Palette) =>
     letterSpacing: 1.5,
     marginBottom: 10,
   },
-  bigCode: { color: colors.text, fontSize: 44, fontWeight: '700', letterSpacing: 12 },
+  codeCells: { flexDirection: 'row', gap: 8, paddingHorizontal: 24 },
+  codeCell: {
+    width: 44,
+    height: 54,
+    borderRadius: radius.tool,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.panel2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  codeCellChar: { color: colors.text, fontSize: 26, fontWeight: '700' },
   tapShare: { color: colors.glow, fontSize: 13, marginTop: 10, fontWeight: '500' },
   signOut: { alignSelf: 'center', marginTop: 20, padding: 10 },
   signOutText: { color: colors.text, fontSize: 14, fontWeight: '500' },

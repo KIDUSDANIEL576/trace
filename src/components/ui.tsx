@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -48,26 +49,41 @@ export function Button({
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const off = disabled || loading;
+  // spring physics instead of a static pressed style — the press sinks in and
+  // releases with a small overshoot, which is most of what "feels native" means
+  const scale = useRef(new Animated.Value(1)).current;
+  const pressIn = () => {
+    if (off) return;
+    tapLight();
+    Animated.spring(scale, { toValue: 0.96, useNativeDriver: true, speed: 40, bounciness: 0 }).start();
+  };
+  const pressOut = () => {
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 9 }).start();
+  };
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => !off && tapLight()}
+      onPressIn={pressIn}
+      onPressOut={pressOut}
       disabled={off}
       accessibilityRole="button"
       accessibilityLabel={title}
       accessibilityState={{ disabled: !!disabled, busy: !!loading }}
-      style={({ pressed }) => [
-        styles.btn,
-        variant === 'primary' ? styles.btnPrimary : styles.btnGhost,
-        pressed && !off && styles.btnPressed,
-        off && styles.btnOff,
-      ]}
     >
-      {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : colors.text} />
-      ) : (
-        <Text style={[styles.btnText, variant === 'ghost' && styles.btnTextGhost]}>{title}</Text>
-      )}
+      <Animated.View
+        style={[
+          styles.btn,
+          variant === 'primary' ? styles.btnPrimary : styles.btnGhost,
+          off && styles.btnOff,
+          { transform: [{ scale }] },
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={variant === 'primary' ? '#fff' : colors.text} />
+        ) : (
+          <Text style={[styles.btnText, variant === 'ghost' && styles.btnTextGhost]}>{title}</Text>
+        )}
+      </Animated.View>
     </Pressable>
   );
 }
@@ -89,9 +105,22 @@ export function Input(props: TextInputProps) {
 export function Loading({ label }: { label?: string }) {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  // a quiet heartbeat instead of a generic spinner — lub-dub, pause, repeat
+  const beat = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const lub = (to: number, ms: number) =>
+      Animated.timing(beat, { toValue: to, duration: ms, useNativeDriver: true });
+    const loop = Animated.loop(
+      Animated.sequence([lub(1.18, 140), lub(1, 140), lub(1.12, 130), lub(1, 500)])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [beat]);
   return (
     <View style={[styles.screen, styles.loadingWrap]}>
-      <ActivityIndicator color={colors.ink} size="large" />
+      <Animated.Text style={[styles.loadingHeart, { transform: [{ scale: beat }] }]}>
+        ♥
+      </Animated.Text>
       {label ? <Text style={styles.loadingText}>{label}</Text> : null}
     </View>
   );
@@ -101,6 +130,7 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.night, paddingHorizontal: 22 },
     loadingWrap: { alignItems: 'center', justifyContent: 'center', gap: 16 },
+    loadingHeart: { color: colors.ink, fontSize: 44, lineHeight: 52 },
     loadingText: { color: colors.muted, fontSize: 14, fontFamily: fonts.handwritingMedium },
     wordmark: { fontFamily: fonts.handwriting, color: colors.text },
     btn: {
@@ -120,7 +150,6 @@ const makeStyles = (colors: Palette) =>
       elevation: 5,
     },
     btnGhost: { backgroundColor: colors.panel2, borderWidth: 1, borderColor: colors.line },
-    btnPressed: { transform: [{ scale: 0.97 }], opacity: 0.92 },
     btnOff: { opacity: 0.45 },
     btnText: { color: '#ffffff', fontSize: 16, fontWeight: '600', letterSpacing: 0.2 },
     btnTextGhost: { color: colors.text },
