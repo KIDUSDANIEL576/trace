@@ -60,7 +60,9 @@ Deno.serve(async (req) => {
         ? 'shared a photo to draw on 📸'
         : kind === 'pulse'
           ? 'is thinking of you ❤️'
-          : 'left you a trace ❤️';
+          : kind === 'capsule'
+            ? 'sealed a time capsule for you ⏳'
+            : 'left you a trace ❤️';
     const res = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -185,6 +185,7 @@ function SharedCanvas({
     setSealOpen(false);
     try {
       await sealCapsule(coupleId, userId, strokes, opensAt, note);
+      notifyPartner(coupleId, 'capsule');
       notifySuccess();
       toast.show(`Sealed until ${opensAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} 🎁`);
       listCapsules(coupleId).then(setCapsules);
