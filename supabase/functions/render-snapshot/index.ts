@@ -6,6 +6,17 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { createCanvas, loadImage } from 'https://deno.land/x/canvas@v1.4.2/mod.ts';
 
+// Presence Painting parity (src/lib/livingInk.ts): ink blooms +8% over its
+// first week, easeOutQuad. Deterministic, so widget and app widths agree.
+const BLOOM_DAYS = 7;
+const BLOOM_MAX = 0.08;
+function bloomScale(createdAtMs: number, nowMs: number): number {
+  const age = nowMs - createdAtMs;
+  if (age <= 0) return 1;
+  const t = Math.min(age / (BLOOM_DAYS * 86_400_000), 1);
+  return 1 + BLOOM_MAX * (1 - (1 - t) * (1 - t));
+}
+
 const W = 640;
 const H = 704; // matches the app board's 1/1.1 aspect
 
@@ -15,6 +26,7 @@ interface StrokeRow {
   color: string;
   width: number;
   points: Pt[];
+  created_at?: string;
 }
 
 Deno.serve(async (req) => {
@@ -71,7 +83,7 @@ Deno.serve(async (req) => {
 
     const { data: strokes } = await admin
       .from('strokes')
-      .select('brush, color, width, points')
+      .select('brush, color, width, points, created_at')
       .eq('canvas_id', target.id)
       .order('id', { ascending: true });
 
@@ -92,7 +104,8 @@ Deno.serve(async (req) => {
     }
     if (!photoPainted) paintDusk(ctx);
 
-    for (const s of (strokes ?? []) as StrokeRow[]) drawStroke(ctx, s);
+    const now = Date.now();
+    for (const s of (strokes ?? []) as StrokeRow[]) drawStroke(ctx, s, now);
 
     const png = canvas.toBuffer('image/png');
     const { error: upErr } = await admin.storage
@@ -123,11 +136,12 @@ function tracePath(ctx: CanvasRenderingContext2D, pts: Pt[]) {
 }
 
 /** Brush characters approximating the app's StrokeRenderer (blur → shadowBlur). */
-function drawStroke(ctx: CanvasRenderingContext2D, s: StrokeRow) {
+function drawStroke(ctx: CanvasRenderingContext2D, s: StrokeRow, nowMs: number) {
   if (s.brush === 'invisible') return; // secrets never land on home screens
   const pts = s.points;
   if (!Array.isArray(pts) || pts.length < 2) return;
-  const w = s.width * W;
+  const bloom = s.created_at ? bloomScale(Date.parse(s.created_at), nowMs) : 1;
+  const w = s.width * W * bloom;
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';

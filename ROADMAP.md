@@ -64,8 +64,10 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
 - [ ] **Apple Developer ($99/yr) + Google Play ($25)** accounts.
 - [x] 🔴 **The reviewer-login problem** — DONE: the email `review@trace.demo` takes a
       hidden password path (no OTP). Live demo couple "REVIEW" is premium (so paid
-      features are reviewable) with a partner "Sam" and seeded strokes; credentials
-      verified end-to-end against live auth. **App Review notes**: sign in with
+      features are reviewable) with a partner "Sam", seeded strokes, and two demo
+      time capsules (one ready to open — the reviewer sees the gold-pill reveal on
+      first login — and one sealed ~1 year out). Credentials verified end-to-end
+      against live auth. **App Review notes**: sign in with
       `review@trace.demo` / `trace-review-2026!`.
 - [ ] **App Store privacy "nutrition labels"** — declare email, photos, purchase state
       (PRIVACY.md already maps 1:1 to the answers).
