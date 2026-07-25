@@ -258,7 +258,10 @@ function SharedCanvas({
 
   function shareCode() {
     Share.share({
-      message: `Leave me a trace ❤️ Get the Trace app and join our canvas with code ${inviteCode}`,
+      message:
+        `Leave me a trace ❤️\n\n` +
+        `Open Trace and join our canvas with code ${inviteCode}.\n` +
+        `Already have the app? Tap: trace://pair?code=${inviteCode}`,
     }).catch(() => {});
   }
 

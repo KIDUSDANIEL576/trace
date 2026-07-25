@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
@@ -23,8 +23,12 @@ import { fonts, radius, type Palette } from '@/theme/tokens';
 export default function Pair() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  // deep link: trace://pair?code=ABC123 (from a shared invite) pre-fills the code
+  const params = useLocalSearchParams<{ code?: string }>();
   const [name, setName] = useState('');
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(
+    (params.code ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6)
+  );
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
 
@@ -79,7 +83,10 @@ export default function Pair() {
 
   function shareCode(c: string) {
     Share.share({
-      message: `Leave me a trace ❤️ Get the Trace app and join our canvas with code ${c}`,
+      message:
+        `Leave me a trace ❤️\n\n` +
+        `Open Trace and join our canvas with code ${c}.\n` +
+        `Already have the app? Tap: trace://pair?code=${c}`,
     }).catch(() => {});
   }
 

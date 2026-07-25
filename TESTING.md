@@ -12,6 +12,9 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] B: sign in → *Join your person* with the code → lands on the canvas
 - [ ] A: header flips from "code · tap to share" to "with <B>" when B arrives
 - [ ] Wrong code and already-paired errors show friendly alerts, no crash
+- [ ] Deep link: with the app installed + signed in but unpaired, tapping a
+      shared `trace://pair?code=ABC123` link opens pairing with the code
+      pre-filled (dev build; in Expo Go use the `exp://…/--/pair?code=ABC123` form)
 
 ## 2 · The magic (Phase 1 bar: <300ms)
 
@@ -49,6 +52,8 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       erupt on both screens, double lub-dub, "You pressed at the same time 💥❤️"
 - [ ] Partner away from the app → they get the "is thinking of you ❤️" push
       (max 1 per 10 min)
+- [ ] Tapping any Trace push (app backgrounded OR fully closed) opens straight
+      to the canvas, not a dead/blank screen (dev build only)
 
 ## 3 · Photos + replay + streak (Phase 2)
 

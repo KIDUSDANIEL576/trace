@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/hooks/useAuth';
+import { useNotificationRouting } from '@/hooks/useNotificationRouting';
 import { initSentry, wrapRootComponent } from '@/lib/sentry';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
@@ -17,6 +18,7 @@ initSentry(); // no-op until EXPO_PUBLIC_SENTRY_DSN is set — SENTRY_SETUP.md
 /** Everything under the theme: root background, status bar, and screens. */
 function Shell() {
   const { theme, colors } = useTheme();
+  useNotificationRouting();
   // theme switches cross-fade instead of snapping: quick dip while every
   // makeStyles(colors) re-evaluates, then ease back in over the new palette
   const fade = useRef(new Animated.Value(1)).current;
