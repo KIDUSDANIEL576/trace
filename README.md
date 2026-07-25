@@ -3,10 +3,31 @@
 **"Leave me a trace."** A couples app where whatever one partner draws appears on the
 other's phone in real time. Two people, one canvas, forever.
 
-This is the **Phase 1 + Phase 2** build from [CLAUDE.md](./CLAUDE.md): live shared canvas,
-stroke streaming over Supabase Realtime Broadcast, presence, persistence, throttled partner
-push — plus draw-on-photos (private Storage bucket), Relationship Replay (scrub through
-your history stroke by stroke), and the Daily Love Streak.
+---
+
+## ▶ Start here — the only 2 steps left
+
+Everything is built and live. To see it on two phones:
+
+1. **Turn on sign-in codes** (once, ~5 min): Supabase dashboard → project
+   `hnjjxvhutpgcdwyzmito` → **Authentication → Emails → Magic Link** → paste the
+   contents of [`supabase/templates/magic-link.html`](./supabase/templates/magic-link.html)
+   → **Save**. Full steps + custom email (Resend): [EMAIL_SETUP.md](./EMAIL_SETUP.md).
+2. **Run it**: download the repo (green **Code → Download ZIP**), unzip, then
+   **double-click `start-windows.bat`** (Windows) or `start-mac.command` (Mac).
+   A QR code appears → scan it on **both** phones with **Expo Go** → sign in,
+   pair, draw. Details + troubleshooting: [RUNBOOK.md](./RUNBOOK.md).
+
+Then run [TESTING.md](./TESTING.md) §1–3 and report anything that misbehaves.
+
+---
+
+Built across five phases from [CLAUDE.md](./CLAUDE.md): live shared canvas, stroke
+streaming over Supabase Realtime Broadcast, presence, persistence, throttled partner
+push, draw-on-photos, Relationship Replay, Daily Love Streak, home-screen widgets,
+Trace Forever (one-time unlock), and **Phase 5** — Time Capsules (seal a drawing until
+a date) and Presence Painting (ink that blooms with age, a night constellation per
+canvas). See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 
 ## Stack
 
@@ -53,15 +74,11 @@ plan exists): create the project, run
 dedicated-project version), strip the prefixes in `src/lib/backend.ts`
 (+ `notify-partner` function name), and point `.env` at the new project.
 
-**One manual dashboard step for sign-in codes:** the app asks users for a
-6-digit code, so the email must contain one. In the dashboard →
-Authentication → Email Templates → **Magic Link**, make the body include
-`{{ .Token }}` (e.g. `<h2>Your trace code: {{ .Token }}</h2>`). Takes one
-minute; without it users receive a link instead of a code.
-
-Heads-up: Supabase's built-in email service is rate-limited (~2 OTP emails per
-hour). Fine for the first two-phone test; configure custom SMTP in the
-dashboard before inviting more testers.
+**One manual dashboard step for sign-in codes** (this is step 1 above): the
+Magic Link email must contain `{{ .Token }}` or users get a link instead of a
+6-digit code. Paste [`supabase/templates/magic-link.html`](./supabase/templates/magic-link.html);
+full walkthrough + custom SMTP (Resend, before inviting more than your partner —
+built-in email caps at ~2 OTP/hour) in [EMAIL_SETUP.md](./EMAIL_SETUP.md).
 
 **E2E verified 2026-07-16** from inside Supabase infra (two live clients on
 the private channel): stroke:start 153ms, stroke:points 152ms (5/5 points),
@@ -70,6 +87,9 @@ sees zero rows and gets "Unauthorized" joining the couple channel. The
 temporary `trace-e2e-test` edge function is a retired stub — safe to delete.
 
 ### 2. App
+
+Double-click `start-windows.bat` / `start-mac.command` (they install deps,
+create `.env`, and launch), or by hand:
 
 ```bash
 npm install
