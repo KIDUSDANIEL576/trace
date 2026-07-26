@@ -14,12 +14,15 @@ import React, { useMemo } from 'react';
 import { starOpacity, type Star } from '@/lib/livingInk';
 import {
   driftingPetals,
+  galaxyStars,
   heartPoints,
   motifStars,
   rainStreaks,
   scatteredHearts,
   snowFlakes,
   sparklePositions,
+  surfLines,
+  treeLine,
 } from '@/lib/motifs';
 import { backgroundByKey, clampBgOpacity, type BackgroundPreset } from '@/theme/backgrounds';
 import type { BoardPalette } from '@/theme/tokens';
@@ -184,6 +187,97 @@ function Motif({ preset, w, h, seed }: { preset: BackgroundPreset; w: number; h:
           ))}
         </Group>
       );
+    case 'waves':
+      // rolling surf lines across the sea band
+      return (
+        <Group>
+          {surfLines(seed).map((wv, i) => {
+            const p = Skia.Path.Make();
+            const y = wv.y * h;
+            const amp = wv.amp * h;
+            p.moveTo(0, y);
+            const steps = 24;
+            for (let s = 1; s <= steps; s++) {
+              const t = s / steps;
+              const x = t * w;
+              const yy = y + Math.sin(t * Math.PI * 3 + wv.phase) * amp;
+              p.lineTo(x, yy);
+            }
+            return (
+              <Path
+                key={i}
+                path={p}
+                style="stroke"
+                strokeWidth={Math.max(1, wv.width * w)}
+                strokeCap="round"
+                color={preset.motifColor}
+              />
+            );
+          })}
+        </Group>
+      );
+    case 'trees':
+      // a simple pine silhouette line along the bottom
+      return (
+        <Group>
+          {treeLine(seed).map((t, i) => {
+            const p = Skia.Path.Make();
+            const cx = t.x * w;
+            const base = t.base * h;
+            const top = base - t.h * h;
+            const half = t.w * w;
+            // three stacked triangles = a pine
+            for (let tier = 0; tier < 3; tier++) {
+              const k = tier / 3;
+              const tierTop = top + (base - top) * k * 0.55;
+              const tierBase = tierTop + (base - top) * 0.42;
+              const spread = half * (0.55 + k * 0.65);
+              p.moveTo(cx, tierTop);
+              p.lineTo(cx + spread, tierBase);
+              p.lineTo(cx - spread, tierBase);
+              p.close();
+            }
+            return <Path key={i} path={p} color={preset.motifColor} />;
+          })}
+        </Group>
+      );
+    case 'galaxy':
+      return (
+        <Group>
+          {galaxyStars(seed).map((s, i) => (
+            <Circle
+              key={i}
+              cx={s.x * w}
+              cy={s.y * h}
+              r={Math.max(0.6, s.r * w)}
+              color={preset.motifColor}
+            />
+          ))}
+        </Group>
+      );
+    case 'flame': {
+      // a candle flame: teardrop body with a soft inner core
+      const cx = w * 0.5;
+      const cy = h * 0.58;
+      const fh = h * 0.09;
+      const fw = w * 0.035;
+      const body = Skia.Path.Make();
+      body.moveTo(cx, cy - fh);
+      body.quadTo(cx + fw, cy - fh * 0.15, cx, cy + fh * 0.35);
+      body.quadTo(cx - fw, cy - fh * 0.15, cx, cy - fh);
+      body.close();
+      const core = Skia.Path.Make();
+      core.moveTo(cx, cy - fh * 0.55);
+      core.quadTo(cx + fw * 0.45, cy - fh * 0.05, cx, cy + fh * 0.18);
+      core.quadTo(cx - fw * 0.45, cy - fh * 0.05, cx, cy - fh * 0.55);
+      core.close();
+      return (
+        <Group>
+          <Path path={body} color={preset.motifColor} />
+          <Path path={core} color="rgba(255,255,240,0.9)" />
+        </Group>
+      );
+    }
     case 'sparkle':
       return (
         <Group>

@@ -16,7 +16,11 @@ export type MotifKind =
   | 'hearts' // a soft scatter of little love signs
   | 'rain' // gentle streaks
   | 'petals' // drifting blossom
-  | 'snow'; // slow flakes
+  | 'snow' // slow flakes
+  | 'waves' // rolling surf lines
+  | 'trees' // a soft pine treeline
+  | 'galaxy' // a dense star field with a bright band
+  | 'flame'; // a candle flame with its halo
 
 export interface BackgroundPreset {
   key: string;
@@ -273,6 +277,48 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     glow: { color: 'rgba(255,170,140,0.4)', x: 0.5, y: 0.85, r: 0.55 },
     motif: 'heart',
     motifColor: 'rgba(255,200,190,0.3)',
+    light: false,
+  },
+  // ── third wave ───────────────────────────────────────────────────────────
+  {
+    key: 'beach',
+    label: 'Beach',
+    // sky → horizon haze → sea → wet sand
+    colors: ['#9fdcf5', '#ffe6c2', '#5fb6c9', '#2b7f9b', '#e6cfa6'],
+    positions: [0, 0.36, 0.5, 0.76, 1],
+    glow: { color: 'rgba(255,244,206,0.8)', x: 0.68, y: 0.24, r: 0.5 },
+    motif: 'waves',
+    motifColor: 'rgba(255,255,255,0.5)',
+    light: true,
+  },
+  {
+    key: 'forest',
+    label: 'Forest',
+    colors: ['#cfe8d6', '#7fb894', '#2f6b52', '#123a2e'],
+    positions: [0, 0.34, 0.68, 1],
+    glow: { color: 'rgba(255,247,205,0.55)', x: 0.3, y: 0.16, r: 0.45 },
+    motif: 'trees',
+    motifColor: 'rgba(14,42,33,0.45)',
+    light: true,
+  },
+  {
+    key: 'galaxy',
+    label: 'Galaxy',
+    colors: ['#05030f', '#1b0f3a', '#43206b', '#7a2f6a', '#0a0518'],
+    positions: [0, 0.28, 0.52, 0.74, 1],
+    glow: { color: 'rgba(190,150,255,0.4)', x: 0.42, y: 0.44, r: 0.62 },
+    motif: 'galaxy',
+    motifColor: 'rgba(255,250,240,0.9)',
+    light: false,
+  },
+  {
+    key: 'candlelit',
+    label: 'Candlelit',
+    colors: ['#150a08', '#3a1a10', '#7a3d1c', '#c9762f', '#2a1109'],
+    positions: [0, 0.3, 0.58, 0.78, 1],
+    glow: { color: 'rgba(255,196,110,0.55)', x: 0.5, y: 0.58, r: 0.5 },
+    motif: 'flame',
+    motifColor: 'rgba(255,226,160,0.85)',
     light: false,
   },
 ];

@@ -8,12 +8,15 @@ import {
 } from '../src/theme/backgrounds';
 import {
   driftingPetals,
+  galaxyStars,
   heartPoints,
   motifStars,
   rainStreaks,
   scatteredHearts,
   snowFlakes,
   sparklePositions,
+  surfLines,
+  treeLine,
 } from '../src/lib/motifs';
 
 test('every preset is well formed (stops match positions, sorted 0..1)', () => {
@@ -98,9 +101,40 @@ test('every motif kind used by a preset has geometry behind it', () => {
     'rain',
     'petals',
     'snow',
+    'waves',
+    'trees',
+    'galaxy',
+    'flame',
   ]);
   for (const b of BACKGROUNDS) {
     assert.ok(known.has(b.motif), `${b.key} uses an unknown motif: ${b.motif}`);
+  }
+});
+
+test('scene motifs (waves, treeline, galaxy) are deterministic and placed sensibly', () => {
+  assert.deepEqual(surfLines('a'), surfLines('a'));
+  assert.notDeepEqual(surfLines('a'), surfLines('b'));
+  for (const wv of surfLines('seed')) {
+    assert.ok(wv.y > 0.5 && wv.y < 1, 'surf sits in the lower sea band');
+    assert.ok(wv.amp > 0 && wv.width > 0);
+  }
+
+  assert.deepEqual(treeLine('a'), treeLine('a'));
+  const trees = treeLine('seed');
+  for (const t of trees) {
+    assert.ok(t.x >= 0 && t.x <= 1, 'tree on canvas');
+    assert.ok(t.base > 0.85, 'trees stand on the ground line');
+    assert.ok(t.h > 0 && t.w > 0);
+  }
+  // spread across the width rather than bunched
+  assert.ok(Math.max(...trees.map((t) => t.x)) - Math.min(...trees.map((t) => t.x)) > 0.6);
+
+  assert.deepEqual(galaxyStars('a'), galaxyStars('a'));
+  const gs = galaxyStars('seed');
+  assert.ok(gs.length > 50, 'galaxy is dense');
+  for (const s of gs) {
+    assert.ok(s.x >= 0 && s.x <= 1 && s.y >= 0 && s.y <= 1, 'star stays on canvas');
+    assert.ok(s.r > 0);
   }
 });
 
