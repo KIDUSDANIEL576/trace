@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RPCS, TABLES } from '@/lib/backend';
 import { supabase } from '@/lib/supabase';
+import { clampBgOpacity, DEFAULT_BACKGROUND_KEY } from '@/theme/backgrounds';
 import type { CanvasInfo, Membership } from '@/types';
 
 /**
@@ -40,7 +41,7 @@ export function useCouple(userId: string | undefined) {
       const [{ data: canvasRows }, { data: partner }] = await Promise.all([
         supabase
           .from(TABLES.canvases)
-          .select('id, kind, photo_url, created_at')
+          .select('id, kind, photo_url, created_at, bg_key, bg_photo_url, bg_opacity')
           .eq('couple_id', member.couple_id)
           .order('created_at', { ascending: true }),
         supabase
@@ -56,6 +57,9 @@ export function useCouple(userId: string | undefined) {
         kind: c.kind as 'shared' | 'photo',
         photoPath: c.photo_url ?? null,
         createdAt: c.created_at,
+        bgKey: c.bg_key ?? DEFAULT_BACKGROUND_KEY,
+        bgPhotoPath: c.bg_photo_url ?? null,
+        bgOpacity: clampBgOpacity(c.bg_opacity),
       }));
       const couple = Array.isArray(member.couples) ? member.couples[0] : member.couples;
       const next: Membership = {

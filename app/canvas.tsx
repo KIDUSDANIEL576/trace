@@ -3,6 +3,7 @@ import { Redirect, router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BackgroundSheet } from '@/components/BackgroundSheet';
 import { CanvasBoard } from '@/components/CanvasBoard';
 import { OpenCapsuleModal, SealCapsuleSheet } from '@/components/CapsuleSheet';
 import { HeartBloom } from '@/components/HeartBloom';
@@ -20,13 +21,14 @@ import { isOpen, listCapsules, openCapsule, opensInLabel, sealCapsule } from '@/
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount, leaveCouple } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
-import { createPhotoCanvas, pickPhoto, signedPhotoUrl } from '@/lib/photos';
+import { createPhotoCanvas, pickPhoto, signedPhotoUrl, uploadBackgroundPhoto } from '@/lib/photos';
 import { dailyPrompt } from '@/lib/prompts';
 import { configurePurchases } from '@/lib/purchases';
 import { shareCanvas } from '@/lib/shareTrace';
 import { TABLES } from '@/lib/backend';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
+import { clampBgOpacity, DEFAULT_BACKGROUND_KEY } from '@/theme/backgrounds';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, swatches, type Palette } from '@/theme/tokens';
 import type { Brush, CanvasInfo, CapsuleMeta, CapsuleStroke, Membership } from '@/types';
@@ -90,6 +92,16 @@ function SharedCanvas({
   const [sealOpen, setSealOpen] = useState(false);
   const [viewingCapsule, setViewingCapsule] = useState<CapsuleMeta | null>(null);
   const [viewingStrokes, setViewingStrokes] = useState<CapsuleStroke[] | null>(null);
+  // canvas background (the "sky"): local state so a partner's change and our
+  // own optimistic pick both land instantly, without refetching the membership
+  const [bgSheetOpen, setBgSheetOpen] = useState(false);
+  const [bgBusy, setBgBusy] = useState(false);
+  const [bg, setBg] = useState<{ key: string; photoPath: string | null; opacity: number }>({
+    key: DEFAULT_BACKGROUND_KEY,
+    photoPath: null,
+    opacity: 1,
+  });
+  const [bgPhotoUrl, setBgPhotoUrl] = useState<string | null>(null);
 
   const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
   const activePhotoPath = activeCanvas?.photoPath ?? null;
@@ -107,6 +119,7 @@ function SharedCanvas({
     clearCanvas,
     announceNewCanvas,
     sendPulse,
+    setBackground,
     partnerPulse,
     canUndo,
   } = useSharedCanvas({
@@ -115,6 +128,15 @@ function SharedCanvas({
     userId,
     displayName,
     onCanvasNew: refreshMembership,
+    onCanvasBg: (p) => {
+      // partner changed the sky — mirror it if it's the canvas we're looking at
+      if (p.canvasId !== activeCanvasId) return;
+      setBg({
+        key: p.bgKey || DEFAULT_BACKGROUND_KEY,
+        photoPath: p.bgPhotoPath,
+        opacity: clampBgOpacity(p.bgOpacity),
+      });
+    },
   });
 
   const [bloomKey, setBloomKey] = useState(0);
@@ -227,6 +249,67 @@ function SharedCanvas({
     });
     return () => sub.remove();
   }, [coupleId]);
+
+  // adopt the stored background whenever the active canvas changes / reloads
+  useEffect(() => {
+    if (!activeCanvas) return;
+    setBg({
+      key: activeCanvas.bgKey || DEFAULT_BACKGROUND_KEY,
+      photoPath: activeCanvas.bgPhotoPath,
+      opacity: clampBgOpacity(activeCanvas.bgOpacity),
+    });
+  }, [activeCanvas?.id, activeCanvas?.bgKey, activeCanvas?.bgPhotoPath, activeCanvas?.bgOpacity]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // sign the background photo (private bucket)
+  useEffect(() => {
+    setBgPhotoUrl(null);
+    if (!bg.photoPath) return;
+    let stale = false;
+    signedPhotoUrl(bg.photoPath).then((url) => {
+      if (!stale) setBgPhotoUrl(url);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [bg.photoPath]);
+
+  async function applyBackground(next: {
+    bgKey?: string;
+    bgPhotoPath?: string | null;
+    bgOpacity?: number;
+  }) {
+    // optimistic: the sky changes under your finger, then persists + mirrors
+    const merged = {
+      key: next.bgKey ?? bg.key,
+      photoPath: next.bgPhotoPath !== undefined ? next.bgPhotoPath : bg.photoPath,
+      opacity: next.bgOpacity ?? bg.opacity,
+    };
+    setBg(merged);
+    try {
+      await setBackground({
+        bgKey: merged.key,
+        bgPhotoPath: merged.photoPath,
+        bgOpacity: merged.opacity,
+      });
+    } catch {
+      toast.show('Could not save the background');
+    }
+  }
+
+  async function onPickBackgroundPhoto() {
+    try {
+      const uri = await pickPhoto('library');
+      if (!uri) return;
+      setBgBusy(true);
+      const path = await uploadBackgroundPhoto(coupleId, uri);
+      await applyBackground({ bgPhotoPath: path });
+      toast.show('Background set 🌅');
+    } catch {
+      toast.show('Could not set that photo');
+    } finally {
+      setBgBusy(false);
+    }
+  }
 
   // resolve the active canvas's photo (signed URL from the private bucket)
   useEffect(() => {
@@ -506,6 +589,9 @@ function SharedCanvas({
           revealInvisible={reveal}
           prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
           seedId={activeCanvasId}
+          bgKey={bg.key}
+          bgPhotoUrl={bgPhotoUrl}
+          bgOpacity={bg.opacity}
           canvasRef={canvasRef}
           onBegin={beginStroke}
           onPoint={addPoint}
@@ -534,6 +620,20 @@ function SharedCanvas({
             style={styles.revealChip}
           >
             <Text style={styles.revealText}>👁 hold to reveal</Text>
+          </Pressable>
+        )}
+        {activeCanvas?.kind !== 'photo' && (
+          // photo canvases already have their own image as the surface
+          <Pressable
+            onPress={() => {
+              tapLight();
+              setBgSheetOpen(true);
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Change the canvas background"
+            style={({ pressed }) => [styles.bgChip, pressed && { opacity: 0.75 }]}
+          >
+            <Text style={styles.revealText}>🌅 sky</Text>
           </Pressable>
         )}
         <HeartBloom trigger={bloomKey} burst={burst} />
@@ -598,6 +698,19 @@ function SharedCanvas({
           <Button title="▶ Replay" variant="ghost" onPress={openReplay} />
         </View>
       </View>
+
+      <BackgroundSheet
+        visible={bgSheetOpen}
+        bgKey={bg.key}
+        bgOpacity={bg.opacity}
+        hasCustomPhoto={bg.photoPath != null}
+        busy={bgBusy}
+        onClose={() => setBgSheetOpen(false)}
+        onPick={(key) => applyBackground({ bgKey: key, bgPhotoPath: null })}
+        onOpacity={(v) => applyBackground({ bgOpacity: v })}
+        onPickPhoto={onPickBackgroundPhoto}
+        onClearPhoto={() => applyBackground({ bgPhotoPath: null })}
+      />
 
       <SealCapsuleSheet
         visible={sealOpen}
@@ -723,6 +836,17 @@ const makeStyles = (colors: Palette) =>
   capsulePillReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.14)' },
   capsuleText: { color: colors.muted, fontSize: 12 },
   capsuleReadyText: { color: colors.goldText, fontSize: 12.5, fontWeight: '600' },
+  bgChip: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(10,9,13,0.62)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
   capsuleChip: {
     position: 'absolute',
     bottom: 12,

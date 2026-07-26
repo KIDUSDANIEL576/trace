@@ -19,6 +19,9 @@ interface Props {
   revealInvisible?: boolean;
   prompt?: string; // today's idea, shown only while the canvas is empty
   seedId?: string; // Presence Painting: seeds this canvas's constellation
+  bgKey?: string; // chosen background preset
+  bgPhotoUrl?: string | null; // signed URL of a custom background photo
+  bgOpacity?: number; // 0.15..1
   canvasRef?: ReturnType<typeof useCanvasRef>; // parent-owned, for share snapshots
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
@@ -45,6 +48,9 @@ export function CanvasBoard({
   revealInvisible,
   prompt,
   seedId,
+  bgKey,
+  bgPhotoUrl,
+  bgOpacity,
   canvasRef,
   onBegin,
   onPoint,
@@ -120,6 +126,10 @@ export function CanvasBoard({
               h={h}
               board={colors.board}
               photoUrl={photoUrl}
+              bgKey={bgKey}
+              bgPhotoUrl={bgPhotoUrl}
+              bgOpacity={bgOpacity}
+              seedId={seedId}
               stars={stars}
               night={night}
               nowMs={nowMs}

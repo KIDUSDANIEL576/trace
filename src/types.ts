@@ -53,6 +53,18 @@ export interface CanvasInfo {
   kind: 'shared' | 'photo';
   photoPath: string | null; // storage path within the photos bucket
   createdAt: string;
+  // Canvas background — the "sky" you draw on (src/theme/backgrounds.ts)
+  bgKey: string; // preset key, e.g. 'sunset'
+  bgPhotoPath: string | null; // storage path when the background is your photo
+  bgOpacity: number; // 0.15..1 — how strongly the background shows
+}
+
+/** Broadcast when a partner changes the canvas background. */
+export interface CanvasBgPayload {
+  canvasId: string;
+  bgKey: string;
+  bgPhotoPath: string | null;
+  bgOpacity: number;
 }
 
 // Phase 5 · Time Capsules — a drawing sealed until a date.

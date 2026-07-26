@@ -9,6 +9,7 @@ import { notifyPartner } from '@/lib/notifications';
 import { requestSnapshot } from '@/lib/snapshots';
 import type {
   Brush,
+  CanvasBgPayload,
   CanvasClearPayload,
   CanvasNewPayload,
   Point,
@@ -32,6 +33,8 @@ interface Args {
   userId: string;
   displayName: string;
   onCanvasNew?: () => void;
+  /** Partner changed this canvas's background — refresh it locally. */
+  onCanvasBg?: (payload: CanvasBgPayload) => void;
 }
 
 /**
@@ -44,7 +47,14 @@ interface Args {
  * - persistence on stroke end, daily mark, throttled partner push
  * - undo-own-stroke and clear, mirrored to the partner via broadcast
  */
-export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCanvasNew }: Args) {
+export function useSharedCanvas({
+  coupleId,
+  canvasId,
+  userId,
+  displayName,
+  onCanvasNew,
+  onCanvasBg,
+}: Args) {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [liveStrokes, setLiveStrokes] = useState<Record<string, Stroke>>({});
   const [partnerDrawing, setPartnerDrawing] = useState<string | null>(null);
@@ -66,6 +76,8 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
   // ref so a changing callback doesn't tear down the channel subscription
   const onCanvasNewRef = useRef(onCanvasNew);
   onCanvasNewRef.current = onCanvasNew;
+  const onCanvasBgRef = useRef(onCanvasBg);
+  onCanvasBgRef.current = onCanvasBg;
 
   const send = useCallback((event: string, payload: unknown) => {
     return channelRef.current?.send({ type: 'broadcast', event, payload });
@@ -184,6 +196,9 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
         })
         .on('broadcast', { event: 'pulse' }, () => {
           setPartnerPulse((n) => n + 1);
+        })
+        .on('broadcast', { event: 'canvas:bg' }, ({ payload }) => {
+          onCanvasBgRef.current?.(payload as CanvasBgPayload);
         })
         .on('presence', { event: 'sync' }, () => {
           const entries = Object.values(channel.presenceState<PresenceState>()).flat();
@@ -394,6 +409,25 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     send('pulse', {});
   }, [send]);
 
+  // ---- background changed: persist, then mirror to the partner ----
+  const setBackground = useCallback(
+    async (next: { bgKey?: string; bgPhotoPath?: string | null; bgOpacity?: number }) => {
+      const row: Record<string, unknown> = {};
+      if (next.bgKey !== undefined) row.bg_key = next.bgKey;
+      if (next.bgPhotoPath !== undefined) row.bg_photo_url = next.bgPhotoPath;
+      if (next.bgOpacity !== undefined) row.bg_opacity = next.bgOpacity;
+      const { error } = await supabase.from(TABLES.canvases).update(row).eq('id', canvasId);
+      if (error) throw error;
+      send('canvas:bg', {
+        canvasId,
+        bgKey: next.bgKey ?? '',
+        bgPhotoPath: next.bgPhotoPath ?? null,
+        bgOpacity: next.bgOpacity ?? 1,
+      } satisfies CanvasBgPayload);
+    },
+    [canvasId, send]
+  );
+
   return {
     strokes,
     liveStrokes,
@@ -407,6 +441,7 @@ export function useSharedCanvas({ coupleId, canvasId, userId, displayName, onCan
     clearCanvas,
     announceNewCanvas,
     sendPulse,
+    setBackground,
     partnerPulse,
     canUndo: strokes.some((s) => s.authorId === userId),
   };

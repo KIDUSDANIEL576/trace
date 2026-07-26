@@ -40,6 +40,20 @@ export async function createPhotoCanvas(coupleId: string, uri: string): Promise<
   return data.id as string;
 }
 
+/**
+ * Uploads a photo to use as a canvas *background* (distinct from a photo
+ * canvas, which is a drawing surface of its own). Returns the storage path.
+ */
+export async function uploadBackgroundPhoto(coupleId: string, uri: string): Promise<string> {
+  const path = `${coupleId}/bg-${Crypto.randomUUID()}.jpg`;
+  const buf = await fetch(uri).then((r) => r.arrayBuffer());
+  const { error } = await supabase.storage
+    .from(BUCKETS.photos)
+    .upload(path, buf, { contentType: 'image/jpeg' });
+  if (error) throw error;
+  return path;
+}
+
 /** Signed URL for a photo in the private bucket (null if signing fails). */
 export async function signedPhotoUrl(path: string): Promise<string | null> {
   const { data } = await supabase.storage

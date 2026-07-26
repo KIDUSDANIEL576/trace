@@ -121,6 +121,24 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Sign in as `review@trace.demo` (password path, no email needed) → lands
       on the premium REVIEW couple's canvas with seeded strokes
 
+## 8b · Canvas backgrounds ("your canvas sky")
+
+- [ ] Tap the **🌅 sky** chip (top-left of the canvas) → sheet slides up with
+      the background grid, strength slider, and "Use my photo"
+- [ ] Pick **Sunset** → the canvas recolors instantly under the sheet, and
+      **the partner's canvas changes live** without them touching anything
+- [ ] Each preset shows its motif faintly (Rose/Ember/Honey → heart ·
+      Sunset/Ocean/Meadow → sun · Evening → crescent moon · Starry/Midnight →
+      stars · Blush/Lavender → sparkles)
+- [ ] Drag the **strength** slider → the sky fades toward the theme ground in
+      real time; at minimum it stays a whisper (never fully vanishes)
+- [ ] **Use my photo** → library pick → your photo becomes the sky at the
+      chosen strength; partner sees it too; **Remove** returns to the preset
+- [ ] Kill and reopen the app → the chosen sky + strength are remembered
+- [ ] Photo canvases (drawn-on photos) have no 🌅 chip — the photo is the canvas
+- [ ] Strokes still stream live and Presence Painting's night stars still
+      appear over the new skies
+
 ## 9 · Phase 5 — Time Capsules + Presence Painting
 
 - [ ] Draw something → ⏳ capsule chip (bottom-left, next to share) → sheet opens
