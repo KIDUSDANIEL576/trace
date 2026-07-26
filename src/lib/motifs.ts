@@ -162,6 +162,66 @@ export function treeLine(seed: string, count = 11): MotifTree[] {
   }));
 }
 
+export interface MotifPeak {
+  x: number; // summit position
+  top: number; // summit y (fraction of canvas height)
+  halfWidth: number; // fraction of canvas width
+  snow: number; // 0..1 — how far down the snow cap reaches
+}
+
+/** A mountain ridgeline: a few overlapping peaks with snow caps. */
+export function ridgeLine(seed: string, count = 5): MotifPeak[] {
+  const rand = seededRand(seed, 0x9ea4);
+  return Array.from({ length: count }, (_, i) => ({
+    x: (i + 0.5) / count + (rand() - 0.5) * 0.08,
+    top: 0.42 + rand() * 0.16,
+    halfWidth: 0.16 + rand() * 0.12,
+    snow: 0.22 + rand() * 0.16,
+  }));
+}
+
+/** The seven bands of a rainbow arc, outer → inner. */
+export const RAINBOW_BANDS = [
+  'rgba(226,51,67,0.30)',
+  'rgba(244,140,60,0.30)',
+  'rgba(244,198,107,0.30)',
+  'rgba(120,196,124,0.30)',
+  'rgba(96,164,230,0.30)',
+  'rgba(110,120,214,0.30)',
+  'rgba(168,110,206,0.30)',
+];
+
+export interface MotifBurst {
+  x: number;
+  y: number;
+  r: number; // burst radius as a fraction of canvas width
+  spokes: number;
+  rotation: number;
+}
+
+/** Radiating firework bursts. */
+export function fireworkBursts(seed: string, count = 4): MotifBurst[] {
+  const rand = seededRand(seed, 0xf12e);
+  return Array.from({ length: count }, () => ({
+    x: 0.15 + rand() * 0.7,
+    y: 0.12 + rand() * 0.5,
+    r: 0.07 + rand() * 0.07,
+    spokes: 10 + Math.floor(rand() * 6),
+    rotation: rand() * Math.PI,
+  }));
+}
+
+/** Drifting autumn leaves — same shape family as petals, larger and tilted. */
+export function fallingLeaves(seed: string, count = 12): MotifDrift[] {
+  const rand = seededRand(seed, 0x1ea7);
+  return Array.from({ length: count }, () => ({
+    x: 0.05 + rand() * 0.9,
+    y: 0.05 + rand() * 0.88,
+    r: 0.018 + rand() * 0.024,
+    tilt: rand() * Math.PI,
+  }));
+}
+
 /** A dense star field with a brighter diagonal band — the galaxy's arm. */
 export function galaxyStars(seed: string, count = 90): MotifStar[] {
   const rand = seededRand(seed, 0x6a1a);

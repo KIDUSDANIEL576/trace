@@ -20,7 +20,11 @@ export type MotifKind =
   | 'waves' // rolling surf lines
   | 'trees' // a soft pine treeline
   | 'galaxy' // a dense star field with a bright band
-  | 'flame'; // a candle flame with its halo
+  | 'flame' // a candle flame with its halo
+  | 'peaks' // a mountain ridgeline with snow caps
+  | 'rainbow' // an arc of soft colour bands
+  | 'fireworks' // bursts of radiating sparks
+  | 'leaves'; // drifting autumn leaves
 
 export interface BackgroundPreset {
   key: string;
@@ -320,6 +324,49 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'flame',
     motifColor: 'rgba(255,226,160,0.85)',
     light: false,
+  },
+  // ── fourth wave ──────────────────────────────────────────────────────────
+  {
+    key: 'mountains',
+    label: 'Mountains',
+    // alpine dawn: cold sky warming toward the ridge
+    colors: ['#8fc4e8', '#c9dcef', '#f0d6c2', '#a98f9b', '#4a4560'],
+    positions: [0, 0.3, 0.5, 0.74, 1],
+    glow: { color: 'rgba(255,238,204,0.7)', x: 0.32, y: 0.2, r: 0.48 },
+    motif: 'peaks',
+    motifColor: 'rgba(58,62,88,0.55)',
+    light: true,
+  },
+  {
+    key: 'rainbow',
+    label: 'Rainbow',
+    // after the rain: washed sky, the arc supplies the colour
+    colors: ['#dff1fb', '#cfe6f5', '#bcd8ec', '#9dbfd8'],
+    positions: [0, 0.4, 0.72, 1],
+    glow: { color: 'rgba(255,255,255,0.85)', x: 0.5, y: 0.22, r: 0.6 },
+    motif: 'rainbow',
+    motifColor: 'rgba(255,255,255,0.5)',
+    light: true,
+  },
+  {
+    key: 'fireworks',
+    label: 'Fireworks',
+    colors: ['#050a1c', '#0e1b3f', '#25275c', '#12132e'],
+    positions: [0, 0.38, 0.72, 1],
+    glow: { color: 'rgba(120,150,255,0.28)', x: 0.5, y: 0.35, r: 0.6 },
+    motif: 'fireworks',
+    motifColor: 'rgba(255,228,170,0.85)',
+    light: false,
+  },
+  {
+    key: 'autumn',
+    label: 'Autumn',
+    colors: ['#fceccd', '#f6c98a', '#dd8f4f', '#a8532e', '#5e2b1c'],
+    positions: [0, 0.3, 0.56, 0.8, 1],
+    glow: { color: 'rgba(255,232,180,0.7)', x: 0.66, y: 0.2, r: 0.5 },
+    motif: 'leaves',
+    motifColor: 'rgba(150,60,28,0.42)',
+    light: true,
   },
 ];
 

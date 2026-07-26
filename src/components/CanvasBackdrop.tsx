@@ -14,10 +14,14 @@ import React, { useMemo } from 'react';
 import { starOpacity, type Star } from '@/lib/livingInk';
 import {
   driftingPetals,
+  fallingLeaves,
+  fireworkBursts,
   galaxyStars,
   heartPoints,
   motifStars,
+  RAINBOW_BANDS,
   rainStreaks,
+  ridgeLine,
   scatteredHearts,
   snowFlakes,
   sparklePositions,
@@ -253,6 +257,139 @@ function Motif({ preset, w, h, seed }: { preset: BackgroundPreset; w: number; h:
               color={preset.motifColor}
             />
           ))}
+        </Group>
+      );
+    case 'peaks':
+      // a ridgeline of overlapping mountains, each with a snow cap
+      return (
+        <Group>
+          {ridgeLine(seed).map((pk, i) => {
+            const cx = pk.x * w;
+            const top = pk.top * h;
+            const half = pk.halfWidth * w;
+            const base = h;
+            const body = Skia.Path.Make();
+            body.moveTo(cx, top);
+            body.lineTo(cx + half, base);
+            body.lineTo(cx - half, base);
+            body.close();
+            // snow cap: the top slice of the same triangle
+            const capY = top + (base - top) * pk.snow;
+            const capHalf = half * pk.snow;
+            const cap = Skia.Path.Make();
+            cap.moveTo(cx, top);
+            cap.lineTo(cx + capHalf, capY);
+            cap.lineTo(cx - capHalf, capY);
+            cap.close();
+            return (
+              <Group key={i}>
+                <Path path={body} color={preset.motifColor} />
+                <Path path={cap} color="rgba(255,255,255,0.5)" />
+              </Group>
+            );
+          })}
+        </Group>
+      );
+    case 'rainbow': {
+      // seven concentric arcs, drawn as thick strokes from outside in
+      const cx = w * 0.5;
+      const cy = h * 0.92;
+      const outer = w * 0.62;
+      const band = outer * 0.055;
+      return (
+        <Group>
+          {RAINBOW_BANDS.map((color, i) => {
+            const r = outer - i * band;
+            const p = Skia.Path.Make();
+            const steps = 40;
+            for (let s = 0; s <= steps; s++) {
+              // sweep the upper half only (a rising arc)
+              const a = Math.PI + (s / steps) * Math.PI;
+              const x = cx + Math.cos(a) * r;
+              const y = cy + Math.sin(a) * r;
+              if (s === 0) p.moveTo(x, y);
+              else p.lineTo(x, y);
+            }
+            return (
+              <Path
+                key={i}
+                path={p}
+                style="stroke"
+                strokeWidth={band}
+                strokeCap="round"
+                color={color}
+              />
+            );
+          })}
+        </Group>
+      );
+    }
+    case 'fireworks':
+      return (
+        <Group>
+          {fireworkBursts(seed).map((b, i) => {
+            const p = Skia.Path.Make();
+            const cx = b.x * w;
+            const cy = b.y * h;
+            const r = b.r * w;
+            for (let s = 0; s < b.spokes; s++) {
+              const a = b.rotation + (s / b.spokes) * Math.PI * 2;
+              p.moveTo(cx + Math.cos(a) * r * 0.25, cy + Math.sin(a) * r * 0.25);
+              p.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            }
+            return (
+              <Group key={i}>
+                <Path
+                  path={p}
+                  style="stroke"
+                  strokeWidth={Math.max(1, w * 0.004)}
+                  strokeCap="round"
+                  color={preset.motifColor}
+                />
+                <Circle cx={cx} cy={cy} r={Math.max(1, w * 0.006)} color={preset.motifColor} />
+              </Group>
+            );
+          })}
+        </Group>
+      );
+    case 'leaves':
+      return (
+        <Group>
+          {fallingLeaves(seed).map((s, i) => {
+            const p = Skia.Path.Make();
+            const r = s.r * w;
+            const cx = s.x * w;
+            const cy = s.y * h;
+            const cos = Math.cos(s.tilt);
+            const sin = Math.sin(s.tilt);
+            const pt = (dx: number, dy: number): [number, number] => [
+              cx + dx * cos - dy * sin,
+              cy + dx * sin + dy * cos,
+            ];
+            const [ax, ay] = pt(-r, 0);
+            const [bx, by] = pt(r, 0);
+            const [c1x, c1y] = pt(0, -r * 0.62);
+            const [c2x, c2y] = pt(0, r * 0.62);
+            p.moveTo(ax, ay);
+            p.quadTo(c1x, c1y, bx, by);
+            p.quadTo(c2x, c2y, ax, ay);
+            p.close();
+            // midrib, so it reads as a leaf rather than a petal
+            const rib = Skia.Path.Make();
+            rib.moveTo(ax, ay);
+            rib.lineTo(bx, by);
+            return (
+              <Group key={i}>
+                <Path path={p} color={preset.motifColor} />
+                <Path
+                  path={rib}
+                  style="stroke"
+                  strokeWidth={Math.max(0.5, w * 0.0015)}
+                  color="rgba(255,255,255,0.25)"
+                />
+              </Group>
+            );
+          })}
         </Group>
       );
     case 'flame': {
