@@ -59,6 +59,6 @@ const makeStyles = (colors: Palette) =>
       justifyContent: 'center',
     },
     label: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
-    name: { color: colors.glow },
+    name: { color: colors.linkText },
     caret: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.glow },
   });

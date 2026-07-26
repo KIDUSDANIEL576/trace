@@ -642,7 +642,7 @@ const makeStyles = (colors: Palette) =>
   },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   streak: {
-    color: colors.gold,
+    color: colors.goldText,
     fontSize: 13,
     fontWeight: '700',
     overflow: 'hidden',
@@ -696,7 +696,7 @@ const makeStyles = (colors: Palette) =>
     justifyContent: 'center',
   },
   heartBtnPressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
-  heartBtnText: { color: colors.ink, fontSize: 15.5, fontWeight: '700', letterSpacing: 0.2 },
+  heartBtnText: { color: colors.inkText, fontSize: 15.5, fontWeight: '700', letterSpacing: 0.2 },
   actions: { flexDirection: 'row', gap: 8, marginTop: 10 },
   actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
   shareChip: {
@@ -722,7 +722,7 @@ const makeStyles = (colors: Palette) =>
   },
   capsulePillReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.14)' },
   capsuleText: { color: colors.muted, fontSize: 12 },
-  capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
+  capsuleReadyText: { color: colors.goldText, fontSize: 12.5, fontWeight: '600' },
   capsuleChip: {
     position: 'absolute',
     bottom: 12,

@@ -101,5 +101,5 @@ const makeStyles = (colors: Palette) =>
   sub: { color: colors.muted, fontSize: 15.5, marginTop: 10, lineHeight: 23 },
   email: { color: colors.text, fontWeight: '600' },
   resend: { alignSelf: 'center', marginTop: 18, padding: 8 },
-  resendText: { color: colors.glow, fontSize: 14, fontWeight: '500' },
+  resendText: { color: colors.linkText, fontSize: 14, fontWeight: '500' },
 });

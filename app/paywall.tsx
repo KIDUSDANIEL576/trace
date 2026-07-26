@@ -169,5 +169,5 @@ const makeStyles = (colors: Palette) =>
   perkDesc: { color: colors.muted, fontSize: 13, marginTop: 1 },
   oneTime: { color: colors.muted, fontSize: 12.5, textAlign: 'center', marginTop: 12 },
   restore: { alignSelf: 'center', marginTop: 16, padding: 8 },
-  restoreText: { color: colors.glow, fontSize: 14, fontWeight: '500' },
+  restoreText: { color: colors.linkText, fontSize: 14, fontWeight: '500' },
 });

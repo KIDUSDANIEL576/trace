@@ -178,7 +178,7 @@ const makeStyles = (colors: Palette) =>
     paddingBottom: 8,
   },
   close: { padding: 8 },
-  closeText: { color: colors.glow, fontSize: 14.5, fontWeight: '500' },
+  closeText: { color: colors.linkText, fontSize: 14.5, fontWeight: '500' },
   title: {
     fontFamily: fonts.handwriting,
     fontSize: 34,

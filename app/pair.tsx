@@ -247,7 +247,7 @@ const makeStyles = (colors: Palette) =>
     padding: 22,
   },
   cardStep: {
-    color: colors.gold,
+    color: colors.goldText,
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
@@ -286,7 +286,7 @@ const makeStyles = (colors: Palette) =>
     justifyContent: 'center',
   },
   codeCellChar: { color: colors.text, fontSize: 26, fontWeight: '700' },
-  tapShare: { color: colors.glow, fontSize: 13, marginTop: 10, fontWeight: '500' },
+  tapShare: { color: colors.linkText, fontSize: 13, marginTop: 10, fontWeight: '500' },
   signOut: { alignSelf: 'center', marginTop: 20, padding: 10 },
   signOutText: { color: colors.text, fontSize: 14, fontWeight: '500' },
   deleteLink: { alignSelf: 'center', marginTop: 2, padding: 10 },

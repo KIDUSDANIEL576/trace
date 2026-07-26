@@ -17,10 +17,16 @@ export interface Palette {
   line: string;
   text: string;
   muted: string;
-  ink: string; // signature marker
+  ink: string; // signature marker (bright — for fills, borders, large display)
   inkSoft: string;
-  glow: string;
-  gold: string;
+  glow: string; // bright pink — for dots/blooms/fills
+  gold: string; // bright gold — for fills (paywall badge) + dark-on-gold
+  // Legible-as-small-text variants. Identical to the bright tokens on the dark
+  // themes; darkened on Daylight so accent TEXT clears WCAG AA on cream (the
+  // bright tokens fail as text but must stay bright as fills — dual-use split).
+  inkText: string;
+  goldText: string;
+  linkText: string;
   overlay: string; // translucent chip/pill over the canvas
   onOverlay: string; // text on that overlay
   ring: string; // selected colour-swatch ring
@@ -41,6 +47,9 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkSoft: 'rgba(226,51,67,0.16)',
     glow: '#ff7a9c',
     gold: '#f4c66b',
+    inkText: '#e23343',
+    goldText: '#f4c66b',
+    linkText: '#ff7a9c',
     overlay: 'rgba(10,9,13,0.62)',
     onOverlay: '#ffffff',
     ring: '#ffffff',
@@ -63,6 +72,9 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkSoft: 'rgba(239,90,99,0.18)',
     glow: '#ff9ea9',
     gold: '#f3c98a',
+    inkText: '#ef5a63',
+    goldText: '#f3c98a',
+    linkText: '#ff9ea9',
     overlay: 'rgba(24,14,18,0.58)',
     onOverlay: '#ffffff',
     ring: '#ffffff',
@@ -87,6 +99,10 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkSoft: 'rgba(255,77,109,0.12)',
     glow: '#ff8fab',
     gold: '#f5a524',
+    // darker than the bright fills above so accent TEXT clears AA on cream
+    inkText: '#d81b60',
+    goldText: '#8f5e00',
+    linkText: '#c2185b',
     overlay: 'rgba(255,255,255,0.80)',
     onOverlay: '#2b2029',
     ring: '#2b2029',
