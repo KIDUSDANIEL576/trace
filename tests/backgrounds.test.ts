@@ -189,6 +189,26 @@ test('film finishes stay in believable photographic ranges', () => {
       assert.match(b.film.haze.color, /^rgba\(/, `${b.key} haze must be translucent`);
       assert.ok(b.film.haze.r > 0, `${b.key} haze radius`);
     }
+    if (b.film.fade) {
+      // a lifted-black wash: enough to read as faded, never enough to erase
+      // the sky (which would leave a flat rectangle behind the ink)
+      assert.ok(
+        b.film.fade.amount > 0 && b.film.fade.amount <= 0.3,
+        `${b.key} fade amount ${b.film.fade.amount} would wash the sky out`
+      );
+      assert.match(b.film.fade.color, /^rgba\(/, `${b.key} fade colour`);
+    }
+  }
+});
+
+test('the faded family actually lifts its blacks', () => {
+  const faded = BACKGROUNDS.filter((b) => b.film?.fade);
+  assert.ok(faded.length >= 5, `expected a faded family, found ${faded.length}`);
+  for (const b of faded) {
+    // faded film reads soft: high grain, gentle vignette (a heavy vignette
+    // would fight the washed look)
+    assert.ok(b.film!.grain >= 0.1, `${b.key} faded looks need visible grain`);
+    assert.ok(b.film!.vignette <= 0.3, `${b.key} vignette too heavy for a faded look`);
   }
 });
 

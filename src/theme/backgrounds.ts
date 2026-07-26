@@ -40,6 +40,12 @@ export interface FilmFinish {
   haze: { color: string; x: number; y: number; r: number } | null;
   /** Darkened corners, 0..1 — the single biggest "shot on film" cue. */
   vignette: number;
+  /**
+   * "Lifted blacks" — a milky wash over the whole frame that stops darks
+   * reaching true black, the way a faded print or expired film looks.
+   * Applied last so it flattens grain and vignette too.
+   */
+  fade?: { color: string; amount: number } | null;
 }
 
 export interface BackgroundPreset {
@@ -689,6 +695,197 @@ export const BACKGROUNDS: BackgroundPreset[] = [
       bokeh: { count: 5, color: 'rgba(255,246,244,0.35)', size: 0.1 },
       haze: { color: 'rgba(255,248,246,0.28)', x: 0.44, y: 0.24, r: 0.74 },
       vignette: 0.22,
+    },
+  },
+
+  // ── Duotone · two colours, one photograph ────────────────────────────────
+  // A shadow tone and a highlight tone, nothing in between — the screen-print
+  // look. Deliberately high-contrast, so ink reads sharply on top.
+  {
+    key: 'duoplum',
+    label: 'Plum duotone',
+    colors: ['#1c0f2e', '#3a1d52', '#6b3a7a', '#e8a0b8'],
+    positions: [0, 0.36, 0.68, 1],
+    glow: { color: 'rgba(255,170,200,0.32)', x: 0.6, y: 0.72, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.1,
+      bokeh: null,
+      haze: { color: 'rgba(232,160,184,0.22)', x: 0.66, y: 0.76, r: 0.66 },
+      vignette: 0.34,
+    },
+  },
+  {
+    key: 'duoteal',
+    label: 'Teal duotone',
+    colors: ['#06202b', '#0e3a48', '#2f7d84', '#f0d9a8'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(240,217,168,0.3)', x: 0.62, y: 0.78, r: 0.58 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: { grain: 0.1, bokeh: null, haze: null, vignette: 0.34 },
+  },
+  {
+    key: 'duoblush',
+    label: 'Blush duotone',
+    colors: ['#3a1b28', '#7a3648', '#c9707c', '#ffe3d0'],
+    positions: [0, 0.34, 0.68, 1],
+    glow: { color: 'rgba(255,227,208,0.35)', x: 0.5, y: 0.8, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.1,
+      bokeh: { count: 6, color: 'rgba(255,214,196,0.32)', size: 0.1 },
+      haze: null,
+      vignette: 0.32,
+    },
+  },
+  {
+    key: 'duoindigo',
+    label: 'Indigo duotone',
+    colors: ['#0b1030', '#1e2a5e', '#4a5aa0', '#ffd9a0'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,217,160,0.28)', x: 0.68, y: 0.76, r: 0.55 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: { grain: 0.11, bokeh: null, haze: null, vignette: 0.36 },
+  },
+  {
+    key: 'duosage',
+    label: 'Sage duotone',
+    colors: ['#16211a', '#2c4034', '#5b7a63', '#f2e6c8'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(242,230,200,0.28)', x: 0.4, y: 0.78, r: 0.58 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: { grain: 0.1, bokeh: null, haze: null, vignette: 0.32 },
+  },
+  {
+    key: 'duorust',
+    label: 'Rust duotone',
+    colors: ['#25120c', '#4f2317', '#a04a2c', '#f6ddb4'],
+    positions: [0, 0.34, 0.68, 1],
+    glow: { color: 'rgba(246,221,180,0.3)', x: 0.55, y: 0.78, r: 0.58 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.11,
+      bokeh: { count: 7, color: 'rgba(250,214,168,0.3)', size: 0.09 },
+      haze: null,
+      vignette: 0.36,
+    },
+  },
+
+  // ── Faded film · lifted blacks, washed colour ────────────────────────────
+  // Expired-film and sun-bleached-print looks: nothing reaches true black,
+  // colour is pulled toward one cast, grain sits high.
+  {
+    key: 'fadedrose',
+    label: 'Faded rose',
+    colors: ['#e9d8d4', '#dcc0bd', '#c9a5a6', '#ab8b90'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,240,236,0.5)', x: 0.45, y: 0.24, r: 0.68 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.13,
+      bokeh: null,
+      haze: { color: 'rgba(255,232,224,0.28)', x: 0.4, y: 0.22, r: 0.72 },
+      vignette: 0.2,
+      fade: { color: 'rgba(250,238,232,1)', amount: 0.16 },
+    },
+  },
+  {
+    key: 'fadedmint',
+    label: 'Faded mint',
+    colors: ['#dfe8e0', '#c8d8ca', '#adc2b1', '#8ea593'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(244,252,246,0.5)', x: 0.5, y: 0.22, r: 0.68 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.13,
+      bokeh: null,
+      haze: { color: 'rgba(236,250,240,0.26)', x: 0.44, y: 0.2, r: 0.72 },
+      vignette: 0.2,
+      fade: { color: 'rgba(240,248,242,1)', amount: 0.15 },
+    },
+  },
+  {
+    key: 'fadedsun',
+    label: 'Faded sun',
+    colors: ['#f0e2c8', '#e6cfa8', '#d4b489', '#b4926c'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,246,220,0.55)', x: 0.62, y: 0.24, r: 0.66 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.13,
+      bokeh: { count: 6, color: 'rgba(255,238,200,0.3)', size: 0.1 },
+      haze: { color: 'rgba(255,236,196,0.3)', x: 0.68, y: 0.26, r: 0.7 },
+      vignette: 0.2,
+      fade: { color: 'rgba(252,244,224,1)', amount: 0.15 },
+    },
+  },
+  {
+    key: 'fadednight',
+    label: 'Faded night',
+    colors: ['#3a4050', '#4a5164', '#5d6478', '#464c5c'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(200,212,232,0.22)', x: 0.55, y: 0.3, r: 0.65 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.14,
+      bokeh: { count: 8, color: 'rgba(214,224,240,0.24)', size: 0.09 },
+      haze: null,
+      vignette: 0.22,
+      fade: { color: 'rgba(206,214,230,1)', amount: 0.2 },
+    },
+  },
+  {
+    key: 'sepia',
+    label: 'Sepia',
+    colors: ['#e8dcc4', '#d3c0a0', '#b79f7c', '#8f7a5c'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,246,222,0.5)', x: 0.48, y: 0.24, r: 0.68 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.14,
+      bokeh: null,
+      haze: { color: 'rgba(250,232,196,0.3)', x: 0.5, y: 0.24, r: 0.72 },
+      vignette: 0.24,
+      fade: { color: 'rgba(244,232,206,1)', amount: 0.17 },
+    },
+  },
+  {
+    key: 'washedblue',
+    label: 'Washed blue',
+    colors: ['#dde5ea', '#c3d2dc', '#a6bac9', '#8398aa'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(246,251,255,0.5)', x: 0.5, y: 0.22, r: 0.7 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.13,
+      bokeh: null,
+      haze: { color: 'rgba(238,248,255,0.28)', x: 0.46, y: 0.22, r: 0.74 },
+      vignette: 0.18,
+      fade: { color: 'rgba(238,246,250,1)', amount: 0.16 },
     },
   },
 ];

@@ -129,6 +129,19 @@ function FilmLayer({
           </Rect>
         </Group>
       )}
+
+      {/* lifted blacks — last, so it washes the grain and vignette too and
+          nothing in the frame reaches true black (the faded-print look) */}
+      {film.fade && film.fade.amount > 0 && (
+        <Rect
+          x={0}
+          y={0}
+          width={w}
+          height={h}
+          color={film.fade.color}
+          opacity={film.fade.amount}
+        />
+      )}
     </>
   );
 }
