@@ -222,6 +222,25 @@ export function fallingLeaves(seed: string, count = 12): MotifDrift[] {
   }));
 }
 
+export interface Bokeh {
+  x: number;
+  y: number;
+  r: number; // fraction of canvas width
+  alpha: number; // per-circle falloff so they don't all read the same
+}
+
+/** Out-of-focus light circles — the soft glowing discs in a shallow-depth
+ * photograph. Seeded per canvas so both phones see the same lights. */
+export function bokehCircles(seed: string, count: number, size: number): Bokeh[] {
+  const rand = seededRand(seed, 0xb04e);
+  return Array.from({ length: count }, () => ({
+    x: rand(),
+    y: rand(),
+    r: size * (0.45 + rand() * 0.85),
+    alpha: 0.35 + rand() * 0.65,
+  }));
+}
+
 /** A dense star field with a brighter diagonal band — the galaxy's arm. */
 export function galaxyStars(seed: string, count = 90): MotifStar[] {
   const rand = seededRand(seed, 0x6a1a);

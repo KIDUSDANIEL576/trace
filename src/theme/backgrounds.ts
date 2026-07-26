@@ -26,6 +26,22 @@ export type MotifKind =
   | 'fireworks' // bursts of radiating sparks
   | 'leaves'; // drifting autumn leaves
 
+/**
+ * Photographic finish — what turns a flat vector gradient into something that
+ * feels like a film photograph. All procedural (no image assets), so it stays
+ * weightless and renders identically on both phones.
+ */
+export interface FilmFinish {
+  /** Film grain strength, 0..1 (0.05–0.12 reads as real grain, not noise). */
+  grain: number;
+  /** Soft out-of-focus light circles — count and tint. */
+  bokeh: { count: number; color: string; size: number } | null;
+  /** Warm diffuse haze washing across the frame, like light through a lens. */
+  haze: { color: string; x: number; y: number; r: number } | null;
+  /** Darkened corners, 0..1 — the single biggest "shot on film" cue. */
+  vignette: number;
+}
+
 export interface BackgroundPreset {
   key: string;
   label: string;
@@ -39,7 +55,17 @@ export interface BackgroundPreset {
   motifColor: string;
   /** True when the ground is light enough that dark ink reads well on it. */
   light: boolean;
+  /** Optional photographic treatment (the "aesthetic" presets use this). */
+  film?: FilmFinish;
 }
+
+/** A gentle default finish — used when a preset asks for film without detail. */
+export const SOFT_FILM: FilmFinish = {
+  grain: 0.07,
+  bokeh: null,
+  haze: null,
+  vignette: 0.22,
+};
 
 export const BACKGROUNDS: BackgroundPreset[] = [
   {
@@ -61,6 +87,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'sun',
     motifColor: 'rgba(255,244,214,0.5)',
     light: false,
+    film: { grain: 0.08, bokeh: null, haze: null, vignette: 0.26 },
   },
   {
     key: 'evening',
@@ -71,6 +98,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'moon',
     motifColor: 'rgba(255,246,222,0.65)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.3 },
   },
   {
     key: 'starry',
@@ -91,6 +119,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'heart',
     motifColor: 'rgba(255,255,255,0.35)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.22 },
   },
   {
     key: 'blush',
@@ -101,6 +130,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'sparkle',
     motifColor: 'rgba(255,255,255,0.5)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.2 },
   },
   {
     key: 'lavender',
@@ -131,6 +161,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'heart',
     motifColor: 'rgba(255,205,160,0.28)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.3 },
   },
   {
     key: 'meadow',
@@ -161,6 +192,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'heart',
     motifColor: 'rgba(255,255,255,0.4)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.22 },
   },
   // ── second wave ──────────────────────────────────────────────────────────
   {
@@ -182,6 +214,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'petals',
     motifColor: 'rgba(255,255,255,0.75)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.22 },
   },
   {
     key: 'rainy',
@@ -212,6 +245,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'sparkle',
     motifColor: 'rgba(255,226,170,0.6)',
     light: false,
+    film: { grain: 0.1, bokeh: null, haze: null, vignette: 0.34 },
   },
   {
     key: 'dawn',
@@ -222,6 +256,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'sun',
     motifColor: 'rgba(255,245,220,0.45)',
     light: false,
+    film: { grain: 0.08, bokeh: null, haze: null, vignette: 0.26 },
   },
   {
     key: 'peach',
@@ -232,6 +267,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'hearts',
     motifColor: 'rgba(255,255,255,0.5)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.22 },
   },
   {
     key: 'velvet',
@@ -242,6 +278,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'hearts',
     motifColor: 'rgba(255,190,220,0.3)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.32 },
   },
   {
     key: 'mint',
@@ -262,6 +299,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'sun',
     motifColor: 'rgba(255,246,214,0.5)',
     light: true,
+    film: { grain: 0.08, bokeh: null, haze: null, vignette: 0.24 },
   },
   {
     key: 'moonlit',
@@ -272,6 +310,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'moon',
     motifColor: 'rgba(245,250,255,0.8)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.32 },
   },
   {
     key: 'wine',
@@ -282,6 +321,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'heart',
     motifColor: 'rgba(255,200,190,0.3)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.32 },
   },
   // ── third wave ───────────────────────────────────────────────────────────
   {
@@ -294,6 +334,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'waves',
     motifColor: 'rgba(255,255,255,0.5)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.22 },
   },
   {
     key: 'forest',
@@ -304,6 +345,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'trees',
     motifColor: 'rgba(14,42,33,0.45)',
     light: true,
+    film: { grain: 0.08, bokeh: null, haze: null, vignette: 0.26 },
   },
   {
     key: 'galaxy',
@@ -314,6 +356,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'galaxy',
     motifColor: 'rgba(255,250,240,0.9)',
     light: false,
+    film: { grain: 0.09, bokeh: null, haze: null, vignette: 0.34 },
   },
   {
     key: 'candlelit',
@@ -324,6 +367,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'flame',
     motifColor: 'rgba(255,226,160,0.85)',
     light: false,
+    film: { grain: 0.11, bokeh: null, haze: null, vignette: 0.38 },
   },
   // ── fourth wave ──────────────────────────────────────────────────────────
   {
@@ -336,6 +380,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'peaks',
     motifColor: 'rgba(58,62,88,0.55)',
     light: true,
+    film: { grain: 0.07, bokeh: null, haze: null, vignette: 0.24 },
   },
   {
     key: 'rainbow',
@@ -367,6 +412,140 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'leaves',
     motifColor: 'rgba(150,60,28,0.42)',
     light: true,
+    film: { grain: 0.08, bokeh: null, haze: null, vignette: 0.26 },
+  },
+
+  // ── Calm love · the film-photograph set ──────────────────────────────────
+  // Muted, hazy, grainy. These are built to feel like a saved photo rather
+  // than a rendered gradient: desaturated palettes, warm light leaks, soft
+  // bokeh and real film grain.
+  {
+    key: 'goldenhour',
+    label: 'Golden hour',
+    colors: ['#f6d9b0', '#eeb98b', '#d98f74', '#9c6154', '#4e3038'],
+    positions: [0, 0.3, 0.55, 0.8, 1],
+    glow: { color: 'rgba(255,226,168,0.85)', x: 0.72, y: 0.3, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.1,
+      bokeh: { count: 9, color: 'rgba(255,226,170,0.5)', size: 0.1 },
+      haze: { color: 'rgba(255,206,150,0.4)', x: 0.78, y: 0.26, r: 0.75 },
+      vignette: 0.3,
+    },
+  },
+  {
+    key: 'linen',
+    label: 'Linen',
+    colors: ['#f3ece2', '#e8ddcf', '#d9cab8', '#bda893'],
+    positions: [0, 0.38, 0.72, 1],
+    glow: { color: 'rgba(255,250,240,0.7)', x: 0.4, y: 0.24, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.11,
+      bokeh: null,
+      haze: { color: 'rgba(255,240,220,0.32)', x: 0.3, y: 0.2, r: 0.7 },
+      vignette: 0.26,
+    },
+  },
+  {
+    key: 'dustyrose',
+    label: 'Dusty rose',
+    colors: ['#f0dcd8', '#dfbcb8', '#c3969a', '#8f6a72', '#4c3740'],
+    positions: [0, 0.32, 0.58, 0.82, 1],
+    glow: { color: 'rgba(255,232,226,0.6)', x: 0.5, y: 0.24, r: 0.62 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.09,
+      bokeh: { count: 7, color: 'rgba(255,220,215,0.42)', size: 0.09 },
+      haze: { color: 'rgba(255,214,206,0.3)', x: 0.62, y: 0.7, r: 0.65 },
+      vignette: 0.28,
+    },
+  },
+  {
+    key: 'sage',
+    label: 'Sage',
+    colors: ['#e6ece0', '#cbd6c2', '#a8b8a0', '#7b8c78', '#414b42'],
+    positions: [0, 0.32, 0.58, 0.82, 1],
+    glow: { color: 'rgba(250,255,240,0.55)', x: 0.35, y: 0.2, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.1,
+      bokeh: null,
+      haze: { color: 'rgba(240,250,225,0.28)', x: 0.28, y: 0.18, r: 0.68 },
+      vignette: 0.27,
+    },
+  },
+  {
+    key: 'filmnight',
+    label: 'Film night',
+    colors: ['#101420', '#1d2536', '#33344a', '#191a26'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,196,150,0.28)', x: 0.68, y: 0.34, r: 0.55 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.12,
+      bokeh: { count: 12, color: 'rgba(255,206,150,0.42)', size: 0.085 },
+      haze: { color: 'rgba(255,180,130,0.22)', x: 0.72, y: 0.4, r: 0.7 },
+      vignette: 0.4,
+    },
+  },
+  {
+    key: 'lightleak',
+    label: 'Light leak',
+    colors: ['#2a1c24', '#5a3038', '#a2564a', '#e8a06a', '#2b1a1e'],
+    positions: [0, 0.26, 0.5, 0.72, 1],
+    glow: { color: 'rgba(255,190,120,0.5)', x: 0.5, y: 0.5, r: 0.7 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.12,
+      bokeh: { count: 6, color: 'rgba(255,214,160,0.4)', size: 0.12 },
+      haze: { color: 'rgba(255,168,110,0.45)', x: 0.15, y: 0.55, r: 0.8 },
+      vignette: 0.36,
+    },
+  },
+  {
+    key: 'quiet',
+    label: 'Quiet',
+    colors: ['#eef0f2', '#dfe3e6', '#c8cfd4', '#a3adb5'],
+    positions: [0, 0.38, 0.72, 1],
+    glow: { color: 'rgba(255,255,255,0.75)', x: 0.5, y: 0.22, r: 0.65 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: true,
+    film: {
+      grain: 0.1,
+      bokeh: null,
+      haze: { color: 'rgba(238,244,250,0.3)', x: 0.5, y: 0.25, r: 0.7 },
+      vignette: 0.24,
+    },
+  },
+  {
+    key: 'amber',
+    label: 'Amber',
+    colors: ['#2a1508', '#5c2f11', '#a8641f', '#e2a44c', '#22120a'],
+    positions: [0, 0.28, 0.54, 0.78, 1],
+    glow: { color: 'rgba(255,206,130,0.5)', x: 0.5, y: 0.55, r: 0.6 },
+    motif: 'none',
+    motifColor: 'rgba(255,255,255,0.1)',
+    light: false,
+    film: {
+      grain: 0.11,
+      bokeh: { count: 10, color: 'rgba(255,214,150,0.45)', size: 0.09 },
+      haze: { color: 'rgba(255,180,110,0.35)', x: 0.5, y: 0.62, r: 0.7 },
+      vignette: 0.38,
+    },
   },
 ];
 

@@ -1,4 +1,5 @@
 import {
+  Blur,
   Circle,
   Group,
   Image as SkiaImage,
@@ -7,12 +8,14 @@ import {
   RadialGradient,
   Rect,
   Skia,
+  Turbulence,
   useImage,
   vec,
 } from '@shopify/react-native-skia';
 import React, { useMemo } from 'react';
-import { starOpacity, type Star } from '@/lib/livingInk';
+import { hashSeed, starOpacity, type Star } from '@/lib/livingInk';
 import {
+  bokehCircles,
   driftingPetals,
   fallingLeaves,
   fireworkBursts,
@@ -28,7 +31,13 @@ import {
   surfLines,
   treeLine,
 } from '@/lib/motifs';
-import { backgroundByKey, clampBgOpacity, type BackgroundPreset } from '@/theme/backgrounds';
+import {
+  backgroundByKey,
+  clampBgOpacity,
+  SOFT_FILM,
+  type BackgroundPreset,
+  type FilmFinish,
+} from '@/theme/backgrounds';
 import type { BoardPalette } from '@/theme/tokens';
 
 interface Props {
@@ -53,6 +62,75 @@ interface Props {
 /** Same rgba colour with its alpha forced to 0 (for a gradient's outer stop). */
 function fade(rgba: string): string {
   return rgba.replace(/[\d.]+\)$/, '0)');
+}
+
+/**
+ * The photographic finish: bokeh → haze → vignette → grain. This is what makes
+ * a gradient stop looking like a vector and start looking like a saved photo.
+ * Everything is procedural, so it costs no download and matches on both phones.
+ */
+function FilmLayer({
+  film,
+  w,
+  h,
+  seed,
+}: {
+  film: FilmFinish;
+  w: number;
+  h: number;
+  seed: string;
+}) {
+  return (
+    <>
+      {/* soft out-of-focus lights */}
+      {film.bokeh && (
+        <Group layer={<Blur blur={Math.max(6, w * 0.03)} />}>
+          {bokehCircles(seed, film.bokeh.count, film.bokeh.size).map((b, i) => (
+            <Circle
+              key={i}
+              cx={b.x * w}
+              cy={b.y * h}
+              r={b.r * w}
+              color={film.bokeh!.color}
+              opacity={b.alpha}
+            />
+          ))}
+        </Group>
+      )}
+
+      {/* a warm light leak washing across the frame */}
+      {film.haze && (
+        <Rect x={0} y={0} width={w} height={h}>
+          <RadialGradient
+            c={vec(w * film.haze.x, h * film.haze.y)}
+            r={w * film.haze.r}
+            colors={[film.haze.color, fade(film.haze.color)]}
+          />
+        </Rect>
+      )}
+
+      {/* vignette — darkened corners, the strongest "shot on film" cue */}
+      {film.vignette > 0 && (
+        <Rect x={0} y={0} width={w} height={h}>
+          <RadialGradient
+            c={vec(w * 0.5, h * 0.5)}
+            r={Math.max(w, h) * 0.75}
+            colors={['rgba(0,0,0,0)', `rgba(0,0,0,${film.vignette})`]}
+            positions={[0.55, 1]}
+          />
+        </Rect>
+      )}
+
+      {/* film grain — real noise, not a texture file */}
+      {film.grain > 0 && (
+        <Group opacity={film.grain} blendMode="softLight">
+          <Rect x={0} y={0} width={w} height={h}>
+            <Turbulence freqX={0.9} freqY={0.9} octaves={3} seed={hashSeed(seed) % 1000} />
+          </Rect>
+        </Group>
+      )}
+    </>
+  );
 }
 
 /** The faint motif (love sign, sun, moon, stars) behind the ink. */
@@ -486,7 +564,11 @@ export function CanvasBackdrop({
       {/* 2 · the chosen background, at the couple's opacity */}
       <Group opacity={alpha}>
         {bgPhotoUrl && bgImage ? (
-          <SkiaImage image={bgImage} fit="cover" x={0} y={0} width={w} height={h} />
+          <>
+            <SkiaImage image={bgImage} fit="cover" x={0} y={0} width={w} height={h} />
+            {/* your own photo gets the same film finish, so it belongs here */}
+            <FilmLayer film={SOFT_FILM} w={w} h={h} seed={seedId} />
+          </>
         ) : (
           <>
             <Rect x={0} y={0} width={w} height={h}>
@@ -508,6 +590,8 @@ export function CanvasBackdrop({
             )}
             {/* 3 · the faint motif */}
             <Motif preset={preset} w={w} h={h} seed={seedId} />
+            {/* 4 · photographic finish (the "calm love aesthetic" presets) */}
+            {preset.film && <FilmLayer film={preset.film} w={w} h={h} seed={seedId} />}
           </>
         )}
       </Group>

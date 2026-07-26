@@ -8,6 +8,7 @@ import {
   DEFAULT_BACKGROUND_KEY,
 } from '../src/theme/backgrounds';
 import {
+  bokehCircles,
   driftingPetals,
   fallingLeaves,
   fireworkBursts,
@@ -170,6 +171,43 @@ test('rainbow bands are ordered and translucent', () => {
   assert.equal(RAINBOW_BANDS.length, 7, 'seven bands');
   for (const c of RAINBOW_BANDS) {
     assert.match(c, /^rgba\(/, 'bands must be translucent so ink stays readable');
+  }
+});
+
+test('film finishes stay in believable photographic ranges', () => {
+  for (const b of BACKGROUNDS) {
+    if (!b.film) continue;
+    // grain above ~0.2 stops reading as film and starts reading as static
+    assert.ok(b.film.grain >= 0 && b.film.grain <= 0.2, `${b.key} grain out of range`);
+    assert.ok(b.film.vignette >= 0 && b.film.vignette <= 0.5, `${b.key} vignette too heavy`);
+    if (b.film.bokeh) {
+      assert.ok(b.film.bokeh.count > 0 && b.film.bokeh.count <= 20, `${b.key} bokeh count`);
+      assert.ok(b.film.bokeh.size > 0 && b.film.bokeh.size < 0.3, `${b.key} bokeh size`);
+      assert.match(b.film.bokeh.color, /^rgba\(/, `${b.key} bokeh must be translucent`);
+    }
+    if (b.film.haze) {
+      assert.match(b.film.haze.color, /^rgba\(/, `${b.key} haze must be translucent`);
+      assert.ok(b.film.haze.r > 0, `${b.key} haze radius`);
+    }
+  }
+});
+
+test('most of the library has a photographic finish', () => {
+  const withFilm = BACKGROUNDS.filter((b) => b.film).length;
+  assert.ok(
+    withFilm >= BACKGROUNDS.length * 0.7,
+    `only ${withFilm}/${BACKGROUNDS.length} skies have a film finish`
+  );
+});
+
+test('bokeh is deterministic and sized from the preset', () => {
+  assert.deepEqual(bokehCircles('a', 8, 0.1), bokehCircles('a', 8, 0.1));
+  assert.notDeepEqual(bokehCircles('a', 8, 0.1), bokehCircles('b', 8, 0.1));
+  const circles = bokehCircles('seed', 8, 0.1);
+  assert.equal(circles.length, 8);
+  for (const c of circles) {
+    assert.ok(c.x >= 0 && c.x <= 1 && c.y >= 0 && c.y <= 1);
+    assert.ok(c.r > 0 && c.alpha > 0 && c.alpha <= 1);
   }
 });
 
