@@ -6,6 +6,8 @@ import {
   backgroundByKey,
   clampBgOpacity,
   DEFAULT_BACKGROUND_KEY,
+  FAMILY_LABELS,
+  FAMILY_ORDER,
 } from '../src/theme/backgrounds';
 import {
   bokehCircles,
@@ -228,6 +230,23 @@ test('bokeh is deterministic and sized from the preset', () => {
   for (const c of circles) {
     assert.ok(c.x >= 0 && c.x <= 1 && c.y >= 0 && c.y <= 1);
     assert.ok(c.r > 0 && c.alpha > 0 && c.alpha <= 1);
+  }
+});
+
+test('every sky is reachable from a picker tab', () => {
+  // A preset whose family isn't a tab would be invisible in the app — the
+  // library would silently shrink.
+  for (const b of BACKGROUNDS) {
+    assert.ok(
+      FAMILY_ORDER.includes(b.family),
+      `${b.key} has family '${b.family}', which is not a picker tab`
+    );
+  }
+  // and no tab is empty
+  for (const f of FAMILY_ORDER) {
+    const n = BACKGROUNDS.filter((b) => b.family === f).length;
+    assert.ok(n > 0, `the ${f} tab has no skies`);
+    assert.ok(FAMILY_LABELS[f]?.length > 0, `${f} needs a label`);
   }
 });
 

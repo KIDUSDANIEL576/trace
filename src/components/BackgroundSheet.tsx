@@ -4,7 +4,14 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tapLight } from '@/lib/haptics';
-import { BACKGROUNDS, clampBgOpacity } from '@/theme/backgrounds';
+import {
+  BACKGROUNDS,
+  backgroundByKey,
+  clampBgOpacity,
+  FAMILY_LABELS,
+  FAMILY_ORDER,
+  type BackgroundFamily,
+} from '@/theme/backgrounds';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, type Palette } from '@/theme/tokens';
 
@@ -71,6 +78,14 @@ export function BackgroundSheet({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [trackW, setTrackW] = useState(0);
   const [dragging, setDragging] = useState(clampBgOpacity(bgOpacity));
+  // open on the tab holding the current sky, so you land where you left off
+  const [family, setFamily] = useState<BackgroundFamily>(
+    () => backgroundByKey(bgKey).family
+  );
+  const shownSkies = useMemo(
+    () => BACKGROUNDS.filter((b) => b.family === family),
+    [family]
+  );
 
   // keep the slider in step when the partner changes it while the sheet is open
   const shown = dragging;
@@ -105,9 +120,39 @@ export function BackgroundSheet({
             Pick a background — your person sees it change too.
           </Text>
 
-          <Text style={styles.section}>BACKGROUNDS</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabStrip}
+            contentContainerStyle={styles.tabStripContent}
+          >
+            {FAMILY_ORDER.map((f) => {
+              const on = f === family;
+              const count = BACKGROUNDS.filter((b) => b.family === f).length;
+              return (
+                <Pressable
+                  key={f}
+                  onPress={() => {
+                    tapLight();
+                    setFamily(f);
+                  }}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: on }}
+                  accessibilityLabel={`${FAMILY_LABELS[f]}, ${count} backgrounds`}
+                  style={({ pressed }) => [
+                    styles.tab,
+                    on && styles.tabOn,
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Text style={[styles.tabText, on && styles.tabTextOn]}>{FAMILY_LABELS[f]}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+
           <ScrollView style={styles.gridScroll} contentContainerStyle={styles.grid}>
-            {BACKGROUNDS.map((b) => {
+            {shownSkies.map((b) => {
               const on = !hasCustomPhoto && b.key === bgKey;
               return (
                 <Pressable
@@ -231,6 +276,19 @@ const makeStyles = (colors: Palette) =>
       letterSpacing: 1,
       marginBottom: 10,
     },
+    tabStrip: { flexGrow: 0, marginBottom: 12 },
+    tabStripContent: { gap: 8 },
+    tab: {
+      borderWidth: 1,
+      borderColor: colors.line,
+      backgroundColor: colors.panel2,
+      borderRadius: radius.pill,
+      paddingVertical: 8,
+      paddingHorizontal: 15,
+    },
+    tabOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
+    tabText: { color: colors.muted, fontSize: 13.5, fontWeight: '600' },
+    tabTextOn: { color: colors.inkText },
     gridScroll: { maxHeight: 250 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingBottom: 4 },
     tile: {
