@@ -12,7 +12,15 @@ import {
 } from '@shopify/react-native-skia';
 import React, { useMemo } from 'react';
 import { starOpacity, type Star } from '@/lib/livingInk';
-import { heartPoints, motifStars, sparklePositions } from '@/lib/motifs';
+import {
+  driftingPetals,
+  heartPoints,
+  motifStars,
+  rainStreaks,
+  scatteredHearts,
+  snowFlakes,
+  sparklePositions,
+} from '@/lib/motifs';
 import { backgroundByKey, clampBgOpacity, type BackgroundPreset } from '@/theme/backgrounds';
 import type { BoardPalette } from '@/theme/tokens';
 
@@ -86,6 +94,93 @@ function Motif({ preset, w, h, seed }: { preset: BackgroundPreset; w: number; h:
         <Group>
           {motifStars(seed).map((s, i) => (
             <Circle key={i} cx={s.x * w} cy={s.y * h} r={Math.max(0.8, s.r * w)} color={preset.motifColor} />
+          ))}
+        </Group>
+      );
+    case 'hearts':
+      // a soft scatter of little love signs
+      return (
+        <Group>
+          {scatteredHearts(seed).map((s, i) => {
+            const p = Skia.Path.Make();
+            const size = s.size * w;
+            const cx = s.x * w;
+            const cy = s.y * h;
+            const cos = Math.cos(s.tilt);
+            const sin = Math.sin(s.tilt);
+            heartPoints(40).forEach(([nx, ny], j) => {
+              const dx = (nx - 0.5) * size;
+              const dy = (ny - 0.5) * size;
+              const x = cx + dx * cos - dy * sin;
+              const y = cy + dx * sin + dy * cos;
+              if (j === 0) p.moveTo(x, y);
+              else p.lineTo(x, y);
+            });
+            p.close();
+            return <Path key={i} path={p} color={preset.motifColor} />;
+          })}
+        </Group>
+      );
+    case 'rain':
+      return (
+        <Group>
+          {rainStreaks(seed).map((s, i) => {
+            const p = Skia.Path.Make();
+            const x = s.x * w;
+            const y = s.y * h;
+            p.moveTo(x, y);
+            p.lineTo(x + s.lean * w, y + s.len * h);
+            return (
+              <Path
+                key={i}
+                path={p}
+                style="stroke"
+                strokeWidth={Math.max(1, w * 0.0035)}
+                strokeCap="round"
+                color={preset.motifColor}
+              />
+            );
+          })}
+        </Group>
+      );
+    case 'petals':
+      return (
+        <Group>
+          {driftingPetals(seed).map((s, i) => {
+            // a simple leaf/petal: two arcs meeting at the tips
+            const p = Skia.Path.Make();
+            const r = s.r * w;
+            const cx = s.x * w;
+            const cy = s.y * h;
+            const cos = Math.cos(s.tilt);
+            const sin = Math.sin(s.tilt);
+            const pt = (dx: number, dy: number): [number, number] => [
+              cx + dx * cos - dy * sin,
+              cy + dx * sin + dy * cos,
+            ];
+            const [ax, ay] = pt(-r, 0);
+            const [bx, by] = pt(r, 0);
+            const [c1x, c1y] = pt(0, -r * 0.8);
+            const [c2x, c2y] = pt(0, r * 0.8);
+            p.moveTo(ax, ay);
+            p.quadTo(c1x, c1y, bx, by);
+            p.quadTo(c2x, c2y, ax, ay);
+            p.close();
+            return <Path key={i} path={p} color={preset.motifColor} />;
+          })}
+        </Group>
+      );
+    case 'snow':
+      return (
+        <Group>
+          {snowFlakes(seed).map((s, i) => (
+            <Circle
+              key={i}
+              cx={s.x * w}
+              cy={s.y * h}
+              r={Math.max(1, s.r * w)}
+              color={preset.motifColor}
+            />
           ))}
         </Group>
       );

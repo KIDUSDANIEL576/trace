@@ -6,7 +6,15 @@ import {
   clampBgOpacity,
   DEFAULT_BACKGROUND_KEY,
 } from '../src/theme/backgrounds';
-import { heartPoints, motifStars, sparklePositions } from '../src/lib/motifs';
+import {
+  driftingPetals,
+  heartPoints,
+  motifStars,
+  rainStreaks,
+  scatteredHearts,
+  snowFlakes,
+  sparklePositions,
+} from '../src/lib/motifs';
 
 test('every preset is well formed (stops match positions, sorted 0..1)', () => {
   for (const b of BACKGROUNDS) {
@@ -65,4 +73,39 @@ test('motif scatter is deterministic per seed (both phones match)', () => {
   for (const s of motifStars('seed', 40)) {
     assert.ok(s.x >= 0 && s.x <= 1 && s.y >= 0 && s.y <= 1);
   }
+});
+
+test('second-wave motifs are deterministic and stay on canvas', () => {
+  for (const fn of [scatteredHearts, rainStreaks, driftingPetals, snowFlakes]) {
+    assert.deepEqual(fn('canvas-a'), fn('canvas-a'), `${fn.name} must be deterministic`);
+    assert.notDeepEqual(fn('canvas-a'), fn('canvas-b'), `${fn.name} must vary by seed`);
+    for (const item of fn('seed') as { x: number; y: number }[]) {
+      assert.ok(item.x >= 0 && item.x <= 1, `${fn.name} x in range`);
+      assert.ok(item.y >= 0 && item.y <= 1, `${fn.name} y in range`);
+    }
+  }
+});
+
+test('every motif kind used by a preset has geometry behind it', () => {
+  const known = new Set([
+    'none',
+    'heart',
+    'sun',
+    'moon',
+    'stars',
+    'sparkle',
+    'hearts',
+    'rain',
+    'petals',
+    'snow',
+  ]);
+  for (const b of BACKGROUNDS) {
+    assert.ok(known.has(b.motif), `${b.key} uses an unknown motif: ${b.motif}`);
+  }
+});
+
+test('the library is a real choice (20+ skies, mixed light and dark)', () => {
+  assert.ok(BACKGROUNDS.length >= 20, `expected a rich library, got ${BACKGROUNDS.length}`);
+  assert.ok(BACKGROUNDS.some((b) => b.light), 'needs light skies');
+  assert.ok(BACKGROUNDS.some((b) => !b.light), 'needs dark skies');
 });

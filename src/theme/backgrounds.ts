@@ -6,7 +6,17 @@
 // A couple picks one for a canvas; it syncs live and persists. Photos are
 // handled separately (kind: 'photo' below) since they come from the user.
 
-export type MotifKind = 'none' | 'heart' | 'sun' | 'moon' | 'stars' | 'sparkle';
+export type MotifKind =
+  | 'none'
+  | 'heart'
+  | 'sun'
+  | 'moon'
+  | 'stars'
+  | 'sparkle'
+  | 'hearts' // a soft scatter of little love signs
+  | 'rain' // gentle streaks
+  | 'petals' // drifting blossom
+  | 'snow'; // slow flakes
 
 export interface BackgroundPreset {
   key: string;
@@ -143,6 +153,127 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     motif: 'heart',
     motifColor: 'rgba(255,255,255,0.4)',
     light: true,
+  },
+  // ── second wave ──────────────────────────────────────────────────────────
+  {
+    key: 'aurora',
+    label: 'Aurora',
+    colors: ['#04121f', '#0d3b45', '#2c7a6b', '#123a52', '#050b1a'],
+    positions: [0, 0.3, 0.52, 0.76, 1],
+    glow: { color: 'rgba(120,255,214,0.35)', x: 0.4, y: 0.4, r: 0.6 },
+    motif: 'stars',
+    motifColor: 'rgba(228,255,246,0.8)',
+    light: false,
+  },
+  {
+    key: 'cherry',
+    label: 'Cherry blossom',
+    colors: ['#fff5f7', '#ffdfe7', '#f9c2d2', '#e79ab3'],
+    positions: [0, 0.38, 0.7, 1],
+    glow: { color: 'rgba(255,255,255,0.85)', x: 0.6, y: 0.2, r: 0.55 },
+    motif: 'petals',
+    motifColor: 'rgba(255,255,255,0.75)',
+    light: true,
+  },
+  {
+    key: 'rainy',
+    label: 'Rainy day',
+    colors: ['#3c4a5a', '#55677a', '#7e8fa0', '#2c3742'],
+    positions: [0, 0.42, 0.74, 1],
+    glow: { color: 'rgba(226,240,255,0.35)', x: 0.5, y: 0.3, r: 0.6 },
+    motif: 'rain',
+    motifColor: 'rgba(230,244,255,0.42)',
+    light: false,
+  },
+  {
+    key: 'snowfall',
+    label: 'Snowfall',
+    colors: ['#dfeaf6', '#c3d6ea', '#9db6d2', '#63789a'],
+    positions: [0, 0.38, 0.7, 1],
+    glow: { color: 'rgba(255,255,255,0.8)', x: 0.5, y: 0.18, r: 0.6 },
+    motif: 'snow',
+    motifColor: 'rgba(255,255,255,0.9)',
+    light: true,
+  },
+  {
+    key: 'citylights',
+    label: 'City lights',
+    colors: ['#0a0a18', '#1d1633', '#4a2350', '#8a3b52', '#241226'],
+    positions: [0, 0.3, 0.58, 0.82, 1],
+    glow: { color: 'rgba(255,180,120,0.45)', x: 0.5, y: 0.78, r: 0.55 },
+    motif: 'sparkle',
+    motifColor: 'rgba(255,226,170,0.6)',
+    light: false,
+  },
+  {
+    key: 'dawn',
+    label: 'Dawn',
+    colors: ['#2a3a63', '#7a6a95', '#e8998d', '#ffd9a0'],
+    positions: [0, 0.36, 0.7, 1],
+    glow: { color: 'rgba(255,236,196,0.75)', x: 0.5, y: 0.88, r: 0.5 },
+    motif: 'sun',
+    motifColor: 'rgba(255,245,220,0.45)',
+    light: false,
+  },
+  {
+    key: 'peach',
+    label: 'Peach',
+    colors: ['#fff0e4', '#ffd9c2', '#ffbfa3', '#f09a86'],
+    positions: [0, 0.4, 0.72, 1],
+    glow: { color: 'rgba(255,255,250,0.85)', x: 0.4, y: 0.22, r: 0.55 },
+    motif: 'hearts',
+    motifColor: 'rgba(255,255,255,0.5)',
+    light: true,
+  },
+  {
+    key: 'velvet',
+    label: 'Velvet',
+    colors: ['#1b0b18', '#3f1130', '#6b1b44', '#2a0d22'],
+    positions: [0, 0.4, 0.72, 1],
+    glow: { color: 'rgba(255,140,190,0.32)', x: 0.55, y: 0.3, r: 0.55 },
+    motif: 'hearts',
+    motifColor: 'rgba(255,190,220,0.3)',
+    light: false,
+  },
+  {
+    key: 'mint',
+    label: 'Mint',
+    colors: ['#effcf5', '#c9f0e0', '#9adcc6', '#5fae99'],
+    positions: [0, 0.4, 0.72, 1],
+    glow: { color: 'rgba(255,255,255,0.8)', x: 0.6, y: 0.2, r: 0.55 },
+    motif: 'sparkle',
+    motifColor: 'rgba(255,255,255,0.55)',
+    light: true,
+  },
+  {
+    key: 'desert',
+    label: 'Desert',
+    colors: ['#ffe9c4', '#f6c58a', '#d68f68', '#8a4f4a'],
+    positions: [0, 0.4, 0.72, 1],
+    glow: { color: 'rgba(255,240,200,0.7)', x: 0.7, y: 0.24, r: 0.55 },
+    motif: 'sun',
+    motifColor: 'rgba(255,246,214,0.5)',
+    light: true,
+  },
+  {
+    key: 'moonlit',
+    label: 'Moonlit',
+    colors: ['#0b1226', '#1a2545', '#33406b', '#0a0f1f'],
+    positions: [0, 0.38, 0.72, 1],
+    glow: { color: 'rgba(210,225,255,0.45)', x: 0.72, y: 0.18, r: 0.5 },
+    motif: 'moon',
+    motifColor: 'rgba(245,250,255,0.8)',
+    light: false,
+  },
+  {
+    key: 'wine',
+    label: 'Wine',
+    colors: ['#2a0f1c', '#5a1a2e', '#8f2b3d', '#c25a52'],
+    positions: [0, 0.4, 0.74, 1],
+    glow: { color: 'rgba(255,170,140,0.4)', x: 0.5, y: 0.85, r: 0.55 },
+    motif: 'heart',
+    motifColor: 'rgba(255,200,190,0.3)',
+    light: false,
   },
 ];
 

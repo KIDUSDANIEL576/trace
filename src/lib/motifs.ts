@@ -50,3 +50,77 @@ export function sparklePositions(seed: string, count = 9): MotifStar[] {
     r: 0.012 + rand() * 0.022,
   }));
 }
+
+/** A seeded stream of pseudo-randoms — every scatter below shares this so two
+ * phones always draw the same sky. */
+function seededRand(seed: string, salt: number): () => number {
+  let h = hashSeed(seed) ^ salt;
+  return () => {
+    h = (h * 1664525 + 1013904223) >>> 0;
+    return h / 4294967296;
+  };
+}
+
+export interface MotifHeart {
+  x: number;
+  y: number;
+  size: number; // fraction of canvas width
+  tilt: number; // radians
+}
+
+/** A soft scatter of little love signs (Peach, Velvet). */
+export function scatteredHearts(seed: string, count = 7): MotifHeart[] {
+  const rand = seededRand(seed, 0x1eaf);
+  return Array.from({ length: count }, () => ({
+    x: 0.1 + rand() * 0.8,
+    y: 0.08 + rand() * 0.78,
+    size: 0.05 + rand() * 0.06,
+    tilt: (rand() - 0.5) * 0.7,
+  }));
+}
+
+export interface MotifStreak {
+  x: number;
+  y: number;
+  len: number; // fraction of canvas height
+  lean: number; // horizontal drift over the streak
+}
+
+/** Gentle rain streaks (Rainy day). */
+export function rainStreaks(seed: string, count = 34): MotifStreak[] {
+  const rand = seededRand(seed, 0x7a11);
+  return Array.from({ length: count }, () => ({
+    x: rand(),
+    y: rand() * 0.92,
+    len: 0.05 + rand() * 0.07,
+    lean: 0.012 + rand() * 0.014,
+  }));
+}
+
+export interface MotifDrift {
+  x: number;
+  y: number;
+  r: number;
+  tilt: number;
+}
+
+/** Drifting blossom petals (Cherry blossom). */
+export function driftingPetals(seed: string, count = 14): MotifDrift[] {
+  const rand = seededRand(seed, 0xb105);
+  return Array.from({ length: count }, () => ({
+    x: 0.05 + rand() * 0.9,
+    y: 0.05 + rand() * 0.85,
+    r: 0.012 + rand() * 0.016,
+    tilt: rand() * Math.PI,
+  }));
+}
+
+/** Slow snowflakes (Snowfall). */
+export function snowFlakes(seed: string, count = 30): MotifStar[] {
+  const rand = seededRand(seed, 0x5f0c);
+  return Array.from({ length: count }, () => ({
+    x: rand(),
+    y: rand() * 0.95,
+    r: 0.003 + rand() * 0.006,
+  }));
+}
