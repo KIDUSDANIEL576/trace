@@ -80,7 +80,9 @@ export const PALETTES: Record<ThemeName, Palette> = {
     panel2: '#fdf5eb',
     line: 'rgba(43,32,41,0.10)',
     text: '#2b2029',
-    muted: '#8a7c77',
+    // darkened from #8a7c77 (3.68:1, failed WCAG AA) to clear 4.5:1 on every
+    // daylight ground — muted is secondary body text, so legibility wins
+    muted: '#6f625c',
     ink: '#ff4d6d',
     inkSoft: 'rgba(255,77,109,0.12)',
     glow: '#ff8fab',

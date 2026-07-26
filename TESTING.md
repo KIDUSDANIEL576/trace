@@ -38,6 +38,15 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Under Appearance, tap **Dusk / Candlelight / Daylight** → the whole app
       (including the open sheet) recolours instantly; the canvas gradient changes
 - [ ] Daylight flips to a light theme with a dark status bar; text stays legible
+- [ ] **Daylight accent-text legibility** (WCAG audit finding — judge on real
+      pixels): body/secondary text passes AA (`muted` was darkened to #6f625c).
+      Still low-contrast on the cream ground and worth a look: pink links
+      (`glow`, e.g. "Resend code", "tap to share" ≈2:1), gold labels (`gold`,
+      e.g. 🔥 streak, "START HERE" ≈2:1), and the heart-button label (`ink`
+      ≈2.9:1). These tokens are dual-use (the paywall badge is a *bright*-gold
+      fill with dark text), so fix the specific text sites, not the token.
+      Ready AA values if you want them: link/pink #c2185b, gold-text #8f5e00,
+      ink-text #d81b60 — all clear 4.5:1 on daylight grounds.
 - [ ] Close and reopen the app → your chosen theme is remembered
 - [ ] Sign out and Delete account both work from the sheet (no Android 3-button
       Alert truncation)
