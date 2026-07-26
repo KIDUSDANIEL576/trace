@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 
 interface Props {
   trigger: number; // bump to animate (0 = idle, never animates on mount)
@@ -13,22 +14,26 @@ interface Props {
  */
 export function HeartBloom({ trigger, burst }: Props) {
   const a = useRef(new Animated.Value(0)).current;
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
     if (trigger === 0) return;
     a.setValue(0);
     Animated.timing(a, {
       toValue: 1,
-      duration: burst ? 1250 : 950,
+      // reduce motion: a gentle fade in/out, no swelling or flight
+      duration: reduceMotion ? 1400 : burst ? 1250 : 950,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [trigger, burst, a]);
+  }, [trigger, burst, reduceMotion, a]);
 
-  const scale = a.interpolate({ inputRange: [0, 1], outputRange: [0.4, burst ? 2.1 : 1.7] });
+  const scale = reduceMotion
+    ? 1.4
+    : a.interpolate({ inputRange: [0, 1], outputRange: [0.4, burst ? 2.1 : 1.7] });
   const opacity = a.interpolate({ inputRange: [0, 0.12, 1], outputRange: [0, 0.95, 0] });
-  const sideLift = a.interpolate({ inputRange: [0, 1], outputRange: [0, -46] });
-  const sideDrop = a.interpolate({ inputRange: [0, 1], outputRange: [0, 30] });
+  const sideLift = reduceMotion ? 0 : a.interpolate({ inputRange: [0, 1], outputRange: [0, -46] });
+  const sideDrop = reduceMotion ? 0 : a.interpolate({ inputRange: [0, 1], outputRange: [0, 30] });
 
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.center]}>

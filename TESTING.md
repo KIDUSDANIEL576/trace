@@ -46,6 +46,10 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       presence dots) still use the vivid `gold`/`glow`/`ink`. Dusk/Candlelight
       are unchanged (those tokens equal the bright originals there).
 - [ ] Close and reopen the app → your chosen theme is remembered
+- [ ] **Reduce Motion**: turn on iOS Settings → Accessibility → Motion → Reduce
+      Motion (Android: Remove animations) → the heart bloom fades in place (no
+      swell/flight), the loading heart holds still, buttons press without bounce,
+      sign-in fades without sliding. Turn it off → the motion returns.
 - [ ] Sign out and Delete account both work from the sheet (no Android 3-button
       Alert truncation)
 

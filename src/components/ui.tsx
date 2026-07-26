@@ -9,6 +9,7 @@ import {
   type TextInputProps,
   View,
 } from 'react-native';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { tapLight } from '@/lib/haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, type Palette } from '@/theme/tokens';
@@ -49,8 +50,10 @@ export function Button({
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const off = disabled || loading;
+  const reduceMotion = useReduceMotion();
   // spring physics instead of a static pressed style — the press sinks in and
-  // releases with a small overshoot, which is most of what "feels native" means
+  // releases with a small overshoot, which is most of what "feels native" means.
+  // Reduce Motion: keep the press feedback but drop the bounce/overshoot.
   const scale = useRef(new Animated.Value(1)).current;
   const pressIn = () => {
     if (off) return;
@@ -58,7 +61,12 @@ export function Button({
     Animated.spring(scale, { toValue: 0.96, useNativeDriver: true, speed: 40, bounciness: 0 }).start();
   };
   const pressOut = () => {
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 9 }).start();
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 20,
+      bounciness: reduceMotion ? 0 : 9,
+    }).start();
   };
   return (
     <Pressable
@@ -105,9 +113,12 @@ export function Input(props: TextInputProps) {
 export function Loading({ label }: { label?: string }) {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  // a quiet heartbeat instead of a generic spinner — lub-dub, pause, repeat
+  const reduceMotion = useReduceMotion();
+  // a quiet heartbeat instead of a generic spinner — lub-dub, pause, repeat.
+  // Reduce Motion: hold the heart still (no repetitive pulse).
   const beat = useRef(new Animated.Value(1)).current;
   useEffect(() => {
+    if (reduceMotion) return;
     const lub = (to: number, ms: number) =>
       Animated.timing(beat, { toValue: to, duration: ms, useNativeDriver: true });
     const loop = Animated.loop(
@@ -115,7 +126,7 @@ export function Loading({ label }: { label?: string }) {
     );
     loop.start();
     return () => loop.stop();
-  }, [beat]);
+  }, [beat, reduceMotion]);
   return (
     <View style={[styles.screen, styles.loadingWrap]}>
       <Animated.Text style={[styles.loadingHeart, { transform: [{ scale: beat }] }]}>

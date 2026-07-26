@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Button, Input, Screen, Wordmark } from '@/components/ui';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { notifyWarn } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -26,12 +27,16 @@ export default function SignIn() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
-  // gentle entrance: the hero breathes in instead of popping
+  // gentle entrance: the hero breathes in instead of popping.
+  // Reduce Motion: fade only, no upward slide.
+  const reduceMotion = useReduceMotion();
   const enter = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(enter, { toValue: 1, duration: 550, useNativeDriver: true }).start();
   }, [enter]);
-  const rise = enter.interpolate({ inputRange: [0, 1], outputRange: [14, 0] });
+  const rise = reduceMotion
+    ? 0
+    : enter.interpolate({ inputRange: [0, 1], outputRange: [14, 0] });
 
   async function sendCode() {
     if (busy) return; // keyboard submit isn't disabled like the button is
