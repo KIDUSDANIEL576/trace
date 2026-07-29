@@ -26,8 +26,10 @@ Built across five phases from [CLAUDE.md](./CLAUDE.md): live shared canvas, stro
 streaming over Supabase Realtime Broadcast, presence, persistence, throttled partner
 push, draw-on-photos, Relationship Replay, Daily Love Streak, home-screen widgets,
 Trace Forever (one-time unlock), and **Phase 5** — Time Capsules (seal a drawing until
-a date) and Presence Painting (ink that blooms with age, a night constellation per
-canvas). See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
+a date) and living ink (strokes bloom a hair over their first week).
+The canvas itself is deliberately **flat**: skies are smooth gradients with a film
+finish, and nothing is ever drawn on them, so the only marks are yours.
+See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 
 ## Stack
 

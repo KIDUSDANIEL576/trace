@@ -2,7 +2,6 @@ import { Canvas, type useCanvasRef } from '@shopify/react-native-skia';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { nightness, starField } from '@/lib/livingInk';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, type Palette } from '@/theme/tokens';
 import type { Brush, Point, Stroke } from '@/types';
@@ -18,7 +17,7 @@ interface Props {
   photoUrl?: string | null;
   revealInvisible?: boolean;
   prompt?: string; // today's idea, shown only while the canvas is empty
-  seedId?: string; // Presence Painting: seeds this canvas's constellation
+  seedId?: string; // seeds the film grain/bokeh scatter, so both phones match
   bgKey?: string; // chosen background preset
   bgPhotoUrl?: string | null; // signed URL of a custom background photo
   bgOpacity?: number; // 0.15..1
@@ -31,10 +30,6 @@ interface Props {
   onPoint: (strokeId: string, pt: Point) => void;
   onEnd: (strokeId: string) => void;
 }
-
-// Presence Painting heartbeat: one re-render a minute. Slow on purpose — the
-// canvas should feel inhabited, not animated; and a 60s tick costs nothing.
-const LIVING_TICK_MS = 60_000;
 
 const MIN_SEGMENT_PX = 1.5; // same point-thinning as the prototype
 
@@ -74,17 +69,9 @@ export function CanvasBoard({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [size, setSize] = useState({ w: 0, h: 0 });
 
-  // ---- Presence Painting: deterministic world state, refreshed once a minute
-  const [nowMs, setNowMs] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNowMs(Date.now()), LIVING_TICK_MS);
-    return () => clearInterval(t);
-  }, []);
-  const stars = useMemo(() => (seedId ? starField(seedId) : undefined), [seedId]);
-  const night = nightness(new Date(nowMs));
-  // bloom moves on a scale of days — an hourly quantum keeps StrokeRenderer's
-  // memo effective instead of re-rendering every stroke once a minute
-  const bloomNowMs = Math.floor(nowMs / 3_600_000) * 3_600_000;
+  // Ink bloom moves on a scale of days, so an hourly quantum keeps
+  // StrokeRenderer's memo effective instead of re-rendering constantly.
+  const bloomNowMs = Math.floor(Date.now() / 3_600_000) * 3_600_000;
   const activeIdRef = useRef<string | null>(null);
   const lastPxRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -144,9 +131,6 @@ export function CanvasBoard({
               bgPhotoUrl={bgPhotoUrl}
               bgOpacity={bgOpacity}
               seedId={seedId}
-              stars={stars}
-              night={night}
-              nowMs={nowMs}
             />
             {/* invisible ink vanishes once landed; live strokes always show */}
             {strokes

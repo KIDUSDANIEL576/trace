@@ -5,13 +5,10 @@ import {
   BLOOM_MAX,
   bloomScale,
   hashSeed,
-  nightness,
-  starField,
-  starOpacity,
 } from '../src/lib/livingInk';
 
-// Presence Painting must be DETERMINISTIC — both phones and the widget
-// snapshot compute the same world from the same inputs.
+// Ink bloom must be DETERMINISTIC — both phones and the widget snapshot
+// compute the same stroke widths from the same inputs.
 
 const DAY = 86_400_000;
 
@@ -44,51 +41,8 @@ test('clock skew (createdAt in the future) never shrinks ink', () => {
   assert.equal(bloomScale(now + 60_000, now), 1);
 });
 
-test('nightness: deep night, day, and the dusk/dawn ramps', () => {
-  const at = (h: number, m = 0) => new Date(2026, 6, 24, h, m);
-  assert.equal(nightness(at(23)), 1);
-  assert.equal(nightness(at(2)), 1);
-  assert.equal(nightness(at(12)), 0);
-  assert.equal(nightness(at(19, 59)), 0);
-  const dusk = nightness(at(20, 30));
-  assert.ok(dusk > 0 && dusk < 1, 'dusk ramps in');
-  const dawn = nightness(at(5, 30));
-  assert.ok(dawn > 0 && dawn < 1, 'dawn ramps out');
-});
-
-test('starField is deterministic per seed and differs across seeds', () => {
-  const a1 = starField('canvas-a');
-  const a2 = starField('canvas-a');
-  const b = starField('canvas-b');
-  assert.deepEqual(a1, a2, 'same seed → identical constellation on both phones');
-  assert.notDeepEqual(a1, b, 'different canvases get different skies');
-});
-
-test('stars stay in the upper sky, inside the canvas', () => {
-  for (const s of starField('any-canvas', 50)) {
-    assert.ok(s.x >= 0 && s.x <= 1);
-    assert.ok(s.y >= 0 && s.y <= 0.45, 'stars live in the top of the sky');
-    assert.ok(s.r > 0);
-  }
-});
-
-test('star opacity is 0 in daylight and bounded at night', () => {
-  const star = starField('seed')[0];
-  assert.equal(starOpacity(star, 123456789, 0), 0);
-  for (let t = 0; t < 10; t++) {
-    const o = starOpacity(star, t * 1000, 1);
-    assert.ok(o >= 0 && o <= 1);
-  }
-});
-
 test('hashSeed is pinned (changing the hash would move every couple’s constellation)', () => {
   assert.equal(hashSeed('trace'), 2168288686);
   assert.notEqual(hashSeed('trace'), hashSeed('tracf'));
 });
 
-test('star opacity is identical for two phones sampling the same minute', () => {
-  const star = starField('seed')[0];
-  const t = 1_700_000_100_000; // arbitrary
-  const sameMinuteLater = t + 30_000;
-  assert.equal(starOpacity(star, t, 1), starOpacity(star, sameMinuteLater, 1));
-});

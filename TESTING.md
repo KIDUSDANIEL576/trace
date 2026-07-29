@@ -166,9 +166,9 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       board recolors too
 - [ ] Pick **Sunset** → the canvas recolors instantly under the sheet, and
       **the partner's canvas changes live** without them touching anything
-- [ ] Each preset shows its motif faintly (Rose/Ember/Honey → heart ·
-      Sunset/Ocean/Meadow → sun · Evening → crescent moon · Starry/Midnight →
-      stars · Blush/Lavender → sparkles)
+- [ ] **Every sky is flat**: a smooth gradient with a soft film grain, and
+      NOTHING drawn on it — no sun, heart, moon, or stars, on any preset, at
+      any hour. Your ink is the only mark on the canvas.
 - [ ] Drag the **strength** slider → the sky fades toward the theme ground in
       real time; at minimum it stays a whisper (never fully vanishes)
 - [ ] **Use my photo** → library pick → your photo becomes the sky at the
@@ -176,10 +176,9 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Kill and reopen the app → the chosen sky + strength are remembered
 - [ ] Photo canvases (drawn-on photos) have no Sky entry in ⋯ — the photo is
       the canvas
-- [ ] Strokes still stream live and Presence Painting's night stars still
-      appear over the new skies
+- [ ] Strokes still stream live over the new skies
 
-## 9 · Phase 5 — Time Capsules + Presence Painting
+## 9 · Phase 5 — Time Capsules + living ink
 
 - [ ] Draw something → ⋯ → Seal a time capsule → sheet opens
 - [ ] Pick "In a week", add a note, **Seal it 🎁** → toast shows the open date
@@ -190,9 +189,8 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       past): pill turns gold "🎁 a time capsule is ready — tap to open" → the
       full-screen reveal shows the drawing + note; haptic heartbeat plays
 - [ ] After opening once, the gold pill goes away (opened_at set)
-- [ ] **Presence Painting**: after 21:00 local, the empty/shared canvas (not
-      photo canvases) shows a faint constellation in the upper sky; by day it's
-      gone; both phones show the SAME star pattern
+- [ ] **No stars, ever**: open the app after 21:00 on an empty canvas — the sky
+      stays flat (the night constellation was removed on purpose)
 - [ ] Week-old strokes look imperceptibly fuller than fresh ones (ink bloom,
       max +8% — verify no layout/drawing weirdness rather than the effect itself)
 

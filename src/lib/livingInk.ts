@@ -1,7 +1,7 @@
-// Presence Painting — the canvas is alive. All evolution is DETERMINISTIC:
-// pure functions of (what was drawn, when it was drawn, what time it is now).
-// Both phones — and the server-rendered widget snapshot — compute the same
-// world from the same inputs. No server ticks, no stored animation state.
+// Living ink — the ONE way a canvas evolves on its own, and it happens to the
+// strokes, never to the background. Deterministic: a pure function of when a
+// stroke was drawn and what time it is now, so both phones and the
+// server-rendered widget snapshot agree without syncing anything.
 
 /** Ink "blooms" as it ages: width grows a hair over a week, like ink settling
  * into paper. Subtle by design — an old canvas feels inhabited, not inflated. */
@@ -16,28 +16,6 @@ export function bloomScale(createdAtMs: number, nowMs: number): number {
   return 1 + BLOOM_MAX * (1 - (1 - t) * (1 - t));
 }
 
-/** Night falls on the canvas: stars fade in from 20:00, out by 06:00 (local
- * device time — night is when it's night where you are). 0 = day, 1 = deep night. */
-export function nightness(date: Date): number {
-  const h = date.getHours() + date.getMinutes() / 60;
-  if (h >= 21 || h < 5) return 1;
-  if (h >= 20) return h - 20; // dusk fade-in 20:00→21:00
-  if (h < 6) return 6 - h; // dawn fade-out 05:00→06:00
-  return 0;
-}
-
-/** Deterministic PRNG (mulberry32) so both phones scatter identical stars. */
-function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 export function hashSeed(s: string): number {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
@@ -45,32 +23,4 @@ export function hashSeed(s: string): number {
     h = Math.imul(h, 16777619);
   }
   return h >>> 0;
-}
-
-export interface Star {
-  x: number; // normalized 0..1
-  y: number; // normalized 0..1 (kept to the upper sky)
-  r: number; // radius as a fraction of canvas width
-  twinkle: number; // 0..1 phase offset
-}
-
-/** The couple's own constellation — seeded by canvas id, identical everywhere. */
-export function starField(seed: string, count = 18): Star[] {
-  const rand = mulberry32(hashSeed(seed));
-  return Array.from({ length: count }, () => ({
-    x: rand(),
-    y: rand() * 0.45, // stars live in the top of the sky
-    r: 0.0016 + rand() * 0.0028,
-    twinkle: rand(),
-  }));
-}
-
-/** Slow shimmer, deterministic from the wall-clock MINUTE — quantized so two
- * phones whose render ticks fire at different moments still sample the same
- * sky, and so opacity only changes when the minute does. */
-export function starOpacity(star: Star, nowMs: number, night: number): number {
-  const minute = Math.floor(nowMs / 60_000);
-  const phase = (minute / 3 + star.twinkle * Math.PI * 2) % (Math.PI * 2);
-  const tw = 0.55 + 0.45 * Math.sin(phase);
-  return night * tw * 0.85;
 }

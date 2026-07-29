@@ -103,10 +103,12 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       year/5 years" + a note). Sealed content is RLS-locked server-side (E2E
       verified: metadata visible, sealed strokes return zero rows — even to the
       author). Gold "ready" pill → full-screen reveal with the note.
-- [x] **Presence Painting** — the canvas is alive, deterministically: ink
-      "blooms" +8% over its first week (easeOut), and each canvas has its own
-      constellation that fades in after 20:00 local — same stars on both phones
-      (seeded PRNG from the canvas id). One 60s tick; no servers, no batteries hurt.
+- [x] **Living ink** — ink "blooms" +8% over its first week (easeOut), computed
+      deterministically from the stroke's age, so both phones and the widget
+      snapshot agree without syncing anything.
+      *The night constellation that shipped alongside it was removed by choice:
+      the drawing board is flat now — no motifs, no stars, nothing but your ink
+      over a smooth sky.*
 
 ## Tier 4 · Make it live (post-launch spine)
 
