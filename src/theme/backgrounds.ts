@@ -966,6 +966,40 @@ export const BACKGROUNDS: BackgroundPreset[] = [
 
 export const DEFAULT_BACKGROUND_KEY = 'dusk';
 
+/**
+ * Free-tier skies. Deliberately a real spread across all four tabs — every
+ * family should feel open, not like a locked shop with one sample. Trace
+ * Forever unlocks the rest.
+ *
+ * Gating cosmetics is the least-resented gating there is; the app's actual
+ * magic (drawing, the widget, heartbeats) is never behind this.
+ */
+export const FREE_SKY_KEYS: ReadonlySet<string> = new Set([
+  // Calm (4)
+  'linen',
+  'oat',
+  'quiet',
+  'sage',
+  // Scenes (8)
+  'dusk', // the default — must always be free
+  'sunset',
+  'evening',
+  'starry',
+  'rose',
+  'ocean',
+  'meadow',
+  'honey',
+  // Duotone (1)
+  'duoteal',
+  // Faded (2)
+  'sepia',
+  'fadedrose',
+]);
+
+export function isSkyFree(key: string): boolean {
+  return FREE_SKY_KEYS.has(key);
+}
+
 export function backgroundByKey(key: string | null | undefined): BackgroundPreset {
   return (
     BACKGROUNDS.find((b) => b.key === key) ??

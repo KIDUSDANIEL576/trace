@@ -75,6 +75,14 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       NOT bleed onto the photo canvas and vice versa (canvas-switch checks)
 - [ ] Switching chips rehydrates each canvas correctly, no ghost strokes
 - [ ] Free tier: second photo same day → paywall (server rejects it too)
+- [ ] Free tier skies: 15 of 61 are open (every tab has some); locked ones show
+      🔒 over a dimmed-but-visible preview → tapping opens the paywall
+- [ ] Free tier: "🔒 Use my photo" background → paywall
+- [ ] Free tier capsules: one seal works; a second says "you already have a
+      capsule waiting" then opens the paywall; "In 5 years" shows 🔒
+      (server-enforced — verified live, not just hidden in the UI)
+- [ ] After unlocking: every sky, custom photo backgrounds, and unlimited
+      capsules with long horizons all work for BOTH partners
 - [ ] ▶ Replay: scrubber replays strokes in order on both canvas types;
       free tier caps at last 20 with the unlock chip
 - [ ] Both partners draw today → 🔥 1 appears after your stroke ends

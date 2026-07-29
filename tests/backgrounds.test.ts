@@ -8,6 +8,8 @@ import {
   DEFAULT_BACKGROUND_KEY,
   FAMILY_LABELS,
   FAMILY_ORDER,
+  FREE_SKY_KEYS,
+  isSkyFree,
 } from '../src/theme/backgrounds';
 import {
   bokehCircles,
@@ -247,6 +249,39 @@ test('every sky is reachable from a picker tab', () => {
     const n = BACKGROUNDS.filter((b) => b.family === f).length;
     assert.ok(n > 0, `the ${f} tab has no skies`);
     assert.ok(FAMILY_LABELS[f]?.length > 0, `${f} needs a label`);
+  }
+});
+
+test('the free tier feels open: every family has free skies', () => {
+  // If a whole tab were locked, the picker would read as a shop, not a
+  // library — the fastest way to make a free user feel cheated.
+  for (const f of FAMILY_ORDER) {
+    const free = BACKGROUNDS.filter((b) => b.family === f && isSkyFree(b.key));
+    assert.ok(free.length > 0, `the ${f} tab has no free skies`);
+  }
+});
+
+test('free skies are a real spread, not a token sample', () => {
+  const free = BACKGROUNDS.filter((b) => isSkyFree(b.key));
+  assert.ok(free.length >= 12, `only ${free.length} free skies — too stingy`);
+  assert.ok(
+    free.length <= BACKGROUNDS.length * 0.4,
+    `${free.length} free of ${BACKGROUNDS.length} leaves too little to unlock`
+  );
+  assert.ok(free.some((b) => b.light), 'free tier needs light skies');
+  assert.ok(free.some((b) => !b.light), 'free tier needs dark skies');
+});
+
+test('the default sky is always free', () => {
+  // otherwise a brand-new couple opens the app already locked out of their
+  // own canvas background
+  assert.ok(isSkyFree(DEFAULT_BACKGROUND_KEY), 'the default sky must be free');
+});
+
+test('every free sky key names a real preset', () => {
+  const keys = new Set(BACKGROUNDS.map((b) => b.key));
+  for (const k of FREE_SKY_KEYS) {
+    assert.ok(keys.has(k), `FREE_SKY_KEYS lists '${k}', which is not a preset`);
   }
 });
 

@@ -18,15 +18,28 @@ const PRESETS: { label: string; days: number }[] = [
   { label: 'In 5 years', days: 1826 },
 ];
 
+// Free tier can seal up to a year out; longer horizons are Trace Forever.
+const FREE_MAX_DAYS = 366;
+
 interface SealProps {
   visible: boolean;
   strokeCount: number;
+  premium: boolean;
   onClose: () => void;
   onSeal: (opensAt: Date, note: string) => void;
+  /** A locked horizon was tapped → open the paywall. */
+  onLocked: () => void;
 }
 
 /** Bottom sheet: seal the current canvas until a chosen date. */
-export function SealCapsuleSheet({ visible, strokeCount, onClose, onSeal }: SealProps) {
+export function SealCapsuleSheet({
+  visible,
+  strokeCount,
+  premium,
+  onClose,
+  onSeal,
+  onLocked,
+}: SealProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -57,18 +70,23 @@ export function SealCapsuleSheet({ visible, strokeCount, onClose, onSeal }: Seal
           <View style={styles.presetRow}>
             {PRESETS.map((p, i) => {
               const on = i === preset;
+              const locked = !premium && p.days > FREE_MAX_DAYS;
               return (
                 <Pressable
                   key={p.label}
                   onPress={() => {
                     tapLight();
-                    setPreset(i);
+                    if (locked) onLocked();
+                    else setPreset(i);
                   }}
                   accessibilityRole="button"
                   accessibilityState={{ selected: on }}
-                  style={[styles.preset, on && styles.presetOn]}
+                  accessibilityLabel={locked ? `${p.label}, locked` : p.label}
+                  style={[styles.preset, on && styles.presetOn, locked && styles.presetLocked]}
                 >
-                  <Text style={[styles.presetText, on && styles.presetTextOn]}>{p.label}</Text>
+                  <Text style={[styles.presetText, on && styles.presetTextOn]}>
+                    {locked ? `🔒 ${p.label}` : p.label}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -207,6 +225,7 @@ const makeStyles = (colors: Palette) =>
       paddingHorizontal: 14,
     },
     presetOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
+    presetLocked: { opacity: 0.6 },
     presetText: { color: colors.muted, fontSize: 13.5, fontWeight: '600' },
     presetTextOn: { color: colors.ink },
     noteInput: {

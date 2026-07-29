@@ -17,7 +17,9 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, type Palette } from '@/theme/tokens';
 
 const PERKS = [
+  ['🌅', 'Every sky', 'All 61 backgrounds — or use your own photo'],
   ['🖊', 'Every brush', 'Glow, neon, and invisible ink'],
+  ['⏳', 'Capsules, forever', 'Seal as many as you like, open them 10 years out'],
   ['📷', 'Unlimited photos', 'Draw on as many as you like'],
   ['⏪', 'Full replay', 'Relive every stroke, from the first'],
   ['💞', 'Unlocks for both', 'One buys it — you both get it, forever'],

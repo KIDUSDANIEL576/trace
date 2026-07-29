@@ -17,7 +17,14 @@ import { useCouple } from '@/hooks/useCouple';
 import { useSharedCanvas } from '@/hooks/useSharedCanvas';
 import { useStreak } from '@/hooks/useStreak';
 import { BRUSHES } from '@/lib/brushes';
-import { isOpen, listCapsules, openCapsule, opensInLabel, sealCapsule } from '@/lib/capsules';
+import {
+  CapsuleLimitError,
+  isOpen,
+  listCapsules,
+  openCapsule,
+  opensInLabel,
+  sealCapsule,
+} from '@/lib/capsules';
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount, leaveCouple } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
@@ -211,7 +218,13 @@ function SharedCanvas({
       notifySuccess();
       toast.show(`Sealed until ${opensAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} 🎁`);
       listCapsules(coupleId).then(setCapsules);
-    } catch {
+    } catch (e) {
+      if (e instanceof CapsuleLimitError) {
+        // a free-tier limit, not a failure — say why, then offer the upgrade
+        toast.show(e.message);
+        setTimeout(() => router.push('/paywall'), 1200);
+        return;
+      }
       toast.show('Could not seal it — try again');
     }
   }
@@ -705,18 +718,28 @@ function SharedCanvas({
         bgOpacity={bg.opacity}
         hasCustomPhoto={bg.photoPath != null}
         busy={bgBusy}
+        premium={premium}
         onClose={() => setBgSheetOpen(false)}
         onPick={(key) => applyBackground({ bgKey: key, bgPhotoPath: null })}
         onOpacity={(v) => applyBackground({ bgOpacity: v })}
         onPickPhoto={onPickBackgroundPhoto}
         onClearPhoto={() => applyBackground({ bgPhotoPath: null })}
+        onLocked={() => {
+          setBgSheetOpen(false);
+          router.push('/paywall');
+        }}
       />
 
       <SealCapsuleSheet
         visible={sealOpen}
         strokeCount={strokes.length}
+        premium={premium}
         onClose={() => setSealOpen(false)}
         onSeal={onSealCapsule}
+        onLocked={() => {
+          setSealOpen(false);
+          router.push('/paywall');
+        }}
       />
       <OpenCapsuleModal
         capsule={viewingCapsule}

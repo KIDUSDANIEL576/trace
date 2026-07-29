@@ -10,6 +10,7 @@ import {
   clampBgOpacity,
   FAMILY_LABELS,
   FAMILY_ORDER,
+  isSkyFree,
   type BackgroundFamily,
 } from '@/theme/backgrounds';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -23,11 +24,15 @@ interface Props {
   bgOpacity: number;
   hasCustomPhoto: boolean;
   busy?: boolean;
+  /** Trace Forever unlocks every sky and custom photo backgrounds. */
+  premium: boolean;
   onClose: () => void;
   onPick: (key: string) => void;
   onOpacity: (value: number) => void;
   onPickPhoto: () => void;
   onClearPhoto: () => void;
+  /** A locked sky or the photo option was tapped → open the paywall. */
+  onLocked: () => void;
 }
 
 /** A little Skia preview of one preset — the real gradient, not an approximation. */
@@ -67,11 +72,13 @@ export function BackgroundSheet({
   bgOpacity,
   hasCustomPhoto,
   busy,
+  premium,
   onClose,
   onPick,
   onOpacity,
   onPickPhoto,
   onClearPhoto,
+  onLocked,
 }: Props) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -154,16 +161,20 @@ export function BackgroundSheet({
           <ScrollView style={styles.gridScroll} contentContainerStyle={styles.grid}>
             {shownSkies.map((b) => {
               const on = !hasCustomPhoto && b.key === bgKey;
+              const locked = !premium && !isSkyFree(b.key);
               return (
                 <Pressable
                   key={b.key}
                   onPress={() => {
                     tapLight();
-                    onPick(b.key);
+                    if (locked) onLocked();
+                    else onPick(b.key);
                   }}
                   accessibilityRole="button"
                   accessibilityState={{ selected: on }}
-                  accessibilityLabel={`${b.label} background`}
+                  accessibilityLabel={
+                    locked ? `${b.label} background, locked` : `${b.label} background`
+                  }
                   style={({ pressed }) => [
                     styles.tile,
                     on && styles.tileOn,
@@ -171,10 +182,14 @@ export function BackgroundSheet({
                   ]}
                 >
                   <Swatch colors={b.colors} positions={b.positions} />
+                  {/* locked skies still show their real colours — you can see
+                      exactly what you'd unlock, just dimmed */}
+                  {locked && <View style={styles.tileLockScrim} />}
                   <View style={styles.tileLabelWrap}>
                     <Text style={styles.tileLabel}>{b.label}</Text>
                   </View>
                   {on ? <Text style={styles.tileCheck}>✓</Text> : null}
+                  {locked ? <Text style={styles.tileLock}>🔒</Text> : null}
                 </Pressable>
               );
             })}
@@ -201,11 +216,16 @@ export function BackgroundSheet({
             <Pressable
               onPress={() => {
                 tapLight();
-                onPickPhoto();
+                if (!premium) onLocked();
+                else onPickPhoto();
               }}
               disabled={busy}
               accessibilityRole="button"
-              accessibilityLabel="Use one of my photos as the background"
+              accessibilityLabel={
+                premium
+                  ? 'Use one of my photos as the background'
+                  : 'Use one of my photos as the background, locked'
+              }
               style={({ pressed }) => [
                 styles.photoBtn,
                 hasCustomPhoto && styles.photoBtnOn,
@@ -213,7 +233,13 @@ export function BackgroundSheet({
               ]}
             >
               <Text style={styles.photoBtnText}>
-                {busy ? 'Setting…' : hasCustomPhoto ? '✓ Your photo' : '📷 Use my photo'}
+                {busy
+                  ? 'Setting…'
+                  : hasCustomPhoto
+                    ? '✓ Your photo'
+                    : premium
+                      ? '📷 Use my photo'
+                      : '🔒 Use my photo'}
               </Text>
             </Pressable>
             {hasCustomPhoto ? (
@@ -311,6 +337,8 @@ const makeStyles = (colors: Palette) =>
       fontSize: 15,
       fontWeight: '800',
     },
+    tileLockScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(8,7,11,0.45)' },
+    tileLock: { position: 'absolute', top: 5, right: 6, fontSize: 13 },
     sliderHit: { height: 44, justifyContent: 'center' },
     track: {
       height: 8,

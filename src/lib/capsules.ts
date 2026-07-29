@@ -10,6 +10,19 @@ import type { CapsuleMeta, CapsuleStroke, Stroke } from '@/types';
 
 export { isOpen, opensInLabel } from '@/lib/capsuleTime';
 
+/** Raised when the free tier's capsule limits stop a seal — the caller shows
+ * the paywall rather than a dead-end error. */
+export class CapsuleLimitError extends Error {
+  constructor(public reason: 'limit' | 'horizon') {
+    super(
+      reason === 'limit'
+        ? 'You already have a capsule waiting. Trace Forever lets you seal as many as you like.'
+        : 'Capsules can open up to a year out. Trace Forever goes further — 5 years, 10, whenever you want.'
+    );
+    this.name = 'CapsuleLimitError';
+  }
+}
+
 export async function sealCapsule(
   coupleId: string,
   strokes: Stroke[],
@@ -30,7 +43,12 @@ export async function sealCapsule(
     p_strokes: content,
     p_note: note?.trim() || null,
   });
-  if (error) throw error;
+  if (error) {
+    // the RPC raises these two sentinels for free-tier limits
+    if (error.message?.includes('free_limit')) throw new CapsuleLimitError('limit');
+    if (error.message?.includes('free_horizon')) throw new CapsuleLimitError('horizon');
+    throw error;
+  }
 }
 
 export async function listCapsules(coupleId: string): Promise<CapsuleMeta[]> {
