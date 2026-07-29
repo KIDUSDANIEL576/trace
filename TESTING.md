@@ -67,6 +67,28 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       something still reads badly on real pixels, tell me the surface + theme:
       that means the model of how it stacks is wrong, which is worth knowing.)*
 
+## 2a-bis · Contrast (now proven by maths — just sanity-check on real pixels)
+
+`tests/contrast.test.ts` composites every colour pairing the way the app
+actually stacks it (sky → 35% dim → glass tint → fill → text) across all 61
+skies, both platforms and all three themes, and fails the build under WCAG AA.
+It found and fixed six real defects, several older than the glass work:
+
+| What | Was | Now |
+|---|---|---|
+| Primary buttons (white on ink) | 3.21–4.39:1 | ≥4.6:1 via `inkDeep` |
+| Sheet body text on glass | 3.84:1 | ≥4.6:1 (heavier tint) |
+| Daylight pill text | 4.30:1 | ≥4.7:1 |
+| Selected tab label | 1.32:1 | full-strength text; fill carries state |
+| Gold badges as text | 1.86:1 | solid gold fill, dark text |
+| Sky names on pale skies | 3.18:1 | 0.56 scrim |
+
+- [ ] Spot-check the worst cases on a real screen: the **selected tab**, the
+      **🔥 streak badge**, the **"capsule is ready"** pill, a **sheet over a
+      bright sky**, and the **sky picker on the "calm" tab** (palest tiles)
+- [ ] If anything still reads badly, tell me the surface + theme — that means
+      the model of how it stacks is wrong, which is worth more than the number
+
 ## 2b · Appearance / themes
 
 - [ ] Long-press the **trace** wordmark → Settings sheet slides up
