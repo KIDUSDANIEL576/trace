@@ -1,6 +1,6 @@
 import { Canvas, type useCanvasRef } from '@shopify/react-native-skia';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { nightness, starField } from '@/lib/livingInk';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -37,6 +37,14 @@ interface Props {
 const LIVING_TICK_MS = 60_000;
 
 const MIN_SEGMENT_PX = 1.5; // same point-thinning as the prototype
+
+// Mobile browsers hijack touch-moves for page scrolling, chopping strokes into
+// broken segments. touch-action:none tells the browser this surface owns the
+// finger. Native ignores these (web-only style keys).
+const WEB_TOUCH_FIX =
+  Platform.OS === 'web'
+    ? ({ touchAction: 'none', userSelect: 'none' } as unknown as object)
+    : null;
 
 /**
  * The shared canvas: a theme-gradient "photo" background with all persisted +
@@ -120,7 +128,7 @@ export function CanvasBoard({
   return (
     <GestureDetector gesture={pan}>
       <View
-        style={styles.board}
+        style={[styles.board, WEB_TOUCH_FIX]}
         onLayout={(e) =>
           setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })
         }

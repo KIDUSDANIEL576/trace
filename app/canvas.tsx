@@ -1,18 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCanvasRef } from '@shopify/react-native-skia';
+import { Canvas, useCanvasRef } from '@shopify/react-native-skia';
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackgroundSheet } from '@/components/BackgroundSheet';
+import { CanvasBackdrop } from '@/components/CanvasBackdrop';
 import { CanvasBoard } from '@/components/CanvasBoard';
+import { CanvasDock } from '@/components/CanvasDock';
 import { OpenCapsuleModal, SealCapsuleSheet } from '@/components/CapsuleSheet';
 import { HeartBloom } from '@/components/HeartBloom';
+import { MoreSheet, type MoreAction } from '@/components/MoreSheet';
 import { PresencePill } from '@/components/PresencePill';
 import { SettingsSheet } from '@/components/SettingsSheet';
 import { useToast } from '@/components/Toast';
-import { Toolbar } from '@/components/Toolbar';
-import { Button, Loading, Screen, Wordmark } from '@/components/ui';
+import { Loading, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useCouple } from '@/hooks/useCouple';
 import { useSharedCanvas } from '@/hooks/useSharedCanvas';
@@ -101,6 +103,11 @@ function SharedCanvas({
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [reveal, setReveal] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  // immersive layout: the sky fills the screen; the board floats centered and
+  // sizes itself to whatever room is left between the top chrome and the dock
+  const [rootSize, setRootSize] = useState({ w: 0, h: 0 });
+  const [stage, setStage] = useState({ w: 0, h: 0 });
   // Phase 5 · Time Capsules
   const [capsules, setCapsules] = useState<CapsuleMeta[]>([]);
   const [sealOpen, setSealOpen] = useState(false);
@@ -590,237 +597,282 @@ function SharedCanvas({
     return rank(a) - rank(b);
   });
 
+  // the ⋯ sheet: everything that used to crowd the canvas, context-aware
+  const moreActions: MoreAction[] = [];
+  if (activeCanvas?.kind !== 'photo' && !viewingPartnerPage) {
+    moreActions.push({
+      key: 'sky',
+      icon: '🌅',
+      label: 'Sky & strength',
+      sub: 'pick a background and how strongly it shows',
+      onPress: () => setBgSheetOpen(true),
+    });
+  }
+  moreActions.push({
+    key: 'photo',
+    icon: '📷',
+    label: 'Draw on a photo',
+    sub: 'add a photo you both can draw on',
+    onPress: onAddPhoto,
+  });
+  moreActions.push({
+    key: 'replay',
+    icon: '▶️',
+    label: 'Replay',
+    sub: 'watch this canvas draw itself again',
+    onPress: openReplay,
+  });
+  if (strokes.length > 0 && activeCanvas?.kind !== 'photo') {
+    moreActions.push({
+      key: 'capsule',
+      icon: '⏳',
+      label: 'Seal a time capsule',
+      sub: 'hide this drawing until a future date',
+      onPress: () => setSealOpen(true),
+    });
+  }
+  if (strokes.length > 0) {
+    moreActions.push({
+      key: 'share',
+      icon: '↗️',
+      label: 'Share as image',
+      onPress: onShare,
+    });
+  }
+  if (!viewingPartnerPage) {
+    moreActions.push({
+      key: 'clear',
+      icon: '🗑️',
+      label: 'Clear the canvas',
+      sub: 'erases it for both of you',
+      destructive: true,
+      onPress: confirmClear,
+    });
+  }
+
+  // strict 1/1.1 aspect (normalized strokes must render identically on both
+  // phones) fit inside whatever the stage gives us
+  const boardW = stage.w > 0 ? Math.min(stage.w, stage.h / 1.1) : 0;
+
   return (
-    <Screen>
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <View style={styles.brandRow}>
-          <Pressable
-            onLongPress={openSettings}
-            accessibilityRole="button"
-            accessibilityLabel="Open settings"
-          >
-            <Wordmark />
-          </Pressable>
-          {streak > 0 && <Text style={styles.streak}>🔥 {streak}</Text>}
+    <View
+      style={styles.root}
+      onLayout={(e) =>
+        setRootSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })
+      }
+    >
+      {/* the sky fills the whole screen, dimmed so the board carries the light */}
+      {rootSize.w > 0 && (
+        <Canvas pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <CanvasBackdrop
+            w={rootSize.w}
+            h={rootSize.h}
+            board={colors.board}
+            bgKey={bg.key}
+            bgPhotoUrl={bgPhotoUrl}
+            bgOpacity={bg.opacity}
+          />
+        </Canvas>
+      )}
+      <View pointerEvents="none" style={styles.skyDim} />
+
+      <View
+        style={[
+          styles.content,
+          { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 12 },
+        ]}
+      >
+        <View style={styles.header}>
+          <View style={styles.brandRow}>
+            <Pressable
+              onLongPress={openSettings}
+              accessibilityRole="button"
+              accessibilityLabel="Open settings"
+            >
+              <Wordmark size={24} />
+            </Pressable>
+            {streak > 0 && <Text style={styles.streak}>🔥 {streak}</Text>}
+          </View>
+          {partnerDrawing ? (
+            <PresencePill name={partnerDrawing} />
+          ) : partnerName || partnerOnline ? (
+            <View style={styles.withChip}>
+              <View
+                style={[
+                  styles.presenceDot,
+                  { backgroundColor: partnerOnline ? colors.glow : colors.muted },
+                ]}
+              />
+              <Text style={styles.withText}>with {partnerName ?? partnerOnline}</Text>
+            </View>
+          ) : (
+            <Pressable style={styles.withChip} onPress={shareCode}>
+              <Text style={styles.withText}>code {inviteCode} · tap to share</Text>
+            </Pressable>
+          )}
         </View>
-        {partnerDrawing ? (
-          <PresencePill name={partnerDrawing} />
-        ) : partnerName || partnerOnline ? (
-          <View style={styles.withRow}>
-            <View
-              style={[
-                styles.presenceDot,
-                { backgroundColor: partnerOnline ? colors.glow : colors.muted },
-              ]}
-            />
-            <Text style={styles.partner}>with {partnerName ?? partnerOnline}</Text>
+
+        {canvases.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabStrip}
+            contentContainerStyle={styles.tabStripContent}
+          >
+            {orderedCanvases.map((c) => {
+              const on = c.id === activeCanvasId;
+              const isPartnerPage = c.kind === 'page' && c.ownerId !== userId;
+              return (
+                <Pressable
+                  key={c.id}
+                  onPress={() => {
+                    if (isPartnerPage) {
+                      openPartnerPage();
+                      return;
+                    }
+                    tapLight();
+                    setActiveCanvasId(c.id);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: on }}
+                  accessibilityLabel={`${chipLabel(c)} canvas`}
+                  style={({ pressed }) => [
+                    styles.tab,
+                    on && styles.tabOn,
+                    pressed && styles.tabPressed,
+                  ]}
+                >
+                  <Text style={[styles.tabText, on && styles.tabTextOn]}>
+                    {c.kind === 'photo' ? '📷 ' : ''}
+                    {chipLabel(c)}
+                  </Text>
+                  {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {connection !== 'live' && (
+          <View style={styles.floatPill}>
+            <Text style={styles.connText}>
+              {connection === 'connecting' ? 'connecting…' : 'reconnecting…'}
+            </Text>
+          </View>
+        )}
+
+        {photoBusy && (
+          <View style={styles.floatPill}>
+            <Text style={styles.floatPillText}>adding your photo…</Text>
+          </View>
+        )}
+
+        {readyCapsule ? (
+          <Pressable
+            onPress={() => onOpenCapsule(readyCapsule)}
+            accessibilityRole="button"
+            accessibilityLabel="A time capsule is ready — open it"
+            style={({ pressed }) => [
+              styles.floatPill,
+              styles.capsuleReady,
+              pressed && { opacity: 0.8 },
+            ]}
+          >
+            <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
+          </Pressable>
+        ) : nextSealed ? (
+          <View style={styles.floatPill}>
+            <Text style={styles.floatPillText}>
+              ⏳ {nextSealed.authorId === userId ? 'your' : `${partnerName ?? 'their'}`} capsule ·{' '}
+              {opensInLabel(nextSealed)}
+            </Text>
+          </View>
+        ) : null}
+
+        <View
+          style={styles.stage}
+          onLayout={(e) =>
+            setStage({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })
+          }
+        >
+          {boardW > 0 && (
+            <View style={{ width: boardW, alignSelf: 'center' }}>
+              <CanvasBoard
+                strokes={strokes}
+                liveStrokes={liveStrokes}
+                brush={brush}
+                color={color}
+                brushWidth={BRUSHES[brush].width}
+                photoUrl={photoUrl}
+                revealInvisible={reveal}
+                prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
+                readOnly={viewingPartnerPage}
+                readOnlyHint={`${partnerName ?? 'they'} hasn't drawn here yet 💌`}
+                seedId={activeCanvasId}
+                bgKey={bg.key}
+                bgPhotoUrl={bgPhotoUrl}
+                bgOpacity={bg.opacity}
+                canvasRef={canvasRef}
+                onBegin={beginStroke}
+                onPoint={addPoint}
+                onEnd={(id) => {
+                  endStroke(id).then(() => {
+                    refreshStreak();
+                    // give the server a moment to re-render, then reload the widgets
+                    setTimeout(() => refreshWidget(coupleId), 5000);
+                    // once per session, tie the stroke to the widget promise
+                    if (!homeScreenToastRef.current && (partnerName || partnerOnline)) {
+                      homeScreenToastRef.current = true;
+                      setTimeout(() => toast.show('Left on their home screen ✓'), 6500);
+                    }
+                  });
+                }}
+              />
+              {strokes.some((s) => s.brush === 'invisible') && (
+                <Pressable
+                  onPressIn={() => {
+                    tapLight();
+                    setReveal(true);
+                  }}
+                  onPressOut={() => setReveal(false)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Hold to reveal the invisible ink"
+                  style={styles.revealChip}
+                >
+                  <Text style={styles.revealText}>👁 hold to reveal</Text>
+                </Pressable>
+              )}
+              <HeartBloom trigger={bloomKey} burst={burst} />
+            </View>
+          )}
+        </View>
+
+        {viewingPartnerPage ? (
+          <View style={styles.pageCaptionWrap}>
+            <Text style={styles.pageCaption}>
+              💌 {partnerName ?? 'Their'} page — it appears here as they draw it
+            </Text>
           </View>
         ) : (
-          <Pressable style={styles.codeChip} onPress={shareCode}>
-            <Text style={styles.codeChipText}>code {inviteCode} · tap to share</Text>
-          </Pressable>
+          <CanvasDock
+            brush={brush}
+            color={color}
+            premium={premium}
+            canUndo={canUndo}
+            onBrush={setBrush}
+            onColor={setColor}
+            onLockedBrush={() => router.push('/paywall')}
+            onHeart={sendHeartbeat}
+            onUndo={undoLast}
+            onMore={() => {
+              tapLight();
+              setMoreOpen(true);
+            }}
+          />
         )}
       </View>
 
-      {connection !== 'live' && (
-        <View style={styles.connBanner}>
-          <Text style={styles.connText}>
-            {connection === 'connecting' ? 'connecting…' : 'reconnecting…'}
-          </Text>
-        </View>
-      )}
-
-      {canvases.length > 1 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chipStrip}
-          contentContainerStyle={styles.chipStripContent}
-        >
-          {orderedCanvases.map((c) => {
-            const on = c.id === activeCanvasId;
-            const isPartnerPage = c.kind === 'page' && c.ownerId !== userId;
-            return (
-              <Pressable
-                key={c.id}
-                onPress={() => {
-                  if (isPartnerPage) {
-                    openPartnerPage();
-                    return;
-                  }
-                  tapLight();
-                  setActiveCanvasId(c.id);
-                }}
-                accessibilityRole="button"
-                accessibilityState={{ selected: on }}
-                accessibilityLabel={`${chipLabel(c)} canvas`}
-                style={({ pressed }) => [
-                  styles.chip,
-                  on && styles.chipOn,
-                  pressed && styles.chipPressed,
-                ]}
-              >
-                <Text style={[styles.chipText, on && styles.chipTextOn]}>
-                  {c.kind === 'photo' ? '📷 ' : ''}
-                  {chipLabel(c)}
-                </Text>
-                {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-      )}
-
-      {readyCapsule ? (
-        <Pressable
-          onPress={() => onOpenCapsule(readyCapsule)}
-          accessibilityRole="button"
-          accessibilityLabel="A time capsule is ready — open it"
-          style={({ pressed }) => [styles.capsulePill, styles.capsulePillReady, pressed && { opacity: 0.8 }]}
-        >
-          <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
-        </Pressable>
-      ) : nextSealed ? (
-        <View style={styles.capsulePill}>
-          <Text style={styles.capsuleText}>
-            ⏳ {nextSealed.authorId === userId ? 'your' : `${partnerName ?? 'their'}`} capsule ·{' '}
-            {opensInLabel(nextSealed)}
-          </Text>
-        </View>
-      ) : null}
-
-      <View>
-        <CanvasBoard
-          strokes={strokes}
-          liveStrokes={liveStrokes}
-          brush={brush}
-          color={color}
-          brushWidth={BRUSHES[brush].width}
-          photoUrl={photoUrl}
-          revealInvisible={reveal}
-          prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
-          readOnly={viewingPartnerPage}
-          readOnlyHint={`${partnerName ?? 'they'} hasn't drawn here yet 💌`}
-          seedId={activeCanvasId}
-          bgKey={bg.key}
-          bgPhotoUrl={bgPhotoUrl}
-          bgOpacity={bg.opacity}
-          canvasRef={canvasRef}
-          onBegin={beginStroke}
-          onPoint={addPoint}
-          onEnd={(id) => {
-            endStroke(id).then(() => {
-              refreshStreak();
-              // give the server a moment to re-render, then reload the widgets
-              setTimeout(() => refreshWidget(coupleId), 5000);
-              // once per session, tie the stroke to the widget promise
-              if (!homeScreenToastRef.current && (partnerName || partnerOnline)) {
-                homeScreenToastRef.current = true;
-                setTimeout(() => toast.show('Left on their home screen ✓'), 6500);
-              }
-            });
-          }}
-        />
-        {strokes.some((s) => s.brush === 'invisible') && (
-          <Pressable
-            onPressIn={() => {
-              tapLight();
-              setReveal(true);
-            }}
-            onPressOut={() => setReveal(false)}
-            accessibilityRole="button"
-            accessibilityLabel="Hold to reveal the invisible ink"
-            style={styles.revealChip}
-          >
-            <Text style={styles.revealText}>👁 hold to reveal</Text>
-          </Pressable>
-        )}
-        {activeCanvas?.kind !== 'photo' && !viewingPartnerPage && (
-          // photo canvases have their own image; their page's sky is theirs
-          <Pressable
-            onPress={() => {
-              tapLight();
-              setBgSheetOpen(true);
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Change the canvas background"
-            style={({ pressed }) => [styles.bgChip, pressed && { opacity: 0.75 }]}
-          >
-            <Text style={styles.revealText}>🌅 sky</Text>
-          </Pressable>
-        )}
-        <HeartBloom trigger={bloomKey} burst={burst} />
-        {strokes.length > 0 && (
-          <Pressable
-            onPress={onShare}
-            accessibilityRole="button"
-            accessibilityLabel="Share this canvas as an image"
-            style={({ pressed }) => [styles.shareChip, pressed && { opacity: 0.75 }]}
-          >
-            <Text style={styles.revealText}>↗ share</Text>
-          </Pressable>
-        )}
-        {strokes.length > 0 && activeCanvas?.kind !== 'photo' && (
-          // photo canvases can't be sealed: the capsule stores only strokes,
-          // and annotations without their photo open as context-free scribbles
-          <Pressable
-            onPress={() => {
-              tapLight();
-              setSealOpen(true);
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Seal this drawing in a time capsule"
-            style={({ pressed }) => [styles.capsuleChip, pressed && { opacity: 0.75 }]}
-          >
-            <Text style={styles.revealText}>⏳ capsule</Text>
-          </Pressable>
-        )}
-      </View>
-
-      <Pressable
-        onPress={sendHeartbeat}
-        accessibilityRole="button"
-        accessibilityLabel="Send a heartbeat"
-        style={({ pressed }) => [styles.heartBtn, pressed && styles.heartBtnPressed]}
-      >
-        <Text style={styles.heartBtnText}>❤  Send a heartbeat</Text>
-      </Pressable>
-
-      {!viewingPartnerPage && (
-        <Toolbar
-          brush={brush}
-          color={color}
-          premium={premium}
-          onBrush={setBrush}
-          onColor={setColor}
-          onLockedBrush={() => router.push('/paywall')}
-        />
-      )}
-
-      {viewingPartnerPage ? (
-        <View style={styles.actions}>
-          <Text style={styles.pageCaption}>
-            💌 {partnerName ?? 'Their'} page — it appears here as they draw it
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.actions}>
-          <View style={{ flex: 1 }}>
-            <Button title="Clear" variant="ghost" onPress={confirmClear} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button title="↺ Undo" variant="ghost" onPress={undoLast} disabled={!canUndo} />
-          </View>
-        </View>
-      )}
-      <View style={styles.actionsBottom}>
-        <View style={{ flex: 1 }}>
-          <Button title="＋ Photo" variant="ghost" onPress={onAddPhoto} loading={photoBusy} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button title="▶ Replay" variant="ghost" onPress={openReplay} />
-        </View>
-      </View>
+      <MoreSheet visible={moreOpen} actions={moreActions} onClose={() => setMoreOpen(false)} />
 
       <BackgroundSheet
         visible={bgSheetOpen}
@@ -874,149 +926,104 @@ function SharedCanvas({
           confirmDeleteAccount();
         }}
       />
-    </Screen>
+    </View>
   );
 }
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 14,
-  },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  streak: {
-    color: colors.goldText,
-    fontSize: 13,
-    fontWeight: '700',
-    overflow: 'hidden',
-    backgroundColor: 'rgba(244,198,107,0.14)',
-    borderRadius: radius.pill,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
-  },
-  withRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  presenceDot: { width: 8, height: 8, borderRadius: 4 },
-  partner: { color: colors.muted, fontSize: 13 },
-  codeChip: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.pill,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-  },
-  codeChipText: { color: colors.muted, fontSize: 12 },
-  connBanner: {
-    alignSelf: 'center',
-    backgroundColor: colors.inkSoft,
-    borderRadius: radius.pill,
-    paddingVertical: 4,
-    paddingHorizontal: 14,
-    marginBottom: 10,
-  },
-  connText: { color: '#ffb9c2', fontSize: 12, fontWeight: '500' },
-  chipStrip: { flexGrow: 0, marginBottom: 10 },
-  chipStripContent: { gap: 8 },
-  chip: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panel,
-    borderRadius: radius.pill,
-    paddingVertical: 6,
-    paddingHorizontal: 13,
-  },
-  chipOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
-  chipPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
-  chipText: { color: colors.muted, fontSize: 12.5, fontWeight: '500' },
-  newDot: {
-    position: 'absolute',
-    top: 3,
-    right: 5,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.ink,
-  },
-  pageCaption: {
-    flex: 1,
-    textAlign: 'center',
-    color: colors.muted,
-    fontSize: 13.5,
-    paddingVertical: 14,
-  },
-  chipTextOn: { color: '#ffb9c2' },
-  heartBtn: {
-    marginTop: 14,
-    minHeight: 50,
-    borderRadius: radius.button,
-    backgroundColor: colors.inkSoft,
-    borderWidth: 1,
-    borderColor: colors.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heartBtnPressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
-  heartBtnText: { color: colors.inkText, fontSize: 15.5, fontWeight: '700', letterSpacing: 0.2 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  actionsBottom: { flexDirection: 'row', gap: 8, marginTop: 8 },
-  shareChip: {
-    position: 'absolute',
-    bottom: 12,
-    left: 12,
-    backgroundColor: 'rgba(10,9,13,0.62)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    borderRadius: radius.pill,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  capsulePill: {
-    alignSelf: 'center',
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panel,
-    borderRadius: radius.pill,
-    paddingVertical: 5,
-    paddingHorizontal: 14,
-    marginBottom: 10,
-  },
-  capsulePillReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.14)' },
-  capsuleText: { color: colors.muted, fontSize: 12 },
-  capsuleReadyText: { color: colors.goldText, fontSize: 12.5, fontWeight: '600' },
-  bgChip: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: 'rgba(10,9,13,0.62)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    borderRadius: radius.pill,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  capsuleChip: {
-    position: 'absolute',
-    bottom: 12,
-    left: 86,
-    backgroundColor: 'rgba(10,9,13,0.62)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    borderRadius: radius.pill,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  revealChip: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    backgroundColor: 'rgba(10,9,13,0.62)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    borderRadius: radius.pill,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  revealText: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
-});
+    root: { flex: 1, backgroundColor: colors.night },
+    // the board carries the light; the full-screen sky sits back ~35%
+    skyDim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.35)' },
+    content: { flex: 1, paddingHorizontal: 14 },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: 8,
+    },
+    brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    streak: {
+      color: colors.goldText,
+      fontSize: 13,
+      fontWeight: '700',
+      overflow: 'hidden',
+      backgroundColor: 'rgba(244,198,107,0.14)',
+      borderRadius: radius.pill,
+      paddingHorizontal: 9,
+      paddingVertical: 3,
+    },
+    withChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 7,
+      backgroundColor: colors.overlay,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.14)',
+      borderRadius: radius.pill,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+    },
+    withText: { color: colors.onOverlay, fontSize: 12.5 },
+    presenceDot: { width: 8, height: 8, borderRadius: 4 },
+    tabStrip: { flexGrow: 0, marginBottom: 4 },
+    tabStripContent: { gap: 8, paddingVertical: 2 },
+    tab: {
+      backgroundColor: colors.overlay,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.14)',
+      borderRadius: radius.pill,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+    },
+    tabOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
+    tabPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
+    tabText: { color: colors.onOverlay, fontSize: 13.5, fontWeight: '500' },
+    tabTextOn: { color: '#ffb9c2' },
+    newDot: {
+      position: 'absolute',
+      top: 3,
+      right: 5,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.ink,
+    },
+    floatPill: {
+      alignSelf: 'center',
+      backgroundColor: colors.overlay,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.14)',
+      borderRadius: radius.pill,
+      paddingVertical: 5,
+      paddingHorizontal: 14,
+      marginTop: 6,
+    },
+    floatPillText: { color: colors.onOverlay, fontSize: 12 },
+    connText: { color: '#ffb9c2', fontSize: 12, fontWeight: '500' },
+    capsuleReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.2)' },
+    capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
+    stage: { flex: 1, justifyContent: 'center', marginVertical: 8 },
+    pageCaptionWrap: {
+      alignSelf: 'center',
+      backgroundColor: colors.overlay,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.14)',
+      borderRadius: 24,
+      paddingVertical: 12,
+      paddingHorizontal: 18,
+    },
+    pageCaption: { color: colors.onOverlay, fontSize: 13.5, textAlign: 'center' },
+    revealChip: {
+      position: 'absolute',
+      bottom: 12,
+      right: 12,
+      backgroundColor: 'rgba(10,9,13,0.62)',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.12)',
+      borderRadius: radius.pill,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+    },
+    revealText: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
+  });

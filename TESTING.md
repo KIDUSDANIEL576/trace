@@ -18,6 +18,15 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 ## 2 · The magic (Phase 1 bar: <300ms)
 
+- [ ] **Immersive layout**: the sky fills the whole screen (dimmed) with the
+      board floating centered; NOTHING scrolls vertically — top row, tabs,
+      board, and the bottom dock all fit on one screen
+- [ ] The bottom dock holds brushes + inks + ❤ + ↺ + ⋯; the ⋯ sheet opens
+      with Sky & strength / Photo / Replay / Capsule / Share / Clear
+- [ ] ❤ in the dock sends a heartbeat (bloom on both phones, mutual-press
+      eruption still works)
+- [ ] Strokes are smooth and continuous on touch — no broken/choppy segments
+      (in a mobile browser too, though judge feel only in Expo Go)
 - [ ] A draws → **B sees the stroke appear live, in visibly under a beat**
 - [ ] **A lifts their finger → the finished stroke STAYS on B's screen** (it must
       not flash in and vanish on stroke-end — the receive-path promotion bug)
@@ -26,8 +35,8 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] "…is drawing" pill shows on the idle phone while the other draws
 - [ ] All 4 free interactions: marker + chalk draw; glow/neon show 🔒 and open
       the paywall
-- [ ] Undo removes only your own last stroke, on both screens
-- [ ] Clear (with confirm) empties both screens
+- [ ] ↺ in the dock removes only your own last stroke, on both screens
+- [ ] ⋯ → Clear (with confirm) empties both screens
 - [ ] Kill and reopen the app → canvas rehydrates fully
 - [ ] Airplane mode 30s while B draws → back online → banner clears and the
       missed strokes appear after reconnect
@@ -57,7 +66,7 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 - [ ] Empty canvas shows "draw here ✏️" plus today's prompt (same prompt on
       both phones; changes tomorrow)
-- [ ] Tap **❤ Send a heartbeat** → heart blooms on BOTH phones; the receiving
+- [ ] Tap **❤ in the dock** → heart blooms on BOTH phones; the receiving
       phone does a two-beat buzz and shows "… is thinking of you ❤️"
 - [ ] **Mutual Heartbeat**: both tap within ~2s of each other → three hearts
       erupt on both screens, double lub-dub, "You pressed at the same time 💥❤️"
@@ -68,7 +77,7 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 ## 3 · Photos + replay + streak (Phase 2)
 
-- [ ] A: ＋ Photo → library pick → photo canvas appears active; chip strip shows
+- [ ] A: ⋯ → Draw on a photo → library pick → photo canvas appears active; chip strip shows
       "our canvas" + dated chip on BOTH phones (B via broadcast)
 - [ ] B gets the "shared a photo to draw on 📸" push (dev build only, ≤1/10min)
 - [ ] Drawing on the photo canvas streams live; strokes on the shared canvas do
@@ -83,7 +92,7 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       (server-enforced — verified live, not just hidden in the UI)
 - [ ] After unlocking: every sky, custom photo backgrounds, and unlimited
       capsules with long horizons all work for BOTH partners
-- [ ] ▶ Replay: scrubber replays strokes in order on both canvas types;
+- [ ] ⋯ → Replay: scrubber replays strokes in order on both canvas types;
       free tier caps at last 20 with the unlock chip
 - [ ] Both partners draw today → 🔥 1 appears after your stroke ends
 - [ ] Camera capture path works on a real device; permission-denied → no crash
@@ -94,6 +103,9 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Draw → your own widget updates within ~10s (app-triggered reload)
 - [ ] Partner's widget updates on their next app-open or poll (15–30 min)
 - [ ] iOS lock-screen rectangular widget renders
+- [ ] **Tapping the widget** (home-screen, either OS) opens the app directly
+      on your partner's page (`trace://canvas?open=partner`), not just the
+      last screen
 - [ ] Invisible-ink strokes NEVER appear on any widget
 
 ## 5 · Trace Forever (needs store sandbox + RevenueCat keys + webhook secret)
@@ -123,11 +135,12 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 ## 8 · Share, together-since, reviewer login
 
-- [ ] Canvas with ink shows the ↗ share chip (bottom-left) → share sheet opens
-      with a PNG of the canvas; post it somewhere and check it looks right
+- [ ] Canvas with ink: ⋯ → Share as image → share sheet opens with a PNG of
+      the canvas; post it somewhere and check it looks right
 - [ ] Settings sheet shows "Drawing together since <month year> · N traces"
 - [ ] Sign in as `review@trace.demo` (password path, no email needed) → lands
-      on the premium REVIEW couple's canvas with seeded strokes
+      on the premium REVIEW couple's canvas (one small seeded heart in the
+      corner — the canvas is otherwise clean to draw on)
 
 ## 8a · Personal pages ("my page / their page")
 
@@ -148,8 +161,9 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 ## 8b · Canvas backgrounds ("your canvas sky")
 
-- [ ] Tap the **🌅 sky** chip (top-left of the canvas) → sheet slides up with
-      the background grid, strength slider, and "Use my photo"
+- [ ] ⋯ → **Sky & strength** → sheet slides up with the background grid,
+      strength slider, and "Use my photo"; the full-screen sky behind the
+      board recolors too
 - [ ] Pick **Sunset** → the canvas recolors instantly under the sheet, and
       **the partner's canvas changes live** without them touching anything
 - [ ] Each preset shows its motif faintly (Rose/Ember/Honey → heart ·
@@ -160,13 +174,14 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] **Use my photo** → library pick → your photo becomes the sky at the
       chosen strength; partner sees it too; **Remove** returns to the preset
 - [ ] Kill and reopen the app → the chosen sky + strength are remembered
-- [ ] Photo canvases (drawn-on photos) have no 🌅 chip — the photo is the canvas
+- [ ] Photo canvases (drawn-on photos) have no Sky entry in ⋯ — the photo is
+      the canvas
 - [ ] Strokes still stream live and Presence Painting's night stars still
       appear over the new skies
 
 ## 9 · Phase 5 — Time Capsules + Presence Painting
 
-- [ ] Draw something → ⏳ capsule chip (bottom-left, next to share) → sheet opens
+- [ ] Draw something → ⋯ → Seal a time capsule → sheet opens
 - [ ] Pick "In a week", add a note, **Seal it 🎁** → toast shows the open date
 - [ ] The ⏳ pill appears above the canvas ("your capsule · opens in 7 days")
 - [ ] Partner's phone shows the same pill on next app open ("<name>'s capsule…")

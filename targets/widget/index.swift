@@ -69,6 +69,8 @@ struct TraceWidgetView: View {
       }
     }
     .containerBackground(for: .widget) { night }
+    // tapping the widget lands you straight on their page, not just the app
+    .widgetURL(URL(string: "trace://canvas?open=partner"))
   }
 }
 

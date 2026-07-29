@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import { Animated, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/Toast';
@@ -41,7 +41,7 @@ function Shell() {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: colors.night },
-                animation: 'fade',
+                animation: Platform.OS === 'web' ? 'none' : 'fade',
               }}
             />
           </Animated.View>

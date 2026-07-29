@@ -1,10 +1,13 @@
 package expo.modules.widgetbridge
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.view.View
 import android.widget.RemoteViews
 import java.net.HttpURLConnection
@@ -22,7 +25,7 @@ class TraceWidgetProvider : AppWidgetProvider() {
       .getSharedPreferences("trace_widget", Context.MODE_PRIVATE)
       .getString("snapshotUrl", null)
     if (url == null) {
-      for (id in ids) manager.updateAppWidget(id, RemoteViews(context.packageName, R.layout.trace_widget))
+      for (id in ids) manager.updateAppWidget(id, buildViews(context))
       return
     }
     val pending = goAsync()
@@ -30,7 +33,7 @@ class TraceWidgetProvider : AppWidgetProvider() {
       try {
         val bitmap = fetchBitmap(url)
         for (id in ids) {
-          val views = RemoteViews(context.packageName, R.layout.trace_widget)
+          val views = buildViews(context)
           if (bitmap != null) {
             views.setImageViewBitmap(R.id.trace_widget_image, bitmap)
             views.setViewVisibility(R.id.trace_widget_empty, View.GONE)
@@ -41,6 +44,19 @@ class TraceWidgetProvider : AppWidgetProvider() {
         pending.finish()
       }
     }
+  }
+
+  /** Base views with the tap wired: open the app straight on their page. */
+  private fun buildViews(context: Context): RemoteViews {
+    val views = RemoteViews(context.packageName, R.layout.trace_widget)
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("trace://canvas?open=partner"))
+      .setPackage(context.packageName)
+    val tap = PendingIntent.getActivity(
+      context, 0, intent,
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    views.setOnClickPendingIntent(R.id.trace_widget_root, tap)
+    return views
   }
 
   private fun fetchBitmap(url: String): Bitmap? = try {

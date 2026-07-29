@@ -1,5 +1,10 @@
 # Runbook — get Trace onto your phones
 
+> **Judging drawing quality? Use Expo Go, not a browser.** The web preview is
+> a degraded fallback: mobile browsers add touch latency and Skia runs slower
+> there. Stroke smoothness, 60fps feel, haptics, and push only mean anything
+> on a real phone via Expo Go (Task 2) or a dev build (Task 4).
+
 Two tasks. Do #2 first (works today in Expo Go). Do #4 when you want push /
 camera / widgets. The JS app is **Metro-bundle-verified** (1,709 modules,
 every `@/` import resolves), so `expo start` will load — no cryptic first-run
