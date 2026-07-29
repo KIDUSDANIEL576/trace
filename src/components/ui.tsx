@@ -153,7 +153,7 @@ const makeStyles = (colors: Palette) =>
       justifyContent: 'center',
     },
     btnPrimary: {
-      backgroundColor: colors.ink,
+      backgroundColor: colors.inkDeep,
       shadowColor: colors.ink,
       shadowOpacity: 0.35,
       shadowRadius: 14,

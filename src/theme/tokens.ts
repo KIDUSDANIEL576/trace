@@ -18,6 +18,10 @@ export interface Palette {
   text: string;
   muted: string;
   ink: string; // signature marker (bright — for fills, borders, large display)
+  /** Ink darkened just enough that WHITE TEXT on it clears WCAG AA. Use for
+   * any filled button; `ink` itself is the stroke colour and fails as a
+   * text ground (4.39 / 3.33 / 3.21 across the themes). */
+  inkDeep: string;
   inkSoft: string;
   glow: string; // bright pink — for dots/blooms/fills
   gold: string; // bright gold — for fills (paywall badge) + dark-on-gold
@@ -72,6 +76,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     text: '#f3f0f4',
     muted: '#9a93a5',
     ink: '#e23343',
+    inkDeep: '#db3141',
     inkSoft: 'rgba(226,51,67,0.16)',
     glow: '#ff7a9c',
     gold: '#f4c66b',
@@ -111,6 +116,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     text: '#f7efe9',
     muted: '#b6a49d',
     ink: '#ef5a63',
+    inkDeep: '#c64b52',
     inkSoft: 'rgba(239,90,99,0.18)',
     glow: '#ff9ea9',
     gold: '#f3c98a',
@@ -152,6 +158,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     // daylight ground — muted is secondary body text, so legibility wins
     muted: '#6f625c',
     ink: '#ff4d6d',
+    inkDeep: '#cf3e58',
     inkSoft: 'rgba(255,77,109,0.12)',
     glow: '#ff8fab',
     gold: '#f5a524',

@@ -164,3 +164,19 @@ test('sky-tile labels clear AA on the brightest sky in the picker', () => {
   }
   assert.ok(worst >= AA, `sky-tile labels are only ${worst.toFixed(2)}:1`);
 });
+
+test('white text on every filled button clears AA', () => {
+  // The primary button is the app's main call to action on every screen
+  // ("Create our canvas", "Unlock for $29.99"). Filled with `ink` it measured
+  // 4.39 / 3.33 / 3.21 — all under AA — so buttons use `inkDeep`.
+  for (const theme of THEME_ORDER) {
+    const p = PALETTES[theme];
+    const r = contrast('#ffffff', parse(p.inkDeep).rgb);
+    assert.ok(r >= AA, `${theme}: white on inkDeep ${p.inkDeep} is only ${r.toFixed(2)}:1`);
+    // and inkDeep must still read as the same ink, not a different colour
+    const [dr, dg, db] = parse(p.inkDeep).rgb;
+    const [ir, ig, ib] = parse(p.ink).rgb;
+    assert.ok(dr >= ig && dr >= ib, `${theme}: inkDeep should stay red-dominant`);
+    assert.ok(dr <= ir + 1, `${theme}: inkDeep must be darker than ink`);
+  }
+});

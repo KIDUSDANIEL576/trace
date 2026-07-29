@@ -244,7 +244,7 @@ const makeStyles = (colors: Palette) =>
     sealBtn: {
       minHeight: 52,
       borderRadius: radius.button,
-      backgroundColor: colors.ink,
+      backgroundColor: colors.inkDeep,
       alignItems: 'center',
       justifyContent: 'center',
     },

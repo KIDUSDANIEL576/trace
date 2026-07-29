@@ -190,7 +190,7 @@ const makeStyles = (colors: Palette) =>
       backgroundColor: colors.glass.wellIdle,
     },
     heart: {
-      backgroundColor: colors.ink,
+      backgroundColor: colors.inkDeep,
       borderWidth: 1,
       borderColor: colors.ink,
       shadowColor: colors.ink,
