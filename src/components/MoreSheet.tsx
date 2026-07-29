@@ -99,7 +99,9 @@ const makeStyles = (colors: Palette) =>
     icon: { fontSize: 21, width: 30, textAlign: 'center' },
     label: { color: colors.text, fontSize: 16, fontWeight: '500' },
     sub: { color: colors.muted, fontSize: 12.5, marginTop: 1 },
-    destructive: { color: colors.ink },
+    // `ink` measured 2.7–3.7:1 on the sheet across themes — see
+    // tests/contrast.test.ts; dangerText is the AA-safe warning red
+    destructive: { color: colors.dangerText },
     done: {
       marginTop: 8,
       minHeight: 50,

@@ -33,6 +33,10 @@ export interface Palette {
   /** Text drawn ON a solid gold fill — gold is a fill colour, never a text
    * colour over glass, where it never cleared AA on a bright sky. */
   onGold: string;
+  /** Destructive labels ("Clear the canvas", "Delete account"). `ink` is the
+   * stroke red and only manages 2.7–3.7:1 on a sheet; this is the same
+   * warning red, lightened on dark themes and deepened on the light one. */
+  dangerText: string;
   linkText: string;
   overlay: string; // translucent chip/pill over the canvas
   onOverlay: string; // text on that overlay
@@ -83,6 +87,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkText: '#e23343',
     goldText: '#f4c66b',
     onGold: '#2b2029',
+    dangerText: '#ff8a94',
     linkText: '#ff7a9c',
     overlay: 'rgba(10,9,13,0.62)',
     onOverlay: '#ffffff',
@@ -123,6 +128,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkText: '#ef5a63',
     goldText: '#f3c98a',
     onGold: '#2b2029',
+    dangerText: '#ff9aa2',
     linkText: '#ff9ea9',
     overlay: 'rgba(24,14,18,0.58)',
     onOverlay: '#ffffff',
@@ -166,6 +172,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     inkText: '#d81b60',
     goldText: '#8f5e00',
     onGold: '#2b2029',
+    dangerText: '#b3261e',
     linkText: '#c2185b',
     overlay: 'rgba(255,255,255,0.80)',
     onOverlay: '#2b2029',

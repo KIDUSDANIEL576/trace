@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { backgroundByKey } from '@/theme/backgrounds';
 import { CanvasDock } from '@/components/CanvasDock';
 import { Glass } from '@/components/Glass';
+import { MoreSheet } from '@/components/MoreSheet';
 import { PresencePill } from '@/components/PresencePill';
 import { Wordmark } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -23,6 +24,7 @@ export default function Preview() {
   const [brush, setBrush] = useState<Brush>('marker');
   const [color, setColor] = useState('#e23343');
   const sky = backgroundByKey('sunset');
+  const [sheet, setSheet] = useState(false);
 
   return (
     <View style={[styles.root, { backgroundColor: colors.night }]}>
@@ -110,7 +112,20 @@ export default function Preview() {
           onLockedBrush={() => {}}
           onHeart={() => {}}
           onUndo={() => {}}
-          onMore={() => {}}
+          onMore={() => setSheet(true)}
+        />
+
+        <MoreSheet
+          visible={sheet}
+          onClose={() => setSheet(false)}
+          actions={[
+            { key: 'sky', icon: '🌅', label: 'Sky & strength', sub: 'pick a background and how strongly it shows', onPress: () => {} },
+            { key: 'photo', icon: '📷', label: 'Draw on a photo', sub: 'add a photo you both can draw on', onPress: () => {} },
+            { key: 'replay', icon: '▶️', label: 'Replay', sub: 'watch this canvas draw itself again', onPress: () => {} },
+            { key: 'capsule', icon: '⏳', label: 'Seal a time capsule', sub: 'hide this drawing until a future date', onPress: () => {} },
+            { key: 'share', icon: '↗️', label: 'Share as image', onPress: () => {} },
+            { key: 'clear', icon: '🗑️', label: 'Clear the canvas', sub: 'erases it for both of you', destructive: true, onPress: () => {} },
+          ]}
         />
       </View>
     </View>

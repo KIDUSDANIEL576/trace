@@ -180,3 +180,21 @@ test('white text on every filled button clears AA', () => {
     assert.ok(dr <= ir + 1, `${theme}: inkDeep must be darker than ink`);
   }
 });
+
+test('destructive labels clear AA on a sheet', () => {
+  // "Clear the canvas" is the one action you cannot undo, so it must be the
+  // easiest thing on the sheet to read. Using `ink` it measured 3.33 / 3.65 /
+  // 2.69 — spotted in a rendered screenshot, then confirmed here.
+  for (const theme of THEME_ORDER) {
+    const p = PALETTES[theme];
+    let worst = Infinity;
+    for (const ground of skyGrounds(theme)) {
+      for (const tint of [p.glass.tintStrong, p.glass.tintStrongAndroid]) {
+        worst = Math.min(worst, contrast(p.dangerText, composite(ground, tint)));
+      }
+    }
+    assert.ok(worst >= AA, `${theme}: destructive text is only ${worst.toFixed(2)}:1`);
+    // it must still read as a warning, not as the link pink
+    assert.notEqual(p.dangerText, p.linkText, `${theme}: danger and link must differ`);
+  }
+});
