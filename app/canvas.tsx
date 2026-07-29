@@ -882,7 +882,9 @@ function SharedCanvas({
                   accessibilityLabel="Hold to reveal the invisible ink"
                   style={styles.revealChip}
                 >
-                  <Text style={styles.revealText}>👁 hold to reveal</Text>
+                  <Glass radius={radius.pill} contentStyle={styles.revealPad}>
+                    <Text style={styles.revealText}>👁 hold to reveal</Text>
+                  </Glass>
                 </Pressable>
               )}
               <HeartBloom trigger={bloomKey} burst={burst} />
@@ -1057,26 +1059,9 @@ const makeStyles = (colors: Palette) =>
     },
     capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
     stage: { flex: 1, justifyContent: 'center', marginVertical: 8 },
-    pageCaptionWrap: {
-      alignSelf: 'center',
-      backgroundColor: colors.overlay,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: 24,
-      paddingVertical: 12,
-      paddingHorizontal: 18,
-    },
+    pageCaptionWrap: { paddingVertical: 13, paddingHorizontal: 19 },
     pageCaption: { color: colors.onOverlay, fontSize: 13.5, textAlign: 'center' },
-    revealChip: {
-      position: 'absolute',
-      bottom: 12,
-      right: 12,
-      backgroundColor: 'rgba(10,9,13,0.62)',
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.12)',
-      borderRadius: radius.pill,
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-    },
-    revealText: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
+    revealChip: { position: 'absolute', bottom: 12, right: 12 },
+    revealPad: { paddingVertical: 7, paddingHorizontal: 13 },
+    revealText: { color: colors.onOverlay, fontSize: 12.5, fontWeight: '500' },
   });

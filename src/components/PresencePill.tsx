@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, type Palette } from '@/theme/tokens';
+import { Glass } from './Glass';
 
 /** "Kidus is drawing…" pill with the blinking caret from the prototype. */
 export function PresencePill({ name }: { name: string }) {
@@ -21,7 +22,7 @@ export function PresencePill({ name }: { name: string }) {
   }, [blink]);
 
   return (
-    <View style={styles.pill}>
+    <Glass radius={radius.pill} glow style={styles.lift} contentStyle={styles.pill}>
       <View style={styles.dot}>
         <Text style={{ fontSize: 10 }}>✏️</Text>
       </View>
@@ -29,26 +30,29 @@ export function PresencePill({ name }: { name: string }) {
         <Text style={styles.name}>{name}</Text> is drawing
       </Text>
       <Animated.View style={[styles.caret, { opacity: blink }]} />
-    </View>
+    </Glass>
   );
 }
 
-// Sits over the canvas imagery, so it keeps a dark glass on every theme (reads
-// over both light and dark grounds) while ink/glow follow the palette.
+// Floating chrome over the canvas, so it's glass — and it glows, because this
+// pill means the other person's finger is on the screen right now.
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
+    lift: {
+      alignSelf: 'flex-start',
+      shadowColor: colors.ink,
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 8,
+    },
     pill: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
-      backgroundColor: 'rgba(10,9,13,0.62)',
-      borderRadius: radius.pill,
-      paddingVertical: 6,
-      paddingLeft: 7,
-      paddingRight: 12,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.12)',
-      alignSelf: 'flex-start',
+      paddingVertical: 7,
+      paddingLeft: 8,
+      paddingRight: 13,
     },
     dot: {
       width: 18,
@@ -58,7 +62,7 @@ const makeStyles = (colors: Palette) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
-    label: { color: '#ffffff', fontSize: 12.5, fontWeight: '500' },
+    label: { color: colors.onOverlay, fontSize: 12.5, fontWeight: '500' },
     name: { color: colors.linkText },
     caret: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.glow },
   });

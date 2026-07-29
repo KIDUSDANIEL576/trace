@@ -258,6 +258,8 @@ const makeStyles = (colors: Palette) =>
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 16 },
   orLine: { flex: 1, height: 1, backgroundColor: colors.line },
   orText: { color: colors.muted, fontSize: 13, fontWeight: '500' },
+  // the emotional peak of onboarding — this card is what you send to your
+  // person, so it glows rather than sitting flat
   codeCard: {
     backgroundColor: colors.panel,
     borderWidth: 1,
@@ -266,6 +268,11 @@ const makeStyles = (colors: Palette) =>
     paddingVertical: 28,
     alignItems: 'center',
     marginTop: 22,
+    shadowColor: colors.ink,
+    shadowOpacity: 0.45,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
   },
   codeCardLabel: {
     color: colors.muted,
@@ -280,8 +287,8 @@ const makeStyles = (colors: Palette) =>
     height: 54,
     borderRadius: radius.tool,
     borderWidth: 1.5,
-    borderColor: colors.line,
-    backgroundColor: colors.panel2,
+    borderColor: colors.glass.border,
+    backgroundColor: colors.glass.wellIdle,
     alignItems: 'center',
     justifyContent: 'center',
   },

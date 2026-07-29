@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Glass } from '@/components/Glass';
 import { ReplayBoard } from '@/components/ReplayBoard';
 import { Loading, Screen, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -155,9 +156,11 @@ export default function Replay() {
               onPress={togglePlay}
               accessibilityRole="button"
               accessibilityLabel={playing ? 'Pause replay' : 'Play your story'}
-              style={({ pressed }) => [styles.playChip, pressed && { opacity: 0.8 }]}
+              style={({ pressed }) => [pressed && { transform: [{ scale: 0.97 }], opacity: 0.85 }]}
             >
-              <Text style={styles.playChipText}>{playing ? '⏸ Pause' : '▶ Play story'}</Text>
+              <Glass radius={radius.pill} glow style={styles.playLift} contentStyle={styles.playChip}>
+                <Text style={styles.playChipText}>{playing ? '⏸ Pause' : '▶ Play story'}</Text>
+              </Glass>
             </Pressable>
             <Text style={styles.label}>
               stroke {shown} / {total}
@@ -202,11 +205,13 @@ const makeStyles = (colors: Palette) =>
     height: 22,
     borderRadius: 11,
     backgroundColor: colors.text,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    shadowColor: colors.ink,
+    shadowOpacity: 0.55,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
   },
   controls: {
     flexDirection: 'row',
@@ -214,14 +219,18 @@ const makeStyles = (colors: Palette) =>
     justifyContent: 'space-between',
     marginTop: 4,
   },
+  playLift: {
+    shadowColor: colors.ink,
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
+  },
   playChip: {
     backgroundColor: colors.inkSoft,
-    borderWidth: 1,
-    borderColor: colors.ink,
-    borderRadius: radius.pill,
-    paddingVertical: 9,
-    paddingHorizontal: 16,
-    minHeight: 40,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    minHeight: 42,
     justifyContent: 'center',
   },
   playChipText: { color: colors.ink, fontSize: 14, fontWeight: '700' },
