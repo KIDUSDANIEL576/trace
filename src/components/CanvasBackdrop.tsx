@@ -4,10 +4,8 @@ import {
   Group,
   Image as SkiaImage,
   LinearGradient,
-  Path,
   RadialGradient,
   Rect,
-  Skia,
   Turbulence,
   useImage,
   vec,
@@ -19,7 +17,6 @@ import {
   backgroundByKey,
   clampBgOpacity,
   SOFT_FILM,
-  type BackgroundPreset,
   type FilmFinish,
 } from '@/theme/backgrounds';
 import type { BoardPalette } from '@/theme/tokens';

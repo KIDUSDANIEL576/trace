@@ -383,12 +383,16 @@ function SharedCanvas({
     };
   }, [coupleId]);
 
-  // her strokes landing on a canvas I'm watching also mean a new snapshot
+  // Her strokes landing on a canvas I'm watching also mean a new snapshot.
+  // Only hers: my own already schedule a refresh in onEnd, and doing it twice
+  // would sign a throwaway URL on every stroke I draw.
+  const lastStroke = strokes[strokes.length - 1];
+  const foreignInkAt = lastStroke && lastStroke.authorId !== userId ? lastStroke.id : null;
   useEffect(() => {
-    if (!strokes.length) return;
+    if (!foreignInkAt) return;
     const t = setTimeout(() => refreshWidget(coupleId), 5000);
     return () => clearTimeout(t);
-  }, [strokes.length, coupleId]);
+  }, [foreignInkAt, coupleId]);
 
   // adopt the stored background whenever the active canvas changes / reloads
   useEffect(() => {
@@ -755,47 +759,49 @@ function SharedCanvas({
         </View>
 
         {canvases.length > 1 && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.tabStrip}
-            contentContainerStyle={styles.tabStripContent}
-          >
-            {orderedCanvases.map((c) => {
-              const on = c.id === activeCanvasId;
-              const isPartnerPage = c.kind === 'page' && c.ownerId !== userId;
-              return (
-                <Pressable
-                  key={c.id}
-                  onPress={() => {
-                    if (isPartnerPage) {
-                      openPartnerPage();
-                      return;
-                    }
-                    tapLight();
-                    setActiveCanvasId(c.id);
-                  }}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: on }}
-                  accessibilityLabel={`${chipLabel(c)} canvas`}
-                  style={({ pressed }) => [pressed && styles.tabPressed]}
-                >
-                  <Glass
-                    radius={radius.pill}
-                    glow={on}
-                    contentStyle={styles.tab}
-                    style={on && styles.tabOn}
+          // ONE piece of glass holding plain pills — a segmented control, not a
+          // row of separate frosted chips. A couple accumulates photo canvases
+          // forever, and a BlurView per tab would put an unbounded number of
+          // them in a scroll view.
+          <Glass radius={radius.pill} style={styles.tabStrip} contentStyle={styles.tabStripPad}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.tabStripContent}
+            >
+              {orderedCanvases.map((c) => {
+                const on = c.id === activeCanvasId;
+                const isPartnerPage = c.kind === 'page' && c.ownerId !== userId;
+                return (
+                  <Pressable
+                    key={c.id}
+                    onPress={() => {
+                      if (isPartnerPage) {
+                        openPartnerPage();
+                        return;
+                      }
+                      tapLight();
+                      setActiveCanvasId(c.id);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                    accessibilityLabel={`${chipLabel(c)} canvas`}
+                    style={({ pressed }) => [
+                      styles.tab,
+                      on && styles.tabOn,
+                      pressed && styles.tabPressed,
+                    ]}
                   >
                     <Text style={[styles.tabText, on && styles.tabTextOn]}>
                       {c.kind === 'photo' ? '📷 ' : ''}
                       {chipLabel(c)}
                     </Text>
-                  </Glass>
-                  {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+                    {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </Glass>
         )}
 
         {connection !== 'live' && (
@@ -1024,15 +1030,19 @@ const makeStyles = (colors: Palette) =>
     },
     withText: { color: colors.onOverlay, fontSize: 12.5 },
     presenceDot: { width: 8, height: 8, borderRadius: 4 },
-    tabStrip: { flexGrow: 0, marginBottom: 4 },
-    tabStripContent: { gap: 8, paddingVertical: 2 },
-    tab: { paddingVertical: 9, paddingHorizontal: 17 },
+    tabStrip: { alignSelf: 'center', maxWidth: '100%', marginBottom: 4 },
+    tabStripPad: { padding: 4 },
+    tabStripContent: { gap: 4 },
+    tab: {
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: radius.pill,
+    },
+    // the selected tab is the only filled thing in the strip
     tabOn: {
-      shadowColor: colors.ink,
-      shadowOpacity: 0.5,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 3 },
-      elevation: 8,
+      backgroundColor: colors.inkSoft,
+      borderWidth: 1,
+      borderColor: colors.ink,
     },
     tabPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
     tabText: { color: colors.onOverlay, fontSize: 13.5, fontWeight: '500' },
