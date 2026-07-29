@@ -48,3 +48,20 @@ bad first impression.
   2 phone screenshots — the ios-*.png files satisfy that.
 - The 30-second preview video (your best ad: a screen-recording of Replay
   autoplay) is separate — record it on-device when the time comes.
+
+## Seeing the UI without a phone
+
+`app/__preview.tsx` is a design harness (not part of the product): it renders
+the real `Glass`, `CanvasDock` and `PresencePill` over a real sky with mock
+props and no backend, so the chrome can be exported to the web and looked at.
+
+```bash
+npx expo export --platform web --output-dir /tmp/web
+npx serve /tmp/web            # any static server with SPA fallback
+# open http://localhost:3000/__preview
+```
+
+It's how the hard-edged "glow" rectangles and the muddy drop shadows were
+found — both looked fine in source and wrong on screen. Skia doesn't load in a
+plain web export, so the harness paints the sky as bands rather than the real
+gradient; everything else is the actual component.

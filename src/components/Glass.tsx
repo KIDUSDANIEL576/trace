@@ -33,8 +33,10 @@ interface Props {
   radius: number;
   /** Sheets sit over busier content, so they use the stronger tint. */
   strong?: boolean;
-  /** A soft ink-coloured bloom under the surface. Use sparingly: the dock,
-   * and anything that should feel warm rather than merely translucent. */
+  /** A warm ink-coloured bloom around the surface. Rendered as a COLOURED
+   * SHADOW, not a painted rectangle: React Native can't blur a View, so a
+   * translucent rect behind the glass shows its own hard edges — it reads as
+   * a sticker, not a bloom. (Seen, not guessed: /__preview screenshot.) */
   glow?: boolean;
   /** Lifts the surface off the canvas. Off for full-width sheets. */
   float?: boolean;
@@ -67,13 +69,7 @@ export function Glass({
   const g = colors.glass;
 
   return (
-    <View style={[float && styles.float, style]}>
-      {glow ? (
-        <View
-          pointerEvents="none"
-          style={[styles.glow, { borderRadius: radius + 10, backgroundColor: g.glowInk }]}
-        />
-      ) : null}
+    <View style={[float && styles.float, glow && styles.glow, style]}>
       <View style={[styles.clip, { borderRadius: radius, borderColor: g.border }]}>
         <BlurView
           intensity={g.blurIntensity}
@@ -131,20 +127,21 @@ export function GlassFill({ strong }: { strong?: boolean }) {
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
+    // Lifts the surface without staining what's behind it. The first pass used
+    // 0.45/22 and read as a dirty smudge around every pill on a bright sky.
     float: {
       shadowColor: colors.glass.shadow,
-      shadowOpacity: 0.45,
-      shadowRadius: 22,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 12,
+      shadowOpacity: 0.22,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 5 },
+      elevation: 6,
     },
     glow: {
-      position: 'absolute',
-      top: -6,
-      left: -6,
-      right: -6,
-      bottom: -6,
-      opacity: 0.9,
+      shadowColor: colors.ink,
+      shadowOpacity: 0.45,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 10,
     },
     clip: {
       overflow: 'hidden',

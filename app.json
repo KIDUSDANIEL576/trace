@@ -26,7 +26,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.digirafthub.trace",
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.digirafthub.trace"]
+        "com.apple.security.application-groups": [
+          "group.com.digirafthub.trace"
+        ]
       }
     },
     "android": {
@@ -58,6 +60,10 @@
     ],
     "experiments": {
       "typedRoutes": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
     }
   }
 }

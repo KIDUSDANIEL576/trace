@@ -46,6 +46,9 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~18.3.12",
+    "playwright": "^1.49.1",
+    "react-dom": "^18.3.1",
+    "react-native-web": "^0.19.13",
     "tsx": "^4.23.1",
     "typescript": "~5.3.3"
   }
