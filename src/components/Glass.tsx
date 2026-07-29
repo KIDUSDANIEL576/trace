@@ -2,7 +2,30 @@ import { BlurView } from 'expo-blur';
 import React, { useMemo } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
-import type { Palette } from '@/theme/tokens';
+import type { GlassPalette, Palette } from '@/theme/tokens';
+
+/**
+ * Android's real-blur backend, off by default — and deliberately so.
+ *
+ * expo-blur only blurs on Android through `experimentalBlurMethod:
+ * 'dimezisBlurView'`, whose own documentation warns it "may lead to decreased
+ * performance and rendering issues during transitions made by
+ * react-native-screens". Every screen in this app navigates through
+ * react-native-screens (expo-router), and every sheet is a Modal — precisely
+ * the two cases named. A frosted dock is not worth a torn transition, so
+ * Android leans on a heavier tint instead and looks frosted without the risk.
+ *
+ * Flip this to true to try real Android blur on a device; iOS is unaffected.
+ */
+const ANDROID_REAL_BLUR = false;
+
+const blurMethod = Platform.OS === 'android' && ANDROID_REAL_BLUR ? 'dimezisBlurView' : 'none';
+const tintFor = (g: GlassPalette, strong?: boolean) => {
+  if (Platform.OS === 'android' && !ANDROID_REAL_BLUR) {
+    return strong ? g.tintStrongAndroid : g.tintAndroid;
+  }
+  return strong ? g.tintStrong : g.tint;
+};
 
 interface Props {
   children: React.ReactNode;
@@ -24,14 +47,11 @@ interface Props {
  * One glass surface, used by every floating thing in the app.
  *
  * Four layers, and all four matter:
- *   1. a real backdrop blur (expo-blur — the actual glass)
- *   2. a thin tint, so text always has a ground no matter what's behind it
+ *   1. a backdrop blur (the actual glass, on iOS and web)
+ *   2. a tint, so text always has a ground no matter what's behind it
  *   3. a lit top edge — the single detail that makes glass read as glass,
  *      because real glass catches light on its rim
  *   4. a hairline border to close the shape
- *
- * Android's blur is cheaper than iOS's, so the tint carries more of the work
- * there; the look holds either way.
  */
 export function Glass({
   children,
@@ -51,26 +71,19 @@ export function Glass({
       {glow ? (
         <View
           pointerEvents="none"
-          style={[
-            styles.glow,
-            { borderRadius: radius + 10, backgroundColor: g.glowInk },
-          ]}
+          style={[styles.glow, { borderRadius: radius + 10, backgroundColor: g.glowInk }]}
         />
       ) : null}
       <View style={[styles.clip, { borderRadius: radius, borderColor: g.border }]}>
         <BlurView
           intensity={g.blurIntensity}
           tint={g.blurTint}
-          // Android's implementation is weaker; lean on the tint there instead
-          experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+          experimentalBlurMethod={blurMethod}
           style={StyleSheet.absoluteFill}
         />
         <View
           pointerEvents="none"
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: strong ? g.tintStrong : g.tint },
-          ]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: tintFor(g, strong) }]}
         />
         {/* the lit rim — thin, only along the top, never a full outline */}
         <View pointerEvents="none" style={[styles.edge, { backgroundColor: g.edge }]} />
@@ -93,12 +106,12 @@ export function GlassFill({ strong }: { strong?: boolean }) {
       <BlurView
         intensity={g.blurIntensity}
         tint={g.blurTint}
-        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+        experimentalBlurMethod={blurMethod}
         style={StyleSheet.absoluteFill}
       />
       <View
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: strong ? g.tintStrong : g.tint }]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: tintFor(g, strong) }]}
       />
       <View
         pointerEvents="none"

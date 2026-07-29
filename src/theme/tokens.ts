@@ -45,6 +45,10 @@ export interface GlassPalette {
   blurIntensity: number; // 0..100
   tint: string; // thin wash over the blur, so text always has a ground
   tintStrong: string; // for sheets, which sit over more varied content
+  // Android renders no real blur by default (see Glass.tsx), so its wash has
+  // to carry the legibility on its own — these are deliberately heavier.
+  tintAndroid: string;
+  tintStrongAndroid: string;
   border: string; // hairline rim
   edge: string; // the lit top edge — brighter than the rim
   glowInk: string; // love: a soft ink-tinted bloom under active surfaces
@@ -82,6 +86,8 @@ export const PALETTES: Record<ThemeName, Palette> = {
       blurIntensity: 42,
       tint: 'rgba(22,21,28,0.42)',
       tintStrong: 'rgba(18,17,24,0.72)',
+      tintAndroid: 'rgba(20,19,26,0.80)',
+      tintStrongAndroid: 'rgba(17,16,22,0.94)',
       border: 'rgba(255,255,255,0.14)',
       edge: 'rgba(255,255,255,0.34)',
       glowInk: 'rgba(255,122,156,0.20)',
@@ -118,6 +124,8 @@ export const PALETTES: Record<ThemeName, Palette> = {
       blurIntensity: 40,
       tint: 'rgba(37,26,32,0.40)',
       tintStrong: 'rgba(30,21,26,0.72)',
+      tintAndroid: 'rgba(35,24,30,0.80)',
+      tintStrongAndroid: 'rgba(28,19,24,0.94)',
       border: 'rgba(255,238,232,0.16)',
       edge: 'rgba(255,226,214,0.38)',
       glowInk: 'rgba(255,158,169,0.22)',
@@ -157,6 +165,8 @@ export const PALETTES: Record<ThemeName, Palette> = {
       blurIntensity: 55,
       tint: 'rgba(255,255,255,0.52)',
       tintStrong: 'rgba(255,255,255,0.82)',
+      tintAndroid: 'rgba(255,252,247,0.86)',
+      tintStrongAndroid: 'rgba(255,253,250,0.96)',
       border: 'rgba(43,32,41,0.12)',
       edge: 'rgba(255,255,255,0.9)',
       glowInk: 'rgba(255,143,171,0.24)',

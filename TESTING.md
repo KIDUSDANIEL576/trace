@@ -53,9 +53,13 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] The gold "capsule is ready" pill glows gold rather than sitting flat
 - [ ] Switch themes → the glass re-tints (Daylight goes to light frost with a
       dark rim); text stays legible on all three
-- [ ] Android: blur is weaker than iOS by nature — confirm surfaces still read
-      as frosted and text is legible over a busy sky (this is the one to check
-      on a real Android device)
+- [ ] **Android**: real blur is OFF by default — expo-blur's Android backend
+      warns of "rendering issues during transitions made by react-native-screens",
+      which is how every screen here navigates, so Android uses a heavier tint
+      instead. Confirm surfaces still read as frosted and text is legible over
+      a bright sky. To try real Android blur on a device, flip
+      `ANDROID_REAL_BLUR` in `src/components/Glass.tsx` and watch for torn
+      screen transitions and flicker when sheets open.
 - [ ] Nothing became hard to read: dock icons, tab labels, and pill text all
       stay crisp over both the lightest and darkest skies
 
