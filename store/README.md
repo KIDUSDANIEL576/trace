@@ -3,6 +3,12 @@
 `out/` is store-ready today (with styled placeholders); it gets better the
 moment you drop real captures into `raw/` and rerun the generator.
 
+The placeholder now **mirrors the real app** — full-bleed sky, the floating
+board, glass tab pills and the dock with its red heart — so the frames stand in
+honestly for what a capture will show. They still say "your screenshot here",
+because shipping a mockup as if it were the app is both a rejection risk and a
+bad first impression.
+
 ## What's here
 
 | File | Size | Where it goes |

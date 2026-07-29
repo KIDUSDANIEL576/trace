@@ -130,18 +130,103 @@ def heart_points(cx: int, cy: int, scale: float, steps: int = 60) -> list[tuple[
     return pts
 
 
+def _glass(img: Image.Image, box, radius: int, alpha: int = 110) -> None:
+    """A frosted pill/bar: translucent fill, hairline rim, lit top edge."""
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    d.rounded_rectangle(box, radius, fill=(20, 19, 26, alpha), outline=(255, 255, 255, 40), width=2)
+    x0, y0, x1, y1 = box
+    inset = int((x1 - x0) * 0.08)
+    d.line([(x0 + inset, y0 + 2), (x1 - inset, y0 + 2)], fill=(255, 255, 255, 90), width=2)
+    img.alpha_composite(layer)
+
+
 def placeholder_screen(size: tuple[int, int], n: int) -> Image.Image:
+    """A mock of the real app: full-bleed sky, floating board, glass chrome.
+
+    These are placeholders until real captures land in store/raw/, so they must
+    at least look like the app they're standing in for.
+    """
+    w, h = size
+    # the sky fills the screen and sits back behind the board
     img = board_gradient(size).convert("RGBA")
-    img.alpha_composite(glow_spot(size, (size[0] // 2, int(size[1] * 0.30)), size[0] // 3, (247, 217, 176), 120))
+    img.alpha_composite(Image.new("RGBA", size, (0, 0, 0, 90)))
     d = ImageDraw.Draw(img)
-    f = caveat(64)
-    msg = f"your screenshot here\nstore/raw/screen-{n}.png"
-    d.multiline_text((size[0] // 2, int(size[1] * 0.52)), msg, font=f, fill=TEXT + (200,), anchor="mm", align="center", spacing=14)
-    # a hand-drawn heart so the placeholder still reads as Trace
-    d.line(
-        heart_points(size[0] // 2, int(size[1] * 0.76), size[0] / 160),
-        fill=INK + (220,), width=14, joint="curve",
-    )
+
+    pad = int(w * 0.055)
+    # top row: wordmark + a "with …" glass chip
+    wordmark(d, (pad, int(h * 0.035)), int(w * 0.075))
+    chip_w, chip_h = int(w * 0.40), int(h * 0.030)
+    _glass(img, [w - pad - chip_w, int(h * 0.038), w - pad, int(h * 0.038) + chip_h], chip_h // 2)
+    d = ImageDraw.Draw(img)
+    d.text((w - pad - chip_w // 2, int(h * 0.038) + chip_h // 2), "with your person",
+           font=ui_font(int(h * 0.016)), fill=TEXT + (230,), anchor="mm")
+
+    # tab strip: one piece of glass holding three pills, the active one filled
+    tabs = ["us", "my page", "their page"]
+    ty = int(h * 0.085)
+    th = int(h * 0.040)
+    tw = int(w * 0.80)
+    tx = (w - tw) // 2
+    _glass(img, [tx, ty, tx + tw, ty + th], th // 2)
+    d = ImageDraw.Draw(img)
+    seg = tw // 3
+    ov = Image.new("RGBA", size, (0, 0, 0, 0))
+    od = ImageDraw.Draw(ov)
+    od.rounded_rectangle([tx + 6, ty + 6, tx + seg - 6, ty + th - 6], (th - 12) // 2,
+                         fill=INK + (60,), outline=INK + (220,), width=3)
+    img.alpha_composite(ov)
+    d = ImageDraw.Draw(img)
+    for i, label in enumerate(tabs):
+        cx = tx + seg * i + seg // 2
+        d.text((cx, ty + th // 2), label, font=ui_font(int(h * 0.016), bold=(i == 0)),
+               fill=TEXT + (240,), anchor="mm")
+
+    # the board: undimmed sky, floating, with a drawing on it
+    bw = w - pad * 2
+    bh = int(bw * 1.1)
+    bx, by = pad, int(h * 0.16)
+    board = board_gradient((bw, bh)).convert("RGBA")
+    bd = ImageDraw.Draw(board)
+    bd.line(heart_points(bw // 2, int(bh * 0.44), bw / 150), fill=INK + (225,), width=12, joint="curve")
+    cap = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+    cd = ImageDraw.Draw(cap)
+    cd.text((bw // 2, int(bh * 0.74)), "your screenshot here", font=caveat(int(bw * 0.085)),
+            fill=(255, 255, 255, 165), anchor="mm")
+    cd.text((bw // 2, int(bh * 0.82)), f"store/raw/screen-{n}.png", font=ui_font(int(bw * 0.035)),
+            fill=(255, 255, 255, 120), anchor="mm")
+    board.alpha_composite(cap)
+    img.alpha_composite(rounded(board, int(bw * 0.075)), (bx, by))
+    ImageDraw.Draw(img).rounded_rectangle([bx, by, bx + bw, by + bh], int(bw * 0.075),
+                                          outline=(255, 255, 255, 60), width=2)
+
+    # the dock: brushes, inks, and the heart
+    dw = w - pad * 2
+    dh = int(h * 0.105)
+    dx, dy = pad, by + bh + int(h * 0.028)
+    _glass(img, [dx, dy, dx + dw, dy + dh], int(h * 0.026), alpha=125)
+    d = ImageDraw.Draw(img)
+    r = int(dh * 0.17)
+    ov = Image.new("RGBA", size, (0, 0, 0, 0))
+    od = ImageDraw.Draw(ov)
+    for i in range(5):  # brush wells — sunk into the glass, not painted on it
+        cx = dx + int(dw * (0.10 + i * 0.145))
+        cy = dy + int(dh * 0.30)
+        fill = INK + (60,) if i == 0 else (255, 255, 255, 26)
+        outline = INK + (220,) if i == 0 else None
+        od.rounded_rectangle([cx - r, cy - r, cx + r, cy + r], r // 2, fill=fill, outline=outline, width=3)
+    img.alpha_composite(ov)
+    d = ImageDraw.Draw(img)
+    inks = [INK, GLOW, (255, 255, 255), (244, 198, 107), (126, 200, 255)]
+    for i, c in enumerate(inks):  # ink swatches
+        cx = dx + int(dw * (0.10 + i * 0.10))
+        cy = dy + int(dh * 0.72)
+        d.ellipse([cx - r // 2, cy - r // 2, cx + r // 2, cy + r // 2], fill=c + (255,),
+                  outline=(255, 255, 255, 200) if i == 0 else (128, 128, 128, 90), width=3)
+    hx = dx + int(dw * 0.86)
+    hy = dy + int(dh * 0.72)
+    d.ellipse([hx - r, hy - r, hx + r, hy + r], fill=(219, 49, 65, 255))  # inkDeep
+    d.line(heart_points(hx, hy + r // 5, r / 13), fill=(255, 255, 255, 255), width=4, joint="curve")
     return img
 
 
