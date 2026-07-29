@@ -1,5 +1,7 @@
 // notify-partner — sends a push to the caller's partner when a stroke lands.
 // Throttled server-side: max 1 push per recipient per 10 minutes (spec §Phase 1.6).
+// The push carries a picture of the canvas (widget snapshot) so Android shows
+// the drawing itself in the notification shade; tapping opens their page.
 // Deploy with: supabase functions deploy notify-partner
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -63,15 +65,31 @@ Deno.serve(async (req) => {
           : kind === 'capsule'
             ? 'sealed a time capsule for you ⏳'
             : 'left you a trace ❤️';
+
+    // the drawing itself as the notification image (widget snapshot; never
+    // includes invisible ink). Best-effort — the push goes out regardless.
+    let image: string | undefined;
+    if (kind !== 'pulse') {
+      const { data: signed } = await admin.storage
+        .from('widgets')
+        .createSignedUrl(`${coupleId}/snapshot.png`, 3600);
+      image = signed?.signedUrl ?? undefined;
+    }
+
+    const message: Record<string, unknown> = {
+      to: tokenRow.token,
+      title: 'trace',
+      body: `${me.display_name ?? 'Your person'} ${verb}`,
+      sound: 'default',
+      // tapping opens straight onto their page in the app
+      data: { open: kind === 'photo' ? 'canvas' : 'partner' },
+    };
+    if (image) message.richContent = { image }; // Android big-picture preview
+
     const res = await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: tokenRow.token,
-        title: 'trace',
-        body: `${me.display_name ?? 'Your person'} ${verb}`,
-        sound: 'default',
-      }),
+      body: JSON.stringify(message),
     });
     if (!res.ok) return json({ error: 'expo push failed' }, 502);
 
@@ -90,7 +108,7 @@ Deno.serve(async (req) => {
       .from('push_log')
       .insert({ couple_id: coupleId, recipient_id: partner.user_id });
 
-    return json({ sent: true });
+    return json({ sent: true, withImage: Boolean(image) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'unknown' }, 500);
   }

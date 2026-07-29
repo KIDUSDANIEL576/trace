@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCanvasRef } from '@shopify/react-native-skia';
-import { Redirect, router, useFocusEffect } from 'expo-router';
+import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,7 +39,7 @@ import {
 import { dailyPrompt } from '@/lib/prompts';
 import { configurePurchases } from '@/lib/purchases';
 import { shareCanvas } from '@/lib/shareTrace';
-import { TABLES } from '@/lib/backend';
+import { RPCS, TABLES } from '@/lib/backend';
 import { refreshWidget } from '@/lib/widget';
 import { supabase } from '@/lib/supabase';
 import { clampBgOpacity, DEFAULT_BACKGROUND_KEY } from '@/theme/backgrounds';
@@ -119,6 +120,12 @@ function SharedCanvas({
   const activeCanvas = canvases.find((c) => c.id === activeCanvasId);
   const activePhotoPath = activeCanvas?.photoPath ?? null;
 
+  // Personal pages: mine (I draw, they watch) and theirs (read-only for me).
+  const myPage = canvases.find((c) => c.kind === 'page' && c.ownerId === userId);
+  const partnerPage = canvases.find((c) => c.kind === 'page' && c.ownerId !== userId);
+  const viewingPartnerPage = activeCanvas?.kind === 'page' && activeCanvas.ownerId !== userId;
+  const [pageDot, setPageDot] = useState(false); // unseen ink on their page
+
   const {
     strokes,
     liveStrokes,
@@ -141,6 +148,10 @@ function SharedCanvas({
     userId,
     displayName,
     onCanvasNew: refreshMembership,
+    onForeignInk: (cid) => {
+      // she's drawing on her page while I look elsewhere → light the dot
+      if (partnerPage && cid === partnerPage.id) setPageDot(true);
+    },
     onCanvasBg: (p) => {
       // partner changed the sky — mirror it if it's the canvas we're looking at
       if (p.canvasId !== activeCanvasId) return;
@@ -212,6 +223,69 @@ function SharedCanvas({
     });
     return () => sub.remove();
   }, [coupleId]);
+
+  // make sure my page exists (idempotent RPC); announce it so their strip updates
+  const ensuredPageRef = useRef(false);
+  useEffect(() => {
+    if (ensuredPageRef.current || myPage) return;
+    ensuredPageRef.current = true;
+    supabase
+      .rpc(RPCS.ensureMyPage, { p_couple_id: coupleId })
+      .then(async ({ data }) => {
+        if (data) {
+          await refreshMembership();
+          announceNewCanvas(String(data));
+        }
+      });
+  }, [coupleId, myPage, refreshMembership, announceNewCanvas]);
+
+  // cold-open: does their page hold ink newer than what I last saw?
+  useEffect(() => {
+    if (!partnerPage) return;
+    let stale = false;
+    (async () => {
+      const [{ data: latest }, seen] = await Promise.all([
+        supabase
+          .from(TABLES.strokes)
+          .select('id')
+          .eq('canvas_id', partnerPage.id)
+          .order('id', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        AsyncStorage.getItem(`trace.seen.${partnerPage.id}`),
+      ]);
+      if (stale || !latest) return;
+      if (latest.id > Number(seen ?? 0)) setPageDot(true);
+    })();
+    return () => {
+      stale = true;
+    };
+  }, [partnerPage?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function openPartnerPage() {
+    if (!partnerPage) return;
+    tapLight();
+    setActiveCanvasId(partnerPage.id);
+    setPageDot(false);
+    const { data: latest } = await supabase
+      .from(TABLES.strokes)
+      .select('id')
+      .eq('canvas_id', partnerPage.id)
+      .order('id', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (latest) AsyncStorage.setItem(`trace.seen.${partnerPage.id}`, String(latest.id));
+  }
+
+  // notification tap lands here with ?open=partner → jump to their page
+  const params = useLocalSearchParams<{ open?: string }>();
+  const openedFromPushRef = useRef(false);
+  useEffect(() => {
+    if (params.open === 'partner' && partnerPage && !openedFromPushRef.current) {
+      openedFromPushRef.current = true;
+      openPartnerPage();
+    }
+  }, [params.open, partnerPage?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const readyCapsule = capsules.find((c) => isOpen(c) && !c.openedAt) ?? null;
   const nextSealed = capsules.find((c) => !isOpen(c)) ?? null;
@@ -500,11 +574,21 @@ function SharedCanvas({
   }
 
   function chipLabel(c: CanvasInfo) {
-    if (c.kind === 'shared') return 'our canvas';
+    if (c.kind === 'shared') return 'us';
+    if (c.kind === 'page') {
+      return c.ownerId === userId ? '✍️ my page' : `💌 ${partnerName ?? 'their page'}`;
+    }
     return new Date(c.createdAt)
       .toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
       .toLowerCase();
   }
+
+  // strip order: us · my page · their page · photos (not raw created_at order)
+  const orderedCanvases = [...canvases].sort((a, b) => {
+    const rank = (c: CanvasInfo) =>
+      c.kind === 'shared' ? 0 : c.kind === 'page' ? (c.ownerId === userId ? 1 : 2) : 3;
+    return rank(a) - rank(b);
+  });
 
   return (
     <Screen>
@@ -553,12 +637,17 @@ function SharedCanvas({
           style={styles.chipStrip}
           contentContainerStyle={styles.chipStripContent}
         >
-          {canvases.map((c) => {
+          {orderedCanvases.map((c) => {
             const on = c.id === activeCanvasId;
+            const isPartnerPage = c.kind === 'page' && c.ownerId !== userId;
             return (
               <Pressable
                 key={c.id}
                 onPress={() => {
+                  if (isPartnerPage) {
+                    openPartnerPage();
+                    return;
+                  }
                   tapLight();
                   setActiveCanvasId(c.id);
                 }}
@@ -575,6 +664,7 @@ function SharedCanvas({
                   {c.kind === 'photo' ? '📷 ' : ''}
                   {chipLabel(c)}
                 </Text>
+                {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
               </Pressable>
             );
           })}
@@ -609,6 +699,8 @@ function SharedCanvas({
           photoUrl={photoUrl}
           revealInvisible={reveal}
           prompt={activeCanvas?.kind === 'photo' ? undefined : dailyPrompt()}
+          readOnly={viewingPartnerPage}
+          readOnlyHint={`${partnerName ?? 'they'} hasn't drawn here yet 💌`}
           seedId={activeCanvasId}
           bgKey={bg.key}
           bgPhotoUrl={bgPhotoUrl}
@@ -643,8 +735,8 @@ function SharedCanvas({
             <Text style={styles.revealText}>👁 hold to reveal</Text>
           </Pressable>
         )}
-        {activeCanvas?.kind !== 'photo' && (
-          // photo canvases already have their own image as the surface
+        {activeCanvas?.kind !== 'photo' && !viewingPartnerPage && (
+          // photo canvases have their own image; their page's sky is theirs
           <Pressable
             onPress={() => {
               tapLight();
@@ -694,23 +786,33 @@ function SharedCanvas({
         <Text style={styles.heartBtnText}>❤  Send a heartbeat</Text>
       </Pressable>
 
-      <Toolbar
-        brush={brush}
-        color={color}
-        premium={premium}
-        onBrush={setBrush}
-        onColor={setColor}
-        onLockedBrush={() => router.push('/paywall')}
-      />
+      {!viewingPartnerPage && (
+        <Toolbar
+          brush={brush}
+          color={color}
+          premium={premium}
+          onBrush={setBrush}
+          onColor={setColor}
+          onLockedBrush={() => router.push('/paywall')}
+        />
+      )}
 
-      <View style={styles.actions}>
-        <View style={{ flex: 1 }}>
-          <Button title="Clear" variant="ghost" onPress={confirmClear} />
+      {viewingPartnerPage ? (
+        <View style={styles.actions}>
+          <Text style={styles.pageCaption}>
+            💌 {partnerName ?? 'Their'} page — it appears here as they draw it
+          </Text>
         </View>
-        <View style={{ flex: 1 }}>
-          <Button title="↺ Undo" variant="ghost" onPress={undoLast} disabled={!canUndo} />
+      ) : (
+        <View style={styles.actions}>
+          <View style={{ flex: 1 }}>
+            <Button title="Clear" variant="ghost" onPress={confirmClear} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button title="↺ Undo" variant="ghost" onPress={undoLast} disabled={!canUndo} />
+          </View>
         </View>
-      </View>
+      )}
       <View style={styles.actionsBottom}>
         <View style={{ flex: 1 }}>
           <Button title="＋ Photo" variant="ghost" onPress={onAddPhoto} loading={photoBusy} />
@@ -828,6 +930,22 @@ const makeStyles = (colors: Palette) =>
   chipOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
   chipPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
   chipText: { color: colors.muted, fontSize: 12.5, fontWeight: '500' },
+  newDot: {
+    position: 'absolute',
+    top: 3,
+    right: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.ink,
+  },
+  pageCaption: {
+    flex: 1,
+    textAlign: 'center',
+    color: colors.muted,
+    fontSize: 13.5,
+    paddingVertical: 14,
+  },
   chipTextOn: { color: '#ffb9c2' },
   heartBtn: {
     marginTop: 14,

@@ -50,7 +50,9 @@ export interface PresenceState {
 
 export interface CanvasInfo {
   id: string;
-  kind: 'shared' | 'photo';
+  kind: 'shared' | 'photo' | 'page';
+  /** Pages only: the partner who owns (draws on) this canvas. */
+  ownerId: string | null;
   photoPath: string | null; // storage path within the photos bucket
   createdAt: string;
   // Canvas background — the "sky" you draw on (src/theme/backgrounds.ts)

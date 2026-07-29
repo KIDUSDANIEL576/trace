@@ -41,7 +41,7 @@ export function useCouple(userId: string | undefined) {
       const [{ data: canvasRows }, { data: partner }] = await Promise.all([
         supabase
           .from(TABLES.canvases)
-          .select('id, kind, photo_url, created_at, bg_key, bg_photo_url, bg_opacity')
+          .select('id, kind, photo_url, owner_id, created_at, bg_key, bg_photo_url, bg_opacity')
           .eq('couple_id', member.couple_id)
           .order('created_at', { ascending: true }),
         supabase
@@ -54,7 +54,8 @@ export function useCouple(userId: string | undefined) {
 
       const canvases: CanvasInfo[] = (canvasRows ?? []).map((c) => ({
         id: c.id,
-        kind: c.kind as 'shared' | 'photo',
+        kind: c.kind as 'shared' | 'photo' | 'page',
+        ownerId: c.owner_id ?? null,
         photoPath: c.photo_url ?? null,
         createdAt: c.created_at,
         bgKey: c.bg_key ?? DEFAULT_BACKGROUND_KEY,

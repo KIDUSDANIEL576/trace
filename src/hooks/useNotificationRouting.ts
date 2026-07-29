@@ -14,23 +14,25 @@ import { useEffect } from 'react';
 export function useNotificationRouting(): void {
   useEffect(() => {
     let handled = false;
-    const go = () => {
+    const go = (response: Notifications.NotificationResponse | null) => {
       if (handled) return;
       handled = true;
-      router.replace('/');
+      const open = response?.notification.request.content.data?.open;
+      // "left you a trace" lands straight on their page, preview → the real thing
+      router.replace(open === 'partner' ? '/canvas?open=partner' : '/');
     };
 
     // cold start: the tap that launched the app
     Notifications.getLastNotificationResponseAsync()
       .then((response) => {
-        if (response) go();
+        if (response) go(response);
       })
       .catch(() => {});
 
     // warm: tapped while the app was backgrounded/foregrounded
-    const sub = Notifications.addNotificationResponseReceivedListener(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
       handled = false; // a fresh tap should route again
-      go();
+      go(response);
     });
     return () => sub.remove();
   }, []);

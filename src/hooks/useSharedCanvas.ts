@@ -35,6 +35,8 @@ interface Args {
   onCanvasNew?: () => void;
   /** Partner changed this canvas's background — refresh it locally. */
   onCanvasBg?: (payload: CanvasBgPayload) => void;
+  /** Ink began on a canvas we're NOT viewing (e.g. their page) — badge it. */
+  onForeignInk?: (canvasId: string) => void;
 }
 
 /**
@@ -54,6 +56,7 @@ export function useSharedCanvas({
   displayName,
   onCanvasNew,
   onCanvasBg,
+  onForeignInk,
 }: Args) {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [liveStrokes, setLiveStrokes] = useState<Record<string, Stroke>>({});
@@ -78,6 +81,8 @@ export function useSharedCanvas({
   onCanvasNewRef.current = onCanvasNew;
   const onCanvasBgRef = useRef(onCanvasBg);
   onCanvasBgRef.current = onCanvasBg;
+  const onForeignInkRef = useRef(onForeignInk);
+  onForeignInkRef.current = onForeignInk;
 
   const send = useCallback((event: string, payload: unknown) => {
     return channelRef.current?.send({ type: 'broadcast', event, payload });
@@ -138,7 +143,11 @@ export function useSharedCanvas({
       channel
         .on('broadcast', { event: 'stroke:start' }, ({ payload }) => {
           const p = payload as StrokeStartPayload;
-          if (p.canvasId !== canvasId) return; // partner is drawing on another canvas
+          if (p.canvasId !== canvasId) {
+            // partner is drawing on another canvas — let the UI badge it
+            onForeignInkRef.current?.(p.canvasId);
+            return;
+          }
           setLiveStrokes((prev) => ({
             ...prev,
             [p.strokeId]: {

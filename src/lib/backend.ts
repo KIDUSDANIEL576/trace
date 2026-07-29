@@ -18,6 +18,7 @@ export const RPCS = {
   createCouple: 'trace_create_couple',
   joinCouple: 'trace_join_couple',
   sealCapsule: 'trace_seal_capsule',
+  ensureMyPage: 'trace_ensure_my_page',
 } as const;
 
 export const EDGE_FUNCTIONS = {

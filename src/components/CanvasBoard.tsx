@@ -22,6 +22,10 @@ interface Props {
   bgKey?: string; // chosen background preset
   bgPhotoUrl?: string | null; // signed URL of a custom background photo
   bgOpacity?: number; // 0.15..1
+  /** Partner pages: you watch, you don't draw. Disables the gesture entirely. */
+  readOnly?: boolean;
+  /** Hint shown on an empty read-only page ("their page is still blank…"). */
+  readOnlyHint?: string;
   canvasRef?: ReturnType<typeof useCanvasRef>; // parent-owned, for share snapshots
   onBegin: (brush: Brush, color: string, width: number) => string;
   onPoint: (strokeId: string, pt: Point) => void;
@@ -51,6 +55,8 @@ export function CanvasBoard({
   bgKey,
   bgPhotoUrl,
   bgOpacity,
+  readOnly,
+  readOnlyHint,
   canvasRef,
   onBegin,
   onPoint,
@@ -87,7 +93,7 @@ export function CanvasBoard({
     .minDistance(1)
     .maxPointers(1)
     .onBegin((e) => {
-      if (!size.w) return;
+      if (!size.w || readOnly) return;
       const id = onBegin(brush, color, brushWidth);
       activeIdRef.current = id;
       lastPxRef.current = { x: e.x, y: e.y };
@@ -147,8 +153,8 @@ export function CanvasBoard({
         )}
         {!hasInk && (
           <View pointerEvents="none" style={styles.hintWrap}>
-            <Text style={styles.hint}>draw here ✏️</Text>
-            {prompt ? <Text style={styles.prompt}>today: {prompt}</Text> : null}
+            <Text style={styles.hint}>{readOnly ? (readOnlyHint ?? 'nothing here yet') : 'draw here ✏️'}</Text>
+            {!readOnly && prompt ? <Text style={styles.prompt}>today: {prompt}</Text> : null}
           </View>
         )}
       </View>

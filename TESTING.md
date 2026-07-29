@@ -129,6 +129,23 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Sign in as `review@trace.demo` (password path, no email needed) → lands
       on the premium REVIEW couple's canvas with seeded strokes
 
+## 8a · Personal pages ("my page / their page")
+
+- [ ] The strip above the canvas shows **us · ✍️ my page · 💌 <partner>** (+ photo chips)
+- [ ] Draw on **my page** → it streams live on THEIR "💌 your-name" tab
+- [ ] Open **💌 their page** → read-only: your finger draws nothing, no toolbar,
+      no Clear/Undo — just "their page — it appears here as they draw it"
+- [ ] While you're on "us", partner draws on their page → a small red dot
+      appears on their chip; opening the tab clears it
+- [ ] Kill the app while partner draws on their page → reopen → the dot shows
+      (cold-start unseen check), and clears when viewed
+- [ ] "Us" still works exactly as before — both draw together
+- [ ] Notification "left you a trace ❤️": Android shows THE DRAWING as a
+      big-picture image in the shade (dev build); tapping it opens the app
+      directly on their page
+- [ ] iOS note: image preview needs a future notification-service extension;
+      title/body + tap-to-their-page still work
+
 ## 8b · Canvas backgrounds ("your canvas sky")
 
 - [ ] Tap the **🌅 sky** chip (top-left of the canvas) → sheet slides up with
