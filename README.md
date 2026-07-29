@@ -29,6 +29,15 @@ Trace Forever (one-time unlock), and **Phase 5** — Time Capsules (seal a drawi
 a date) and living ink (strokes bloom a hair over their first week).
 The canvas itself is deliberately **flat**: skies are smooth gradients with a film
 finish, and nothing is ever drawn on them, so the only marks are yours.
+
+**The design rule, one line:** the canvas is the app, and everything that floats
+over it is glass. Chrome over the canvas — the dock, tab pills, status pills,
+every bottom sheet — is `<Glass>` / `<GlassFill>` (`src/components/Glass.tsx`):
+real backdrop blur, a thin tint, a lit top edge, a hairline rim, and an ink-warm
+bloom on whatever is currently active. Full screens (sign-in, pairing, paywall,
+replay) stay solid — glass is for things that hover, not things you land on.
+Glass colours live per theme in `Palette.glass`, so all three themes re-tint
+together.
 See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 
 **Getting it live:** [BUILD.md](./BUILD.md) (dev builds, push, widgets) ·

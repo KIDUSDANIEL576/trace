@@ -32,6 +32,24 @@ export interface Palette {
   ring: string; // selected colour-swatch ring
   barStyle: 'light' | 'dark'; // status bar contrast
   board: BoardPalette;
+  glass: GlassPalette;
+}
+
+/**
+ * Glassmorphism, the honest kind: real backdrop blur (expo-blur) plus a thin
+ * tint, a lit top edge, and a hairline border. The lit edge is what sells it —
+ * glass reads as glass because light catches its rim, not because it's blurry.
+ */
+export interface GlassPalette {
+  blurTint: 'light' | 'dark' | 'default'; // which way expo-blur leans
+  blurIntensity: number; // 0..100
+  tint: string; // thin wash over the blur, so text always has a ground
+  tintStrong: string; // for sheets, which sit over more varied content
+  border: string; // hairline rim
+  edge: string; // the lit top edge — brighter than the rim
+  glowInk: string; // love: a soft ink-tinted bloom under active surfaces
+  shadow: string; // the drop shadow that lifts glass off the canvas
+  wellIdle: string; // an unselected control sunk into the glass
 }
 
 export const PALETTES: Record<ThemeName, Palette> = {
@@ -59,6 +77,17 @@ export const PALETTES: Record<ThemeName, Palette> = {
       positions: [0, 0.45, 0.7, 1],
       highlight: 'rgba(247,217,176,0.85)',
     },
+    glass: {
+      blurTint: 'dark',
+      blurIntensity: 42,
+      tint: 'rgba(22,21,28,0.42)',
+      tintStrong: 'rgba(18,17,24,0.72)',
+      border: 'rgba(255,255,255,0.14)',
+      edge: 'rgba(255,255,255,0.34)',
+      glowInk: 'rgba(255,122,156,0.20)',
+      shadow: '#000000',
+      wellIdle: 'rgba(255,255,255,0.07)',
+    },
   },
   // B — Candlelight: the same dark intimacy, warmed. Plum-black, coral ink.
   candlelight: {
@@ -83,6 +112,17 @@ export const PALETTES: Record<ThemeName, Palette> = {
       colors: ['#4a3b4f', '#7a5560', '#b07a63', '#3a2630'],
       positions: [0, 0.45, 0.72, 1],
       highlight: 'rgba(255,216,164,0.92)',
+    },
+    glass: {
+      blurTint: 'dark',
+      blurIntensity: 40,
+      tint: 'rgba(37,26,32,0.40)',
+      tintStrong: 'rgba(30,21,26,0.72)',
+      border: 'rgba(255,238,232,0.16)',
+      edge: 'rgba(255,226,214,0.38)',
+      glowInk: 'rgba(255,158,169,0.22)',
+      shadow: '#120a0e',
+      wellIdle: 'rgba(255,240,235,0.08)',
     },
   },
   // C — Daylight: bright, cheerful, light. Warm cream, rosy ink.
@@ -111,6 +151,17 @@ export const PALETTES: Record<ThemeName, Palette> = {
       colors: ['#bfe3ff', '#ffd7e6', '#ffe9c7'],
       positions: [0, 0.52, 1],
       highlight: 'rgba(255,255,255,0.9)',
+    },
+    glass: {
+      blurTint: 'light',
+      blurIntensity: 55,
+      tint: 'rgba(255,255,255,0.52)',
+      tintStrong: 'rgba(255,255,255,0.82)',
+      border: 'rgba(43,32,41,0.12)',
+      edge: 'rgba(255,255,255,0.9)',
+      glowInk: 'rgba(255,143,171,0.24)',
+      shadow: '#6b4a52',
+      wellIdle: 'rgba(43,32,41,0.06)',
     },
   },
 };

@@ -10,6 +10,7 @@ import { CanvasBackdrop } from '@/components/CanvasBackdrop';
 import { CanvasBoard } from '@/components/CanvasBoard';
 import { CanvasDock } from '@/components/CanvasDock';
 import { OpenCapsuleModal, SealCapsuleSheet } from '@/components/CapsuleSheet';
+import { Glass } from '@/components/Glass';
 import { HeartBloom } from '@/components/HeartBloom';
 import { MoreSheet, type MoreAction } from '@/components/MoreSheet';
 import { PresencePill } from '@/components/PresencePill';
@@ -735,7 +736,7 @@ function SharedCanvas({
           {partnerDrawing ? (
             <PresencePill name={partnerDrawing} />
           ) : partnerName || partnerOnline ? (
-            <View style={styles.withChip}>
+            <Glass radius={radius.pill} contentStyle={styles.withChip}>
               <View
                 style={[
                   styles.presenceDot,
@@ -743,10 +744,12 @@ function SharedCanvas({
                 ]}
               />
               <Text style={styles.withText}>with {partnerName ?? partnerOnline}</Text>
-            </View>
+            </Glass>
           ) : (
-            <Pressable style={styles.withChip} onPress={shareCode}>
-              <Text style={styles.withText}>code {inviteCode} · tap to share</Text>
+            <Pressable onPress={shareCode}>
+              <Glass radius={radius.pill} contentStyle={styles.withChip}>
+                <Text style={styles.withText}>code {inviteCode} · tap to share</Text>
+              </Glass>
             </Pressable>
           )}
         </View>
@@ -775,16 +778,19 @@ function SharedCanvas({
                   accessibilityRole="button"
                   accessibilityState={{ selected: on }}
                   accessibilityLabel={`${chipLabel(c)} canvas`}
-                  style={({ pressed }) => [
-                    styles.tab,
-                    on && styles.tabOn,
-                    pressed && styles.tabPressed,
-                  ]}
+                  style={({ pressed }) => [pressed && styles.tabPressed]}
                 >
-                  <Text style={[styles.tabText, on && styles.tabTextOn]}>
-                    {c.kind === 'photo' ? '📷 ' : ''}
-                    {chipLabel(c)}
-                  </Text>
+                  <Glass
+                    radius={radius.pill}
+                    glow={on}
+                    contentStyle={styles.tab}
+                    style={on && styles.tabOn}
+                  >
+                    <Text style={[styles.tabText, on && styles.tabTextOn]}>
+                      {c.kind === 'photo' ? '📷 ' : ''}
+                      {chipLabel(c)}
+                    </Text>
+                  </Glass>
                   {isPartnerPage && pageDot ? <View style={styles.newDot} /> : null}
                 </Pressable>
               );
@@ -793,17 +799,17 @@ function SharedCanvas({
         )}
 
         {connection !== 'live' && (
-          <View style={styles.floatPill}>
+          <Glass radius={radius.pill} style={styles.floatPill} contentStyle={styles.floatPillPad}>
             <Text style={styles.connText}>
               {connection === 'connecting' ? 'connecting…' : 'reconnecting…'}
             </Text>
-          </View>
+          </Glass>
         )}
 
         {photoBusy && (
-          <View style={styles.floatPill}>
+          <Glass radius={radius.pill} style={styles.floatPill} contentStyle={styles.floatPillPad}>
             <Text style={styles.floatPillText}>adding your photo…</Text>
-          </View>
+          </Glass>
         )}
 
         {readyCapsule ? (
@@ -811,21 +817,19 @@ function SharedCanvas({
             onPress={() => onOpenCapsule(readyCapsule)}
             accessibilityRole="button"
             accessibilityLabel="A time capsule is ready — open it"
-            style={({ pressed }) => [
-              styles.floatPill,
-              styles.capsuleReady,
-              pressed && { opacity: 0.8 },
-            ]}
+            style={({ pressed }) => [styles.floatPill, pressed && { opacity: 0.85 }]}
           >
-            <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
+            <Glass radius={radius.pill} glow style={styles.capsuleReady} contentStyle={styles.floatPillPad}>
+              <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
+            </Glass>
           </Pressable>
         ) : nextSealed ? (
-          <View style={styles.floatPill}>
+          <Glass radius={radius.pill} style={styles.floatPill} contentStyle={styles.floatPillPad}>
             <Text style={styles.floatPillText}>
               ⏳ {nextSealed.authorId === userId ? 'your' : `${partnerName ?? 'their'}`} capsule ·{' '}
               {opensInLabel(nextSealed)}
             </Text>
-          </View>
+          </Glass>
         ) : null}
 
         <View
@@ -887,11 +891,11 @@ function SharedCanvas({
         </View>
 
         {viewingPartnerPage ? (
-          <View style={styles.pageCaptionWrap}>
+          <Glass radius={26} style={{ alignSelf: 'center' }} contentStyle={styles.pageCaptionWrap}>
             <Text style={styles.pageCaption}>
               💌 {partnerName ?? 'Their'} page — it appears here as they draw it
             </Text>
-          </View>
+          </Glass>
         ) : (
           <CanvasDock
             brush={brush}
@@ -1013,26 +1017,21 @@ const makeStyles = (colors: Palette) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 7,
-      backgroundColor: colors.overlay,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: radius.pill,
-      paddingVertical: 6,
-      paddingHorizontal: 12,
+      paddingVertical: 7,
+      paddingHorizontal: 13,
     },
     withText: { color: colors.onOverlay, fontSize: 12.5 },
     presenceDot: { width: 8, height: 8, borderRadius: 4 },
     tabStrip: { flexGrow: 0, marginBottom: 4 },
     tabStripContent: { gap: 8, paddingVertical: 2 },
-    tab: {
-      backgroundColor: colors.overlay,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: radius.pill,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
+    tab: { paddingVertical: 9, paddingHorizontal: 17 },
+    tabOn: {
+      shadowColor: colors.ink,
+      shadowOpacity: 0.5,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 8,
     },
-    tabOn: { borderColor: colors.ink, backgroundColor: colors.inkSoft },
     tabPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
     tabText: { color: colors.onOverlay, fontSize: 13.5, fontWeight: '500' },
     tabTextOn: { color: '#ffb9c2' },
@@ -1045,19 +1044,17 @@ const makeStyles = (colors: Palette) =>
       borderRadius: 4,
       backgroundColor: colors.ink,
     },
-    floatPill: {
-      alignSelf: 'center',
-      backgroundColor: colors.overlay,
-      borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: radius.pill,
-      paddingVertical: 5,
-      paddingHorizontal: 14,
-      marginTop: 6,
-    },
+    floatPill: { alignSelf: 'center', marginTop: 7 },
+    floatPillPad: { paddingVertical: 6, paddingHorizontal: 15 },
     floatPillText: { color: colors.onOverlay, fontSize: 12 },
     connText: { color: '#ffb9c2', fontSize: 12, fontWeight: '500' },
-    capsuleReady: { borderColor: colors.gold, backgroundColor: 'rgba(244,198,107,0.2)' },
+    capsuleReady: {
+      shadowColor: colors.gold,
+      shadowOpacity: 0.55,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 9,
+    },
     capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
     stage: { flex: 1, justifyContent: 'center', marginVertical: 8 },
     pageCaptionWrap: {

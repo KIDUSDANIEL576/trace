@@ -41,6 +41,24 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 - [ ] Airplane mode 30s while B draws → back online → banner clears and the
       missed strokes appear after reconnect
 
+## 2a · The glass (design pass)
+
+- [ ] The dock, tab pills, status pills, and the partner-page caption are
+      **frosted**: you can see the sky blurring through them, each has a thin
+      lit edge along its top, and they cast a soft shadow onto the canvas
+- [ ] The **selected** tab and the **current brush** glow softly in ink; the
+      chosen ink swatch has a pink halo
+- [ ] Every bottom sheet (⋯ More, Sky, Capsule, Settings) is frosted too, and
+      the content behind it is visibly blurred, not just dimmed
+- [ ] The gold "capsule is ready" pill glows gold rather than sitting flat
+- [ ] Switch themes → the glass re-tints (Daylight goes to light frost with a
+      dark rim); text stays legible on all three
+- [ ] Android: blur is weaker than iOS by nature — confirm surfaces still read
+      as frosted and text is legible over a busy sky (this is the one to check
+      on a real Android device)
+- [ ] Nothing became hard to read: dock icons, tab labels, and pill text all
+      stay crisp over both the lightest and darkest skies
+
 ## 2b · Appearance / themes
 
 - [ ] Long-press the **trace** wordmark → Settings sheet slides up

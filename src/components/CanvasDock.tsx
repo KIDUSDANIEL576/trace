@@ -4,6 +4,7 @@ import { BRUSHES, BRUSH_ORDER, PREMIUM_BRUSHES } from '@/lib/brushes';
 import { tapLight } from '@/lib/haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, swatches, type Palette } from '@/theme/tokens';
+import { Glass } from './Glass';
 import type { Brush } from '@/types';
 
 interface Props {
@@ -56,7 +57,7 @@ export function CanvasDock({
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
-    <View style={styles.dock}>
+    <Glass radius={26} glow contentStyle={styles.dock}>
       <View style={styles.row}>
         {BRUSH_ORDER.map((b) => {
           const on = b === brush;
@@ -130,21 +131,13 @@ export function CanvasDock({
           <Text style={styles.actionText}>⋯</Text>
         </Pressable>
       </View>
-    </View>
+    </Glass>
   );
 }
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
-    dock: {
-      backgroundColor: colors.overlay,
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderWidth: 1,
-      borderRadius: 24,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      gap: 10,
-    },
+    dock: { paddingHorizontal: 12, paddingVertical: 11, gap: 11 },
     row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     brush: {
       width: 46,
@@ -152,12 +145,20 @@ const makeStyles = (colors: Palette) =>
       borderRadius: radius.tool,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255,255,255,0.06)',
+      backgroundColor: colors.glass.wellIdle,
+      borderWidth: 1,
+      borderColor: 'transparent',
     },
     brushOn: {
       backgroundColor: colors.inkSoft,
-      borderWidth: 1.5,
+      borderWidth: 1,
       borderColor: colors.ink,
+      // the chosen brush glows, like the tool you're actually holding
+      shadowColor: colors.ink,
+      shadowOpacity: 0.5,
+      shadowRadius: 9,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 5,
     },
     brushIcon: { fontSize: 19 },
     lock: { position: 'absolute', bottom: 1, right: 3, fontSize: 9 },
@@ -172,18 +173,32 @@ const makeStyles = (colors: Palette) =>
     swOn: {
       borderColor: colors.ring,
       borderWidth: 2.5,
-      transform: [{ scale: 1.18 }],
+      transform: [{ scale: 1.2 }],
+      shadowColor: colors.glow,
+      shadowOpacity: 0.7,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 4,
     },
-    divider: { width: 1, height: 24, backgroundColor: 'rgba(255,255,255,0.16)' },
+    divider: { width: 1, height: 24, backgroundColor: colors.glass.border },
     action: {
       width: 40,
       height: 40,
       borderRadius: 20,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(255,255,255,0.06)',
+      backgroundColor: colors.glass.wellIdle,
     },
-    heart: { backgroundColor: colors.inkSoft },
+    heart: {
+      backgroundColor: colors.inkSoft,
+      borderWidth: 1,
+      borderColor: colors.ink,
+      shadowColor: colors.ink,
+      shadowOpacity: 0.45,
+      shadowRadius: 10,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: 5,
+    },
     heartText: { color: colors.ink, fontSize: 19, fontWeight: '700' },
     actionText: { color: colors.onOverlay, fontSize: 20, fontWeight: '600' },
     off: { opacity: 0.35 },

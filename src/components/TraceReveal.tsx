@@ -7,6 +7,7 @@ import { tapLight } from '@/lib/haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, type Palette } from '@/theme/tokens';
 import type { Stroke } from '@/types';
+import { Glass } from './Glass';
 import { CanvasBackdrop } from './CanvasBackdrop';
 import { StrokeRenderer } from './StrokeRenderer';
 
@@ -82,6 +83,8 @@ export function TraceReveal({
         <Text style={styles.from}>{authorName} left you a trace</Text>
 
         <Animated.View style={[styles.boardWrap, { opacity, transform: [{ scale }] }]}>
+          {/* the drawing arrives lit — a warm bloom behind the glass */}
+          <View pointerEvents="none" style={styles.bloom} />
           <View
             style={styles.board}
             onLayout={(e) =>
@@ -115,9 +118,11 @@ export function TraceReveal({
           onPress={handleDraw}
           accessibilityRole="button"
           accessibilityLabel="Draw back"
-          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
+          style={({ pressed }) => [pressed && styles.ctaPressed]}
         >
-          <Text style={styles.ctaText}>Draw back ❤</Text>
+          <Glass radius={radius.button} glow style={styles.cta} contentStyle={styles.ctaPad}>
+            <Text style={styles.ctaText}>Draw back ❤</Text>
+          </Glass>
         </Pressable>
       </Pressable>
     </Modal>
@@ -141,23 +146,41 @@ const makeStyles = (colors: Palette) =>
       textAlign: 'center',
     },
     boardWrap: { width: '100%', alignItems: 'center' },
+    bloom: {
+      position: 'absolute',
+      top: -18,
+      left: -18,
+      right: -18,
+      bottom: -18,
+      borderRadius: radius.card + 18,
+      backgroundColor: colors.glass.glowInk,
+    },
     board: {
       width: '100%',
       aspectRatio: 1 / 1.1,
       borderRadius: radius.card,
       overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: colors.line,
+      borderWidth: StyleSheet.hairlineWidth * 1.5,
+      borderColor: colors.glass.edge,
+      shadowColor: colors.glass.shadow,
+      shadowOpacity: 0.55,
+      shadowRadius: 30,
+      shadowOffset: { width: 0, height: 14 },
+      elevation: 16,
     },
     cta: {
+      shadowColor: colors.ink,
+      shadowOpacity: 0.5,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 5 },
+      elevation: 10,
+    },
+    ctaPad: {
       minHeight: 52,
-      paddingHorizontal: 30,
-      borderRadius: radius.button,
-      backgroundColor: colors.inkSoft,
-      borderWidth: 1,
-      borderColor: colors.ink,
+      paddingHorizontal: 32,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: colors.inkSoft,
     },
     ctaPressed: { transform: [{ scale: 0.97 }], opacity: 0.9 },
     ctaText: { color: colors.inkText, fontSize: 16, fontWeight: '700', letterSpacing: 0.2 },

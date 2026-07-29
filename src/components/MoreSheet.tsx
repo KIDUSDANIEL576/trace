@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tapLight } from '@/lib/haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, type Palette } from '@/theme/tokens';
+import { GlassFill } from './Glass';
 
 export interface MoreAction {
   key: string;
@@ -29,6 +30,7 @@ export function MoreSheet({ visible, actions, onClose }: Props) {
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close menu">
         <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+          <GlassFill strong />
           <View style={styles.grab} />
           {actions.map((a) => (
             <Pressable
@@ -68,11 +70,11 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     sheet: {
-      backgroundColor: colors.panel,
       borderTopLeftRadius: radius.card,
       borderTopRightRadius: radius.card,
-      borderWidth: 1,
-      borderColor: colors.line,
+      borderWidth: StyleSheet.hairlineWidth * 1.5,
+      borderColor: colors.glass.border,
+      overflow: 'hidden',
       paddingHorizontal: 14,
       paddingTop: 10,
     },
@@ -102,9 +104,9 @@ const makeStyles = (colors: Palette) =>
       marginTop: 8,
       minHeight: 50,
       borderRadius: radius.button,
-      backgroundColor: colors.panel2,
+      backgroundColor: colors.glass.wellIdle,
       borderWidth: 1,
-      borderColor: colors.line,
+      borderColor: colors.glass.border,
       alignItems: 'center',
       justifyContent: 'center',
     },

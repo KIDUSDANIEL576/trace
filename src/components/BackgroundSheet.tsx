@@ -15,6 +15,7 @@ import {
 } from '@/theme/backgrounds';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, type Palette } from '@/theme/tokens';
+import { GlassFill } from './Glass';
 
 const MIN_OPACITY = 0.15;
 
@@ -121,6 +122,7 @@ export function BackgroundSheet({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close backgrounds">
         <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
+          <GlassFill strong />
           <View style={styles.grab} />
           <Text style={styles.title}>Your canvas sky</Text>
           <Text style={styles.subtitle}>
@@ -275,11 +277,11 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     sheet: {
-      backgroundColor: colors.panel,
       borderTopLeftRadius: radius.card,
       borderTopRightRadius: radius.card,
-      borderWidth: 1,
-      borderColor: colors.line,
+      borderWidth: StyleSheet.hairlineWidth * 1.5,
+      borderColor: colors.glass.border,
+      overflow: 'hidden',
       paddingHorizontal: 20,
       paddingTop: 10,
       maxHeight: '88%',

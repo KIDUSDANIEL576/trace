@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tapLight } from '@/lib/haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { fonts, radius, type Palette } from '@/theme/tokens';
+import { GlassFill } from './Glass';
 import type { CapsuleMeta, CapsuleStroke, Stroke } from '@/types';
 import { CanvasBackdrop } from './CanvasBackdrop';
 import { StrokeRenderer } from './StrokeRenderer';
@@ -58,6 +59,7 @@ export function SealCapsuleSheet({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
         <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
+          <GlassFill strong />
           <View style={styles.grab} />
           <Text style={styles.title}>Seal this drawing ⏳</Text>
           <Text style={styles.subtitle}>
@@ -189,11 +191,11 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     sheet: {
-      backgroundColor: colors.panel,
       borderTopLeftRadius: radius.card,
       borderTopRightRadius: radius.card,
-      borderWidth: 1,
-      borderColor: colors.line,
+      borderWidth: StyleSheet.hairlineWidth * 1.5,
+      borderColor: colors.glass.border,
+      overflow: 'hidden',
       paddingHorizontal: 20,
       paddingTop: 10,
     },
