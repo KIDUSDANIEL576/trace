@@ -28,7 +28,13 @@ import {
 import { notifyPartner, registerPushToken } from '@/lib/notifications';
 import { deleteAccount, leaveCouple } from '@/lib/account';
 import { heartbeat, notifySuccess, tapLight } from '@/lib/haptics';
-import { createPhotoCanvas, pickPhoto, signedPhotoUrl, uploadBackgroundPhoto } from '@/lib/photos';
+import {
+  createPhotoCanvas,
+  PhotoCapError,
+  pickPhoto,
+  signedPhotoUrl,
+  uploadBackgroundPhoto,
+} from '@/lib/photos';
 import { dailyPrompt } from '@/lib/prompts';
 import { configurePurchases } from '@/lib/purchases';
 import { shareCanvas } from '@/lib/shareTrace';
@@ -317,8 +323,8 @@ function SharedCanvas({
       const path = await uploadBackgroundPhoto(coupleId, uri);
       await applyBackground({ bgPhotoPath: path });
       toast.show('Background set 🌅');
-    } catch {
-      toast.show('Could not set that photo');
+    } catch (e) {
+      toast.show(e instanceof PhotoCapError ? e.message : 'Could not set that photo');
     } finally {
       setBgBusy(false);
     }
@@ -469,8 +475,10 @@ function SharedCanvas({
       await refreshMembership();
       setActiveCanvasId(newId);
       toast.show('Photo canvas ready ✏️');
-    } catch {
-      toast.show('Could not add the photo — try again');
+    } catch (e) {
+      toast.show(
+        e instanceof PhotoCapError ? e.message : 'Could not add the photo — try again'
+      );
     } finally {
       setPhotoBusy(false);
     }
