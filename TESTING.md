@@ -61,7 +61,11 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
       `ANDROID_REAL_BLUR` in `src/components/Glass.tsx` and watch for torn
       screen transitions and flicker when sheets open.
 - [ ] Nothing became hard to read: dock icons, tab labels, and pill text all
-      stay crisp over both the lightest and darkest skies
+      stay crisp over both the lightest and darkest skies. *(Contrast is now
+      proven by maths, not eyeballs — `tests/contrast.test.ts` composites every
+      glass tint over all 61 skies and fails the build under WCAG AA. If
+      something still reads badly on real pixels, tell me the surface + theme:
+      that means the model of how it stacks is wrong, which is worth knowing.)*
 
 ## 2b · Appearance / themes
 

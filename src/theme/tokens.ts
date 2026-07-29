@@ -43,6 +43,9 @@ export interface Palette {
 export interface GlassPalette {
   blurTint: 'light' | 'dark' | 'default'; // which way expo-blur leans
   blurIntensity: number; // 0..100
+  // Every alpha here is solved, not eyeballed: tests/contrast.test.ts
+  // composites each tint over all 61 skies (dimmed the way the canvas screen
+  // dims them) and requires WCAG AA for the text that sits on top.
   tint: string; // thin wash over the blur, so text always has a ground
   tintStrong: string; // for sheets, which sit over more varied content
   // Android renders no real blur by default (see Glass.tsx), so its wash has
@@ -85,7 +88,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
       blurTint: 'dark',
       blurIntensity: 42,
       tint: 'rgba(22,21,28,0.42)',
-      tintStrong: 'rgba(18,17,24,0.72)',
+      tintStrong: 'rgba(18,17,24,0.84)',
       tintAndroid: 'rgba(20,19,26,0.80)',
       tintStrongAndroid: 'rgba(17,16,22,0.94)',
       border: 'rgba(255,255,255,0.14)',
@@ -123,7 +126,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
       blurTint: 'dark',
       blurIntensity: 40,
       tint: 'rgba(37,26,32,0.40)',
-      tintStrong: 'rgba(30,21,26,0.72)',
+      tintStrong: 'rgba(30,21,26,0.78)',
       tintAndroid: 'rgba(35,24,30,0.80)',
       tintStrongAndroid: 'rgba(28,19,24,0.94)',
       border: 'rgba(255,238,232,0.16)',
@@ -163,8 +166,8 @@ export const PALETTES: Record<ThemeName, Palette> = {
     glass: {
       blurTint: 'light',
       blurIntensity: 55,
-      tint: 'rgba(255,255,255,0.52)',
-      tintStrong: 'rgba(255,255,255,0.82)',
+      tint: 'rgba(255,255,255,0.58)',
+      tintStrong: 'rgba(255,255,255,0.92)',
       tintAndroid: 'rgba(255,252,247,0.86)',
       tintStrongAndroid: 'rgba(255,253,250,0.96)',
       border: 'rgba(43,32,41,0.12)',
