@@ -1,0 +1,43 @@
+PRIVACY NUTRITION LABELS / DATA SAFETY — the exact answers
+==========================================================
+Derived from PRIVACY.md. Keep the two in sync if either changes.
+
+APPLE — App Privacy (App Store Connect → App Privacy)
+
+Data used to track you:               NONE
+Data linked to you:
+  • Contact Info → Email Address      — App Functionality (account sign-in)
+  • User Content → Photos or Videos   — App Functionality (photos the user
+                                        chooses to draw on / set as a canvas
+                                        background)
+  • User Content → Other User Content — App Functionality (drawings/strokes)
+  • Purchases → Purchase History      — App Functionality (unlock state)
+  • Identifiers → User ID             — App Functionality (pairing two
+                                        accounts to one couple)
+Data not linked to you:               NONE
+Third-party advertising:              NO
+Analytics / tracking:                 NO
+
+Crash data note: if Sentry is enabled, add
+  • Diagnostics → Crash Data          — App Functionality, NOT linked to the
+                                        user (no PII is attached)
+
+GOOGLE PLAY — Data safety
+
+Data collected:
+  • Personal info → Email address     — Required · App functionality ·
+                                        Account management
+  • Photos and videos → Photos        — Optional · App functionality
+  • App activity → Other user content — Required · App functionality
+  • App info → Crash logs             — Optional · Diagnostics (only if
+                                        Sentry is enabled)
+
+Data shared with third parties:       NONE
+  (Supabase, Expo, Apple/Google, and RevenueCat are service providers /
+   subprocessors, not third-party recipients under Play's definition.)
+Data is encrypted in transit:         YES
+Users can request data deletion:      YES — in-app (Settings → Delete
+                                      account) and it deletes server-side
+Data collection is optional:          Email is required to sign in; photos
+                                      are optional
+Committed to the Play Families policy: N/A (not aimed at children)

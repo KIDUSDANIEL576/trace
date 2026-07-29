@@ -64,6 +64,10 @@ notifications, camera capture, the home-screen widgets.
 
 ## Task 4 · Dev builds (push + camera + widgets)
 
+> **The full click-by-click version now lives in [BUILD.md](BUILD.md)** —
+> accounts, `eas init`, the Apple App Group the widget needs, push credentials,
+> and OTA updates. What follows is the short form.
+
 One-time account: `npm i -g eas-cli` then `eas login` (free Expo account).
 
 ### 4a. `eas init` — do this first (fixes silent push)

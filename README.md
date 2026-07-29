@@ -31,6 +31,11 @@ The canvas itself is deliberately **flat**: skies are smooth gradients with a fi
 finish, and nothing is ever drawn on them, so the only marks are yours.
 See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 
+**Getting it live:** [BUILD.md](./BUILD.md) (dev builds, push, widgets) ·
+[SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md) (your own backend) ·
+[REVENUECAT.md](./REVENUECAT.md) (selling Trace Forever) ·
+[STORE.md](./STORE.md) (App Store + Play listings).
+
 ## Stack
 
 - **Expo SDK 52** (React Native, TypeScript, expo-router)
@@ -71,10 +76,13 @@ free tier caps active projects at two. Everything is namespaced and additive:
 The names live in one file: `src/lib/backend.ts`.
 
 **To move to a dedicated project later** (recommended once a free slot or Pro
-plan exists): create the project, run
-`supabase/migrations/20260716000001_init.sql` there (it's the un-prefixed
-dedicated-project version), strip the prefixes in `src/lib/backend.ts`
-(+ `notify-partner` function name), and point `.env` at the new project.
+plan exists): follow **[SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md)**. Note
+that *all 13* migrations must run — running only `init.sql` silently leaves out
+capsules, backgrounds, personal pages, and every free-tier limit. Everything in
+`supabase/migrations/` and `supabase/functions/` is the un-prefixed
+dedicated-project version, so after the move the repo becomes the backend's
+source of truth again (today the live `trace_`-prefixed objects exist only in
+the dashboard).
 
 **One manual dashboard step for sign-in codes** (this is step 1 above): the
 Magic Link email must contain `{{ .Token }}` or users get a link instead of a
@@ -133,7 +141,7 @@ the strokes table — that table **is** Relationship Replay (Phase 2).
 ```
 app/            expo-router screens (sign-in → verify → pair → canvas)
 src/hooks/      useAuth, useCouple, useSharedCanvas (the realtime core)
-src/components/ CanvasBoard (Skia + gestures), StrokeRenderer, Toolbar, PresencePill
+src/components/ CanvasBoard (Skia + gestures), StrokeRenderer, CanvasDock, MoreSheet
 src/lib/        supabase client, backend names, brushes, notifications
 src/theme/      design tokens from the approved prototype
 supabase/       schema + RLS migration, notify-partner edge function

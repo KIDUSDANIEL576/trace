@@ -1,0 +1,78 @@
+APP STORE CONNECT — paste-ready listing
+=======================================
+Every field is within Apple's limit. Character counts noted.
+
+APP NAME (30 max)
+Trace: Draw With Your Person
+
+SUBTITLE (30 max)
+Leave me a trace.
+
+PROMOTIONAL TEXT (170 max — editable anytime without review)
+Whatever you draw appears on their phone, stroke by stroke. Put it on their
+home screen and be there all day.
+
+DESCRIPTION (4000 max)
+Trace is a drawing app for two.
+
+Whatever one of you draws appears on the other's phone in real time — stroke
+by stroke, as your finger moves. No sending. No waiting. You just draw, and
+it's already there.
+
+And then it stays. The Trace widget puts your latest drawing on their home
+screen, so they see you every time they pick up their phone.
+
+FIVE THINGS, POLISHED
+
+• Draw together, live
+  One shared canvas. Both of you can draw on it at once, and you'll see
+  "…is drawing" the moment they start.
+
+• Your page and their page
+  Want your own space? You get a page only you draw on — they watch it fill
+  in — and they get one too. Plus a common canvas for when you want to play
+  on the same page.
+
+• Send a heartbeat
+  One tap sends a heart blooming across both screens. Press at the same
+  moment and the whole canvas erupts.
+
+• Draw on your photos
+  Circle their face. Add a note to a photo from that night. Draw on the
+  moments you already have.
+
+• Replay your story
+  Every stroke you've ever drawn is kept in order. Scrub back through months
+  of little drawings and watch them appear again.
+
+• Time capsules
+  Seal a drawing until a date — a week, a year, five years. Neither of you
+  can see it until then. Not even you.
+
+A CANVAS THAT GETS OUT OF THE WAY
+Pick from 61 skies — dusk, sunset, candlelight, ocean, snow — and dial the
+strength until it's exactly as loud as you want behind your ink. The canvas
+stays flat and clean, so the only marks on it are yours.
+
+PRIVACY IS THE PRODUCT
+Your drawings are between the two of you. No feed, no followers, no
+strangers, no ads. Delete your account and it's all gone — completely.
+
+TRACE FOREVER
+Free forever: the shared canvas, both personal pages, the widget, a photo a
+day, and heartbeats. One optional purchase of $29.99 unlocks every sky, every
+brush, unlimited photos and capsules, and full replay — for BOTH of you.
+One payment. No subscription. Ever.
+
+KEYWORDS (100 max, comma-separated, no spaces)
+couple,draw,drawing,widget,love,partner,relationship,canvas,doodle,together,
+long distance,shared,paint,sketch
+
+SUPPORT URL
+https://kidusdaniel576.github.io/trace/
+
+PRIVACY POLICY URL
+https://kidusdaniel576.github.io/trace/privacy.html
+
+WHAT'S NEW (version 1.0.0)
+The first one. Draw on a canvas your person is holding.

@@ -25,6 +25,11 @@ const PERKS = [
   ['💞', 'Unlocks for both', 'One buys it — you both get it, forever'],
 ] as const;
 
+// How long to wait for the RevenueCat webhook to flip couples.premium before
+// telling the buyer what's happening. Generous: the store confirms in seconds,
+// but a cold edge function plus a retry can legitimately take ~30s.
+const UNLOCK_TIMEOUT_MS = 90_000;
+
 /** Trace Forever: one purchase, both partners unlocked — forever. */
 export default function Paywall() {
   const { colors } = useTheme();
@@ -58,9 +63,19 @@ export default function Paywall() {
   if (!session) return <Redirect href="/sign-in" />;
 
   function pollForUnlock() {
-    // the webhook usually lands within seconds of the store confirming
+    // the webhook usually lands within seconds of the store confirming — but
+    // if it never does, say so instead of spinning forever behind a paid button
     if (pollRef.current) clearInterval(pollRef.current);
-    pollRef.current = setInterval(() => refresh(), 2000);
+    let waited = 0;
+    pollRef.current = setInterval(() => {
+      waited += 2000;
+      if (waited >= UNLOCK_TIMEOUT_MS) {
+        if (pollRef.current) clearInterval(pollRef.current);
+        toast.show('Payment received — unlocking can take a minute. Reopen the app if it lingers.');
+        return;
+      }
+      refresh();
+    }, 2000);
   }
 
   async function onBuy() {

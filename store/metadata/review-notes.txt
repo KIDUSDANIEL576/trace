@@ -1,0 +1,41 @@
+APP REVIEW NOTES — paste into "Notes for Review" / Play "Instructions"
+=====================================================================
+
+SIGN IN (no email needed)
+  Email:    review@trace.demo
+  Password: trace-review-2026!
+
+Normal sign-in uses a 6-digit code emailed to the user. Reviewers can't
+receive that email, so this one address takes a password path instead. Type
+the email on the sign-in screen and the password field will appear.
+
+YOU DO NOT NEED A SECOND DEVICE.
+This demo account is already paired with a partner ("Sam") and has drawings
+on the canvas, so every feature is reachable from one phone.
+
+THIS ACCOUNT IS PREMIUM, so all paid features (every sky, every brush,
+unlimited capsules, full replay) are reviewable without making a purchase.
+To review the purchase flow itself, sign up with any email — the free tier
+shows the paywall on locked features.
+
+WHAT TO TRY
+• The canvas opens straight away — draw anywhere with your finger.
+• The bottom bar: brushes, ink colors, ❤ heartbeat, undo, and "⋯" which
+  opens sky, photo, replay, capsule, share, and clear.
+• The tabs above the canvas: "us" (shared), "my page" (yours), and your
+  partner's page (view-only).
+• A time capsule is pre-sealed and ready — the gold pill above the canvas
+  opens it.
+
+ACCOUNT DELETION (guideline 5.1.1(v))
+Long-press the "trace" wordmark at the top-left → Settings → "Delete
+account" → confirm twice. It is also reachable from the pairing screen for
+users who never paired. Deletion removes the account, its drawings, and its
+uploaded photos from our servers.
+
+IN-APP PURCHASE
+"Trace Forever", $29.99, non-consumable, unlocks for both partners in a
+couple (one buys, both receive it) via a server-side entitlement.
+
+CONTACT
+https://github.com/KIDUSDANIEL576/trace/issues
