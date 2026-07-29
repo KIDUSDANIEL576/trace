@@ -140,6 +140,30 @@ the prompt — if push still doesn't arrive on iOS, run
 
 ---
 
+## 5b · Redeploy the snapshot renderer before you judge the widget
+
+The widget shows a PNG rendered server-side by the `render-snapshot` edge
+function. The copy currently deployed on the shared project is older than this
+repo: it paints Dusk's gradient on **every** canvas, so a couple using Sunset
+or Midnight would see the right drawing on the wrong sky.
+
+`supabase/functions/render-snapshot/index.ts` is fixed and tested here — it now
+renders the couple's chosen sky at their chosen strength. Deploy it before you
+evaluate the widget:
+
+```bash
+supabase link --project-ref hnjjxvhutpgcdwyzmito
+supabase functions deploy render-snapshot
+```
+
+On the shared project the live function is named `trace-render-snapshot` and
+uses `trace_`-prefixed tables, so either deploy under that name with the
+prefixes applied, or — better — do the move in
+[SUPABASE_MIGRATION.md](SUPABASE_MIGRATION.md) first, after which this file
+deploys as-is with no edits. (I didn't push this from the container on purpose:
+the sky table is 11k characters, and a single mistyped colour would be a wrong
+sky that no test could see.)
+
 ## 6 · What to re-test once you're on a dev build
 
 These are the checks that were impossible in Expo Go — from `TESTING.md`:
@@ -150,7 +174,8 @@ These are the checks that were impossible in Expo Go — from `TESTING.md`:
   big picture on Android, and tapping it opens straight to their page.
 - **§3** — camera capture for photo canvases.
 - **§4** — add the widget, draw, watch your own widget update within ~10s; then
-  **tap the widget** and confirm it opens on your partner's page.
+  **tap the widget** and confirm the drawing opens full screen. Check the
+  widget's background matches the sky you chose in the app (needs §5b).
 - **§5** — purchases (needs `REVENUECAT.md` done first).
 
 ---

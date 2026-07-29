@@ -120,6 +120,10 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       again (today the live prefixed objects exist only in the dashboard).
 - [ ] **Retention truth**: streak + daily prompts + heartbeat pushes are the loop —
       they only function with dev builds + `eas init` done (Tier 2).
+- [ ] **Redeploy `render-snapshot`** — the repo version now paints the couple's
+      chosen sky (the deployed copy paints Dusk on everything). One command,
+      **[BUILD.md](BUILD.md) §5b**, and it happens for free if you do the
+      dedicated-project move.
 - [ ] **Instant partner-widget refresh** (silent push → widget reload) — the one Phase 3
       refinement deliberately deferred; do it when widgets prove they're loved.
 - [ ] **Beta circle**: 5–10 couples via TestFlight/Play Internal, one shared group chat
