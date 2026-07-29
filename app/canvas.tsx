@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Canvas, useCanvasRef } from '@shopify/react-native-skia';
+import * as Notifications from 'expo-notifications';
 import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
@@ -13,6 +14,7 @@ import { HeartBloom } from '@/components/HeartBloom';
 import { MoreSheet, type MoreAction } from '@/components/MoreSheet';
 import { PresencePill } from '@/components/PresencePill';
 import { SettingsSheet } from '@/components/SettingsSheet';
+import { TraceReveal } from '@/components/TraceReveal';
 import { useToast } from '@/components/Toast';
 import { Loading, Wordmark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -284,15 +286,36 @@ function SharedCanvas({
     if (latest) AsyncStorage.setItem(`trace.seen.${partnerPage.id}`, String(latest.id));
   }
 
-  // notification tap lands here with ?open=partner → jump to their page
+  // A widget tap or a push lands here with ?open=partner. Their drawing should
+  // ARRIVE, not just be somewhere you navigated to — so we open their page and
+  // arm the full-screen reveal, which fires once the strokes have hydrated.
   const params = useLocalSearchParams<{ open?: string }>();
   const openedFromPushRef = useRef(false);
+  const [revealArmed, setRevealArmed] = useState(false);
+  const [revealOpen, setRevealOpen] = useState(false);
   useEffect(() => {
     if (params.open === 'partner' && partnerPage && !openedFromPushRef.current) {
       openedFromPushRef.current = true;
+      setRevealArmed(true);
       openPartnerPage();
     }
   }, [params.open, partnerPage?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // fire the reveal only once their ink is actually on screen — an empty
+  // full-screen board would be a worse moment than no moment at all
+  useEffect(() => {
+    if (!revealArmed) return;
+    if (!viewingPartnerPage || strokes.length === 0) return;
+    setRevealArmed(false);
+    setRevealOpen(true);
+  }, [revealArmed, viewingPartnerPage, strokes.length]);
+
+  // if their page turns out to be empty, don't sit armed forever
+  useEffect(() => {
+    if (!revealArmed) return;
+    const t = setTimeout(() => setRevealArmed(false), 6000);
+    return () => clearTimeout(t);
+  }, [revealArmed]);
 
   const readyCapsule = capsules.find((c) => isOpen(c) && !c.openedAt) ?? null;
   const nextSealed = capsules.find((c) => !isOpen(c)) ?? null;
@@ -347,8 +370,24 @@ function SharedCanvas({
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') refreshWidget(coupleId);
     });
-    return () => sub.remove();
+    // their "left you a trace" push is the earliest signal that the snapshot
+    // changed — reload the widget off the notification itself rather than
+    // waiting for the next app open or the 15-30 min poll
+    const push = Notifications.addNotificationReceivedListener(() => {
+      refreshWidget(coupleId);
+    });
+    return () => {
+      sub.remove();
+      push.remove();
+    };
   }, [coupleId]);
+
+  // her strokes landing on a canvas I'm watching also mean a new snapshot
+  useEffect(() => {
+    if (!strokes.length) return;
+    const t = setTimeout(() => refreshWidget(coupleId), 5000);
+    return () => clearTimeout(t);
+  }, [strokes.length, coupleId]);
 
   // adopt the stored background whenever the active canvas changes / reloads
   useEffect(() => {
@@ -871,6 +910,23 @@ function SharedCanvas({
           />
         )}
       </View>
+
+      <TraceReveal
+        visible={revealOpen}
+        authorName={partnerName ?? 'Your person'}
+        strokes={strokes}
+        bgKey={bg.key}
+        bgPhotoUrl={bgPhotoUrl}
+        bgOpacity={bg.opacity}
+        photoUrl={photoUrl}
+        seedId={activeCanvasId}
+        onDraw={() => {
+          setRevealOpen(false);
+          // their page is theirs to draw on — drawing back happens on "us",
+          // which is also what lands on their widget next
+          setActiveCanvasId(sharedCanvasId);
+        }}
+      />
 
       <MoreSheet visible={moreOpen} actions={moreActions} onClose={() => setMoreOpen(false)} />
 

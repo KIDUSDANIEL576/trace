@@ -101,11 +101,20 @@ service allows ~2 OTP emails/hour until custom SMTP is set.
 
 - [ ] Add the Trace widget (small/medium/large) → shows the latest canvas PNG
 - [ ] Draw → your own widget updates within ~10s (app-triggered reload)
-- [ ] Partner's widget updates on their next app-open or poll (15–30 min)
+- [ ] Partner draws → **your** widget updates within ~10s while your app is
+      open or backgrounded (it reloads off the incoming push); if your app has
+      been closed for a while, it catches up on next open or the 15–30 min poll
+- [ ] Notification tap gives the same full-screen reveal as the widget tap
 - [ ] iOS lock-screen rectangular widget renders
-- [ ] **Tapping the widget** (home-screen, either OS) opens the app directly
-      on your partner's page (`trace://canvas?open=partner`), not just the
-      last screen
+- [ ] **Tapping the widget** (home-screen, either OS) opens the app and their
+      drawing **arrives full-screen** — big, no toolbars, "<name> left you a
+      trace" above it and "Draw back ❤" below
+- [ ] Tapping anywhere on that reveal (or the button) drops you onto the
+      shared "us" canvas, ready to draw — one tap from seeing to drawing
+- [ ] If their page happens to be empty, no reveal appears and you just land
+      on the canvas (no empty full-screen board)
+- [ ] Android: the widget's default size is medium (4×2) and can still be
+      resized; iOS offers small/medium/large when you add it
 - [ ] Invisible-ink strokes NEVER appear on any widget
 
 ## 5 · Trace Forever (needs store sandbox + RevenueCat keys + webhook secret)
