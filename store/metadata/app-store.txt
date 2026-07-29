@@ -20,7 +20,9 @@ by stroke, as your finger moves. No sending. No waiting. You just draw, and
 it's already there.
 
 And then it stays. The Trace widget puts your latest drawing on their home
-screen, so they see you every time they pick up their phone.
+screen, so they see you every time they pick up their phone. Tap the widget
+and their drawing opens full screen — then one more tap and you're drawing
+back on it.
 
 FIVE THINGS, POLISHED
 
