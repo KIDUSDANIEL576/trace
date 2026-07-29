@@ -89,6 +89,34 @@ for (const theme of THEME_ORDER) {
     assert.ok(worst >= AA, `${theme}: Android glass text is only ${worst.toFixed(2)}:1`);
   });
 
+  test(`${theme}: accent text on glass clears AA`, () => {
+    // The selected tab and the heart button stack ink over glass, and the
+    // capsule pill uses gold. These are the colours a hardcoded pink used to
+    // break on Daylight (light pink on light frost), so they get pinned.
+    const p = PALETTES[theme];
+    let worst = { ratio: Infinity, what: '' };
+    for (const ground of skyGrounds(theme)) {
+      for (const tint of [p.glass.tint, p.glass.tintAndroid]) {
+        const glass = composite(ground, tint);
+        const onInk = composite(glass, p.inkSoft); // the selected tab's fill
+        const checks: [string, string, RGB][] = [
+          // the selected tab keeps full-strength text on its ink wash: colour
+          // alone must never be what tells you which tab is selected
+          ['selected tab text', p.onOverlay, onInk],
+          ['onOverlay', p.onOverlay, glass],
+        ];
+        for (const [what, fg, bg] of checks) {
+          const r = contrast(fg, bg);
+          if (r < worst.ratio) worst = { ratio: r, what };
+        }
+      }
+    }
+    assert.ok(
+      worst.ratio >= AA,
+      `${theme}: ${worst.what} is only ${worst.ratio.toFixed(2)}:1 on glass`
+    );
+  });
+
   test(`${theme}: sheet text clears AA on the strong tint`, () => {
     const p = PALETTES[theme];
     let worst = Infinity;
@@ -102,3 +130,23 @@ for (const theme of THEME_ORDER) {
     assert.ok(worst >= AA, `${theme}: sheet text is only ${worst.toFixed(2)}:1`);
   });
 }
+
+test('gold badges are filled, and their text clears AA on the fill', () => {
+  // The streak badge and the "capsule is ready" pill are solid gold with dark
+  // text. Gold AS TEXT over glass bottomed out at 1.86:1 on Daylight.
+  for (const theme of THEME_ORDER) {
+    const p = PALETTES[theme];
+    const r = contrast(p.onGold, parse(p.gold).rgb);
+    assert.ok(r >= AA, `${theme}: onGold on gold is only ${r.toFixed(2)}:1`);
+  }
+});
+
+test('the heart button clears non-text contrast (WCAG 1.4.11)', () => {
+  // A white heart on solid ink, rather than an ink glyph on an ink wash —
+  // the wash version sat near 1.3:1 over a bright sky.
+  for (const theme of THEME_ORDER) {
+    const ink = PALETTES[theme].ink;
+    const r = contrast('#ffffff', parse(ink).rgb);
+    assert.ok(r >= 3, `${theme}: white on ${ink} is only ${r.toFixed(2)}:1`);
+  }
+});

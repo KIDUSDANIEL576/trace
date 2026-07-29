@@ -830,7 +830,12 @@ function SharedCanvas({
             accessibilityLabel="A time capsule is ready — open it"
             style={({ pressed }) => [styles.floatPill, pressed && { opacity: 0.85 }]}
           >
-            <Glass radius={radius.pill} glow style={styles.capsuleReady} contentStyle={styles.floatPillPad}>
+            <Glass
+              radius={radius.pill}
+              glow
+              style={styles.capsuleReady}
+              contentStyle={[styles.floatPillPad, styles.capsuleReadyFill]}
+            >
               <Text style={styles.capsuleReadyText}>🎁 a time capsule is ready — tap to open</Text>
             </Glass>
           </Pressable>
@@ -1017,11 +1022,11 @@ const makeStyles = (colors: Palette) =>
     },
     brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     streak: {
-      color: colors.goldText,
+      color: colors.onGold,
       fontSize: 13,
       fontWeight: '700',
       overflow: 'hidden',
-      backgroundColor: 'rgba(244,198,107,0.14)',
+      backgroundColor: colors.gold,
       borderRadius: radius.pill,
       paddingHorizontal: 9,
       paddingVertical: 3,
@@ -1051,7 +1056,7 @@ const makeStyles = (colors: Palette) =>
     },
     tabPressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
     tabText: { color: colors.onOverlay, fontSize: 13.5, fontWeight: '500' },
-    tabTextOn: { color: '#ffb9c2' },
+    tabTextOn: { color: colors.onOverlay, fontWeight: '700' },
     newDot: {
       position: 'absolute',
       top: 3,
@@ -1064,7 +1069,7 @@ const makeStyles = (colors: Palette) =>
     floatPill: { alignSelf: 'center', marginTop: 7 },
     floatPillPad: { paddingVertical: 6, paddingHorizontal: 15 },
     floatPillText: { color: colors.onOverlay, fontSize: 12 },
-    connText: { color: '#ffb9c2', fontSize: 12, fontWeight: '500' },
+    connText: { color: colors.inkText, fontSize: 12, fontWeight: '500' },
     capsuleReady: {
       shadowColor: colors.gold,
       shadowOpacity: 0.55,
@@ -1072,7 +1077,8 @@ const makeStyles = (colors: Palette) =>
       shadowOffset: { width: 0, height: 3 },
       elevation: 9,
     },
-    capsuleReadyText: { color: colors.gold, fontSize: 12.5, fontWeight: '600' },
+    capsuleReadyFill: { backgroundColor: colors.gold },
+    capsuleReadyText: { color: colors.onGold, fontSize: 12.5, fontWeight: '700' },
     stage: { flex: 1, justifyContent: 'center', marginVertical: 8 },
     pageCaptionWrap: { paddingVertical: 13, paddingHorizontal: 19 },
     pageCaption: { color: colors.onOverlay, fontSize: 13.5, textAlign: 'center' },

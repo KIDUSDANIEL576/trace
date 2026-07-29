@@ -26,6 +26,9 @@ export interface Palette {
   // bright tokens fail as text but must stay bright as fills — dual-use split).
   inkText: string;
   goldText: string;
+  /** Text drawn ON a solid gold fill — gold is a fill colour, never a text
+   * colour over glass, where it never cleared AA on a bright sky. */
+  onGold: string;
   linkText: string;
   overlay: string; // translucent chip/pill over the canvas
   onOverlay: string; // text on that overlay
@@ -74,6 +77,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     gold: '#f4c66b',
     inkText: '#e23343',
     goldText: '#f4c66b',
+    onGold: '#2b2029',
     linkText: '#ff7a9c',
     overlay: 'rgba(10,9,13,0.62)',
     onOverlay: '#ffffff',
@@ -112,6 +116,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     gold: '#f3c98a',
     inkText: '#ef5a63',
     goldText: '#f3c98a',
+    onGold: '#2b2029',
     linkText: '#ff9ea9',
     overlay: 'rgba(24,14,18,0.58)',
     onOverlay: '#ffffff',
@@ -153,6 +158,7 @@ export const PALETTES: Record<ThemeName, Palette> = {
     // darker than the bright fills above so accent TEXT clears AA on cream
     inkText: '#d81b60',
     goldText: '#8f5e00',
+    onGold: '#2b2029',
     linkText: '#c2185b',
     overlay: 'rgba(255,255,255,0.80)',
     onOverlay: '#2b2029',

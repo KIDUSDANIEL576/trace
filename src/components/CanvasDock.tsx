@@ -190,7 +190,7 @@ const makeStyles = (colors: Palette) =>
       backgroundColor: colors.glass.wellIdle,
     },
     heart: {
-      backgroundColor: colors.inkSoft,
+      backgroundColor: colors.ink,
       borderWidth: 1,
       borderColor: colors.ink,
       shadowColor: colors.ink,
@@ -199,7 +199,7 @@ const makeStyles = (colors: Palette) =>
       shadowOffset: { width: 0, height: 0 },
       elevation: 5,
     },
-    heartText: { color: colors.ink, fontSize: 19, fontWeight: '700' },
+    heartText: { color: '#ffffff', fontSize: 19, fontWeight: '700' },
     actionText: { color: colors.onOverlay, fontSize: 20, fontWeight: '600' },
     off: { opacity: 0.35 },
     pressed: { transform: [{ scale: 0.92 }], opacity: 0.85 },

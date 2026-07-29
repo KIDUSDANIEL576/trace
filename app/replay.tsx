@@ -244,5 +244,5 @@ const makeStyles = (colors: Palette) =>
     paddingHorizontal: 14,
     marginBottom: 10,
   },
-  upsellText: { color: '#ffb9c2', fontSize: 12.5, fontWeight: '500' },
+  upsellText: { color: colors.linkText, fontSize: 12.5, fontWeight: '500' },
 });
