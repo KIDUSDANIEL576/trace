@@ -290,16 +290,21 @@ function SharedCanvas({
   // A widget tap or a push lands here with ?open=partner. Their drawing should
   // ARRIVE, not just be somewhere you navigated to — so we open their page and
   // arm the full-screen reveal, which fires once the strokes have hydrated.
+  //
+  // The param is CONSUMED once handled (setParams), which is what makes a
+  // second widget tap work. A ref would latch for the life of the screen: tap
+  // the widget, background the app, tap it again, and the reveal would never
+  // come back — the canvas screen is still mounted, so nothing re-runs. And
+  // simply re-arming on resume would be worse, replaying the reveal every time
+  // the app is reopened from the icon with a stale ?open=partner in the URL.
   const params = useLocalSearchParams<{ open?: string }>();
-  const openedFromPushRef = useRef(false);
   const [revealArmed, setRevealArmed] = useState(false);
   const [revealOpen, setRevealOpen] = useState(false);
   useEffect(() => {
-    if (params.open === 'partner' && partnerPage && !openedFromPushRef.current) {
-      openedFromPushRef.current = true;
-      setRevealArmed(true);
-      openPartnerPage();
-    }
+    if (params.open !== 'partner' || !partnerPage) return;
+    router.setParams({ open: '' });
+    setRevealArmed(true);
+    openPartnerPage();
   }, [params.open, partnerPage?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // fire the reveal only once their ink is actually on screen — an empty
