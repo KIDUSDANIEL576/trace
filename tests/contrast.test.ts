@@ -150,3 +150,17 @@ test('the heart button clears non-text contrast (WCAG 1.4.11)', () => {
     assert.ok(r >= 3, `${theme}: white on ${ink} is only ${r.toFixed(2)}:1`);
   }
 });
+
+test('sky-tile labels clear AA on the brightest sky in the picker', () => {
+  // The picker draws a white label on a scrim over the tile's own gradient.
+  // The palest sky (#effcf5) is the adversary here.
+  const SCRIM = 0.56; // BackgroundSheet.tileLabelWrap
+  let worst = Infinity;
+  for (const b of BACKGROUNDS) {
+    for (const stop of b.colors) {
+      const scrimmed = parse(stop).rgb.map((v) => v * (1 - SCRIM)) as RGB;
+      worst = Math.min(worst, contrast('#ffffff', scrimmed));
+    }
+  }
+  assert.ok(worst >= AA, `sky-tile labels are only ${worst.toFixed(2)}:1`);
+});

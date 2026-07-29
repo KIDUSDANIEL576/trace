@@ -329,7 +329,9 @@ const makeStyles = (colors: Palette) =>
       justifyContent: 'flex-end',
     },
     tileOn: { borderColor: colors.ink },
-    tileLabelWrap: { backgroundColor: 'rgba(0,0,0,0.42)', paddingVertical: 4 },
+    // Solved, not eyeballed: the brightest sky stop (#effcf5) left white
+    // labels at 3.18:1 under the old 0.42 scrim. 0.56 clears AA on every sky.
+    tileLabelWrap: { backgroundColor: 'rgba(0,0,0,0.56)', paddingVertical: 4 },
     tileLabel: { color: '#fff', fontSize: 11.5, fontWeight: '600', textAlign: 'center' },
     tileCheck: {
       position: 'absolute',
@@ -338,6 +340,10 @@ const makeStyles = (colors: Palette) =>
       color: '#fff',
       fontSize: 15,
       fontWeight: '800',
+      // no scrim behind this one, so it carries its own contrast
+      textShadowColor: 'rgba(0,0,0,0.85)',
+      textShadowRadius: 4,
+      textShadowOffset: { width: 0, height: 1 },
     },
     tileLockScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(8,7,11,0.45)' },
     tileLock: { position: 'absolute', top: 5, right: 6, fontSize: 13 },
