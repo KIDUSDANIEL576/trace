@@ -111,10 +111,12 @@ Two genuine gaps:
   to get their data in a machine-readable form. Deletion is implemented,
   export isn't. Not an App Store blocker; becomes real if you market into the
   EU. A "download my drawings as JSON" endpoint would close it.
-- **Age.** COPPA (US) and GDPR-K (EU) impose serious extra duties for under-13
-  (or under-16 in parts of the EU) users. Your terms should state the app is
-  for adults, your store rating should not target children, and you should not
-  market to teenagers. Worth one explicit line in the terms if it isn't there.
+- ~~**Age.**~~ **Checked — already covered.** `docs/terms.html` §2 says users
+  "must be old enough to form a binding agreement where you live (at least 13,
+  and the age of digital consent in your country)". That's the standard
+  formulation: it keeps you outside COPPA's under-13 scope and defers to each
+  country's GDPR-K age rather than guessing one. Nothing to change. Just don't
+  market to teenagers, and keep the store rating away from a kids category.
 
 Also: your privacy policy, your store privacy labels and what the code
 actually does must agree. Mismatches between them are a common enforcement
@@ -190,7 +192,9 @@ name in your store listing.
 ## The list, if you only do four things
 
 1. **Change the name** — or at least run the USPTO search before you commit to
-   it. This is the one with a verified conflict.
+   it. This is the one with a verified conflict. **[NAME.md](NAME.md)** has the
+   four-search checklist and the exact rename inventory (it's ~20 minutes now,
+   and expensive after launch).
 2. **Form the entity** before you take a single dollar.
 3. **Keep the git history intact** as your independent-creation record.
 4. **Have a lawyer read `docs/terms.html` and `docs/privacy.html` once** before

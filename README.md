@@ -45,7 +45,8 @@ See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 [REVENUECAT.md](./REVENUECAT.md) (selling Trace Forever) ·
 [STORE.md](./STORE.md) (App Store + Play listings) ·
 [LEGAL.md](./LEGAL.md) (name conflict, patents, liability — read §1 before you
-commit to the name).
+commit to the name) · [NAME.md](./NAME.md) (how to check a name, and how to
+rename cheaply).
 
 ## Stack
 

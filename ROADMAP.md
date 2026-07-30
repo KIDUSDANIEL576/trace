@@ -84,7 +84,8 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       has **"Trace | Leave A Trace"** (a social app whose subtitle is basically
       your tagline), plus Trace habit/calendar/game apps and Morpholio Trace
       (drawing). Renaming is free today and expensive after launch.
-      **Full analysis and what to do: [LEGAL.md](LEGAL.md) §1.**
+      **Full analysis: [LEGAL.md](LEGAL.md) §1. Checklist + rename
+      inventory: [NAME.md](NAME.md).**
 - [ ] **Form a company before taking money** — the cheapest real protection you
       can buy ([LEGAL.md](LEGAL.md) §4).
 - [x] **`expo-updates` (OTA)** — DONE (code side): package installed, app.json
