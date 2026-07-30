@@ -65,7 +65,6 @@ export interface GlassPalette {
   tintStrongAndroid: string;
   border: string; // hairline rim
   edge: string; // the lit top edge — brighter than the rim
-  glowInk: string; // love: a soft ink-tinted bloom under active surfaces
   shadow: string; // the drop shadow that lifts glass off the canvas
   wellIdle: string; // an unselected control sunk into the glass
 }
@@ -107,7 +106,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
       tintStrongAndroid: 'rgba(17,16,22,0.94)',
       border: 'rgba(255,255,255,0.14)',
       edge: 'rgba(255,255,255,0.34)',
-      glowInk: 'rgba(255,122,156,0.20)',
       shadow: '#000000',
       wellIdle: 'rgba(255,255,255,0.07)',
     },
@@ -148,7 +146,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
       tintStrongAndroid: 'rgba(28,19,24,0.94)',
       border: 'rgba(255,238,232,0.16)',
       edge: 'rgba(255,226,214,0.38)',
-      glowInk: 'rgba(255,158,169,0.22)',
       shadow: '#120a0e',
       wellIdle: 'rgba(255,240,235,0.08)',
     },
@@ -192,7 +189,6 @@ export const PALETTES: Record<ThemeName, Palette> = {
       tintStrongAndroid: 'rgba(255,253,250,0.96)',
       border: 'rgba(43,32,41,0.12)',
       edge: 'rgba(255,255,255,0.9)',
-      glowInk: 'rgba(255,143,171,0.24)',
       shadow: '#6b4a52',
       wellIdle: 'rgba(43,32,41,0.06)',
     },

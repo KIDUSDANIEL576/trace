@@ -19,7 +19,6 @@ test('every theme defines a complete glass palette', () => {
       'tintStrongAndroid',
       'border',
       'edge',
-      'glowInk',
       'shadow',
       'wellIdle',
     ] as const) {

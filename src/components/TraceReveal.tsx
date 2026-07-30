@@ -83,8 +83,6 @@ export function TraceReveal({
         <Text style={styles.from}>{authorName} left you a trace</Text>
 
         <Animated.View style={[styles.boardWrap, { opacity, transform: [{ scale }] }]}>
-          {/* the drawing arrives lit — a warm bloom behind the glass */}
-          <View pointerEvents="none" style={styles.bloom} />
           <View
             style={styles.board}
             onLayout={(e) =>
@@ -146,15 +144,9 @@ const makeStyles = (colors: Palette) =>
       textAlign: 'center',
     },
     boardWrap: { width: '100%', alignItems: 'center' },
-    bloom: {
-      position: 'absolute',
-      top: -18,
-      left: -18,
-      right: -18,
-      bottom: -18,
-      borderRadius: radius.card + 18,
-      backgroundColor: colors.glass.glowInk,
-    },
+    // The drawing arrives lit. This was a translucent rect behind the board
+    // and it showed its own hard edges — React Native can't blur a View, so a
+    // bloom has to be a coloured SHADOW (same fix as Glass.tsx).
     board: {
       width: '100%',
       aspectRatio: 1 / 1.1,
@@ -162,11 +154,11 @@ const makeStyles = (colors: Palette) =>
       overflow: 'hidden',
       borderWidth: StyleSheet.hairlineWidth * 1.5,
       borderColor: colors.glass.edge,
-      shadowColor: colors.glass.shadow,
-      shadowOpacity: 0.55,
-      shadowRadius: 30,
-      shadowOffset: { width: 0, height: 14 },
-      elevation: 16,
+      shadowColor: colors.ink,
+      shadowOpacity: 0.4,
+      shadowRadius: 26,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 14,
     },
     cta: {
       shadowColor: colors.ink,
