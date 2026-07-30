@@ -80,9 +80,13 @@ Order matters — do tiers in sequence. Items marked 🔴 block everything after
       how the app actually works (one-time purchase, your-content-is-yours, deletion,
       as-is). Linked from the landing footer + privacy page. It's a solid template —
       have a lawyer glance at §5/§7 before you take real money, but it's launch-ready.
-- [ ] **Name check**: search both stores for "Trace" collisions *before* you love the
-      name more than you already do; grab a domain (gettrace.app style) for the
-      support/privacy URLs.
+- [ ] 🔴 **Name check — DONE, and it found a conflict.** The App Store already
+      has **"Trace | Leave A Trace"** (a social app whose subtitle is basically
+      your tagline), plus Trace habit/calendar/game apps and Morpholio Trace
+      (drawing). Renaming is free today and expensive after launch.
+      **Full analysis and what to do: [LEGAL.md](LEGAL.md) §1.**
+- [ ] **Form a company before taking money** — the cheapest real protection you
+      can buy ([LEGAL.md](LEGAL.md) §4).
 - [x] **`expo-updates` (OTA)** — DONE (code side): package installed, app.json
       `runtimeVersion`/`updates` configured, eas.json has a `channel` per build
       profile. **Yours to finish:** run `eas init` then `eas update:configure`

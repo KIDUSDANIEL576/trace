@@ -43,7 +43,9 @@ See [ROADMAP.md](./ROADMAP.md) for what's done vs. what needs your accounts.
 **Getting it live:** [BUILD.md](./BUILD.md) (dev builds, push, widgets) ·
 [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md) (your own backend) ·
 [REVENUECAT.md](./REVENUECAT.md) (selling Trace Forever) ·
-[STORE.md](./STORE.md) (App Store + Play listings).
+[STORE.md](./STORE.md) (App Store + Play listings) ·
+[LEGAL.md](./LEGAL.md) (name conflict, patents, liability — read §1 before you
+commit to the name).
 
 ## Stack
 
