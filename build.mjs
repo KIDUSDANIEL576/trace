@@ -21,6 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SPRITE, EMOJI_ICONS } from './src/icons.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const at = (p) => (isAbsolute(p) ? p : join(ROOT, p));
@@ -144,6 +145,50 @@ frames = frames.replace(/<div style="([^"]*)"/g, (m, style) => {
   glassCount++;
   return `<div class="ts-glass" style="${style}"`;
 });
+
+/* ----------------------------------------------------- emoji → icons */
+// Every emoji becomes a monoline stroke icon (SF Symbols / Lucide language —
+// what real apps in this genre ship). currentColor, sized by font-size.
+
+let iconSwaps = 0;
+for (const [emoji, id] of EMOJI_ICONS) {
+  const before = frames.length;
+  frames = frames.split(emoji).join(`<svg class="ts-i"><use href="#i-${id}"/></svg>`);
+  if (frames.length !== before) iconSwaps++;
+}
+// anything pictographic left is unmapped — surface it, don't ship it silently
+const leftover = [...new Set(frames.match(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu) || [])]
+  .filter((c) => !'✕✓⋯▮→↑↓️🥰'.includes(c));
+if (leftover.length) notes.push('unmapped emoji still present: ' + leftover.join(' '));
+
+/* ----------------------------------------------- button modernization */
+// One primary CTA language across every turn (the old turns shipped three
+// flat variants): pill radius, tactile top highlight, single brand red.
+// Targeted rewrites of the exact recurring style strings — layout untouched.
+
+const BTN = [
+  // old-turn primary CTAs (54px, three different flat reds)
+  [/min-height:54px;border-radius:16px;background:#db3141;box-shadow:0 6px 14px rgba\(226,51,67,\.35\)/g,
+   'min-height:54px;border-radius:27px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32)'],
+  [/min-height:54px;border-radius:16px;background:#c64b52;box-shadow:0 6px 14px rgba\(239,90,99,\.35\)/g,
+   'min-height:54px;border-radius:27px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32)'],
+  // new-turn primary CTAs (48px flat) — same language, same tokens
+  [/height:48px;border-radius:15px;background:#e23343;/g,
+   'height:48px;border-radius:24px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);'],
+  // small pill CTA (4e "reply in ink") — align its red with the token
+  [/border-radius:99px;background:#cf3e58;/g,
+   'border-radius:99px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);'],
+  // ghost secondaries ("save it for later", "let go") — pill, crisper border
+  [/min-height:54px;border-radius:16px;background:rgba\(255,255,255,\.07\);border:1px solid rgba\(255,255,255,\.14\)/g,
+   'min-height:54px;border-radius:27px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.22)'],
+];
+let btnUpgrades = 0;
+for (const [re, to] of BTN) {
+  const n = (frames.match(re) || []).length;
+  if (!n) { notes.push('button pattern not found: ' + re.source.slice(0, 48) + '…'); continue; }
+  frames = frames.replace(re, to);
+  btnUpgrades += n;
+}
 
 /* ------------------------------- artwork classification + export sizing */
 
@@ -330,7 +375,7 @@ const html = read('src/shell.html')
     `<style id="ts-css" class="ts-style">\n${read('src/trace.css')}\n</style>`)
   .replace('<!--SCRIPT-->', () => `<script>\n${read('src/trace.js')}\n</script>`)
   .replace('<!--CHIPS-->', () => chips)
-  .replace('<!--FRAMES-->', () => frames);
+  .replace('<!--FRAMES-->', () => SPRITE + '\n' + frames);
 
 mkdirSync(at(OUT), { recursive: true });
 writeFileSync(join(at(OUT), 'index.html'), html);
@@ -349,6 +394,8 @@ console.log(`formats           ${present.join(', ')}`);
 console.log(`glass restored    ${glassCount}`);
 console.log(`keyframes         ${keyframes.length} (${keyframes.join(' ')})`);
 console.log(`hover fixes       ${hoverFixes}`);
+console.log(`icons             ${iconSwaps} glyphs swapped to stroke icons`);
+console.log(`buttons           ${btnUpgrades} CTAs unified`);
 
 if (prev) {
   const was = new Map(prev.frames.map((f) => [f.id, f]));

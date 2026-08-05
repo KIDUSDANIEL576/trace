@@ -160,6 +160,13 @@
     const clone = art.cloneNode(true);
     clone.classList.add('ts-export');
 
+    // <use href="#i-*"> must resolve inside the detached export document —
+    // embed the icon sprite in the clone itself
+    const sprite = document.getElementById('ts-icons');
+    if (sprite && clone.querySelector('use')) {
+      clone.insertAdjacentHTML('afterbegin', sprite.outerHTML);
+    }
+
     const markup = new XMLSerializer().serializeToString(clone);
     const svg =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(w * scale)}" ` +

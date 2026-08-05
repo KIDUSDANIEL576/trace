@@ -45,6 +45,35 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
 }
 
+/* Monoline icons (replacing emoji). Sized by the font-size that sized the
+   emoji they replaced; colored by the surrounding text color. The emoji they
+   replace carried intrinsic color and mostly sat on dark glass, so the
+   default is light ink; the handful of daylight surfaces override below. */
+.ts-i {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -.12em;
+  flex: none;
+  color: #f3f0f4;
+}
+/* daylight dock tiles (1s) and its accent pencil tile */
+[style*="rgba(43,32,41,.06)"] > .ts-i { color: #2b2029; }
+[style*="rgba(255,77,109,.12)"] > .ts-i { color: #e23343; }
+/* accent tool tile on dark keeps light ink but picks up the brand red */
+[style*="rgba(226,51,67,.16)"] > .ts-i { color: #ff8a94; }
+/* light surfaces: gold streak pills, white pills — dark ink. Matched on the
+   background declaration specifically (a bare rgba substring would also hit
+   text-color declarations), and descendant not child, because icons often
+   sit inside a sizing span within the pill. */
+[style*="background:#f4c66b"] .ts-i,
+[style*="background:rgba(255,255,255,.7)"] .ts-i,
+[style*="background:rgba(255,255,255,.85)"] .ts-i,
+[style*="background:rgba(255,255,255,.86)"] .ts-i,
+[style*="background:rgba(255,255,255,.9)"] .ts-i { color: #2b2029; }
+/* …except icons on saturated chips inside those light docks */
+[style*="background:rgba(255,255,255,.86)"] [style*="linear-gradient(180deg,#ea4256"] .ts-i { color: #fff; }
+
 /* 1h's invisible ink. The prototype carried a `style-hover` attribute that no
    browser honours, so the reveal its caption promises never fired. */
 .ts-ink { transition: opacity .55s ease; }

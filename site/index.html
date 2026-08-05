@@ -109,6 +109,35 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
 }
 
+/* Monoline icons (replacing emoji). Sized by the font-size that sized the
+   emoji they replaced; colored by the surrounding text color. The emoji they
+   replace carried intrinsic color and mostly sat on dark glass, so the
+   default is light ink; the handful of daylight surfaces override below. */
+.ts-i {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -.12em;
+  flex: none;
+  color: #f3f0f4;
+}
+/* daylight dock tiles (1s) and its accent pencil tile */
+[style*="rgba(43,32,41,.06)"] > .ts-i { color: #2b2029; }
+[style*="rgba(255,77,109,.12)"] > .ts-i { color: #e23343; }
+/* accent tool tile on dark keeps light ink but picks up the brand red */
+[style*="rgba(226,51,67,.16)"] > .ts-i { color: #ff8a94; }
+/* light surfaces: gold streak pills, white pills — dark ink. Matched on the
+   background declaration specifically (a bare rgba substring would also hit
+   text-color declarations), and descendant not child, because icons often
+   sit inside a sizing span within the pill. */
+[style*="background:#f4c66b"] .ts-i,
+[style*="background:rgba(255,255,255,.7)"] .ts-i,
+[style*="background:rgba(255,255,255,.85)"] .ts-i,
+[style*="background:rgba(255,255,255,.86)"] .ts-i,
+[style*="background:rgba(255,255,255,.9)"] .ts-i { color: #2b2029; }
+/* …except icons on saturated chips inside those light docks */
+[style*="background:rgba(255,255,255,.86)"] [style*="linear-gradient(180deg,#ea4256"] .ts-i { color: #fff; }
+
 /* 1h's invisible ink. The prototype carried a `style-hover` attribute that no
    browser honours, so the reveal its caption promises never fired. */
 .ts-ink { transition: opacity .55s ease; }
@@ -468,6 +497,7 @@ html.ts-calm .dv-beat:hover *::after {
 </header>
 
 <main id="ts-main">
+<svg id="ts-icons" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="i-pencil" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3.4a2.3 2.3 0 0 1 3.3 3.2L7.6 19.3 3.5 20.5l1.2-4.1z"/><path d="M14.8 5.7l3.4 3.4"/></g></symbol><symbol id="i-marker" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.6 19.4 13l-4.2 4.2L6.8 8.8z"/><path d="M6.8 8.8 4.6 15l-1 5.4L9 19.4l6.2-2.2"/></g></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5c.7 3.2 2 4.5 5.2 5.2-3.2.7-4.5 2-5.2 5.2-.7-3.2-2-4.5-5.2-5.2 3.2-.7 4.5-2 5.2-5.2z"/><path d="M18.5 15.5c.35 1.6 1 2.25 2.6 2.6-1.6.35-2.25 1-2.6 2.6-.35-1.6-1-2.25-2.6-2.6 1.6-.35 2.25-1 2.6-2.6z"/></g></symbol><symbol id="i-zap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 2.8 5.4 13.4h5l-1.6 7.8 7.8-10.6h-5z"/></g></symbol><symbol id="i-ghost" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c-3.9 0-6.5 2.9-6.5 6.7v9.6l2.4-1.9 2 1.9 2.1-1.9 2.1 1.9 2-1.9 2.4 1.9v-9.6c0-3.8-2.6-6.7-6.5-6.7z"/><path d="M9.6 10.4h.01M14.4 10.4h.01"/></g></symbol><symbol id="i-flame" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-3.7 0-6.2-2.4-6.2-5.8 0-2.7 1.7-4.6 3.1-6.4C10.1 7.3 11 6 11.2 4c2.6 1.4 3 3.7 2.7 5.6 1-.4 1.7-1.1 2-2.2 1.5 1.7 2.3 3.8 2.3 5.8 0 3.4-2.5 5.8-6.2 5.8z"/></g></symbol><symbol id="i-undo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6.5 4.8 10l3.7 3.5"/><path d="M4.8 10h8.7a5 5 0 0 1 0 10h-3"/></g></symbol><symbol id="i-redo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 6.5 19.2 10l-3.7 3.5"/><path d="M19.2 10h-8.7a5 5 0 0 0 0 10h3"/></g></symbol><symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18.2V6.4l9-2v11.4"/><circle cx="7" cy="18.2" r="2.5"/><circle cx="16" cy="15.8" r="2.5"/></g></symbol><symbol id="i-mirror" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M8.5 7.5 4 12l4.5 4.5"/><path d="M15.5 7.5 20 12l-4.5 4.5"/></g></symbol><symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 12S6.2 5.8 12 5.8 21.2 12 21.2 12 17.8 18.2 12 18.2 2.8 12 2.8 12z"/><circle cx="12" cy="12" r="2.8"/></g></symbol><symbol id="i-pen-line" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.2a2.1 2.1 0 0 1 3 3L9.4 16.3l-3.9 1 1-3.9z"/><path d="M4.5 20.5h15"/></g></symbol><symbol id="i-mail-heart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7.5 8.5 6 8.5-6"/></g></symbol><symbol id="i-heart-fill" viewBox="0 0 24 24"><g fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.6c-.4 0-4.9-3-7-6-1.6-2.3-1.8-5.2 0-6.9 1.8-1.7 4.6-1.4 6 .5l1 1.4 1-1.4c1.4-1.9 4.2-2.2 6-.5 1.8 1.7 1.6 4.6 0 6.9-2.1 3-6.6 6-7 6z"/></g></symbol><symbol id="i-heart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2c-.4 0-4.7-2.9-6.7-5.8-1.5-2.2-1.7-5 0-6.6 1.7-1.6 4.4-1.3 5.7.5l1 1.3 1-1.3c1.3-1.8 4-2.1 5.7-.5 1.7 1.6 1.5 4.4 0 6.6-2 2.9-6.3 5.8-6.7 5.8z"/></g></symbol><symbol id="i-message" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.6c0 4.2-3.8 7.4-8.5 7.4-1 0-2-.15-2.9-.42L4.2 20l1.3-3.6c-1.25-1.3-2-2.95-2-4.8C3.5 7.4 7.3 4.2 12 4.2s8.5 3.2 8.5 7.4z"/></g></symbol><symbol id="i-bookmark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11v17L12 16.6l-5.5 3.9z"/></g></symbol><symbol id="i-coin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 8v8M9.4 9.8c0-2.3 5.2-2.3 5.2 0 0 2.4-5.2 2-5.2 4.4 0 2.3 5.2 2.3 5.2 0"/></g></symbol><symbol id="i-arrows-h" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5 3.5 12 7 15.5"/><path d="M17 8.5 20.5 12 17 15.5"/><path d="M3.5 12h17"/></g></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 3.5 21 7l-3.5 3.5"/><path d="M3.5 12V9.8A2.8 2.8 0 0 1 6.3 7H21"/><path d="M6.5 20.5 3 17l3.5-3.5"/><path d="M20.5 12v2.2a2.8 2.8 0 0 1-2.8 2.8H3"/></g></symbol><symbol id="i-sunrise" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v3M5 7.6l1.8 1.8M19 7.6l-1.8 1.8"/><path d="M6.8 16a5.2 5.2 0 0 1 10.4 0"/><path d="M3 16h18M6.5 20h11"/></g></symbol><symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.2A1.7 1.7 0 0 1 5.2 6.5h2.3L9 4.3h6l1.5 2.2h2.3a1.7 1.7 0 0 1 1.7 1.7v9.6a1.7 1.7 0 0 1-1.7 1.7H5.2a1.7 1.7 0 0 1-1.7-1.7z"/><circle cx="12" cy="12.7" r="3.4"/></g></symbol><symbol id="i-hourglass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11M6.5 20.5h11"/><path d="M8 3.5v3.2c0 2.6 4 3.7 4 5.3s-4 2.7-4 5.3v3.2M16 3.5v3.2c0 2.6-4 3.7-4 5.3s4 2.7 4 5.3v3.2"/></g></symbol><symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></g></symbol><symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5c0-.8.9-1.3 1.6-.9l9 5.6c.7.4.7 1.4 0 1.8l-9 5.6c-.7.4-1.6-.1-1.6-.9z"/></g></symbol><symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.8h15M9.7 6.8V4.9c0-.5.4-.9.9-.9h2.8c.5 0 .9.4.9.9v1.9M6.3 6.8l.9 12.4c0 .7.6 1.3 1.3 1.3h7c.7 0 1.3-.6 1.3-1.3l.9-12.4"/><path d="M10 10.8v5.4M14 10.8v5.4"/></g></symbol><symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5h15v9h-15zM3.5 7.5h17v4h-17zM12 7.5v13"/><path d="M12 7.5c-1.6 0-4.4-.4-4.4-2.4C7.6 3 10.8 3 12 7.5zm0 0c1.6 0 4.4-.4 4.4-2.4C16.4 3 13.2 3 12 7.5z"/></g></symbol><symbol id="i-smile" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M8.8 14.2c.9 1.2 2 1.8 3.2 1.8s2.3-.6 3.2-1.8"/><path d="M9.3 9.6h.01M14.7 9.6h.01"/></g></symbol><symbol id="i-heart-burst" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.4c-.3 0-3.8-2.3-5.4-4.7-1.2-1.8-1.4-4 0-5.3 1.4-1.3 3.5-1 4.6.4l.8 1 .8-1c1.1-1.4 3.2-1.7 4.6-.4 1.4 1.3 1.2 3.5 0 5.3-1.6 2.4-5.1 4.7-5.4 4.7z"/><path d="M4 5.5 5.8 7.3M20 5.5 18.2 7.3M12 2.6v2.2"/></g></symbol></svg>
 <section class="dv-turn" id="t10">
 <div class="dv-thd"><a class="dv-tid" href="#t10">10</a><span class="dv-tname">technically touching — present-tense mechanics and games two thumbs can play</span><button class="ts-tx" data-turn="t10">export turn</button></div>
 
@@ -816,7 +846,7 @@ html.ts-calm .dv-beat:hover *::after {
   </div>
 
   <div style="position:relative;padding:14px 20px 0;flex:none;display:flex;gap:9px">
-    <div style="flex:1;height:48px;border-radius:15px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;gap:7px;font:600 13.5px system-ui,sans-serif;color:#fff">↻ again</div>
+    <div style="flex:1;height:48px;border-radius:15px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;gap:7px;font:600 13.5px system-ui,sans-serif;color:#fff"><svg class="ts-i"><use href="#i-redo"/></svg> again</div>
     <div style="flex:1;height:48px;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#16151c">still here</div>
   </div>
 </div>
@@ -894,7 +924,7 @@ html.ts-calm .dv-beat:hover *::after {
   </div>
 
   <div style="position:relative;padding:14px 20px 0;flex:none">
-    <div style="height:48px;border-radius:15px;background:#e23343;display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">trace over it</div>
+    <div style="height:48px;border-radius:24px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">trace over it</div>
   </div>
 </div>
 </div></div>
@@ -1340,7 +1370,7 @@ html.ts-calm .dv-beat:hover *::after {
     </div>
   </div>
   <div style="position:absolute;left:20px;right:20px;bottom:34px;height:48px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;gap:8px;font:600 13.5px system-ui,sans-serif;color:#fff">
-    <span style="font-size:16px;line-height:1">✎</span> mark a day
+    <span style="font-size:16px;line-height:1"><svg class="ts-i"><use href="#i-pencil"/></svg></span> mark a day
   </div>
 </div>
 </div></div>
@@ -1388,8 +1418,8 @@ html.ts-calm .dv-beat:hover *::after {
   </div>
 
   <div style="position:absolute;left:20px;right:20px;bottom:34px;display:flex;gap:9px">
-    <div style="flex:1;height:48px;border-radius:15px;background:#e23343;display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">say something</div>
-    <div style="width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff">✎</div>
+    <div style="flex:1;height:48px;border-radius:24px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">say something</div>
+    <div style="width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
   </div>
 </div>
 </div></div>
@@ -1431,7 +1461,7 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:21px;color:#fff;line-height:1.15">i've been awake since four. not in a bad way.</div>
     </div>
     <div style="border-radius:15px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16);padding:13px 15px;display:flex;align-items:center;gap:9px">
-      <div style="font-size:15px;color:rgba(255,255,255,.5)">✎</div>
+      <div style="font-size:15px;color:rgba(255,255,255,.5)"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font:12px system-ui,sans-serif;color:rgba(255,255,255,.45)">write your own instead</div>
     </div>
   </div>
@@ -1440,7 +1470,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="width:32px;height:18px;border-radius:99px;background:#e23343;position:relative"><div style="position:absolute;right:2px;top:2px;width:14px;height:14px;border-radius:99px;background:#fff"></div></div>
     <div style="flex:1;font:11px/1.35 system-ui,sans-serif;color:rgba(255,255,255,.65)">hold until 07:00 her time — it lands as she wakes</div>
   </div>
-  <div style="position:absolute;left:20px;right:20px;bottom:34px;height:48px;border-radius:15px;background:#e23343;display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">put it on her canvas</div>
+  <div style="position:absolute;left:20px;right:20px;bottom:34px;height:48px;border-radius:24px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#fff">put it on her canvas</div>
 </div>
 </div></div>
 </div>
@@ -1478,7 +1508,7 @@ html.ts-calm .dv-beat:hover *::after {
 
   <div style="position:absolute;left:22px;right:22px;bottom:96px;font:11.5px/1.45 system-ui,sans-serif;color:rgba(255,255,255,.6)">it will finish drawing whether you watch or not. you can replay it all day.</div>
   <div style="position:absolute;left:20px;right:20px;bottom:34px;display:flex;gap:9px">
-    <div style="flex:1;height:48px;border-radius:15px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;gap:7px;font:600 13.5px system-ui,sans-serif;color:#fff">↻ replay</div>
+    <div style="flex:1;height:48px;border-radius:15px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;gap:7px;font:600 13.5px system-ui,sans-serif;color:#fff"><svg class="ts-i"><use href="#i-redo"/></svg> replay</div>
     <div style="flex:1;height:48px;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;font:600 13.5px system-ui,sans-serif;color:#16151c">draw back</div>
   </div>
 </div>
@@ -1644,7 +1674,7 @@ html.ts-calm .dv-beat:hover *::after {
       <svg sc-camel-view-box="0 0 40 40" style="width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,.05)" fill="none" stroke="#e23343" stroke-width="5" stroke-linecap="round"><path d="M11 15 l18 0 M11 25 l18 0"></path></svg>
     </div>
   </div>
-  <div style="position:absolute;left:20px;right:20px;bottom:34px;height:48px;border-radius:15px;background:#e23343;display:flex;align-items:center;justify-content:center;font:600 14px system-ui,sans-serif;color:#fff">donate this sign</div>
+  <div style="position:absolute;left:20px;right:20px;bottom:34px;height:48px;border-radius:24px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;font:600 14px system-ui,sans-serif;color:#fff">donate this sign</div>
 </div>
 </div></div>
 </div>
@@ -1876,16 +1906,16 @@ html.ts-calm .dv-beat:hover *::after {
       </div>
       <div style="position:absolute;right:8px;bottom:76px;display:flex;flex-direction:column;align-items:center;gap:13px">
         <div style="width:31px;height:31px;border-radius:99px;background:#16151c;border:1.5px solid #fff;display:flex;align-items:center;justify-content:center;font-family:Caveat,cursive;font-weight:700;font-size:15px;color:#fff">t<span style="color:#e23343">c</span></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:21px;color:#fff;line-height:1">♥</div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">41.2K</div></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:19px;color:#fff;line-height:1">💬</div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">1,904</div></div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:18px;color:#fff;line-height:1">🔖</div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">8,733</div></div>
-        <div style="width:29px;height:29px;border-radius:99px;background:#16151c;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:14px;animation:tfloat 3.4s ease-in-out infinite">♫</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:21px;color:#fff;line-height:1"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">41.2K</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:19px;color:#fff;line-height:1"><svg class="ts-i"><use href="#i-message"/></svg></div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">1,904</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:18px;color:#fff;line-height:1"><svg class="ts-i"><use href="#i-bookmark"/></svg></div><div style="font:600 8.5px system-ui,sans-serif;color:#fff">8,733</div></div>
+        <div style="width:29px;height:29px;border-radius:99px;background:#16151c;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:14px;animation:tfloat 3.4s ease-in-out infinite"><svg class="ts-i"><use href="#i-music"/></svg></div>
       </div>
       <div style="position:absolute;left:10px;right:52px;bottom:30px">
         <div style="font:700 11.5px system-ui,sans-serif;color:#fff;margin-bottom:4px">@trace.app</div>
         <div style="font:400 11px/1.35 system-ui,sans-serif;color:#fff">my phone drew by itself at 1am. she was awake in Lisbon. <span style="opacity:.7">#longdistance</span></div>
         <div style="display:flex;align-items:center;gap:5px;margin-top:6px;overflow:hidden">
-          <div style="font-size:10px;color:#fff">♫</div>
+          <div style="font-size:10px;color:#fff"><svg class="ts-i"><use href="#i-music"/></svg></div>
           <div style="flex:1;overflow:hidden;white-space:nowrap"><div style="display:inline-block;font:10px system-ui,sans-serif;color:#fff;animation:tmarq 9s linear infinite">original sound — trace.app · original sound — trace.app · </div></div>
         </div>
       </div>
@@ -2204,7 +2234,7 @@ html.ts-calm .dv-beat:hover *::after {
   </div>
   <div style="position:absolute;left:16px;right:16px;bottom:34px;display:flex;align-items:center;justify-content:space-between;gap:12px">
     <div style="font-size:12.5px;line-height:1.4;color:rgba(43,32,41,.65)">a new one every day, the same one on both phones.</div>
-    <div style="padding:10px 14px;border-radius:99px;background:#cf3e58;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap">reply in ink</div>
+    <div style="padding:10px 14px;border-radius:99px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap">reply in ink</div>
   </div>
 </div></div>
 </div>
@@ -2293,7 +2323,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:8px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;line-height:1;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
       <div class="ts-glass" style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 0 14px rgba(226,51,67,.35)">
-        <div style="width:18px;height:18px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:10px">✏️</div>
+        <div style="width:18px;height:18px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:10px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
         <div style="font-size:12.5px;color:#fff"><span style="color:#ff7a9c">Sara</span> is drawing</div>
         <div style="width:5px;height:5px;border-radius:3px;background:#ff7a9c;animation:tblink 1s steps(1,end) infinite"></div>
       </div>
@@ -2315,11 +2345,11 @@ html.ts-calm .dv-beat:hover *::after {
     </div>
     <div class="ts-glass" style="border-radius:26px;overflow:hidden;background:rgba(22,21,28,.5);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 8px 20px rgba(0,0,0,.3);padding:11px 12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
-        <div style="width:46px;height:40px;border-radius:14px;background:rgba(226,51,67,.16);border:1px solid #e23343;display:flex;align-items:center;justify-content:center;font-size:19px">✏️</div>
-        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px">✨</div>
-        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px">⚡️</div>
-        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px">🖍️</div>
-        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px">👻</div>
+        <div style="width:46px;height:40px;border-radius:14px;background:rgba(226,51,67,.16);border:1px solid #e23343;display:flex;align-items:center;justify-content:center;font-size:19px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
+        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px"><svg class="ts-i"><use href="#i-sparkles"/></svg></div>
+        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px"><svg class="ts-i"><use href="#i-zap"/></svg></div>
+        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px"><svg class="ts-i"><use href="#i-marker"/></svg></div>
+        <div style="width:46px;height:40px;border-radius:14px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px"><svg class="ts-i"><use href="#i-ghost"/></svg></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="width:26px;height:26px;border-radius:99px;background:#e23343;border:2.5px solid #fff;box-shadow:0 0 8px rgba(255,122,156,.7)"></div>
@@ -2328,8 +2358,8 @@ html.ts-calm .dv-beat:hover *::after {
         <div style="width:26px;height:26px;border-radius:99px;background:#f4c66b;border:2px solid rgba(128,128,128,.3)"></div>
         <div style="width:26px;height:26px;border-radius:99px;background:#7ec8ff;border:2px solid rgba(128,128,128,.3)"></div>
         <div style="width:1px;height:24px;background:rgba(255,255,255,.14)"></div>
-        <div style="width:40px;height:40px;border-radius:99px;background:#db3141;border:1px solid #e23343;display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px;font-weight:700">❤</div>
-        <div style="width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px">↺</div>
+        <div style="width:40px;height:40px;border-radius:99px;background:#db3141;border:1px solid #e23343;display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px;font-weight:700"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div>
+        <div style="width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><svg class="ts-i"><use href="#i-undo"/></svg></div>
         <div style="width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px">⋯</div>
       </div>
     </div>
@@ -2367,10 +2397,10 @@ html.ts-calm .dv-beat:hover *::after {
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div class="ts-glass" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:20px;background:rgba(22,21,28,.5);border:1.5px solid rgba(255,255,255,.14)">
-        <div style="font-size:18px">🪙</div>
+        <div style="font-size:18px"><svg class="ts-i"><use href="#i-coin"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:14.5px;font-weight:600">Sara left this 4 minutes ago</div><div style="color:#9a93a5;font-size:12px;margin-top:2px">she'll see the moment you uncover it</div></div>
       </div>
-      <div style="min-height:54px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:15px">save it for later</div>
+      <div style="min-height:54px;border-radius:27px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:15px">save it for later</div>
     </div>
   </div>
 </div>
@@ -2386,7 +2416,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:52px 14px 14px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;color:#f7efe9">tra<span style="color:#ef5a63">ce</span></div>
-      <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(239,90,99,.2);border:1.5px solid #ef5a63;font-size:12.5px;color:#fff">🪞 mirror on</div>
+      <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(239,90,99,.2);border:1.5px solid #ef5a63;font-size:12.5px;color:#fff"><svg class="ts-i"><use href="#i-mirror"/></svg> mirror on</div>
     </div>
     <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
       <div style="position:relative;width:292px;height:321px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,238,232,.18)">
@@ -2403,9 +2433,9 @@ html.ts-calm .dv-beat:hover *::after {
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;gap:8px">
-        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(239,90,99,.18);border:1px solid #ef5a63;text-align:center;color:#f7efe9;font-size:13px;font-weight:600">🪞 mirror</div>
-        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px">↔ side by side</div>
-        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px">🔁 relay</div>
+        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(239,90,99,.18);border:1px solid #ef5a63;text-align:center;color:#f7efe9;font-size:13px;font-weight:600"><svg class="ts-i"><use href="#i-mirror"/></svg> mirror</div>
+        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px"><svg class="ts-i"><use href="#i-arrows-h"/></svg> side by side</div>
+        <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px"><svg class="ts-i"><use href="#i-repeat"/></svg> relay</div>
       </div>
       <div class="ts-glass" style="padding:13px 15px;border-radius:20px;background:rgba(30,21,26,.55);border:1.5px solid rgba(255,238,232,.16)">
         <div style="color:#f7efe9;font-size:14.5px;font-weight:600">one shape, two halves</div>
@@ -2448,7 +2478,7 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="font-size:11px;color:#ff7a9c">hers</div>
     </div>
   </div>
-  <div style="position:absolute;left:16px;right:16px;bottom:26px;min-height:54px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:15px">let go</div>
+  <div style="position:absolute;left:16px;right:16px;bottom:26px;min-height:54px;border-radius:27px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:15px">let go</div>
 </div>
 </div></div>
 </div>
@@ -2462,7 +2492,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:52px 14px 14px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
-      <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff">✏️ Sara has the pen</div>
+      <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff"><svg class="ts-i"><use href="#i-pencil"/></svg> Sara has the pen</div>
     </div>
     <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
       <div style="position:relative;width:292px;height:321px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,255,255,.14)">
@@ -2471,12 +2501,12 @@ html.ts-calm .dv-beat:hover *::after {
           <path d="M64 214 c30 -20 50 16 82 -4 c24 -14 42 12 68 -8" stroke="#e23343" stroke-width="11" style="stroke-dasharray:250;--len:250;animation:tdraw 3.4s ease-in-out infinite alternate"></path>
           <path d="M96 128 c14 -18 34 -6 38 10" stroke="#fff" stroke-width="6" opacity=".85"></path>
         </svg>
-        <div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:Caveat,cursive;font-size:19px;color:rgba(255,255,255,.7)">wait your turn 🙂</div>
+        <div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:Caveat,cursive;font-size:19px;color:rgba(255,255,255,.7)">wait your turn <svg class="ts-i"><use href="#i-smile"/></svg></div>
       </div>
     </div>
     <div class="ts-glass" style="border-radius:26px;overflow:hidden;background:rgba(18,17,24,.55);border:1.5px solid rgba(255,255,255,.14);padding:14px">
       <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:44px;height:44px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none">✏️</div>
+        <div style="width:44px;height:44px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
         <div style="flex:1">
           <div style="color:#f3f0f4;font-size:14.5px;font-weight:600">she's holding the pen</div>
           <div style="color:#9a93a5;font-size:12px;margin-top:2px">swipe right when it's yours to give back</div>
@@ -2554,7 +2584,7 @@ html.ts-calm .dv-beat:hover *::after {
         <path d="M40 176 l18 22 M58 176 l-18 22" stroke="#e23343" stroke-width="6" style="stroke-dasharray:60;--len:60;animation:tdraw 1.8s ease-out infinite alternate"></path>
       </svg>
       <div class="ts-glass" style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
-        <div style="width:13px;height:13px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:8px">✏️</div>
+        <div style="width:13px;height:13px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
         <div style="font-size:10.5px;color:#fff"><span style="color:#ff7a9c">Sara</span> is drawing</div>
         <div style="width:4px;height:4px;border-radius:3px;background:#ff7a9c;animation:tblink 1s steps(1,end) infinite"></div>
       </div>
@@ -2579,7 +2609,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M62 96 c14 -4 26 4 26 16" stroke="#f4c66b" stroke-width="6"></path>
     </svg>
     <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2)">
-      <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px">✏️</div>
+      <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10px;color:#fff"><span style="color:#ff9ea9">Sara</span> is drawing</div>
       <div style="width:4px;height:4px;border-radius:3px;background:#ff9ea9;animation:tblink 1s steps(1,end) infinite"></div>
     </div>
@@ -2739,7 +2769,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="position:absolute;left:98px;bottom:56px;font-family:Caveat,cursive;font-weight:700;font-size:34px;color:#fff;transform:rotate(-6deg)">you're it</div>
     <div class="dv-hand" style="left:150px;top:186px;width:28px;height:28px"></div>
     <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2)">
-      <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px">✏️</div>
+      <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10px;color:#fff"><span style="color:#ff9ea9">Sara</span> is drawing</div>
       <div style="width:4px;height:4px;border-radius:3px;background:#ff9ea9;animation:tblink 1s steps(1,end) infinite"></div>
     </div>
@@ -2773,12 +2803,12 @@ html.ts-calm .dv-beat:hover *::after {
       </div>
 
       <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
-        <div style="width:52px;height:52px;border-radius:14px;background:#db3141;border:1px solid #e23343;box-shadow:0 0 12px rgba(226,51,67,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;animation:tbeat 2.4s ease-in-out infinite">❤</div>
+        <div style="width:52px;height:52px;border-radius:14px;background:#db3141;border:1px solid #e23343;box-shadow:0 0 12px rgba(226,51,67,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;animation:tbeat 2.4s ease-in-out infinite"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">tap the heart</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">press at the same second and it erupts</div></div>
       </div>
 
       <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
-        <div style="position:relative;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none;display:flex;align-items:center;justify-content:center;font-size:18px">👁</div>
+        <div style="position:relative;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none;display:flex;align-items:center;justify-content:center;font-size:18px"><svg class="ts-i"><use href="#i-eye"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">hold to reveal</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">invisible ink shows only while you press</div></div>
       </div>
 
@@ -2798,7 +2828,7 @@ html.ts-calm .dv-beat:hover *::after {
 
     <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">
       <div style="font-family:Caveat,cursive;font-size:20px;color:rgba(243,240,244,.6);text-align:center">nothing else to learn.</div>
-      <div style="min-height:54px;border-radius:16px;background:#db3141;box-shadow:0 6px 14px rgba(226,51,67,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600">Draw something</div>
+      <div style="min-height:54px;border-radius:27px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600">Draw something</div>
     </div>
   </div>
 </div>
@@ -2827,7 +2857,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:8px">
     <div style="display:flex;align-items:center;gap:10px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;line-height:1;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
-      <div style="font-size:13px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:3px 9px">🔥 128</div>
+      <div style="font-size:13px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:3px 9px"><svg class="ts-i"><use href="#i-flame"/></svg> 128</div>
     </div>
     <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 5px 12px rgba(0,0,0,.22)">
       <div style="width:8px;height:8px;border-radius:4px;background:#ff7a9c"></div>
@@ -2836,8 +2866,8 @@ html.ts-calm .dv-beat:hover *::after {
   </div>
   <div class="ts-glass" style="align-self:center;display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);margin-bottom:6px">
     <div style="padding:8px 16px;border-radius:99px;background:rgba(226,51,67,.16);border:1px solid #e23343;font-size:13.5px;font-weight:700;color:#fff">us</div>
-    <div style="padding:8px 16px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff">✍️ my page</div>
-    <div style="padding:8px 14px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff">💌 Sara</div>
+    <div style="padding:8px 16px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</div>
+    <div style="padding:8px 14px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</div>
   </div>
   <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
     <div style="position:relative;width:292px;height:170px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,255,255,.14);box-shadow:0 10px 26px rgba(0,0,0,.28)">
@@ -2854,12 +2884,12 @@ html.ts-calm .dv-beat:hover *::after {
   <div class="ts-glass" style="position:relative;margin-top:auto;border-top-left-radius:28px;border-top-right-radius:28px;border:1.5px solid rgba(255,255,255,.14);overflow:hidden;background:rgba(18,17,24,.88);padding:10px 14px 16px;margin:0 -14px -14px">
     <div style="width:40px;height:5px;border-radius:3px;background:rgba(154,147,165,.5);margin:0 auto 10px"></div>
     <div style="display:flex;flex-direction:column">
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center">🌅</div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Sky &amp; strength</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">pick a background and how strongly it shows</div></div></div>
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center">📷</div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Draw on a photo</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">add a photo you both can draw on</div></div></div>
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center">▶️</div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Replay</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">watch this canvas draw itself again</div></div></div>
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center">⏳</div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Seal a time capsule</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">hide this drawing until a future date</div></div></div>
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px;border-radius:16px;background:rgba(226,51,67,.16);border:1px solid rgba(226,51,67,.5)"><div style="font-size:21px;width:30px;text-align:center">↗️</div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Share as image</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">this is the whole growth loop today</div></div></div>
-      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center">🗑️</div><div><div style="color:#ff8a94;font-size:16px;font-weight:500">Clear the canvas</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">erases it for both of you</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-sunrise"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Sky &amp; strength</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">pick a background and how strongly it shows</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-camera"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Draw on a photo</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">add a photo you both can draw on</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-play"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Replay</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">watch this canvas draw itself again</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-hourglass"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Seal a time capsule</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">hide this drawing until a future date</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px;border-radius:16px;background:rgba(226,51,67,.16);border:1px solid rgba(226,51,67,.5)"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-share"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Share as image</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">this is the whole growth loop today</div></div></div>
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-trash"/></svg></div><div><div style="color:#ff8a94;font-size:16px;font-weight:500">Clear the canvas</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">erases it for both of you</div></div></div>
     </div>
   </div>
 </div>
@@ -2917,7 +2947,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="width:46px;height:28px;border-radius:99px;background:#c64b52;position:relative"><div style="position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:99px;background:#fff"></div></div>
   </div>
 
-  <div style="min-height:54px;border-radius:16px;background:#c64b52;box-shadow:0 6px 14px rgba(239,90,99,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600;letter-spacing:.2px">Share this trace</div>
+  <div style="min-height:54px;border-radius:27px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600;letter-spacing:.2px">Share this trace</div>
 </div>
 </div>
 </div></div>
@@ -2944,7 +2974,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M74 320 c26 -12 42 12 68 0 c22 -10 38 8 60 -4" stroke="#ffffff" stroke-width="6" opacity=".85" style="stroke-dasharray:220;--len:220;animation:tdraw 2.6s .5s ease-in-out infinite alternate"></path>
     </svg>
     <div class="ts-glass" style="position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
-      <div style="width:16px;height:16px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:9px">✏️</div>
+      <div style="width:16px;height:16px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:9px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:11.5px;color:#fff"><span style="color:#ff7a9c">Sara</span> is drawing</div>
       <div style="width:5px;height:5px;border-radius:3px;background:#ff7a9c;animation:tblink 1s steps(1,end) infinite"></div>
     </div>
@@ -2970,8 +3000,8 @@ html.ts-calm .dv-beat:hover *::after {
       </div>
     </div>
     <div style="display:flex;gap:10px">
-      <div style="flex:1;min-height:54px;border-radius:16px;background:#db3141;box-shadow:0 6px 14px rgba(226,51,67,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600">Save video</div>
-      <div style="width:54px;min-height:54px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:20px">↗</div>
+      <div style="flex:1;min-height:54px;border-radius:27px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:600">Save video</div>
+      <div style="width:54px;min-height:54px;border-radius:27px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:#f3f0f4;font-size:20px"><svg class="ts-i"><use href="#i-share"/></svg></div>
     </div>
   </div>
 </div>
@@ -3045,7 +3075,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;background:radial-gradient(100% 70% at 50% 100%,rgba(244,198,107,.4),rgba(244,198,107,0) 60%)"></div>
   <div style="position:absolute;left:34px;top:34px;display:flex;align-items:center;gap:10px">
     <div style="font-family:Caveat,cursive;font-weight:700;font-size:26px;color:#fff">tra<span style="color:#f4c66b">ce</span></div>
-    <div style="font-size:13px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:4px 10px">🔥 128</div>
+    <div style="font-size:13px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:4px 10px"><svg class="ts-i"><use href="#i-flame"/></svg> 128</div>
   </div>
   <div style="position:absolute;left:34px;top:96px;font-family:Caveat,cursive;font-weight:700;font-size:150px;line-height:.8;color:#fff">128</div>
   <div style="position:absolute;left:38px;top:250px;font-size:16px;letter-spacing:.02em;color:rgba(255,255,255,.8)">days neither of us skipped</div>
@@ -3082,7 +3112,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;left:36px;bottom:120px;font-family:Caveat,cursive;font-weight:700;font-size:56px;line-height:.95;color:#f3f0f4">invisible ink</div>
   <div style="position:absolute;left:38px;bottom:82px;font-size:15px;color:rgba(243,240,244,.6)">it vanishes the second it lands.</div>
   <div class="ts-glass" style="position:absolute;left:36px;bottom:34px;display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 5px 12px rgba(0,0,0,.3)">
-    <span style="font-size:13px">👁</span><span style="font-size:13px;color:#fff;font-weight:500">hold to reveal</span>
+    <span style="font-size:13px"><svg class="ts-i"><use href="#i-eye"/></svg></span><span style="font-size:13px;color:#fff;font-weight:500">hold to reveal</span>
   </div>
 </div></div>
 </div>
@@ -3166,7 +3196,7 @@ html.ts-calm .dv-beat:hover *::after {
   </svg>
   <div style="position:absolute;left:14px;top:30px;display:flex;align-items:center;gap:8px">
     <div style="font-family:Caveat,cursive;font-weight:700;font-size:20px;color:#fff">tra<span style="color:#e23343">ce</span></div>
-    <div style="font-size:11px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:2px 7px">🔥 128</div>
+    <div style="font-size:11px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:2px 7px"><svg class="ts-i"><use href="#i-flame"/></svg> 128</div>
   </div>
   <div class="ts-glass" style="position:absolute;right:14px;top:28px;display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
     <div style="width:6px;height:6px;border-radius:3px;background:#ff7a9c"></div><div style="font-size:10.5px;color:#fff">with Sara</div>
@@ -3174,11 +3204,11 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;left:16px;right:16px;top:112px;font-family:Caveat,cursive;font-weight:700;font-size:40px;line-height:.98;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.35)">your ugly little drawing is on her home screen right now</div>
   <div class="ts-glass" style="position:absolute;left:14px;right:14px;bottom:16px;border-radius:22px;overflow:hidden;background:rgba(18,17,24,.5);border:1.5px solid rgba(255,255,255,.14);box-shadow:0 8px 20px rgba(0,0,0,.3);padding:9px 10px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-      <div style="width:38px;height:33px;border-radius:11px;background:rgba(226,51,67,.16);border:1px solid #e23343;display:flex;align-items:center;justify-content:center;font-size:15px">✏️</div>
-      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px">✨</div>
-      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px">⚡️</div>
-      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px">🖍️</div>
-      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px">👻</div>
+      <div style="width:38px;height:33px;border-radius:11px;background:rgba(226,51,67,.16);border:1px solid #e23343;display:flex;align-items:center;justify-content:center;font-size:15px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
+      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px"><svg class="ts-i"><use href="#i-sparkles"/></svg></div>
+      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px"><svg class="ts-i"><use href="#i-zap"/></svg></div>
+      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px"><svg class="ts-i"><use href="#i-marker"/></svg></div>
+      <div style="width:38px;height:33px;border-radius:11px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:15px"><svg class="ts-i"><use href="#i-ghost"/></svg></div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="width:21px;height:21px;border-radius:99px;background:#e23343;border:2.5px solid #fff;box-shadow:0 0 8px rgba(255,122,156,.7)"></div>
@@ -3187,8 +3217,8 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="width:21px;height:21px;border-radius:99px;background:#f4c66b;border:2px solid rgba(128,128,128,.3)"></div>
       <div style="width:21px;height:21px;border-radius:99px;background:#7ec8ff;border:2px solid rgba(128,128,128,.3)"></div>
       <div style="width:1px;height:20px;background:rgba(255,255,255,.14)"></div>
-      <div style="width:33px;height:33px;border-radius:99px;background:#db3141;border:1px solid #e23343;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;animation:tbeat 2.6s ease-in-out infinite">❤</div>
-      <div style="width:33px;height:33px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">↺</div>
+      <div style="width:33px;height:33px;border-radius:99px;background:#db3141;border:1px solid #e23343;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;animation:tbeat 2.6s ease-in-out infinite"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div>
+      <div style="width:33px;height:33px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px"><svg class="ts-i"><use href="#i-undo"/></svg></div>
       <div style="width:33px;height:33px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">⋯</div>
     </div>
   </div>
@@ -3201,7 +3231,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,#04121f 0%,#0d3b45 34%,#2c7a6b 60%,#123a52 82%,#050b1a 100%)"></div>
   <div style="position:absolute;left:16px;top:30px;font-family:Caveat,cursive;font-weight:700;font-size:20px;color:#fff">tra<span style="color:#e23343">ce</span></div>
   <div style="position:absolute;left:16px;right:16px;top:96px;text-align:center">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;background:#f4c66b;color:#2b2029;font-size:12.5px;font-weight:700;box-shadow:0 0 22px rgba(244,198,107,.5)">🎁 sealed until 14 Feb 2027</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:99px;background:#f4c66b;color:#2b2029;font-size:12.5px;font-weight:700;box-shadow:0 0 22px rgba(244,198,107,.5)"><svg class="ts-i"><use href="#i-gift"/></svg> sealed until 14 Feb 2027</div>
   </div>
   <svg sc-camel-view-box="0 0 270 200" style="position:absolute;left:0;right:0;top:170px;width:100%;height:200px;opacity:.16" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
     <path d="M132 118 C102 96 96 72 110 60 C124 48 142 56 146 70 C155 54 174 54 182 68 C193 84 170 110 144 128"></path>
@@ -3229,7 +3259,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M62 168 c20 -9 32 9 52 0" stroke="#fff" stroke-width="5" opacity=".8"></path>
     </svg>
     <div class="ts-glass" style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.18)">
-      <div style="width:14px;height:14px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px">✏️</div>
+      <div style="width:14px;height:14px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10.5px;color:#fff">or, you could do this</div>
     </div>
     <div style="position:absolute;right:12px;bottom:12px;font-family:Caveat,cursive;font-weight:700;font-size:20px;color:#fff">tra<span style="color:#ef5a63">ce</span></div>
@@ -3342,8 +3372,8 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="position:absolute;left:0;right:0;top:44px;display:flex;justify-content:center">
         <div class="ts-glass" style="display:flex;gap:3px;padding:3px;border-radius:99px;background:rgba(22,21,28,.45);border:1px solid rgba(255,255,255,.14)">
           <div style="padding:6px 13px;border-radius:99px;background:rgba(226,51,67,.16);border:1px solid #e23343;font-size:10.5px;font-weight:700;color:#fff">us</div>
-          <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff">✍️ my page</div>
-          <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff">💌 Sara</div>
+          <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</div>
+          <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</div>
         </div>
       </div>
       <div style="position:absolute;left:12px;right:12px;top:86px;bottom:0;border-radius:22px 22px 0 0;overflow:hidden;border:1px solid rgba(255,255,255,.14);border-bottom:none">
@@ -3380,16 +3410,16 @@ html.ts-calm .dv-beat:hover *::after {
       </div>
       <div style="position:absolute;left:0;right:0;top:78px;display:flex;justify-content:center">
         <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(255,255,255,.7);border:1px solid rgba(43,32,41,.12);box-shadow:0 5px 12px rgba(107,74,82,.18)">
-          <span style="font-size:11px">💥❤️</span><span style="font-size:11.5px;color:#2b2029;font-weight:500">you pressed at the same time</span>
+          <span style="font-size:11px"><svg class="ts-i"><use href="#i-heart-burst"/></svg></span><span style="font-size:11.5px;color:#2b2029;font-weight:500">you pressed at the same time</span>
         </div>
       </div>
       <div class="ts-glass" style="position:absolute;left:10px;right:10px;bottom:74px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.86);border:1.5px solid rgba(43,32,41,.12);padding:8px 9px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="width:34px;height:29px;border-radius:10px;background:rgba(255,77,109,.12);border:1px solid #ff4d6d;display:flex;align-items:center;justify-content:center;font-size:13px">✏️</div>
-          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px">✨</div>
-          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px">⚡️</div>
-          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px">🖍️</div>
-          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px">👻</div>
+          <div style="width:34px;height:29px;border-radius:10px;background:rgba(255,77,109,.12);border:1px solid #ff4d6d;display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
+          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-sparkles"/></svg></div>
+          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-zap"/></svg></div>
+          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-marker"/></svg></div>
+          <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-ghost"/></svg></div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="width:18px;height:18px;border-radius:99px;background:#e23343;border:2.5px solid #2b2029"></div>
@@ -3398,8 +3428,8 @@ html.ts-calm .dv-beat:hover *::after {
           <div style="width:18px;height:18px;border-radius:99px;background:#f4c66b;border:2px solid rgba(128,128,128,.3)"></div>
           <div style="width:18px;height:18px;border-radius:99px;background:#7ec8ff;border:2px solid rgba(128,128,128,.3)"></div>
           <div style="width:1px;height:18px;background:rgba(43,32,41,.12)"></div>
-          <div style="width:29px;height:29px;border-radius:99px;background:#cf3e58;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">❤</div>
-          <div style="width:29px;height:29px;border-radius:99px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;color:#2b2029;font-size:14px">↺</div>
+          <div style="width:29px;height:29px;border-radius:99px;background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div>
+          <div style="width:29px;height:29px;border-radius:99px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;color:#2b2029;font-size:14px"><svg class="ts-i"><use href="#i-undo"/></svg></div>
           <div style="width:29px;height:29px;border-radius:99px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;color:#2b2029;font-size:14px">⋯</div>
         </div>
       </div>
@@ -3618,6 +3648,13 @@ html.ts-calm .dv-beat:hover *::after {
 
     const clone = art.cloneNode(true);
     clone.classList.add('ts-export');
+
+    // <use href="#i-*"> must resolve inside the detached export document —
+    // embed the icon sprite in the clone itself
+    const sprite = document.getElementById('ts-icons');
+    if (sprite && clone.querySelector('use')) {
+      clone.insertAdjacentHTML('afterbegin', sprite.outerHTML);
+    }
 
     const markup = new XMLSerializer().serializeToString(clone);
     const svg =
