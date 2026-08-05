@@ -72,6 +72,26 @@ html.ts-calm .dv-beat:hover *::after {
 }
 
 /* ==========================================================================
+   MOTION for the presence/contact turns (9, 10)
+   Base styles are the resting state, so export (animation: none) looks right.
+   ========================================================================== */
+
+/* warm bloom where two fingers meet */
+@keyframes tswell { 0%,100% { transform: scale(.82); opacity: .55; } 50% { transform: scale(1.14); opacity: .95; } }
+/* thumb pressure answering thumb pressure */
+@keyframes tpress { 0%,100% { height: 38%; } 30% { height: 82%; } 62% { height: 54%; } }
+/* a warm spot giving up its heat */
+@keyframes tcool { from { opacity: .85; } to { opacity: .1; } }
+/* one line, both ends held */
+@keyframes ttug { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-7px); } }
+/* both here — the room warming up */
+@keyframes tglow { 0%,100% { opacity: .35; } 50% { opacity: .75; } }
+/* breath on cold glass */
+@keyframes tfog { 0%,100% { opacity: .9; } 50% { opacity: .62; } }
+
+.ts-export [style*="tcool"] { opacity: .55 !important; }
+
+/* ==========================================================================
    PHOTO SLOTS — replaces the prototype's image-slot element
    ========================================================================== */
 

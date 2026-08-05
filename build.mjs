@@ -63,6 +63,25 @@ const keyframes = (protoCss.match(/@keyframes\s+([\w-]+)/g) || []).map((k) => k.
 // helmet also carried support.js / image-slot.js / Google Fonts — all replaced
 frames = frames.replace(/<helmet[\s\S]*?<\/helmet>/, '').trim();
 
+/* ------------------------------------------------ locally-authored turns */
+// Turns reconstructed here rather than exported from Claude Design. They are
+// prepended (newest first, matching the canvas convention). Once the authored
+// export includes them, delete src/turns.html and they drop out cleanly.
+
+let localTurns = 0;
+if (existsSync(at('src/turns.html'))) {
+  const extra = read('src/turns.html');
+  const ids = [...extra.matchAll(/<section class="dv-turn" id="(t\d+)"/g)].map((m) => m[1]);
+  // don't double up if the authored export has caught up
+  const dupes = ids.filter((id) => frames.includes(`<section class="dv-turn" id="${id}"`));
+  if (dupes.length) {
+    notes.push(`src/turns.html duplicates authored ${dupes.join(', ')} — skipped; delete the file`);
+  } else if (ids.length) {
+    frames = extra.trim() + '\n\n' + frames;
+    localTurns = ids.length;
+  }
+}
+
 /* ------------------------------------------------- image-slot → ts-slot */
 // Attribute-order independent: a design update may emit these differently.
 
@@ -318,7 +337,7 @@ const manifest = { turns: [...turns], formats: present, frames: inventory };
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 
 console.log(`${OUT}/index.html   ${(html.length / 1024).toFixed(0)} KB`);
-console.log(`turns             ${[...turns].join(' ')}`);
+console.log(`turns             ${[...turns].join(' ')}${localTurns ? '  (' + localTurns + ' reconstructed locally)' : ''}`);
 console.log(`frames            ${inventory.length}`);
 console.log(`formats           ${present.join(', ')}`);
 console.log(`glass restored    ${glassCount}`);
