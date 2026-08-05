@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trace — social kit</title>
+<meta name="description" content="The Trace social campaign: in-app screens, 24 post designs, wordmark lockups and reel storyboards. Every frame exports as a platform-size PNG.">
+<link rel="stylesheet" href="./trace.css">
+<script src="./caveat.js"></script>
+</head>
+<body>
+
+<header class="ts-top">
+  <div class="ts-top-in">
+    <div class="ts-brand">
+      <span class="ts-wm">tra<span>ce</span></span>
+      <span class="ts-kit">social kit</span>
+    </div>
+
+    <div class="ts-filters" role="group" aria-label="Filter frames">
+      <button class="ts-chip is-on" data-filter="all">all</button>
+      <span class="ts-sep"></span>
+      <button class="ts-chip" data-filter="fmt:1:1">1:1</button>
+      <button class="ts-chip" data-filter="fmt:9:16">9:16</button>
+      <button class="ts-chip" data-filter="fmt:16:9">16:9</button>
+      <button class="ts-chip" data-filter="fmt:appstore">App&nbsp;Store</button>
+      <button class="ts-chip" data-filter="fmt:phone">in-app</button>
+      <button class="ts-chip" data-filter="fmt:lockup">lockups</button>
+      <button class="ts-chip" data-filter="fmt:beat">storyboards</button>
+    </div>
+
+    <div class="ts-tools">
+      <label class="ts-search">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="search" id="ts-q" placeholder="search frames" aria-label="Search frames" autocomplete="off">
+      </label>
+      <button class="ts-btn" id="ts-calm" aria-pressed="false" title="Pause stroke animations until you hover a frame">motion</button>
+      <button class="ts-btn ts-btn-go" id="ts-export-all">export all</button>
+    </div>
+  </div>
+  <div class="ts-count" id="ts-count"></div>
+</header>
+
+<main id="ts-main">
+{{FRAMES}}
+</main>
+
+<footer class="ts-foot">
+  <p>
+    Recreated from <code>Trace Social.dc.html</code> (Claude Design handoff). Every frame is live DOM — CSS gradients,
+    inline SVG and the Caveat wordmark — so PNG export is resolution-independent.
+  </p>
+  <p class="ts-foot-dim">
+    Drop a photo onto any dashed slot to fill it; it persists in this browser. Rebuild with <code>node build.mjs</code>.
+  </p>
+</footer>
+
+<div class="ts-toast" id="ts-toast" role="status" aria-live="polite"></div>
+
+<script src="./trace.js"></script>
+</body>
+</html>

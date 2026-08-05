@@ -1,0 +1,394 @@
+/* ==========================================================================
+   trace — social kit
+   Frame styles below the "PROTOTYPE CSS" banner are lifted verbatim from
+   `project/Trace Social.dc.html` so the frames render identically. Everything
+   in the `ts-` namespace is gallery chrome and finish work added on top.
+   The Caveat @font-face is injected by caveat.js (base64, no network).
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #e8e4dd;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   PROTOTYPE CSS — verbatim from the design file
+   ========================================================================== */
+
+a { color: #c2185b; text-decoration: none; }
+a:hover { color: #e23343; }
+
+@keyframes tdraw   { from { stroke-dashoffset: var(--len, 1200); } to { stroke-dashoffset: 0; } }
+@keyframes tbeat   { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.18); } 28% { transform: scale(1); } 42% { transform: scale(1.12); } 56% { transform: scale(1); } }
+@keyframes tblink  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .2; } }
+@keyframes tfloat  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes tripple { 0% { transform: scale(.4); opacity: .85; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes tnudge  { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -5px); } }
+@keyframes tbreath { 0%, 100% { transform: scale(.72); opacity: .35; } 50% { transform: scale(1.18); opacity: .9; } }
+@keyframes tghost  { 0% { transform: translate(0, 0); } 33% { transform: translate(38px, -26px); } 66% { transform: translate(-22px, 22px); } 100% { transform: translate(0, 0); } }
+@keyframes tswipe  { 0% { transform: translateX(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateX(70px); opacity: 0; } }
+@keyframes tmarq   { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes trec    { 0%, 60% { opacity: 1; } 61%, 100% { opacity: .15; } }
+
+.dv-beats { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.dv-beat  { display: flex; flex-direction: column; gap: 6px; width: 196px; }
+.dv-bt    { font: 600 9.5px/1.35 ui-monospace, Menlo, monospace; color: rgba(0,0,0,.42); }
+.dv-bt b  { color: rgba(0,0,0,.72); }
+
+.dv-cap {
+  position: absolute; left: 12px; right: 12px; text-align: center;
+  font: 800 13px/1.22 system-ui, sans-serif; color: #fff; letter-spacing: -.01em;
+  text-shadow: 0 0 3px #000, 0 1px 0 #000, 0 2px 10px rgba(0,0,0,.9);
+}
+
+.dv-turn   { padding: 44px 48px 34px; border-bottom: 1px solid rgba(0,0,0,.09); }
+.dv-thd    { display: flex; align-items: baseline; gap: 10px; margin: 0 0 22px; }
+.dv-tid    { font: 700 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: #1a1a1a; color: #fff; border-radius: 4px; text-decoration: none; }
+.dv-tname  { font: 600 13px/1.2 system-ui, sans-serif; color: #1a1a1a; }
+.dv-opts   { display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; }
+.dv-opt    { flex: none; display: flex; flex-direction: column; gap: 9px; }
+.dv-oid    { font: 700 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: rgba(0,0,0,.08); color: #1a1a1a; border-radius: 5px; text-decoration: none; }
+.dv-olabel { display: flex; align-items: baseline; gap: 8px; font: 400 11.5px/1.3 system-ui, sans-serif; color: rgba(0,0,0,.55); max-width: 540px; }
+.dv-opt:target .dv-oid { background: #e23343; color: #fff; }
+.dv-next   { margin: 24px 0 0; font: 12px/1.6 system-ui, sans-serif; color: rgba(0,0,0,.5); }
+
+.dv-hand {
+  position: absolute; width: 34px; height: 34px; border-radius: 99px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 0 0 6px rgba(255,255,255,.22), 0 8px 18px rgba(0,0,0,.35);
+}
+.dv-hand::after {
+  content: ''; position: absolute; inset: -14px; border-radius: 99px;
+  border: 2px solid rgba(255,255,255,.8); animation: tripple 1.6s ease-out infinite;
+}
+
+.dv-sub {
+  margin: 26px 0 14px; font: 700 10px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: .14em; text-transform: uppercase; color: rgba(0,0,0,.4);
+}
+
+/* ==========================================================================
+   FINISH — restored after the perf passes stripped it
+   Grain is one shared, pre-rasterised texture (not 23 live feTurbulence
+   filters); glass gets its backdrop blur back; strokes draw continuously.
+   ========================================================================== */
+
+/* Single tiled noise texture, rasterised once by the browser and reused. */
+.ts-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: .085;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* Glass over canvas — the app's core surface rule. */
+.ts-glass {
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+}
+
+/* 1h's invisible ink. The prototype carried a `style-hover` attribute that no
+   browser honours, so the reveal its caption promises never fired. */
+.ts-ink { transition: opacity .55s ease; }
+.dv-opt:hover .ts-ink,
+.dv-opt:focus-within .ts-ink { opacity: .9 !important; }
+
+/* Motion. Always-on by default; `motion` in the toolbar restores the
+   hover-gated behaviour, and reduced-motion gets it automatically. */
+html.ts-calm .dv-opt *,
+html.ts-calm .dv-opt *::after {
+  animation-delay: -1.3s !important;
+  animation-play-state: paused !important;
+}
+html.ts-calm .dv-opt:hover *,
+html.ts-calm .dv-opt:hover *::after,
+html.ts-calm .dv-beat:hover *,
+html.ts-calm .dv-beat:hover *::after {
+  animation-delay: 0s !important;
+  animation-play-state: running !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dv-opt *, .dv-opt *::after { animation-play-state: paused !important; animation-delay: -1.3s !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* ==========================================================================
+   PHOTO SLOTS — replaces the prototype's image-slot element
+   ========================================================================== */
+
+.ts-slot {
+  position: absolute;
+  inset: 0;
+  background-color: #191821;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+.ts-slot::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed rgba(255,255,255,.3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.ts-slot-cap {
+  position: absolute;
+  inset: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font: 500 9.5px/1.4 system-ui, sans-serif;
+  color: rgba(255,255,255,.5);
+  pointer-events: none;
+}
+.ts-slot.is-over::before { border-color: #e23343; border-style: solid; }
+.ts-slot.is-filled::before,
+.ts-slot.is-filled .ts-slot-cap { display: none; }
+.ts-slot.is-filled { background-color: transparent; }
+.ts-slot-clear {
+  position: absolute; top: 5px; right: 5px; z-index: 5;
+  width: 19px; height: 19px; padding: 0; border: 0; border-radius: 99px;
+  background: rgba(0,0,0,.6); color: #fff; font-size: 11px; line-height: 19px;
+  cursor: pointer; opacity: 0; transition: opacity .18s;
+}
+.ts-slot.is-filled:hover .ts-slot-clear { opacity: 1; }
+
+/* ==========================================================================
+   FRAME WRAPPER — export affordance, never covers the artwork
+   ========================================================================== */
+
+.ts-fw { position: relative; width: max-content; }
+
+.ts-fbar {
+  position: absolute;
+  right: 0;
+  top: -9px;
+  transform: translateY(-100%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px;
+  border-radius: 8px;
+  background: rgba(232,228,221,.94);
+  box-shadow: 0 3px 12px rgba(0,0,0,.14);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s;
+}
+.ts-fw:hover .ts-fbar,
+.ts-fw:focus-within .ts-fbar { opacity: 1; pointer-events: auto; }
+
+.ts-fsz {
+  font: 600 9.5px ui-monospace, Menlo, monospace;
+  color: rgba(0,0,0,.5);
+  padding-left: 5px;
+  white-space: nowrap;
+}
+.ts-fx {
+  font: 700 9.5px ui-monospace, Menlo, monospace;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ts-fx:hover { background: #e23343; }
+.ts-fx[disabled] { opacity: .5; cursor: default; }
+
+/* ==========================================================================
+   GALLERY CHROME
+   ========================================================================== */
+
+.ts-top {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(232,228,221,.86);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.ts-top-in {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 11px 48px;
+}
+
+.ts-brand { display: flex; align-items: baseline; gap: 9px; flex: none; }
+.ts-wm {
+  font-family: Caveat, cursive;
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1;
+  color: #1a1a1a;
+}
+.ts-wm span { color: #e23343; }
+.ts-kit {
+  font: 700 9px ui-monospace, Menlo, monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,.42);
+}
+
+.ts-filters { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.ts-sep { width: 1px; height: 15px; background: rgba(0,0,0,.14); margin: 0 3px; }
+
+.ts-chip {
+  font: 600 11px system-ui, sans-serif;
+  padding: 5px 11px;
+  border: 1px solid rgba(0,0,0,.13);
+  border-radius: 99px;
+  background: transparent;
+  color: rgba(0,0,0,.62);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.ts-chip:hover { border-color: rgba(0,0,0,.32); color: #1a1a1a; }
+.ts-chip.is-on { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+
+.ts-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+.ts-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid rgba(0,0,0,.13);
+  border-radius: 99px;
+  background: rgba(255,255,255,.5);
+  color: rgba(0,0,0,.4);
+}
+.ts-search:focus-within { border-color: #e23343; color: #e23343; }
+.ts-search svg { width: 13px; height: 13px; flex: none; }
+.ts-search input {
+  width: 120px;
+  border: 0;
+  background: none;
+  outline: none;
+  font: 500 11.5px system-ui, sans-serif;
+  color: #1a1a1a;
+}
+.ts-search input::-webkit-search-cancel-button { cursor: pointer; }
+
+.ts-btn {
+  font: 600 11px system-ui, sans-serif;
+  padding: 6px 12px;
+  border: 1px solid rgba(0,0,0,.13);
+  border-radius: 99px;
+  background: transparent;
+  color: rgba(0,0,0,.62);
+  cursor: pointer;
+}
+.ts-btn:hover { border-color: rgba(0,0,0,.32); color: #1a1a1a; }
+.ts-btn[aria-pressed="true"] { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.ts-btn-go { background: #e23343; border-color: #e23343; color: #fff; }
+.ts-btn-go:hover { background: #c2185b; border-color: #c2185b; color: #fff; }
+.ts-btn[disabled] { opacity: .55; cursor: default; }
+
+.ts-count {
+  padding: 0 48px 9px;
+  font: 600 9.5px ui-monospace, Menlo, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,.36);
+}
+
+/* Per-turn export, sat in the turn header */
+.ts-tx {
+  font: 700 9px ui-monospace, Menlo, monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-left: auto;
+  padding: 4px 9px;
+  border: 1px solid rgba(0,0,0,.16);
+  border-radius: 5px;
+  background: transparent;
+  color: rgba(0,0,0,.5);
+  cursor: pointer;
+}
+.ts-tx:hover { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.dv-thd { align-items: center; }
+
+.ts-hide { display: none !important; }
+
+.ts-empty {
+  padding: 70px 48px;
+  font: 400 13px system-ui, sans-serif;
+  color: rgba(0,0,0,.45);
+}
+
+.ts-foot {
+  padding: 34px 48px 60px;
+  max-width: 720px;
+  font: 400 12px/1.65 system-ui, sans-serif;
+  color: rgba(0,0,0,.5);
+}
+.ts-foot p { margin: 0 0 8px; }
+.ts-foot-dim { color: rgba(0,0,0,.36); }
+.ts-foot code {
+  font: 11px ui-monospace, Menlo, monospace;
+  background: rgba(0,0,0,.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.ts-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translate(-50%, 20px);
+  z-index: 500;
+  padding: 10px 18px;
+  border-radius: 99px;
+  background: #1a1a1a;
+  color: #fff;
+  font: 600 12px system-ui, sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.ts-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 900px) {
+  .dv-turn, .ts-top-in, .ts-count, .ts-foot { padding-left: 20px; padding-right: 20px; }
+  .ts-tools { margin-left: 0; }
+}
+
+/* ==========================================================================
+   EXPORT MODE — applied to the detached clone only, never to the live page
+   Static rasterisation freezes CSS animations at their *initial* frame, which
+   for `tdraw` means stroke-dashoffset: var(--len) — i.e. an invisible stroke.
+   Killing the animation lets each path fall back to dashoffset 0: fully drawn.
+   ========================================================================== */
+
+.ts-export *,
+.ts-export *::before,
+.ts-export *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.ts-export [style*="tdraw"] { stroke-dashoffset: 0 !important; }
+.ts-export .dv-hand::after { display: none; }
+.ts-export .ts-fbar { display: none !important; }
+.ts-export .ts-slot-clear { display: none !important; }

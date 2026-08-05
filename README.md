@@ -1,25 +1,71 @@
-# CODING AGENTS: READ THIS FIRST
+# trace — social kit
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Implementation of the **Trace Social** designs from the Claude Design handoff in
+`project/` — the in-app screens, the full marketing post set, wordmark lockups
+and reel storyboards, rebuilt as a single self-contained page with real PNG
+export at platform sizes.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+## Run it
 
-## What you should do — IMPORTANT
+Open **`site/index.html`** in a browser. That's it — everything (CSS, JS, the
+Caveat font) is inlined, no network, works from `file://`.
 
-**Read the chat transcripts first.** There are 2 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+## What it does
 
-**Read `project/Trace Social.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+- **All 58 frames** from the five design turns, pixel-matched to the prototype:
+  in-app screens (⋯ sheet, post composer, replay post, gesture card, six
+  interactions), 24 posts across 1:1 / 9:16 / 16:9 / App Store, three wordmark
+  lockups, and the three reel storyboards + production sheet.
+- **PNG export** on every frame (hover → `PNG`), at true platform resolution:
+  1:1 → 1080×1080, 9:16 → 1080×1920, 16:9 → 1920×1080, App Store → 1290×2792,
+  storyboard beats → 1080×1918, phones → 990×2142, lockups → 1040×600.
+  Frames are live DOM (gradients + inline SVG), so exports are crisp at any
+  scale. `export turn` / `export all` bundle PNGs into a ZIP — no dependencies,
+  the ZIP writer is ~40 lines of vanilla JS.
+- **Photo slots** — the frames that call for real footage (2b, 2c, 5a, 5c) take
+  a click or drag-and-drop photo, persisted in `localStorage`, and the app layer
+  composites on top exactly as designed. Filled photos are included in exports.
+- **Filters + search** across formats and frame copy; per-turn export buttons.
+- **Finish restored** — the chat log's last open item: the perf passes had
+  stripped 23 film-grain layers and 34 glass blurs and made animation
+  hover-only (a misdiagnosis — the design tool's preview harness was at fault,
+  not the file). This build restores grain as one shared static texture,
+  backdrop blur on the 35 glass surfaces, and always-on stroke animation. The
+  `motion` toggle brings back hover-gated animation, and
+  `prefers-reduced-motion` is honoured automatically. Also fixed: 1h's
+  invisible-ink hover reveal (the prototype used a non-standard `style-hover`
+  attribute that never worked).
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Rebuild
 
-## About the design files
+```
+node build.mjs
+```
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+Reads the prototype (`project/Trace Social.dc.html`) plus `src/` and emits
+`site/index.html`. The prototype is treated as the source of truth for frame
+markup — edit frames there (or port them into `src/` if the prototype is
+retired), and gallery chrome / behaviour in `src/`.
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+| path | role |
+|---|---|
+| `src/shell.html` | gallery chrome (header, filters, footer) |
+| `src/trace.css` | prototype CSS (verbatim) + restored finish + gallery styles |
+| `src/trace.js` | filters, photo slots, PNG/ZIP export pipeline |
+| `src/fonts/` | Caveat woff2 subsets, extracted from the handoff's standalone export |
+| `build.mjs` | transforms prototype → site (slots, glass, export wrappers) |
+| `site/index.html` | **the deliverable** — single file, fully self-contained |
 
-## Bundle contents
+Export detail worth knowing: rasterisation goes DOM clone → SVG
+`foreignObject` → canvas → PNG. The clone gets an `.ts-export` class that kills
+animations so `tdraw` strokes render fully drawn instead of invisible, and the
+SVG is loaded via `data:` URI — a `blob:` URL taints the canvas.
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Trace Social UI mockups` project files (HTML prototypes, assets, components)
+## Design source
+
+`project/` is the untouched Claude Design handoff bundle (prototypes, chat
+transcripts in `chats/`, App Store placeholder shots in `project/store/`).
+`project/github.md` maps each screen back to the Trace app sources
+(`KIDUSDANIEL576/trace`) it was recreated from. The in-app screens here are
+mockups of that app's chrome; wiring them into the React Native codebase is a
+separate task against that repo.
