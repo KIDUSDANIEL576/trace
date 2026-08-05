@@ -47,10 +47,16 @@ let frames = dc.slice(open + '<x-dc>'.length, close);
 const helmet = frames.match(/<helmet[\s\S]*?<\/helmet>/);
 if (!helmet) throw new Error('helmet block not found — prototype structure changed');
 
-const protoStyle = helmet[0].match(/<style>([\s\S]*?)<\/style>/);
-if (!protoStyle) throw new Error('prototype <style> not found inside helmet');
+// Newer exports carry several <style> blocks (e.g. inlined Google-Fonts
+// @font-face first, then the real sheet) — merge them all, but drop Caveat
+// @font-face rules: their src urls point at the bundler's dead resource ids,
+// and we inject our own base64 Caveat instead.
+const styleBlocks = [...helmet[0].matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]);
+if (!styleBlocks.length) throw new Error('prototype <style> not found inside helmet');
 
-let protoCss = protoStyle[1];
+let protoCss = styleBlocks
+  .map((b) => b.replace(/@font-face\s*\{[^}]*Caveat[^}]*\}/g, ''))
+  .join('\n');
 
 // Drop the hover-gating the perf passes added; motion is always-on here and
 // re-gated at runtime by the `motion` toggle / prefers-reduced-motion.

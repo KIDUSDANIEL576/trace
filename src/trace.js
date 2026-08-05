@@ -299,4 +299,21 @@
   $('#ts-export-all').addEventListener('click', () => {
     exportBatch($$('.dv-opt:not(.ts-hide) .ts-art'), 'trace-social-kit.zip');
   });
+
+  /* ------------------------------------------------- fit frames to phone */
+  // Frames wider than the viewport get an exact `zoom` so nothing needs
+  // horizontal panning. Layout px are untouched, so export sizes hold.
+
+  function fitFrames() {
+    const avail = document.documentElement.clientWidth - 28;
+    for (const fw of $$('.ts-fw')) {
+      const art = $('.ts-art', fw);
+      if (!art) continue;
+      const w = art.offsetWidth;
+      fw.style.zoom = w > avail ? String(avail / w) : '';
+    }
+  }
+  let fitT;
+  addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitFrames, 120); });
+  fitFrames();
 })();
