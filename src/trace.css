@@ -1,9 +1,11 @@
 /* ==========================================================================
    trace — social kit
-   Frame styles below the "PROTOTYPE CSS" banner are lifted verbatim from
-   `project/Trace Social.dc.html` so the frames render identically. Everything
-   in the `ts-` namespace is gallery chrome and finish work added on top.
-   The Caveat @font-face is injected by caveat.js (base64, no network).
+   This file is ONLY the additions: restored finish, photo slots, gallery
+   chrome, export rules. The prototype's own stylesheet (dv-* classes and the
+   t* keyframes) is lifted straight out of `project/Trace Social.dc.html` by
+   build.mjs and injected ahead of this file, so a design update that adds
+   keyframes or frame classes needs no change here. Caveat is inlined as
+   base64 by the same build step — no network at runtime.
    ========================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -15,62 +17,6 @@ body {
   color: #1a1a1a;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-/* ==========================================================================
-   PROTOTYPE CSS — verbatim from the design file
-   ========================================================================== */
-
-a { color: #c2185b; text-decoration: none; }
-a:hover { color: #e23343; }
-
-@keyframes tdraw   { from { stroke-dashoffset: var(--len, 1200); } to { stroke-dashoffset: 0; } }
-@keyframes tbeat   { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.18); } 28% { transform: scale(1); } 42% { transform: scale(1.12); } 56% { transform: scale(1); } }
-@keyframes tblink  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .2; } }
-@keyframes tfloat  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes tripple { 0% { transform: scale(.4); opacity: .85; } 100% { transform: scale(2.2); opacity: 0; } }
-@keyframes tnudge  { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -5px); } }
-@keyframes tbreath { 0%, 100% { transform: scale(.72); opacity: .35; } 50% { transform: scale(1.18); opacity: .9; } }
-@keyframes tghost  { 0% { transform: translate(0, 0); } 33% { transform: translate(38px, -26px); } 66% { transform: translate(-22px, 22px); } 100% { transform: translate(0, 0); } }
-@keyframes tswipe  { 0% { transform: translateX(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateX(70px); opacity: 0; } }
-@keyframes tmarq   { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@keyframes trec    { 0%, 60% { opacity: 1; } 61%, 100% { opacity: .15; } }
-
-.dv-beats { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
-.dv-beat  { display: flex; flex-direction: column; gap: 6px; width: 196px; }
-.dv-bt    { font: 600 9.5px/1.35 ui-monospace, Menlo, monospace; color: rgba(0,0,0,.42); }
-.dv-bt b  { color: rgba(0,0,0,.72); }
-
-.dv-cap {
-  position: absolute; left: 12px; right: 12px; text-align: center;
-  font: 800 13px/1.22 system-ui, sans-serif; color: #fff; letter-spacing: -.01em;
-  text-shadow: 0 0 3px #000, 0 1px 0 #000, 0 2px 10px rgba(0,0,0,.9);
-}
-
-.dv-turn   { padding: 44px 48px 34px; border-bottom: 1px solid rgba(0,0,0,.09); }
-.dv-thd    { display: flex; align-items: baseline; gap: 10px; margin: 0 0 22px; }
-.dv-tid    { font: 700 10px ui-monospace, Menlo, monospace; padding: 3px 7px; background: #1a1a1a; color: #fff; border-radius: 4px; text-decoration: none; }
-.dv-tname  { font: 600 13px/1.2 system-ui, sans-serif; color: #1a1a1a; }
-.dv-opts   { display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start; }
-.dv-opt    { flex: none; display: flex; flex-direction: column; gap: 9px; }
-.dv-oid    { font: 700 10.5px ui-monospace, Menlo, monospace; padding: 3px 7px; background: rgba(0,0,0,.08); color: #1a1a1a; border-radius: 5px; text-decoration: none; }
-.dv-olabel { display: flex; align-items: baseline; gap: 8px; font: 400 11.5px/1.3 system-ui, sans-serif; color: rgba(0,0,0,.55); max-width: 540px; }
-.dv-opt:target .dv-oid { background: #e23343; color: #fff; }
-.dv-next   { margin: 24px 0 0; font: 12px/1.6 system-ui, sans-serif; color: rgba(0,0,0,.5); }
-
-.dv-hand {
-  position: absolute; width: 34px; height: 34px; border-radius: 99px;
-  background: rgba(255,255,255,.9);
-  box-shadow: 0 0 0 6px rgba(255,255,255,.22), 0 8px 18px rgba(0,0,0,.35);
-}
-.dv-hand::after {
-  content: ''; position: absolute; inset: -14px; border-radius: 99px;
-  border: 2px solid rgba(255,255,255,.8); animation: tripple 1.6s ease-out infinite;
-}
-
-.dv-sub {
-  margin: 26px 0 14px; font: 700 10px/1 ui-monospace, Menlo, monospace;
-  letter-spacing: .14em; text-transform: uppercase; color: rgba(0,0,0,.4);
 }
 
 /* ==========================================================================

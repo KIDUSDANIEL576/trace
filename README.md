@@ -36,25 +36,43 @@ Caveat font) is inlined, no network, works from `file://`.
   invisible-ink hover reveal (the prototype used a non-standard `style-hover`
   attribute that never worked).
 
-## Rebuild
+## Taking a design update
+
+When Claude Design produces a new export, drop it over
+`project/Trace Social.dc.html` and run:
 
 ```
-node build.mjs
+node build.mjs                          # or: node build.mjs <export.dc.html> <outDir>
 ```
 
-Reads the prototype (`project/Trace Social.dc.html`) plus `src/` and emits
-`site/index.html`. The prototype is treated as the source of truth for frame
-markup — edit frames there (or port them into `src/` if the prototype is
-retired), and gallery chrome / behaviour in `src/`.
+That's the whole update path — the build absorbs new work without edits here:
+
+- **New turns and frames** are picked up automatically and diffed against the
+  last build (`+ new / - removed / ~ resized` is printed).
+- **New frame sizes** are classified by aspect ratio and exported at the right
+  platform size — 4:5 → 1080×1350, 1.91:1 → 1200×627, and so on. Anything the
+  build had to infer is listed at the end of the run so you can check it.
+- **New formats** generate their own filter chip; the chip row is built from
+  what's actually in the file.
+- **New `@keyframes` and frame classes** come along, because the prototype's
+  own `<style>` block is lifted wholesale rather than hand-copied.
+- **Photo slots** are parsed attribute-order independently.
+
+The build fails loudly rather than silently dropping content: an unconvertible
+`image-slot`, a missing prototype stylesheet, or unbalanced markup all stop it.
+
+The prototype is the source of truth for frame markup — edit frames there;
+gallery chrome and behaviour live in `src/`.
 
 | path | role |
 |---|---|
 | `src/shell.html` | gallery chrome (header, filters, footer) |
-| `src/trace.css` | prototype CSS (verbatim) + restored finish + gallery styles |
+| `src/trace.css` | restored finish + photo slots + gallery styles (prototype CSS is lifted from the source at build time, not duplicated here) |
 | `src/trace.js` | filters, photo slots, PNG/ZIP export pipeline |
 | `src/fonts/` | Caveat woff2 subsets, extracted from the handoff's standalone export |
 | `build.mjs` | transforms prototype → site (slots, glass, export wrappers) |
 | `site/index.html` | **the deliverable** — single file, fully self-contained |
+| `site/manifest.json` | frame inventory (id, format, size), used to diff builds |
 
 Export detail worth knowing: rasterisation goes DOM clone → SVG
 `foreignObject` → canvas → PNG. The clone gets an `.ts-export` class that kills

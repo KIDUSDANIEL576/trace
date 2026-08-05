@@ -149,8 +149,8 @@
 
   /* -------------------------------------------------------- PNG export */
 
-  const FONT_CSS = ($('#ts-font') || {}).textContent || '';
-  const PAGE_CSS = ($('#ts-css') || {}).textContent || '';
+  // every injected stylesheet: font, prototype CSS, and this build's additions
+  const ALL_CSS = $$('style.ts-style').map((s) => s.textContent).join('\n');
 
   function frameToSvg(art) {
     const w = art.offsetWidth;
@@ -164,7 +164,7 @@
     const svg =
       `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(w * scale)}" ` +
       `height="${Math.round(h * scale)}" viewBox="0 0 ${w} ${h}">` +
-      `<style><![CDATA[${FONT_CSS}\n${PAGE_CSS}]]></style>` +
+      `<style><![CDATA[${ALL_CSS}]]></style>` +
       `<foreignObject width="${w}" height="${h}">${markup}</foreignObject></svg>`;
 
     return { svg, w: Math.round(w * scale), h: Math.round(h * scale) };
