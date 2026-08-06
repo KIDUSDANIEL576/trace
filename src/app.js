@@ -33,6 +33,7 @@ const ctx = cv.getContext('2d');
 let W = 0, H = 0, DPR = Math.min(2, devicePixelRatio || 1);
 
 function sizeCanvas() {
+  if (!wrap.clientWidth) return;   // view hidden — keep the ink and its size
   W = wrap.clientWidth; H = wrap.clientHeight;
   cv.width = W * DPR; cv.height = H * DPR;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -169,6 +170,7 @@ let featureHooks = {};
 
 function onYouDrew(s) {
   store.set('lastDrawn', Date.now());
+  lastInkAt = Date.now();
   window.TRACE_NET && TRACE_NET.emit('se', { id: s.id });
   if (window.TRACE_NET && TRACE_NET.live()) return;   // a real person answers now
   if (state.mode === 'passpen') {
@@ -1281,9 +1283,65 @@ if (typeof window !== 'undefined' && window.TRACE_EXTRA) {
 
 /* ================================================================ boot */
 
+/* ---------------- views: home (widget-first) <-> canvas ---------------- */
+const homeEl = $('#home'), appEl = $('#appview');
+function showApp() {
+  homeEl.classList.add('hidden'); appEl.classList.remove('hidden');
+  document.getElementById('screen').classList.remove('on-home');
+  requestAnimationFrame(sizeCanvas);
+}
+function showHome() {
+  appEl.classList.add('hidden'); homeEl.classList.remove('hidden');
+  document.getElementById('screen').classList.add('on-home');
+  paintWidget();
+}
+$('#widget').addEventListener('click', showApp);
+$('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showHome(); });
+
+/* the widget IS the display — it mirrors the live canvas */
+const wInk = $('#widget-ink');
+let lastInkAt = Date.now();
+function paintWidget() {
+  const r = $('#widget').getBoundingClientRect();
+  if (!r.width) return;
+  wInk.width = r.width * DPR; wInk.height = r.height * DPR;
+  const wx = wInk.getContext('2d');
+  wx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  wx.clearRect(0, 0, r.width, r.height);
+  const mine = strokes.filter(k => k.who !== 'fx');
+  if (!W || !H) return;
+  const k = Math.max(r.width / W, r.height / H) * .9;
+  wx.save();
+  wx.translate((r.width - W * k) / 2, (r.height - H * k) / 2);
+  wx.scale(k, k);
+  wx.lineCap = wx.lineJoin = 'round';
+  for (const s of mine) {
+    if (s.pts.length < 2) continue;
+    wx.strokeStyle = s.c; wx.lineWidth = s.w;
+    wx.beginPath(); wx.moveTo(s.pts[0].x, s.pts[0].y);
+    for (const p of s.pts) wx.lineTo(p.x, p.y);
+    wx.stroke();
+  }
+  wx.restore();
+  const mins = Math.floor((Date.now() - lastInkAt) / 60000);
+  $('#widget-cap').innerHTML = 'tra<i>ce</i> · ' + (mins < 1 ? 'just now' : mins + ' min ago');
+}
+setInterval(() => { if (!homeEl.classList.contains('hidden')) paintWidget(); }, 700);
+
+/* the phone is the design's exact 330×714, scaled as one unit */
+function fitPhone() {
+  const simW = innerWidth > 760 ? 270 : 0;
+  const z = Math.min((innerWidth - simW - 16) / 330, (innerHeight - 16) / 714);
+  document.getElementById('phone').style.zoom = z.toFixed(3);
+}
+addEventListener('resize', fitPhone); fitPhone();
+
 function tickClock() {
   const d = new Date();
-  $('#clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  const t = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  $('#clock').textContent = t;
+  const ht = $('#home-time');
+  if (ht) ht.textContent = t + ' · ' + d.toLocaleDateString(undefined, { weekday: 'long' }).toLowerCase();
 }
 setInterval(tickClock, 20000); tickClock();
 
@@ -1294,8 +1352,17 @@ sizeCanvas();
 setInterval(() => { if (strokes.some(s => s.brush === 'ghost')) redraw(); }, 300);
 
 // opening moment: she's finishing something as you arrive
+showHome();
+let opened = false;
+$('#widget').addEventListener('click', () => {
+  if (opened) return; opened = true;
+  setTimeout(() => {
+    if (window.TRACE_NET && TRACE_NET.live()) return;
+    sara.drawShape('sun', { c: '#f4c66b' });
+  }, 1200);
+});
 setTimeout(() => {
-  if (window.TRACE_NET && TRACE_NET.live()) return;
+  if (true) return;   // opening moment now happens on first widget tap
   sara.drawShape('sun', { c: '#f4c66b', then: () => {
     $('#canvas-note').textContent = 'draw how today feels';
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
@@ -1318,7 +1385,7 @@ window.TRACE_APP = {
     }
     redraw();
   },
-  remoteEnd(p) { sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw(); },
+  remoteEnd(p) { lastInkAt = Date.now(); sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw(); },
   remoteHeart() { heartArrive('partner'); },
   remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); redraw(); toast('they cleared the canvas'); },
   remoteSky(p) { window.TRACE_SKY && TRACE_SKY(p.name, p.strength); },

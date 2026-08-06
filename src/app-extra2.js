@@ -29,11 +29,13 @@ window.TRACE_SKY = (n, st) => applySky(n, st, true);
 const applySky = (name, strength, fromRemote) => {
   if (!fromRemote && window.TRACE_NET) TRACE_NET.emit('sky', { name, strength });
   const c = SKIES[name] || SKIES.dusk;
-  const sky = $('#sky');
-  sky.style.background = `linear-gradient(180deg,${c[0]} 0%,${c[1]} 45%,${c[2]} 70%,${c[3]} 100%)`;
-  sky.style.opacity = (0.35 + 0.65 * strength).toFixed(2);
-  const light = name === 'daylight';
-  $('#screen').classList.toggle('is-light', light);
+  const grad = `linear-gradient(180deg,${c[0]} 0%,${c[1]} 45%,${c[2]} 70%,${c[3]} 100%)`;
+  for (const id of ['#sky', '#card-sky']) {
+    const n = $(id); if (!n) continue;
+    n.style.background = grad;
+    n.style.opacity = (0.35 + 0.65 * strength).toFixed(2);
+  }
+  ($('#appview') || $('#screen')).classList.toggle('is-light', name === 'daylight');
   store.set('sky', { name, strength });
 };
 const savedSky = store.get('sky', { name: 'dusk', strength: 1 });
@@ -72,9 +74,9 @@ function drawOnPhoto() {
   inp.addEventListener('change', () => {
     const f = inp.files[0]; if (!f) return;
     const url = URL.createObjectURL(f);
-    const sky = $('#sky');
-    sky.style.background = `#000 center/cover no-repeat url("${url}")`;
-    sky.style.opacity = 1;
+    const card = $('#card-sky');
+    card.style.background = `#000 center/cover no-repeat url("${url}")`;
+    card.style.opacity = 1;
     note('a photo you both can draw on');
     toast('she can draw on it too');
     log('photo canvas set');
@@ -99,12 +101,9 @@ let page = 'us';
 const pageStrokes = { us: [], mine: [], hers: [] };
 
 function mountTabs() {
-  if ($('#tabs')) return;
-  const bar = el(`<div id="tabs" class="glass" style="position:relative;z-index:5;align-self:center;display:flex;gap:4px;padding:4px;border-radius:99px;margin:2px 0 4px">
-    <button data-p="us" class="tb on">us</button>
-    <button data-p="mine" class="tb">my page</button>
-    <button data-p="hers" class="tb">Sara</button></div>`);
-  $('#top').after(bar);
+  const bar = $('#tabs');
+  if (!bar || bar.dataset.wired) return;
+  bar.dataset.wired = '1';
   bar.querySelectorAll('.tb').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.p === page) return;
     pageStrokes[page] = strokes.all();

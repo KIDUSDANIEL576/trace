@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-<title>trace — app simulation</title>
+<title>trace — app</title>
 <!--FONT-->
 <!--CSS-->
 </head>
@@ -12,54 +12,83 @@
 
 <div id="stage">
 <div id="phone">
-  <div id="screen">
+<div id="screen">
+
+  <!-- ============ HOME — the widget is the display (frame 1o) ============ -->
+  <div id="home">
+    <div id="home-time">9:41 · tuesday</div>
+    <div id="home-grid">
+      <button id="widget" title="open trace">
+        <canvas id="widget-ink"></canvas>
+        <span id="widget-cap">tra<i>ce</i> · just now</span>
+      </button>
+      <div class="apptile"></div><div class="apptile"></div>
+      <div class="apptile"></div><div class="apptile"></div>
+    </div>
+    <div id="home-hint">no notification. it’s just there.<br><span>tap the widget</span></div>
+  </div>
+
+  <!-- ================= THE CANVAS (frames 3a + 1a) ================= -->
+  <div id="appview" class="hidden">
     <div id="sky"></div>
-    <div id="vignette"></div>
+    <div id="dim"></div>
 
-    <div id="statusbar"><span id="clock">9:41</span><span class="sb-r">▮▮▮</span></div>
+    <div id="col">
+      <header id="top">
+        <div id="wordmark" title="hold for settings">tra<span>ce</span></div>
+        <div id="streakpill"><svg class="ts-i"><use href="#i-flame"/></svg><b id="streak-n">128</b></div>
+        <div id="presence">
+          <span id="presence-ico"><svg class="ts-i"><use href="#i-pencil"/></svg></span>
+          <span id="presence-txt">with Sara</span>
+          <span id="presence-dot"></span>
+        </div>
+      </header>
 
-    <header id="top">
-      <div id="wordmark" title="hold for settings">tra<span>ce</span></div>
-      <div id="streakpill"><svg class="ts-i"><use href="#i-flame"/></svg><b id="streak-n">128</b></div>
-      <div id="presence" class="glass">
-        <span id="presence-dot"></span><span id="presence-txt">with Sara</span>
+      <div id="tabs">
+        <button data-p="us" class="tb on">us</button>
+        <button data-p="mine" class="tb"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</button>
+        <button data-p="hers" class="tb"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</button>
       </div>
-    </header>
 
-    <main id="canvas-wrap">
-      <canvas id="ink"></canvas>
-      <div id="ghost-finger"><span>her finger</span></div>
-      <div id="canvas-note"></div>
-      <div id="whisper"></div>
-      <div id="mirror-line"></div>
-      <div id="warm-layer"></div>
-      <div id="bloom"></div>
-    </main>
+      <main id="canvas-zone">
+        <div id="canvas-wrap">
+          <div id="card-sky"></div>
+          <div id="card-light"></div>
+          <canvas id="ink"></canvas>
+          <div id="ghost-finger"><span>her finger</span></div>
+          <div id="mirror-line"></div>
+          <div id="warm-layer"></div>
+          <div id="bloom"></div>
+          <div id="whisper"></div>
+          <div id="canvas-note">draw how today feels</div>
+        </div>
+      </main>
 
-    <div id="dock" class="glass">
-      <div class="dock-row" id="brushes">
-        <button class="tool is-on" data-brush="pen" title="pen"><svg class="ts-i"><use href="#i-pencil"/></svg></button>
-        <button class="tool" data-brush="spark" title="sparkles"><svg class="ts-i"><use href="#i-sparkles"/></svg></button>
-        <button class="tool" data-brush="zap" title="zap"><svg class="ts-i"><use href="#i-zap"/></svg></button>
-        <button class="tool" data-brush="marker" title="marker"><svg class="ts-i"><use href="#i-marker"/></svg></button>
-        <button class="tool" data-brush="ghost" title="invisible ink"><svg class="ts-i"><use href="#i-ghost"/></svg></button>
-      </div>
-      <div class="dock-row">
-        <button class="swatch is-on" data-c="#e23343" style="background:#e23343"></button>
-        <button class="swatch" data-c="#ff7a9c" style="background:#ff7a9c"></button>
-        <button class="swatch" data-c="#f3f0f4" style="background:#f3f0f4"></button>
-        <button class="swatch" data-c="#f4c66b" style="background:#f4c66b"></button>
-        <button class="swatch" data-c="#7ec8ff" style="background:#7ec8ff"></button>
-        <span class="dock-sep"></span>
-        <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
-        <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
-        <button class="rbtn" id="more-btn" title="everything">⋯</button>
+      <div id="dock">
+        <div class="dock-row" id="brushes">
+          <button class="tool is-on" data-brush="pen" title="pen"><svg class="ts-i"><use href="#i-pencil"/></svg></button>
+          <button class="tool" data-brush="spark" title="sparkles"><svg class="ts-i"><use href="#i-sparkles"/></svg></button>
+          <button class="tool" data-brush="zap" title="zap"><svg class="ts-i"><use href="#i-zap"/></svg></button>
+          <button class="tool" data-brush="marker" title="marker"><svg class="ts-i"><use href="#i-marker"/></svg></button>
+          <button class="tool" data-brush="ghost" title="invisible ink"><svg class="ts-i"><use href="#i-ghost"/></svg></button>
+        </div>
+        <div class="dock-row">
+          <button class="swatch is-on" data-c="#e23343" style="background:#e23343"></button>
+          <button class="swatch" data-c="#ff7a9c" style="background:#ff7a9c"></button>
+          <button class="swatch" data-c="#fff" style="background:#fff"></button>
+          <button class="swatch" data-c="#f4c66b" style="background:#f4c66b"></button>
+          <button class="swatch" data-c="#7ec8ff" style="background:#7ec8ff"></button>
+          <span class="dock-sep"></span>
+          <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
+          <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
+          <button class="rbtn" id="more-btn" title="everything">⋯</button>
+        </div>
       </div>
     </div>
 
-    <!-- feature sheet -->
+    <!-- feature sheet — frame 1a -->
     <div id="sheet" class="hidden">
-      <div id="sheet-card" class="glass">
+      <div id="sheet-card">
         <div class="grab"></div>
         <div id="sheet-list"></div>
       </div>
@@ -74,9 +103,12 @@
       </div>
       <div id="panel-body"></div>
     </div>
-
-    <div id="toast"></div>
   </div>
+
+  <div id="statusbar"><span id="clock">9:41</span><span class="sb-r">▮▮▮</span></div>
+  <button id="home-bar" title="home"></button>
+  <div id="toast"></div>
+</div>
 </div>
 
 <aside id="sim">
