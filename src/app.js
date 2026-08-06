@@ -49,7 +49,9 @@ const BRUSH_DEFAULTS = {
   spark:  { size: 8,  alpha: 1,   taper: false },
   zap:    { size: 7,  alpha: 1,   taper: false },
   marker: { size: 16, alpha: .88, taper: false },
+  hi:     { size: 17, alpha: .38, taper: false },
   ghost:  { size: 9,  alpha: 1,   taper: true  },
+  eraser: { size: 18, alpha: 1,   taper: false },
 };
 const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
@@ -69,10 +71,11 @@ function drawStroke(s, upTo = Infinity, alpha = 1) {
   ctx.lineCap = ctx.lineJoin = 'round';
   ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
   ctx.strokeStyle = s.c;
+  if (s.brush === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = 1; }
   if (s.brush === 'spark') { ctx.shadowColor = s.c; ctx.shadowBlur = 10; }
   const n = Math.min(pts.length, upTo);
 
-  if (s.taper && s.brush !== 'zap') {
+  if (s.taper && s.brush !== 'zap' && s.brush !== 'hi' && s.brush !== 'eraser') {
     // velocity-tapered ink: fast segments thin out, ends breathe — this is
     // what makes a line read as drawn by a hand instead of plotted
     for (let i = 1; i < n; i++) {
@@ -161,10 +164,14 @@ SHAPES.heartL = [[.5,.62],[.42,.55],[.36,.44],[.40,.36],[.47,.37],[.5,.44]];
 let cur = null;
 let touching = { on: false };  // 10a state
 
+let smooth = null;                 // EMA of pointer samples — the jitter filter
+const SMOOTH = .42;                // lower = silkier, higher = snappier
+
 wrap.addEventListener('pointerdown', (e) => {
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
   wrap.setPointerCapture(e.pointerId);
   const p = pos(e);
+  smooth = { ...p };
   if (featureHooks.down && featureHooks.down(p)) return;
   const cfg = brushCfg[state.brush] || BRUSH_DEFAULTS.pen;
   cur = { pts: [{ ...p, t: now() }], c: state.color, w: cfg.size, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
@@ -173,11 +180,15 @@ wrap.addEventListener('pointerdown', (e) => {
   window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, alpha: cur.alpha, taper: cur.taper, brush: cur.brush, mirror: cur.mirror });
 });
 wrap.addEventListener('pointermove', (e) => {
-  const p = pos(e);
+  let p = pos(e);
   if (featureHooks.move && featureHooks.move(p, e)) return;
   if (!cur) return;
+  if (smooth) {
+    smooth = { x: smooth.x + (p.x - smooth.x) * SMOOTH, y: smooth.y + (p.y - smooth.y) * SMOOTH };
+    p = { x: smooth.x, y: smooth.y };
+  }
   const lp = cur.pts[cur.pts.length - 1];
-  if (Math.hypot(p.x - lp.x, p.y - lp.y) < 2.2) return;
+  if (Math.hypot(p.x - lp.x, p.y - lp.y) < 1.6) return;
   cur.pts.push({ ...p, t: now() });
   window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4)] });
   if (state.traceGuide) scoreTrace(p);
@@ -324,6 +335,8 @@ $$('#brushes .tool').forEach(b => b.addEventListener('click', () => {
   $$('#brushes .tool').forEach(x => x.classList.toggle('is-on', x === b));
   state.brush = b.dataset.brush;
   if (state.brush === 'ghost') toast('invisible ink — it vanishes as it lands. hold ⦿ reveal in ⋯');
+  if (state.brush === 'eraser') toast('eraser — lifts any ink, hers too. undo brings it back.');
+  if (state.brush === 'hi') toast('highlighter — lay it over ink, it never covers');
 }));
 
 /* brush options — tap the active tool again (thickness, opacity, taper) */
@@ -332,6 +345,8 @@ function closeBrushPop() { if (popEl) { popEl.remove(); popEl = null; } }
 function toggleBrushPop() {
   if (popEl) return closeBrushPop();
   const cfg = brushCfg[state.brush];
+  const isEraser = state.brush === 'eraser';
+  const isHi = state.brush === 'hi';
   popEl = document.createElement('div');
   popEl.id = 'brushpop';
   popEl.innerHTML = `
@@ -341,10 +356,10 @@ function toggleBrushPop() {
     <div class="bp-row"><span>size</span>
       <input class="bp-size" type="range" min="3" max="26" step="1" value="${cfg.size}">
       <b class="bp-sizen">${cfg.size}</b></div>
-    <div class="bp-row"><span>ink</span>
+    <div class="bp-row"${isEraser ? ' hidden' : ''}><span>ink</span>
       <input class="bp-alpha" type="range" min="20" max="100" step="5" value="${Math.round(cfg.alpha * 100)}">
       <b class="bp-alphan">${Math.round(cfg.alpha * 100)}%</b></div>
-    <button class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>`;
+    <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>`;
   $('#dock').before(popEl);
   const prev = popEl.querySelector('.bp-prev').getContext('2d');
   const paintPrev = () => {
@@ -355,7 +370,9 @@ function toggleBrushPop() {
     // draw with the same routine on the preview context
     const realCtx = ctx; const swap = Object.getOwnPropertyDescriptor(window, 'noop');
     prev.save(); prev.lineCap = prev.lineJoin = 'round';
-    prev.globalAlpha = cfg.alpha; prev.strokeStyle = state.color;
+    prev.globalAlpha = isEraser ? .5 : cfg.alpha;
+    prev.strokeStyle = isEraser ? 'rgba(243,240,244,.6)' : state.color;
+    if (isEraser) prev.setLineDash([2, 7]);
     if (cfg.taper) {
       const pts = fake.pts;
       for (let i = 1; i < pts.length; i++) {
@@ -1413,11 +1430,14 @@ function paintWidget() {
   wx.lineCap = wx.lineJoin = 'round';
   for (const s of mine) {
     if (s.pts.length < 2) continue;
+    wx.globalCompositeOperation = s.brush === 'eraser' ? 'destination-out' : 'source-over';
+    wx.globalAlpha = s.brush === 'eraser' ? 1 : (s.alpha !== undefined ? s.alpha : 1);
     wx.strokeStyle = s.c; wx.lineWidth = s.w;
     wx.beginPath(); wx.moveTo(s.pts[0].x, s.pts[0].y);
     for (const p of s.pts) wx.lineTo(p.x, p.y);
     wx.stroke();
   }
+  wx.globalCompositeOperation = 'source-over'; wx.globalAlpha = 1;
   wx.restore();
   const mins = Math.floor((Date.now() - lastInkAt) / 60000);
   $('#widget-cap').innerHTML = 'tra<i>ce</i> · ' + (mins < 1 ? 'just now' : mins + ' min ago');
