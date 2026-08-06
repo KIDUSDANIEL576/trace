@@ -1229,6 +1229,26 @@ $$('#sim [data-sim]').forEach(b => b.addEventListener('click', () => {
   if (k === 'tug') stringTug('sara');
 }));
 
+/* Extra features live in app-extra.js and register through this API so the
+   two files can't drift — everything they need is passed explicitly. */
+if (typeof window !== 'undefined' && window.TRACE_EXTRA) {
+  FEATURES.push(...window.TRACE_EXTRA({
+    openPanel, closePanel, miniCanvas, playInto, toast, log, buzz, store,
+    SHAPES, wobblePath, jit, sara, redraw, closeSheet,
+    writeOnCanvas: (t) => writeOnCanvas(t),
+    strokes: {
+      all: () => strokes,
+      add: (s) => { strokes.push(s); redraw(); },
+      set: (v) => { strokes = v; redraw(); },
+      clear: () => { strokes = []; redraw(); },
+    },
+    canvas: () => ({ cv, ctx, W, H, DPR, wrap }),
+    note: (t) => { $('#canvas-note').textContent = t || ''; },
+    hooks: (h) => { featureHooks = h || {}; },
+    $, $$, now, DPR,
+  }));
+}
+
 /* ================================================================ boot */
 
 function tickClock() {
