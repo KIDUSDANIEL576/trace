@@ -386,6 +386,12 @@ const html = read('src/shell.html')
 mkdirSync(at(OUT), { recursive: true });
 writeFileSync(join(at(OUT), 'plan.html'),
   read('src/plan.html').replace('<!--FONT-->', `<style>${caveatCss}</style>`));
+writeFileSync(join(at(OUT), 'app.html'),
+  read('src/app.html')
+    .replace('<!--FONT-->', () => `<style>${caveatCss}</style>`)
+    .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
+    .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
+    .replace('<!--JS-->', () => `<script>\n${read('src/app.js')}\n</script>`));
 writeFileSync(join(at(OUT), 'index.html'), html);
 
 /* ------------------------------------------------- manifest + change log */
