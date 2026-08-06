@@ -143,7 +143,13 @@ frames = frames.replace(/<div style="([^"]*)"/g, (m, style) => {
   if (w && h && w < 40 && h < 40) return m;
 
   glassCount++;
-  return `<div class="ts-glass" style="${style}"`;
+  // Top-edge highlight — real glass catches light on its lip. Appended to the
+  // inline style rather than set in CSS so authored glows (the presence pill's
+  // red bloom, dock shadows) are never overridden.
+  const lit = /box-shadow/.test(style)
+    ? style
+    : `${style};box-shadow:inset 0 1px 0 rgba(255,255,255,.09)`;
+  return `<div class="ts-glass" style="${lit}"`;
 });
 
 /* ----------------------------------------------------- emoji → icons */

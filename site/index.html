@@ -97,16 +97,57 @@ body {
   z-index: 90;
   pointer-events: none;
   border-radius: inherit;
-  opacity: .085;
+  opacity: .07;
   mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 140px 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* fine grain: film-like at export scale, invisible as a pattern */
+  background-size: 78px 78px;
 }
 
 /* Glass over canvas — the app's core surface rule. */
 .ts-glass {
   backdrop-filter: blur(16px) saturate(1.3);
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
+}
+
+/* ==========================================================================
+   PROFESSIONAL FINISH
+   The details that separate a shipped app screenshot from a mockup. All
+   scoped to .ts-art so gallery chrome is unaffected, and all additive —
+   authored art is never overridden.
+   ========================================================================== */
+
+/* Tabular figures. Counters, timers and stats must not wobble as digits
+   change (00:07 → 00:11, 412 days, 4,812 strokes). Proportional numerals in
+   a running counter is the loudest "nobody shipped this" tell there is. */
+/* !important because the inline `font:` shorthand resets font-variant-*. */
+.ts-art [style*="system-ui"],
+.ts-art [style*="ui-monospace"],
+.ts-art [style*="Menlo"] {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Typographic polish: no orphans in the hand-lettered headlines. */
+.ts-art { text-wrap: pretty; text-rendering: optimizeLegibility; }
+
+/* Device shadows, layered the way light actually falls: a tight contact
+   shadow, a mid ambient, a wide soft cast, plus a hairline edge. One
+   uniform blur reads synthetic. */
+.ts-art[style*="border-radius:46px"] {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .30),
+    0 6px 14px rgba(0, 0, 0, .20),
+    0 26px 54px rgba(0, 0, 0, .34),
+    0 0 0 .5px rgba(255, 255, 255, .10) !important;
+}
+
+/* Specular edge on the screen itself — real glass catches light at the
+   top bevel. Inset shadow, so no pseudo-element can clash with authored art. */
+.ts-art[style*="border-radius:46px"] > div {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .06),
+    inset 0 1px 0 rgba(255, 255, 255, .13);
 }
 
 /* Monoline icons (replacing emoji). Sized by the font-size that sized the
@@ -1699,7 +1740,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="font:700 9.5px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.42);letter-spacing:.08em">THE LINE · DAY 412</div>
     <div style="font-family:Caveat,cursive;font-weight:700;font-size:33px;color:#fff;line-height:1;margin-top:4px">one stroke each.<br>nobody is in charge.</div>
   </div>
-  <div class="ts-glass" style="position:absolute;left:26px;bottom:78px;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:rgba(12,11,16,.6);border:1px solid rgba(255,255,255,.14)">
+  <div class="ts-glass" style="position:absolute;left:26px;bottom:78px;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:rgba(12,11,16,.6);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
     <div style="width:6px;height:6px;border-radius:3px;background:#7fc8a9;animation:tblink 1.1s steps(1) infinite"></div>
     <div style="font:10.5px system-ui,sans-serif;color:#fff">someone in Osaka is adding to it</div>
   </div>
@@ -1837,7 +1878,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div class="ts-fw" data-fmt="beat"><div class="ts-fbar"><span class="ts-fsz">1080×1918</span><button class="ts-fx" data-x="5a-b2">PNG</button></div><div class="ts-art ts-grain" data-name="5a-b2" data-scale="5.510204081632653" style="position:relative;width:196px;height:348px;overflow:hidden;border-radius:6px;background:#0c0b10">
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,#171528 0%,#2c2340 48%,#3a2436 100%)"></div>
       
-      <div class="ts-glass" style="position:absolute;left:11px;top:20px;display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:99px;background:rgba(10,9,13,.55);border:1px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="position:absolute;left:11px;top:20px;display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:99px;background:rgba(10,9,13,.55);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="width:5px;height:5px;border-radius:3px;background:#ff7a9c;animation:tblink 1.1s steps(1) infinite"></div><div style="font-size:9px;color:#fff">Sara is drawing</div>
       </div>
       <svg sc-camel-view-box="0 0 196 348" style="position:absolute;inset:0;width:100%;height:100%" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -1939,7 +1980,7 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="position:absolute;left:0;right:0;top:0;height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:600 9px system-ui,sans-serif;color:#fff">
         <span>1:04</span><span style="display:flex;align-items:center;gap:4px"><span style="width:22px;height:11px;border-radius:3px;background:#e23343;color:#fff;font-size:7px;display:flex;align-items:center;justify-content:center;animation:trec 1.4s steps(1) infinite">REC</span>▮▮▮</span>
       </div>
-      <div class="ts-glass" style="position:absolute;left:14px;right:14px;top:56px;border-radius:16px;padding:12px;background:rgba(12,11,16,.72);border:1px solid rgba(255,255,255,.18)">
+      <div class="ts-glass" style="position:absolute;left:14px;right:14px;top:56px;border-radius:16px;padding:12px;background:rgba(12,11,16,.72);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="font:9px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.6);margin-bottom:6px">SARA · 22:41</div>
         <svg sc-camel-view-box="0 0 140 54" style="width:100%;height:44px" fill="none" stroke="#ff7a9c" stroke-width="7" stroke-linecap="round"><path d="M18 38 c14 -22 26 8 40 -12 c12 -16 26 14 44 -4"></path></svg>
       </div>
@@ -2214,9 +2255,9 @@ html.ts-calm .dv-beat:hover *::after {
     <path d="M60 138 c14 8 30 -10 44 2" stroke="#f4c66b" stroke-width="7"></path>
   </svg>
   <div style="position:absolute;left:16px;right:16px;bottom:96px;display:flex;flex-direction:column;gap:8px">
-    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600">a bird, apparently</div>
-    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600">"pick me up"</div>
-    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600">he was falling asleep</div>
+    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">a bird, apparently</div>
+    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">"pick me up"</div>
+    <div class="ts-glass" style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">he was falling asleep</div>
   </div>
   <div style="position:absolute;left:18px;right:18px;bottom:40px;font-size:12.5px;color:rgba(255,255,255,.8)">(it was the third one. it's always the third one.)</div>
 </div></div>
@@ -2376,7 +2417,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:52px 14px 14px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
-      <div class="ts-glass" style="padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff">1 unopened</div>
+      <div class="ts-glass" style="padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">1 unopened</div>
     </div>
     <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
       <div style="position:relative;width:292px;height:340px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,255,255,.16);box-shadow:0 12px 30px rgba(0,0,0,.4)">
@@ -2396,7 +2437,7 @@ html.ts-calm .dv-beat:hover *::after {
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="ts-glass" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:20px;background:rgba(22,21,28,.5);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:20px;background:rgba(22,21,28,.5);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="font-size:18px"><svg class="ts-i"><use href="#i-coin"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:14.5px;font-weight:600">Sara left this 4 minutes ago</div><div style="color:#9a93a5;font-size:12px;margin-top:2px">she'll see the moment you uncover it</div></div>
       </div>
@@ -2437,7 +2478,7 @@ html.ts-calm .dv-beat:hover *::after {
         <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px"><svg class="ts-i"><use href="#i-arrows-h"/></svg> side by side</div>
         <div style="flex:1;padding:12px;border-radius:18px;background:rgba(255,240,235,.08);border:1px solid rgba(255,238,232,.16);text-align:center;color:#f7efe9;font-size:13px"><svg class="ts-i"><use href="#i-repeat"/></svg> relay</div>
       </div>
-      <div class="ts-glass" style="padding:13px 15px;border-radius:20px;background:rgba(30,21,26,.55);border:1.5px solid rgba(255,238,232,.16)">
+      <div class="ts-glass" style="padding:13px 15px;border-radius:20px;background:rgba(30,21,26,.55);border:1.5px solid rgba(255,238,232,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="color:#f7efe9;font-size:14.5px;font-weight:600">one shape, two halves</div>
         <div style="color:#b6a49d;font-size:12px;margin-top:2px">whatever you draw is mirrored across the fold, live</div>
       </div>
@@ -2492,7 +2533,7 @@ html.ts-calm .dv-beat:hover *::after {
   <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:52px 14px 14px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
-      <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff"><svg class="ts-i"><use href="#i-pencil"/></svg> Sara has the pen</div>
+      <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);font-size:12.5px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)"><svg class="ts-i"><use href="#i-pencil"/></svg> Sara has the pen</div>
     </div>
     <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center">
       <div style="position:relative;width:292px;height:321px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(255,255,255,.14)">
@@ -2504,7 +2545,7 @@ html.ts-calm .dv-beat:hover *::after {
         <div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:Caveat,cursive;font-size:19px;color:rgba(255,255,255,.7)">wait your turn <svg class="ts-i"><use href="#i-smile"/></svg></div>
       </div>
     </div>
-    <div class="ts-glass" style="border-radius:26px;overflow:hidden;background:rgba(18,17,24,.55);border:1.5px solid rgba(255,255,255,.14);padding:14px">
+    <div class="ts-glass" style="border-radius:26px;overflow:hidden;background:rgba(18,17,24,.55);border:1.5px solid rgba(255,255,255,.14);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:44px;height:44px;border-radius:99px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
         <div style="flex:1">
@@ -2570,7 +2611,7 @@ html.ts-calm .dv-beat:hover *::after {
         <path d="M40 176 l18 22 M58 176 l-18 22" stroke="#e23343" stroke-width="6"></path>
       </svg>
       <div class="dv-hand" style="left:88px;top:176px"></div>
-      <div class="ts-glass" style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16);font-size:10.5px;color:#fff">you</div>
+      <div class="ts-glass" style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16);font-size:10.5px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">you</div>
     </div>
     <div style="position:relative;border-radius:22px;overflow:hidden;border:1.5px solid rgba(255,255,255,.16);box-shadow:0 12px 26px rgba(0,0,0,.4)">
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,#33445f 0%,#5c5f78 45%,#8a6b73 70%,#2e2733 100%)"></div>
@@ -2583,7 +2624,7 @@ html.ts-calm .dv-beat:hover *::after {
         <path d="M92 128 c-12 4 -12 20 0 22 c13 2 14 -20 0 -22" stroke="#ff7a9c" stroke-width="6"></path>
         <path d="M40 176 l18 22 M58 176 l-18 22" stroke="#e23343" stroke-width="6" style="stroke-dasharray:60;--len:60;animation:tdraw 1.8s ease-out infinite alternate"></path>
       </svg>
-      <div class="ts-glass" style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
+      <div class="ts-glass" style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="width:13px;height:13px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
         <div style="font-size:10.5px;color:#fff"><span style="color:#ff7a9c">Sara</span> is drawing</div>
         <div style="width:4px;height:4px;border-radius:3px;background:#ff7a9c;animation:tblink 1s steps(1,end) infinite"></div>
@@ -2608,7 +2649,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M44 150 c14 -20 26 6 40 -12 c12 -16 26 4 40 -12" stroke="#fff" stroke-width="6" style="stroke-dasharray:180;--len:180;animation:tdraw 2.4s ease-in-out infinite alternate"></path>
       <path d="M62 96 c14 -4 26 4 26 16" stroke="#f4c66b" stroke-width="6"></path>
     </svg>
-    <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2)">
+    <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
       <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10px;color:#fff"><span style="color:#ff9ea9">Sara</span> is drawing</div>
       <div style="width:4px;height:4px;border-radius:3px;background:#ff9ea9;animation:tblink 1s steps(1,end) infinite"></div>
@@ -2768,7 +2809,7 @@ html.ts-calm .dv-beat:hover *::after {
     </svg>
     <div style="position:absolute;left:98px;bottom:56px;font-family:Caveat,cursive;font-weight:700;font-size:34px;color:#fff;transform:rotate(-6deg)">you're it</div>
     <div class="dv-hand" style="left:150px;top:186px;width:28px;height:28px"></div>
-    <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2)">
+    <div class="ts-glass" style="position:absolute;left:9px;top:9px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
       <div style="width:13px;height:13px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10px;color:#fff"><span style="color:#ff9ea9">Sara</span> is drawing</div>
       <div style="width:4px;height:4px;border-radius:3px;background:#ff9ea9;animation:tblink 1s steps(1,end) infinite"></div>
@@ -2795,24 +2836,24 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="margin-top:6px;font-size:13px;color:#9a93a5">five things your fingers can do. you'll forget four.</div>
 
     <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
-      <div class="ts-glass" style="position:relative;display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="position:relative;display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="position:relative;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none">
           <div class="dv-hand" style="left:9px;top:9px;width:22px;height:22px;animation:tnudge 2.2s ease-in-out infinite"></div>
         </div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">just draw</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">their screen has it in under 300ms</div></div>
       </div>
 
-      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="width:52px;height:52px;border-radius:14px;background:#db3141;border:1px solid #e23343;box-shadow:0 0 12px rgba(226,51,67,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700;flex:none;animation:tbeat 2.4s ease-in-out infinite"><svg class="ts-i"><use href="#i-heart-fill"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">tap the heart</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">press at the same second and it erupts</div></div>
       </div>
 
-      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="position:relative;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none;display:flex;align-items:center;justify-content:center;font-size:18px"><svg class="ts-i"><use href="#i-eye"/></svg></div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">hold to reveal</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">invisible ink shows only while you press</div></div>
       </div>
 
-      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="position:relative;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none">
           <div style="position:absolute;left:10px;top:16px;width:14px;height:14px;border-radius:99px;background:rgba(255,255,255,.85)"></div>
           <div style="position:absolute;left:28px;top:16px;width:14px;height:14px;border-radius:99px;background:rgba(255,255,255,.85)"></div>
@@ -2820,7 +2861,7 @@ html.ts-calm .dv-beat:hover *::after {
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">two fingers, swipe back</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">undo your last stroke without looking down</div></div>
       </div>
 
-      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14)">
+      <div class="ts-glass" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:20px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.07);flex:none;display:flex;align-items:center;justify-content:center;font-family:Caveat,cursive;font-weight:700;font-size:20px;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
         <div><div style="color:#f3f0f4;font-size:15px;font-weight:600">long-press the wordmark</div><div style="color:#9a93a5;font-size:12.5px;margin-top:2px">settings hide there, on purpose</div></div>
       </div>
@@ -2864,7 +2905,7 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="font-size:12.5px;color:#fff">with Sara</div>
     </div>
   </div>
-  <div class="ts-glass" style="align-self:center;display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);margin-bottom:6px">
+  <div class="ts-glass" style="align-self:center;display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(22,21,28,.42);border:1.5px solid rgba(255,255,255,.14);margin-bottom:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
     <div style="padding:8px 16px;border-radius:99px;background:rgba(226,51,67,.16);border:1px solid #e23343;font-size:13.5px;font-weight:700;color:#fff">us</div>
     <div style="padding:8px 16px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</div>
     <div style="padding:8px 14px;border-radius:99px;font-size:13.5px;font-weight:500;color:#fff"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</div>
@@ -2881,7 +2922,7 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="position:absolute;left:0;right:0;bottom:10px;text-align:center;font-family:Caveat,cursive;font-size:17px;color:rgba(255,255,255,.5)">draw how today feels</div>
     </div>
   </div>
-  <div class="ts-glass" style="position:relative;margin-top:auto;border-top-left-radius:28px;border-top-right-radius:28px;border:1.5px solid rgba(255,255,255,.14);overflow:hidden;background:rgba(18,17,24,.88);padding:10px 14px 16px;margin:0 -14px -14px">
+  <div class="ts-glass" style="position:relative;margin-top:auto;border-top-left-radius:28px;border-top-right-radius:28px;border:1.5px solid rgba(255,255,255,.14);overflow:hidden;background:rgba(18,17,24,.88);padding:10px 14px 16px;margin:0 -14px -14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
     <div style="width:40px;height:5px;border-radius:3px;background:rgba(154,147,165,.5);margin:0 auto 10px"></div>
     <div style="display:flex;flex-direction:column">
       <div style="display:flex;align-items:center;gap:14px;padding:13px 10px"><div style="font-size:21px;width:30px;text-align:center"><svg class="ts-i"><use href="#i-sunrise"/></svg></div><div><div style="color:#f3f0f4;font-size:16px;font-weight:500">Sky &amp; strength</div><div style="color:#9a93a5;font-size:12.5px;margin-top:1px">pick a background and how strongly it shows</div></div></div>
@@ -2905,13 +2946,13 @@ html.ts-calm .dv-beat:hover *::after {
 <div style="position:absolute;inset:0;background:rgba(0,0,0,.42)"></div>
 <div style="position:absolute;top:52px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between">
   <div style="font-family:Caveat,cursive;font-weight:700;font-size:24px;line-height:1;color:#f7efe9">tra<span style="color:#ef5a63">ce</span></div>
-  <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(37,26,32,.42);border:1.5px solid rgba(255,238,232,.16)">
+  <div class="ts-glass" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:99px;background:rgba(37,26,32,.42);border:1.5px solid rgba(255,238,232,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
     <div style="width:8px;height:8px;border-radius:4px;background:#ff9ea9"></div><div style="font-size:12.5px;color:#fff">with Sara</div>
   </div>
 </div>
 
 <div style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>
-<div class="ts-glass" style="position:absolute;left:0;right:0;bottom:0;border-top-left-radius:28px;border-top-right-radius:28px;border:1.5px solid rgba(255,238,232,.16);overflow:hidden;background:rgba(30,21,26,.86);padding:10px 16px 20px">
+<div class="ts-glass" style="position:absolute;left:0;right:0;bottom:0;border-top-left-radius:28px;border-top-right-radius:28px;border:1.5px solid rgba(255,238,232,.16);overflow:hidden;background:rgba(30,21,26,.86);padding:10px 16px 20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
   <div style="width:40px;height:5px;border-radius:3px;background:rgba(182,164,157,.5);margin:0 auto 12px"></div>
   <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
     <div style="font-family:Caveat,cursive;font-size:27px;line-height:1;color:#f7efe9">Make a post</div>
@@ -2973,7 +3014,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M120 250 C82 222 72 190 88 176 C104 162 126 170 131 187 C141 168 165 167 175 183 C187 202 164 232 132 258" stroke="#e23343" stroke-width="14" style="stroke-dasharray:520;--len:520;animation:tdraw 2.6s ease-in-out infinite alternate"></path>
       <path d="M74 320 c26 -12 42 12 68 0 c22 -10 38 8 60 -4" stroke="#ffffff" stroke-width="6" opacity=".85" style="stroke-dasharray:220;--len:220;animation:tdraw 2.6s .5s ease-in-out infinite alternate"></path>
     </svg>
-    <div class="ts-glass" style="position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
+    <div class="ts-glass" style="position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
       <div style="width:16px;height:16px;border-radius:99px;background:#e23343;display:flex;align-items:center;justify-content:center;font-size:9px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:11.5px;color:#fff"><span style="color:#ff7a9c">Sara</span> is drawing</div>
       <div style="width:5px;height:5px;border-radius:3px;background:#ff7a9c;animation:tblink 1s steps(1,end) infinite"></div>
@@ -3198,7 +3239,7 @@ html.ts-calm .dv-beat:hover *::after {
     <div style="font-family:Caveat,cursive;font-weight:700;font-size:20px;color:#fff">tra<span style="color:#e23343">ce</span></div>
     <div style="font-size:11px;font-weight:700;color:#2b2029;background:#f4c66b;border-radius:99px;padding:2px 7px"><svg class="ts-i"><use href="#i-flame"/></svg> 128</div>
   </div>
-  <div class="ts-glass" style="position:absolute;right:14px;top:28px;display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16)">
+  <div class="ts-glass" style="position:absolute;right:14px;top:28px;display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;background:rgba(10,9,13,.5);border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
     <div style="width:6px;height:6px;border-radius:3px;background:#ff7a9c"></div><div style="font-size:10.5px;color:#fff">with Sara</div>
   </div>
   <div style="position:absolute;left:16px;right:16px;top:112px;font-family:Caveat,cursive;font-weight:700;font-size:40px;line-height:.98;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.35)">your ugly little drawing is on her home screen right now</div>
@@ -3258,7 +3299,7 @@ html.ts-calm .dv-beat:hover *::after {
       <path d="M112 128 C84 108 78 86 90 76 C102 66 118 72 122 85 C130 70 149 69 157 81 C167 96 146 118 122 134" stroke="#ef5a63" stroke-width="12" style="stroke-dasharray:480;--len:480;animation:tdraw 2.8s ease-in-out infinite alternate"></path>
       <path d="M62 168 c20 -9 32 9 52 0" stroke="#fff" stroke-width="5" opacity=".8"></path>
     </svg>
-    <div class="ts-glass" style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.18)">
+    <div class="ts-glass" style="position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:99px;background:rgba(30,21,26,.55);border:1px solid rgba(255,238,232,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
       <div style="width:14px;height:14px;border-radius:99px;background:#ef5a63;display:flex;align-items:center;justify-content:center;font-size:8px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
       <div style="font-size:10.5px;color:#fff">or, you could do this</div>
     </div>
@@ -3367,10 +3408,10 @@ html.ts-calm .dv-beat:hover *::after {
       <div style="position:absolute;inset:0;background:rgba(0,0,0,.3)"></div>
       <div style="position:absolute;left:10px;right:10px;top:14px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-family:Caveat,cursive;font-weight:700;font-size:17px;color:#f3f0f4">tra<span style="color:#e23343">ce</span></div>
-        <div class="ts-glass" style="display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgba(22,21,28,.45);border:1px solid rgba(255,255,255,.14)"><div style="width:6px;height:6px;border-radius:3px;background:#ff7a9c"></div><div style="font-size:9.5px;color:#fff">with Sara</div></div>
+        <div class="ts-glass" style="display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:99px;background:rgba(22,21,28,.45);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)"><div style="width:6px;height:6px;border-radius:3px;background:#ff7a9c"></div><div style="font-size:9.5px;color:#fff">with Sara</div></div>
       </div>
       <div style="position:absolute;left:0;right:0;top:44px;display:flex;justify-content:center">
-        <div class="ts-glass" style="display:flex;gap:3px;padding:3px;border-radius:99px;background:rgba(22,21,28,.45);border:1px solid rgba(255,255,255,.14)">
+        <div class="ts-glass" style="display:flex;gap:3px;padding:3px;border-radius:99px;background:rgba(22,21,28,.45);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
           <div style="padding:6px 13px;border-radius:99px;background:rgba(226,51,67,.16);border:1px solid #e23343;font-size:10.5px;font-weight:700;color:#fff">us</div>
           <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</div>
           <div style="padding:6px 12px;border-radius:99px;font-size:10.5px;color:#fff"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</div>
@@ -3413,7 +3454,7 @@ html.ts-calm .dv-beat:hover *::after {
           <span style="font-size:11px"><svg class="ts-i"><use href="#i-heart-burst"/></svg></span><span style="font-size:11.5px;color:#2b2029;font-weight:500">you pressed at the same time</span>
         </div>
       </div>
-      <div class="ts-glass" style="position:absolute;left:10px;right:10px;bottom:74px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.86);border:1.5px solid rgba(43,32,41,.12);padding:8px 9px">
+      <div class="ts-glass" style="position:absolute;left:10px;right:10px;bottom:74px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.86);border:1.5px solid rgba(43,32,41,.12);padding:8px 9px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="width:34px;height:29px;border-radius:10px;background:rgba(255,77,109,.12);border:1px solid #ff4d6d;display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-pencil"/></svg></div>
           <div style="width:34px;height:29px;border-radius:10px;background:rgba(43,32,41,.06);display:flex;align-items:center;justify-content:center;font-size:13px"><svg class="ts-i"><use href="#i-sparkles"/></svg></div>
