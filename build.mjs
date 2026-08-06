@@ -378,6 +378,8 @@ const html = read('src/shell.html')
   .replace('<!--FRAMES-->', () => SPRITE + '\n' + frames);
 
 mkdirSync(at(OUT), { recursive: true });
+writeFileSync(join(at(OUT), 'plan.html'),
+  read('src/plan.html').replace('<!--FONT-->', `<style>${caveatCss}</style>`));
 writeFileSync(join(at(OUT), 'index.html'), html);
 
 /* ------------------------------------------------- manifest + change log */

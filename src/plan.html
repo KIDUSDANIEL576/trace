@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trace — features &amp; plans</title>
+<!--FONT-->
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#0c0b10;color:#f3f0f4;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:40px 20px 80px}
+.wm{font-family:Caveat,cursive;font-weight:700;font-size:34px;line-height:1}
+.wm span{color:#e23343}
+.kicker{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(243,240,244,.45);margin-top:6px}
+h1{font-family:Caveat,cursive;font-weight:700;font-size:52px;line-height:.95;margin:34px 0 10px}
+.sub{font-size:15px;line-height:1.55;color:rgba(243,240,244,.66);max-width:560px;margin:0 0 8px}
+
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:36px 0 12px}
+.tier{position:relative;border-radius:22px;padding:22px 20px 20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1.5px solid rgba(255,255,255,.12)}
+.tier.hot{border-color:#e23343;background:linear-gradient(180deg,rgba(226,51,67,.14),rgba(226,51,67,.04));box-shadow:0 0 34px rgba(226,51,67,.18)}
+.tier .flag{position:absolute;top:-11px;left:20px;font:700 9.5px ui-monospace,Menlo,monospace;letter-spacing:.1em;background:#e23343;color:#fff;padding:4px 9px;border-radius:99px}
+.tname{font-family:Caveat,cursive;font-weight:700;font-size:29px;line-height:1}
+.price{margin-top:10px;font-weight:800;font-size:34px;letter-spacing:-.02em}
+.price small{font-size:13px;font-weight:600;color:rgba(243,240,244,.55);letter-spacing:0}
+.per{margin-top:3px;font-size:12px;color:rgba(243,240,244,.55)}
+.tagline{margin-top:12px;font-size:12.5px;line-height:1.5;color:rgba(243,240,244,.72);border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
+.cta{margin-top:14px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600}
+.cta.go{background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 20px rgba(226,51,67,.32);color:#fff}
+.cta.ghost{border:1.5px solid rgba(255,255,255,.22);color:#f3f0f4}
+.couple{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#f4c66b;margin-top:10px}
+
+.note{margin:10px 0 40px;font-size:12.5px;color:rgba(243,240,244,.5)}
+.note b{color:#f4c66b}
+
+h2{font-family:Caveat,cursive;font-weight:700;font-size:34px;margin:44px 0 6px}
+.h2sub{font-size:13px;color:rgba(243,240,244,.55);margin:0 0 18px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+th{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:rgba(243,240,244,.5);position:sticky;top:0;background:#0c0b10}
+td.c{text-align:center;width:64px}
+.grp td{padding-top:22px;font:700 10.5px ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#e23343;border-bottom:none;text-transform:uppercase}
+.f{font-weight:600}
+.d{display:block;font-size:11.5px;color:rgba(243,240,244,.5);font-weight:400;margin-top:2px}
+.tag{display:inline-block;font:700 8.5px ui-monospace,Menlo,monospace;letter-spacing:.08em;padding:2.5px 7px;border-radius:99px;margin-left:7px;vertical-align:2px}
+.tag.live{background:rgba(126,200,255,.15);color:#7ec8ff;border:1px solid rgba(126,200,255,.4)}
+.tag.new{background:rgba(244,198,107,.14);color:#f4c66b;border:1px solid rgba(244,198,107,.4)}
+.tag.up{background:rgba(255,122,156,.13);color:#ff7a9c;border:1px solid rgba(255,122,156,.4)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:99px}
+.y{background:#e23343;box-shadow:0 0 8px rgba(226,51,67,.6)}
+.p{background:rgba(243,240,244,.85)}
+.n{width:12px;height:2px;border-radius:2px;background:rgba(243,240,244,.22)}
+.half{background:none;border:1.5px solid rgba(243,240,244,.6);width:9px;height:9px}
+
+.rules{margin-top:44px;border-radius:22px;border:1.5px solid rgba(244,198,107,.4);background:rgba(244,198,107,.06);padding:22px 22px 18px}
+.rules h3{font-family:Caveat,cursive;font-weight:700;font-size:27px;margin:0 0 12px;color:#f4c66b}
+.rules ul{margin:0;padding:0 0 0 18px;font-size:13px;line-height:1.8;color:rgba(243,240,244,.8)}
+.rules li b{color:#f3f0f4}
+.foot{margin-top:36px;font-size:12px;line-height:1.6;color:rgba(243,240,244,.4)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 14px;font-size:11.5px;color:rgba(243,240,244,.6);align-items:center}
+.legend span{display:flex;align-items:center;gap:6px}
+
+@media(max-width:720px){
+  .tiers{grid-template-columns:1fr}
+  h1{font-size:42px}
+  th:first-child,td:first-child{min-width:150px}
+  .wrap{padding:28px 14px 60px}
+  table{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="wm">tra<span>ce</span></div>
+<div class="kicker">Features &amp; plans · one subscription covers both of you</div>
+
+<h1>Everything two people<br>can do in ink.</h1>
+<p class="sub">The full feature map — what's live, what this build added, and what's designed and coming — and how it earns. Following the category (Noteit, Widgetable, Paired): priced per couple, not per person.</p>
+
+<div class="tiers">
+  <div class="tier">
+    <div class="tname">trace</div>
+    <div class="price">Free</div>
+    <div class="per">forever, for both of you</div>
+    <div class="cta ghost">Start drawing</div>
+    <div class="tagline">The whole promise, unbroken: whatever one of you draws appears on the other's phone, live. Free never gets ads, and never hides what your person made for you.</div>
+  </div>
+  <div class="tier hot">
+    <div class="flag">MOST COUPLES</div>
+    <div class="tname">trace plus</div>
+    <div class="price">$4.99<small> /month</small></div>
+    <div class="per">or $29.99/year · one sub, two phones</div>
+    <div class="couple">SHE PAYS OR YOU PAY — NEVER BOTH</div>
+    <div class="cta go">Try free for 14 days</div>
+    <div class="tagline">Every brush and ink, the full memory of you two (replay, capsules, While You Slept, the calendar), and the presence suite — Both Here, Hold, Touching, the games.</div>
+  </div>
+  <div class="tier">
+    <div class="tname">trace forever</div>
+    <div class="price">$79.99<small> once</small></div>
+    <div class="per">lifetime · everything in Plus, always</div>
+    <div class="cta ghost">Buy once</div>
+    <div class="tagline">The anti-subscription, kept on purpose — some couples hate renewals more than they hate the price. Includes the yearly riso print. Pays for itself against Plus in year three.</div>
+  </div>
+</div>
+<p class="note"><b>Why both models:</b> the launch frame promised "no subscription, ever" — Forever keeps that promise honest while Plus funds the roadmap. Anyone who bought Forever before subscriptions existed is grandfathered into everything, always.</p>
+
+<h2>The feature map</h2>
+<p class="h2sub">Status: <span class="tag live">LIVE</span> shipped in the app &nbsp;·&nbsp; <span class="tag new">NEW</span> designed &amp; built in this kit &nbsp;·&nbsp; <span class="tag up">UPCOMING</span> designed in Claude Design, next to build</p>
+<div class="legend">
+  <span><i class="dot y"></i> included</span>
+  <span><i class="dot half"></i> limited</span>
+  <span><i class="dot n"></i> —</span>
+</div>
+
+<table>
+<tr><th>Feature</th><th class="c">Free</th><th class="c">Plus</th><th class="c">Forever</th></tr>
+
+<tr class="grp"><td colspan="4">The core — never paywalled</td></tr>
+<tr><td class="f">Live shared canvas <span class="tag live">LIVE</span><span class="d">every stroke on their phone in under 300ms</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Presence pill <span class="tag live">LIVE</span><span class="d">"Sara is drawing…", live</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Heartbeat <span class="tag live">LIVE</span><span class="d">tap together and it erupts</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Home-screen widget <span class="tag live">LIVE</span><span class="d">the drawing lands where they already look</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">The Thread <span class="tag up">UPCOMING</span><span class="d">the streak that goes thin but never breaks — never monetized, never reset</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Close the door <span class="tag up">UPCOMING</span><span class="d">one tap ends everything after a breakup — free, no retention tricks</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+
+<tr class="grp"><td colspan="4">Drawing &amp; ink</td></tr>
+<tr><td class="f">Brushes <span class="tag live">LIVE</span><span class="d">pencil free; sparkles, zap, marker with Plus</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Invisible ink <span class="tag live">LIVE</span><span class="d">hold to reveal, vanishes when they let go</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Skies &amp; strength <span class="tag live">LIVE</span><span class="d">Dusk free; all skies with Plus</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Draw on a photo <span class="tag live">LIVE</span><span class="d">a photo you both can draw on</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Trace over mine <span class="tag new">NEW</span><span class="d">their stroke arrives faint, you trace it — the name as a mechanic</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Mirror / pass the pen / scratch-off <span class="tag new">NEW</span><span class="d">two-person drawing modes</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+
+<tr class="grp"><td colspan="4">Memory</td></tr>
+<tr><td class="f">Canvas history <span class="tag live">LIVE</span><span class="d">7 days free; every stroke you two ever made with Plus</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Replay <span class="tag live">LIVE</span><span class="d">watch the canvas draw itself again</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Replay video export <span class="tag new">NEW</span><span class="d">the 6-second clip of it arriving — the growth loop</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Time capsules <span class="tag live">LIVE</span><span class="d">seal a drawing until a date — 1 open capsule free</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">While you slept <span class="tag up">UPCOMING</span><span class="d">her 03:04 drawing replayed at her speed, pauses left in</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">One year ago tonight <span class="tag up">UPCOMING</span><span class="d">surfaced at the same hour · "draw it again, worse"</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Yearly riso print <span class="tag up">UPCOMING</span><span class="d">twelve months of marks, printed, edition of one, mailed</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td></tr>
+
+<tr class="grp"><td colspan="4">Presence — being there at the same time</td></tr>
+<tr><td class="f">Both Here <span class="tag up">UPCOMING</span><span class="d">same minute, notifications off for both, the clock runs</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Hold <span class="tag up">UPCOMING</span><span class="d">pressure answering pressure, nothing to draw</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Touching <span class="tag up">UPCOMING</span><span class="d">both dots in the same place: right now, technically, you're touching</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Warm spots · palm to palm <span class="tag up">UPCOMING</span><span class="d">where her finger rested, the glass stays warm</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Games <span class="tag up">UPCOMING</span><span class="d">eyes shut, hot &amp; cold, the string, blind portraits…</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Breathe <span class="tag new">NEW</span><span class="d">both hold a thumb, the ring paces you — free because it should be</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+
+<tr class="grp"><td colspan="4">The days — the shared calendar</td></tr>
+<tr><td class="f">Drawn dates <span class="tag up">UPCOMING</span><span class="d">a calendar for exactly two people, dates drawn on</span></td><td class="c"><i class="dot half"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Day banners <span class="tag up">UPCOMING</span><span class="d">on the morning of a marked day the canvas isn't empty</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Something to say <span class="tag up">UPCOMING</span><span class="d">real words in your handwriting, held until her morning</span></td><td class="c"><i class="dot n"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+
+<tr class="grp"><td colspan="4">Sharing &amp; the world</td></tr>
+<tr><td class="f">Post composer <span class="tag new">NEW</span><span class="d">canvas → 1:1 / 9:16 / 16:9 / sticker, captions in the app's voice</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Donate a sign <span class="tag up">UPCOMING</span><span class="d">give one mark to everyone, consent first, nothing near it leaves the phone</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">The world thread <span class="tag up">UPCOMING</span><span class="d">one communal line, 511,904 strokes, never erased</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+<tr><td class="f">Gesture onboarding <span class="tag new">NEW</span><span class="d">five things your fingers can do, taught once</span></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td><td class="c"><i class="dot y"></i></td></tr>
+</table>
+
+<div class="rules">
+<h3>the monetization guardrails (from frame 9f)</h3>
+<ul>
+<li><b>Seeing what your person drew is never behind the paywall.</b> Not once, not blurred, not delayed.</li>
+<li><b>The Thread is not for sale.</b> No streak freezes to buy, nothing to lose by being ill or sad.</li>
+<li><b>No guilt notifications, free or paid.</b> Every buzz is a person.</li>
+<li><b>One subscription covers both people.</b> The app never asks the second phone for money.</li>
+<li><b>Leaving is free.</b> Close the door exports your canvas history at no charge, no win-back emails.</li>
+<li><b>If it earns only because leaving hurts, it doesn't earn.</b></li>
+</ul>
+</div>
+
+<p class="foot">Pricing referenced against the category: Noteit ≈ $6/yr (widget-only), Paired ≈ $9/mo (content-heavy), Widgetable freemium. Trace Plus sits between: cheaper than Paired, far more app than Noteit. The 14-day trial is long on purpose — the product sells itself the first time a drawing arrives at 2am.</p>
+
+</div>
+</body>
+</html>
