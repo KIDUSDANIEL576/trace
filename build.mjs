@@ -386,6 +386,63 @@ const html = read('src/shell.html')
 mkdirSync(at(OUT), { recursive: true });
 writeFileSync(join(at(OUT), 'plan.html'),
   read('src/plan.html').replace('<!--FONT-->', `<style>${caveatCss}</style>`));
+
+/* PRD: minimal markdown -> styled page (headings, tables, lists, code, bold) */
+{
+  const md = read('docs/PRD.md');
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const inline = (t) => esc(t)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\*([^*]+)\*/g, '<i>$1</i>')
+    .replace(/§([\w.]+)/g, '<span class="ref">§$1</span>');
+  const lines = md.split('\n');
+  let html = '', inCode = false, inList = false, inTable = false;
+  const closeAll = () => { if (inList) { html += '</ul>'; inList = false; } if (inTable) { html += '</table>'; inTable = false; } };
+  for (const ln of lines) {
+    if (ln.startsWith('```')) { closeAll(); html += inCode ? '</pre>' : '<pre>'; inCode = !inCode; continue; }
+    if (inCode) { html += esc(ln) + '\n'; continue; }
+    if (/^\|/.test(ln)) {
+      if (/^\|[\s:-]+\|/.test(ln.replace(/\|/g, '|'))) continue;
+      if (/^\|[-\s|:]+$/.test(ln)) continue;
+      if (!inTable) { closeAll(); html += '<table>'; inTable = true; }
+      const cells = ln.split('|').slice(1, -1).map(c => inline(c.trim()));
+      html += '<tr>' + cells.map(c => '<td>' + c + '</td>').join('') + '</tr>';
+      continue;
+    }
+    if (inTable) { html += '</table>'; inTable = false; }
+    if (/^- /.test(ln)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + inline(ln.slice(2)) + '</li>'; continue; }
+    if (inList) { html += '</ul>'; inList = false; }
+    if (/^### /.test(ln)) html += '<h3>' + inline(ln.slice(4)) + '</h3>';
+    else if (/^## /.test(ln)) html += '<h2>' + inline(ln.slice(3)) + '</h2>';
+    else if (/^# /.test(ln)) html += '<h1>' + inline(ln.slice(2)) + '</h1>';
+    else if (/^---/.test(ln)) html += '<hr>';
+    else if (ln.trim()) html += '<p>' + inline(ln) + '</p>';
+  }
+  closeAll();
+  const page = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>trace — PRD</title>
+<style>${caveatCss}</style>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0c0b10;color:#f3f0f4;font:15px/1.65 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:44px 22px 90px}
+h1{font-family:Caveat,cursive;font-weight:700;font-size:48px;line-height:1;margin:0 0 6px}
+h2{font-family:Caveat,cursive;font-weight:700;font-size:31px;margin:40px 0 10px;color:#ff9ea9}
+h3{font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:rgba(243,240,244,.55);margin:26px 0 8px}
+p{margin:0 0 12px;color:rgba(243,240,244,.82)}
+b{color:#fff}i{color:#f4c66b;font-style:normal}
+code{font:12.5px ui-monospace,Menlo,monospace;background:rgba(255,255,255,.08);padding:1.5px 6px;border-radius:5px;color:#7ec8ff}
+pre{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;overflow:auto;font:12px/1.7 ui-monospace,Menlo,monospace;color:#a9c8e8}
+table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:13px}
+td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+tr:first-child td{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,240,244,.5)}
+ul{margin:0 0 14px;padding-left:20px}li{margin:4px 0;color:rgba(243,240,244,.82)}
+hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:26px 0}
+.ref{color:#f4c66b;font-weight:600}
+table{display:block;overflow-x:auto}
+</style></head><body><div class="wrap">${html}</div></body></html>`;
+  writeFileSync(join(at(OUT), 'prd.html'), page);
+}
 writeFileSync(join(at(OUT), 'app.html'),
   read('src/app.html')
     .replace('<!--FONT-->', () => `<style>${caveatCss}</style>`)

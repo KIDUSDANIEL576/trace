@@ -173,6 +173,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 @media (max-width:760px){#sim{display:none}#stage{padding:0}}
 
+/* brush options popover — tap the active tool again */
+#brushpop{position:relative;z-index:12;margin:0 0 8px;border-radius:20px;background:rgba(18,17,24,.88);border:1.5px solid rgba(255,255,255,.14);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+#brushpop .bp-row{display:flex;align-items:center;gap:10px}
+#brushpop .bp-row span{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,240,244,.5);width:32px;flex:none}
+#brushpop input[type=range]{flex:1;accent-color:#e23343;min-width:0}
+#brushpop b{font:700 11px ui-monospace,Menlo,monospace;color:#f4c66b;width:34px;text-align:right;flex:none}
+#brushpop .bp-prev{width:120px;height:40px;margin:0 auto;border-radius:10px;background:rgba(255,255,255,.05)}
+#brushpop .bp-taper{padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);font-size:12px;color:#f3f0f4}
+#brushpop .bp-taper.on{border-color:#e23343;background:rgba(226,51,67,.14);color:#ff9ea9}
+#appview.is-light #brushpop{background:rgba(255,255,255,.9);border-color:rgba(43,32,41,.14)}
+#appview.is-light #brushpop .bp-taper{color:#2b2029;background:rgba(43,32,41,.05);border-color:rgba(43,32,41,.16)}
+
 </style>
 </head>
 <body>
@@ -1534,6 +1546,16 @@ function sizeCanvas() {
 let strokes = [];
 let fadeTimers = [];
 
+const BRUSH_DEFAULTS = {
+  pen:    { size: 9,  alpha: 1,   taper: true  },
+  spark:  { size: 8,  alpha: 1,   taper: false },
+  zap:    { size: 7,  alpha: 1,   taper: false },
+  marker: { size: 16, alpha: .88, taper: false },
+  ghost:  { size: 9,  alpha: 1,   taper: true  },
+};
+const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
+const saveBrushCfg = () => store.set('brushCfg', brushCfg);
+
 const state = {
   brush: 'pen', color: '#e23343',
   mode: null,            // null | mirror | trace | passpen | onemore...
@@ -1544,15 +1566,39 @@ const state = {
 
 function drawStroke(s, upTo = Infinity, alpha = 1) {
   const pts = s.pts; if (pts.length < 2) return;
+  const boost = state.bothHere ? 1.35 : 1;
   ctx.save();
   ctx.lineCap = ctx.lineJoin = 'round';
-  ctx.globalAlpha = alpha * (s.brush === 'marker' ? .88 : 1);
+  ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
   ctx.strokeStyle = s.c;
-  ctx.lineWidth = s.w * (state.bothHere ? 1.35 : 1);
   if (s.brush === 'spark') { ctx.shadowColor = s.c; ctx.shadowBlur = 10; }
+  const n = Math.min(pts.length, upTo);
+
+  if (s.taper && s.brush !== 'zap') {
+    // velocity-tapered ink: fast segments thin out, ends breathe — this is
+    // what makes a line read as drawn by a hand instead of plotted
+    for (let i = 1; i < n; i++) {
+      const a = pts[i - 1], b = pts[i];
+      const v = Math.min(1, Math.hypot(b.x - a.x, b.y - a.y) / 26);
+      const end = Math.min(1, (n - i) / 6) * Math.min(1, i / 4);
+      ctx.lineWidth = Math.max(1.2, s.w * boost * (1 - v * .55) * (.55 + .45 * end));
+      ctx.beginPath();
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      if (i === 1) { ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); }
+      else {
+        const p0 = pts[i - 2];
+        ctx.moveTo((p0.x + a.x) / 2, (p0.y + a.y) / 2);
+        ctx.quadraticCurveTo(a.x, a.y, mx, my);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
+
+  ctx.lineWidth = s.w * boost;
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
-  const n = Math.min(pts.length, upTo);
   if (s.brush === 'zap') {
     for (let i = 1; i < n; i += 2) ctx.lineTo(pts[i].x, pts[i].y);
   } else {
@@ -1622,10 +1668,11 @@ wrap.addEventListener('pointerdown', (e) => {
   wrap.setPointerCapture(e.pointerId);
   const p = pos(e);
   if (featureHooks.down && featureHooks.down(p)) return;
-  cur = { pts: [{ ...p, t: now() }], c: state.color, w: brushWidth(), brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
+  const cfg = brushCfg[state.brush] || BRUSH_DEFAULTS.pen;
+  cur = { pts: [{ ...p, t: now() }], c: state.color, w: cfg.size, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
   cur.id = Math.random().toString(36).slice(2, 9);
   strokes.push(cur);
-  window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, brush: cur.brush, mirror: cur.mirror });
+  window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, alpha: cur.alpha, taper: cur.taper, brush: cur.brush, mirror: cur.mirror });
 });
 wrap.addEventListener('pointermove', (e) => {
   const p = pos(e);
@@ -1652,9 +1699,7 @@ function pos(e) {
   const r = wrap.getBoundingClientRect();
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
-function brushWidth() {
-  return { pen: 9, spark: 8, zap: 7, marker: 16, ghost: 9 }[state.brush];
-}
+function brushWidth() { return (brushCfg[state.brush] || BRUSH_DEFAULTS.pen).size; }
 
 let featureHooks = {};
 
@@ -1776,10 +1821,73 @@ function erupt() {
 /* ============================================================ dock wiring */
 
 $$('#brushes .tool').forEach(b => b.addEventListener('click', () => {
+  if (state.brush === b.dataset.brush && b.classList.contains('is-on')) { toggleBrushPop(); return; }
+  closeBrushPop();
   $$('#brushes .tool').forEach(x => x.classList.toggle('is-on', x === b));
   state.brush = b.dataset.brush;
   if (state.brush === 'ghost') toast('invisible ink — it vanishes as it lands. hold ⦿ reveal in ⋯');
 }));
+
+/* brush options — tap the active tool again (thickness, opacity, taper) */
+let popEl = null;
+function closeBrushPop() { if (popEl) { popEl.remove(); popEl = null; } }
+function toggleBrushPop() {
+  if (popEl) return closeBrushPop();
+  const cfg = brushCfg[state.brush];
+  popEl = document.createElement('div');
+  popEl.id = 'brushpop';
+  popEl.innerHTML = `
+    <div class="bp-row">
+      <canvas class="bp-prev" width="120" height="40"></canvas>
+    </div>
+    <div class="bp-row"><span>size</span>
+      <input class="bp-size" type="range" min="3" max="26" step="1" value="${cfg.size}">
+      <b class="bp-sizen">${cfg.size}</b></div>
+    <div class="bp-row"><span>ink</span>
+      <input class="bp-alpha" type="range" min="20" max="100" step="5" value="${Math.round(cfg.alpha * 100)}">
+      <b class="bp-alphan">${Math.round(cfg.alpha * 100)}%</b></div>
+    <button class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>`;
+  $('#dock').before(popEl);
+  const prev = popEl.querySelector('.bp-prev').getContext('2d');
+  const paintPrev = () => {
+    prev.clearRect(0, 0, 120, 40);
+    const fake = { pts: [], c: state.color, w: cfg.size * .8, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush };
+    for (let i = 0; i <= 20; i++) fake.pts.push({ x: 8 + i * 5.2, y: 20 + Math.sin(i / 2.6) * 9 });
+    const save = { ctx: null };
+    // draw with the same routine on the preview context
+    const realCtx = ctx; const swap = Object.getOwnPropertyDescriptor(window, 'noop');
+    prev.save(); prev.lineCap = prev.lineJoin = 'round';
+    prev.globalAlpha = cfg.alpha; prev.strokeStyle = state.color;
+    if (cfg.taper) {
+      const pts = fake.pts;
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b2 = pts[i];
+        const end = Math.min(1, (pts.length - i) / 6) * Math.min(1, i / 4);
+        prev.lineWidth = Math.max(1, fake.w * (.55 + .45 * end));
+        prev.beginPath(); prev.moveTo(a.x, a.y); prev.lineTo(b2.x, b2.y); prev.stroke();
+      }
+    } else {
+      prev.lineWidth = fake.w; prev.beginPath();
+      fake.pts.forEach((p, i) => i ? prev.lineTo(p.x, p.y) : prev.moveTo(p.x, p.y));
+      prev.stroke();
+    }
+    prev.restore();
+  };
+  paintPrev();
+  popEl.querySelector('.bp-size').addEventListener('input', (e) => {
+    cfg.size = +e.target.value; popEl.querySelector('.bp-sizen').textContent = cfg.size; saveBrushCfg(); paintPrev();
+  });
+  popEl.querySelector('.bp-alpha').addEventListener('input', (e) => {
+    cfg.alpha = e.target.value / 100; popEl.querySelector('.bp-alphan').textContent = e.target.value + '%'; saveBrushCfg(); paintPrev();
+  });
+  popEl.querySelector('.bp-taper').addEventListener('click', (e) => {
+    cfg.taper = !cfg.taper;
+    e.target.classList.toggle('on', cfg.taper);
+    e.target.textContent = cfg.taper ? 'taper on — ends breathe' : 'taper off — even line';
+    saveBrushCfg(); paintPrev(); buzz(8);
+  });
+}
+wrap.addEventListener('pointerdown', closeBrushPop);
 $$('.swatch').forEach(b => b.addEventListener('click', () => {
   $$('.swatch').forEach(x => x.classList.toggle('is-on', x === b));
   state.color = b.dataset.c;
@@ -2862,7 +2970,7 @@ setTimeout(() => {
 const remote = {};   // id -> stroke
 window.TRACE_APP = {
   remoteBegin(p) {
-    remote[p.id] = { pts: [], c: p.c, w: p.w, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
+    remote[p.id] = { pts: [], c: p.c, w: p.w, alpha: p.alpha, taper: p.taper, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
     strokes.push(remote[p.id]);
     sara.presence(true);
   },
