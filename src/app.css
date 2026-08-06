@@ -124,3 +124,22 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sim-actions button:hover{border-color:#e23343}
 
 @media (max-width:760px){#sim{display:none}#stage{padding:0}#phone{width:100vw;height:100vh;height:100dvh;border-radius:0;padding:0}#screen{border-radius:0}}
+
+/* three pages: us / my page / Sara */
+#tabs .tb{padding:7px 15px;border-radius:99px;font-size:12.5px;font-weight:600;color:#fff;opacity:.72;white-space:nowrap}
+#tabs .tb.on{background:rgba(226,51,67,.18);border:1px solid #e23343;opacity:1}
+
+/* daylight sky flips the chrome to dark ink */
+#screen.is-light #wordmark,#screen.is-light #statusbar,#screen.is-light #tabs .tb{color:#2b2029}
+#screen.is-light .glass{background:rgba(255,255,255,.72);border-color:rgba(43,32,41,.14)}
+#screen.is-light #presence,#screen.is-light #dock{color:#2b2029}
+#screen.is-light .tool,#screen.is-light .rbtn{background:rgba(43,32,41,.06);color:#2b2029}
+#screen.is-light .tool .ts-i,#screen.is-light .rbtn .ts-i{color:#2b2029}
+#screen.is-light .rbtn.hot .ts-i{color:#fff}
+#screen.is-light #canvas-note,#screen.is-light #whisper{color:rgba(43,32,41,.6)}
+/* the primary action keeps its brand fill in every theme */
+#screen.is-light .rbtn.hot{background:linear-gradient(180deg,#ea4256,#d92b40);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 4px 12px rgba(226,51,67,.35)}
+#screen.is-light .tool.is-on{background:rgba(226,51,67,.12);border-color:#e23343}
+#screen.is-light .tool.is-on .ts-i{color:#e23343}
+#screen.is-light .swatch{border-color:rgba(43,32,41,.35)}
+#screen.is-light .swatch.is-on{border-color:#2b2029}

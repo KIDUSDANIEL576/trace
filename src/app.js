@@ -484,6 +484,26 @@ function toggleMode(m) {
 const sheet = $('#sheet');
 function openSheet() {
   const list = $('#sheet-list'); list.innerHTML = '';
+  // 50+ features: a filter is no longer optional
+  const q = document.createElement('input');
+  q.type = 'search'; q.placeholder = 'search features';
+  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#f3f0f4;font:14px system-ui;outline:none';
+  q.addEventListener('input', () => {
+    const v = q.value.trim().toLowerCase();
+    let lastGroup = null, groupHas = false;
+    for (const n of [...list.children]) {
+      if (n === q) continue;
+      if (n.classList.contains('sh-group')) {
+        if (lastGroup) lastGroup.style.display = groupHas ? '' : 'none';
+        lastGroup = n; groupHas = false; continue;
+      }
+      const hit = !v || n.textContent.toLowerCase().includes(v);
+      n.style.display = hit ? '' : 'none';
+      if (hit) groupHas = true;
+    }
+    if (lastGroup) lastGroup.style.display = groupHas ? '' : 'none';
+  });
+  list.appendChild(q);
   for (const f of FEATURES) {
     if (f.g) { const g = document.createElement('div'); g.className = 'sh-group'; g.textContent = f.g; list.appendChild(g); continue; }
     const b = document.createElement('button');
