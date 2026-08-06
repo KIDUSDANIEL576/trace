@@ -132,7 +132,9 @@ wrap.addEventListener('pointerdown', (e) => {
   const p = pos(e);
   if (featureHooks.down && featureHooks.down(p)) return;
   cur = { pts: [{ ...p, t: now() }], c: state.color, w: brushWidth(), brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
+  cur.id = Math.random().toString(36).slice(2, 9);
   strokes.push(cur);
+  window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, brush: cur.brush, mirror: cur.mirror });
 });
 wrap.addEventListener('pointermove', (e) => {
   const p = pos(e);
@@ -141,6 +143,7 @@ wrap.addEventListener('pointermove', (e) => {
   const lp = cur.pts[cur.pts.length - 1];
   if (Math.hypot(p.x - lp.x, p.y - lp.y) < 2.2) return;
   cur.pts.push({ ...p, t: now() });
+  window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4)] });
   if (state.traceGuide) scoreTrace(p);
   redraw();
 });
@@ -166,6 +169,8 @@ let featureHooks = {};
 
 function onYouDrew(s) {
   store.set('lastDrawn', Date.now());
+  window.TRACE_NET && TRACE_NET.emit('se', { id: s.id });
+  if (window.TRACE_NET && TRACE_NET.live()) return;   // a real person answers now
   if (state.mode === 'passpen') {
     state.penHolder = 'sara';
     $('#presence-txt').textContent = 'Sara has the pen';
@@ -240,11 +245,12 @@ $('#heart-btn').addEventListener('click', () => {
   yourHeartAt = now();
   heartBloom(W * .5, H * .55, '#e23343');
   buzz(24);
+  window.TRACE_NET && TRACE_NET.emit('heart', {});
   if (now() - saraHeartAt < 3000) erupt();
-  else {
+  else if (!(window.TRACE_NET && TRACE_NET.live())) {
     $('#heart-btn').classList.add('armed');
     sara.after(1200 + Math.random() * 2200, () => sara.heartbeat());
-  }
+  } else $('#heart-btn').classList.add('armed');
 });
 function heartArrive(who) {
   saraHeartAt = now();
@@ -773,7 +779,11 @@ function openString() {
       if (pull > 95) { snapped = true; note.textContent = 'it snapped. for both of you.'; buzz([60, 50, 120]); log('the string SNAPPED'); }
     });
     box.addEventListener('pointerup', () => {
-      if (!snapped && pull > 12) { toast('she felt that'); log('you tug the string'); sara.after(2400, () => stringTug('sara')); }
+      if (!snapped && pull > 12) {
+        toast('she felt that'); log('you tug the string');
+        if (window.TRACE_NET && TRACE_NET.live()) TRACE_NET.emit('tug', {});
+        else sara.after(2400, () => stringTug('sara'));
+      }
     });
     return () => cancelAnimationFrame(raf);
   });
@@ -1285,11 +1295,45 @@ setInterval(() => { if (strokes.some(s => s.brush === 'ghost')) redraw(); }, 300
 
 // opening moment: she's finishing something as you arrive
 setTimeout(() => {
+  if (window.TRACE_NET && TRACE_NET.live()) return;
   sara.drawShape('sun', { c: '#f4c66b', then: () => {
     $('#canvas-note').textContent = 'draw how today feels';
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
   }});
 }, 1600);
+/* receive side for real pairing (TRACE_NET) */
+const remote = {};   // id -> stroke
+window.TRACE_APP = {
+  remoteBegin(p) {
+    remote[p.id] = { pts: [], c: p.c, w: p.w, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
+    strokes.push(remote[p.id]);
+    sara.presence(true);
+  },
+  remotePts(p) {
+    const s = remote[p.id]; if (!s) return;
+    for (const [nx, ny] of p.pts) {
+      const pt = { x: nx * W, y: ny * H, t: now() };
+      s.pts.push(pt);
+      sara.finger(pt.x, pt.y, true);
+    }
+    redraw();
+  },
+  remoteEnd(p) { sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw(); },
+  remoteHeart() { heartArrive('partner'); },
+  remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); redraw(); toast('they cleared the canvas'); },
+  remoteSky(p) { window.TRACE_SKY && TRACE_SKY(p.name, p.strength); },
+  remoteTug() { stringTug('sara'); },
+  remoteNote(t2) { writeOnCanvas(t2); },
+  partner(on, name) {
+    const sim = $('#sim');
+    if (sim) sim.style.opacity = on ? .28 : 1;
+    $('#presence-txt').textContent = on ? ('with ' + (name || 'them') + ' · live') : 'with Sara';
+    $('#presence').classList.toggle('live', on);
+    if (on) { sara.clear(); log('REAL PARTNER: ' + name + ' — simulation standing down'); }
+    else log('partner left — simulation resumes');
+  },
+};
+
 log('simulation ready — you and a simulated Sara share this canvas');
 toast('draw anywhere. ⋯ has all ' + FEATURES.filter(f => f.id).length + ' features.', 3600);
 

@@ -25,7 +25,9 @@ const SKIES = {
   bruise:   ['#1b0b18', '#3f1130', '#6b1b44', '#2a0d22'],
   ember:    ['#2b1216', '#6d2530', '#c04a3d', '#f2894f'],
 };
-const applySky = (name, strength) => {
+window.TRACE_SKY = (n, st) => applySky(n, st, true);
+const applySky = (name, strength, fromRemote) => {
+  if (!fromRemote && window.TRACE_NET) TRACE_NET.emit('sky', { name, strength });
   const c = SKIES[name] || SKIES.dusk;
   const sky = $('#sky');
   sky.style.background = `linear-gradient(180deg,${c[0]} 0%,${c[1]} 45%,${c[2]} 70%,${c[3]} 100%)`;
@@ -86,6 +88,7 @@ function clearCanvas() {
   closeSheet();
   if (!confirm('Clear the canvas? This erases it for both of you.')) return;
   strokes.clear();
+  window.TRACE_NET && TRACE_NET.emit('clear', {});
   toast('cleared — for both of you');
   log('canvas cleared (both sides)');
 }
