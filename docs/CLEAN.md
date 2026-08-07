@@ -107,7 +107,7 @@ they exist.
 | 20t | Journal — counts, never meaning | Memory |
 | 20u | The year, as a book | Memory |
 
-Five of these reach her widget as new states, slotted into 21c's order by
+Six of these reach her widget as new states, slotted into 21c's order by
 priority number: **the flare (0)** — the only thing that outranks "leaving
 now"; car-mode ETA (1, as a leaving card); the morning handoff (3.5); "N
 waiting" (6); the guests dot (9); asleep (10). An arrival resets the deck to
