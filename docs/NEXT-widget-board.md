@@ -1,32 +1,35 @@
-# Next build: the board → widget system (awaiting design)
+# The board → widget system — delivered
 
-Captured from the product owner, August 2026, ahead of the next Claude Design drop.
-**Do not invent UI for this — build it exactly as the incoming design draws it.**
+Captured from the product owner ahead of the Trace Clean drop, built when the
+design landed. Kept here as the record of what was asked for versus what the
+design drew and the code does.
 
-## The model
-- Each partner has a **board** they update in their app: drawings, todo lists,
-  calendar dates, notices, must-do items, "thinking of you" states.
-- Everything updated on my board appears on **her widget**, and vice versa.
-  The widget is the other person's window into your board.
-- The widget is a **sliding deck**, not a single card: it rotates through
-  one-time traces of drawings, todo lists, notices, presence states
-  ("she's drawing", "she's thinking of you"), calendar items — whatever the
-  design says is displayable.
-- Everything already built (live ink, heartbeat, presence, pairing, capsules,
-  calendar, all 59 features) remains; this layers on top.
+## The brief, as stated
 
-## Ready-made plumbing (no design dependency)
-- Sync bus: add event types over the existing channel — `board` with
-  `{kind: 'todo'|'notice'|'thinking'|'calendar'|'trace-once'|…, payload, ts}`.
-  Same 80ms/9s/broadcast semantics as the proven protocol.
-- Widget engine: `paintWidget` generalizes to a card renderer +
-  rotation timer; per-kind renderers get skinned from the design frames.
-- One-time cards ("one time traces"): render-once flag, cleared after first
-  display on the partner's side, synced as consumed.
+- Each partner has a **board** they update: drawings, todo lists, calendar
+  dates, notices, must-do items, "thinking of you" states.
+- Everything on my board appears on **her widget**, and vice versa.
+- The widget is a **sliding deck** — one-time traces, todo lists, notices,
+  presence states, calendar items.
 
-## Intake, when the design is ready
-Same path as last time: upload the `.dc.html` (or the bundled standalone
-`.html`) into the chat → it lands in `/mnt/attach` or the uploads dir →
-drop over `project/Trace Social.dc.html` (or alongside as a new file) →
-`node build.mjs` absorbs new turns automatically → chrome/features get
-rebuilt to the frames, property-for-property, like the 3a/1a/1o pass.
+## What the design drew
+
+Turn 21, three frames — and it matches the brief line for line:
+
+- **21a** your board, six publish switches, "You never see your own widget."
+- **21b** her home screen, the deck cycling live trace → must-dos → the week
+  → thinking of you.
+- **21c** every state, plus the priority rule when they compete.
+
+## What was built
+
+See `docs/CLEAN.md`. In short: `deck()` in `src/rooms.js` builds the cards in
+21c's order, `paintWidget()` renders one, board changes ride the ink channel
+as a `board` event, and one-time things burn after they show. Verified across
+two paired windows.
+
+## Still open
+
+The 25a–25j surfaces (decision debt, mental load, waiting room, money truth,
+energy match, renewal radar, yes/no board, where-is-it) are designed and
+rendered in `clean.html` but not yet built into the rooms.
