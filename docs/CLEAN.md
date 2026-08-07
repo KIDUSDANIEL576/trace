@@ -66,15 +66,59 @@ promise (19g), bucket list (22e), missions (20q), the year heatmap (19h),
 gratitude jar (22d), mood weather (22f), habits (19i), couple focus (20v),
 meeting armour (20l), the tap (23e) and "leaving now" + say-it (20k).
 
+## Turns 23–25, in `src/rooms2.js`
+
+Registered through `TRACE_ROOMS` — `addSub` for a surface, `addRow` to hang it
+in a room, `addCard` to give it a widget state, `addPresence` to sit it beside
+the tap. The five rooms, the board and the deck pick them up without knowing
+they exist.
+
+| Frame | Surface | Room |
+|---|---|---|
+| 25a | Decision debt — open decisions, ageing | Household |
+| 25b | Mental load — who is *remembering*, weighted so it opens at 71% | Household |
+| 25c | Waiting room — what's blocked on whom | Household |
+| 25d | Money truth — one number, not a budget | Together |
+| 25e | Two-minute pile | Household |
+| 25f | The brief — the whole handover in one card | Household |
+| 25g | Energy match — when each of you is sharp | Wellbeing |
+| 25h | Renewal radar — the quiet money leak | Household |
+| 25i | Yes / no board | Household |
+| 25j | Where is it | Household |
+| 23a | Guest mode — ends itself at midnight | Board |
+| 23b | Doctor's note — questions, never records | Wellbeing |
+| 23c | Recurring + ask nicely | Household |
+| 23d | The tiny one — counts only, on device | Wellbeing |
+| 23f | Morning handoff — what she left overnight | Wellbeing |
+| 23g | Rituals — noticed, never enforced | Wellbeing |
+| 24b | The flare — hold three seconds, three a year | beside the tap |
+| 24c | Her state — asleep / awake | Board |
+| 24d | Widget stack order | Board |
+| 24f | Memory movie — scrub it | Memory |
+| 24h | Car mode — ETA writes itself to her widget | Board |
+| 22d | Weekly ten minutes | Together |
+| 20g | Map of your day | Memory |
+| 20h | The wall — what survived midnight | Memory |
+| 20i | The week — typed, shown in your hand | Household |
+| 20m | Kid's corner + wrong-answer bin | Household |
+| 20n | Photo of the letter → a task and a notice | Household |
+| 20r | The pocket — does not exist on her device | Together |
+| 20s | Chapters | Memory |
+| 20t | Journal — counts, never meaning | Memory |
+| 20u | The year, as a book | Memory |
+
+Five of these reach her widget as new states, slotted into 21c's order by
+priority number: **the flare (0)** — the only thing that outranks "leaving
+now"; car-mode ETA (1, as a leaving card); the morning handoff (3.5); "N
+waiting" (6); the guests dot (9); asleep (10). An arrival resets the deck to
+the front and gets a full dwell before the rotation resumes.
+
 ## Known gaps
 
 - Turns 22–27 include surfaces the phone build does not host: watches (24a),
   lock screens (22b), Android home (22c), tablet board (24i), and the five
   logo directions (27a–f). They render in `clean.html`; they are platform
   work, not app work.
-- 25a–25j (decision debt, mental load, waiting room, money truth, energy
-  match, renewal radar, yes/no board, where-is-it) are designed and rendered
-  but not yet built into the rooms.
 - The directory adds a "Beyond the rooms" group (board, widget states,
   rules) that the 19c frame does not draw. Five rooms stay the primary model;
   this is the one addition, and it is labelled.

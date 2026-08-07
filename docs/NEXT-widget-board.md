@@ -30,6 +30,6 @@ two paired windows.
 
 ## Still open
 
-The 25a–25j surfaces (decision debt, mental load, waiting room, money truth,
-energy match, renewal radar, yes/no board, where-is-it) are designed and
-rendered in `clean.html` but not yet built into the rooms.
+Nothing in the phone build. 25a–25j are in the rooms; see the table in
+`docs/CLEAN.md`. What remains is platform work: watches, lock screens,
+Android home, the tablet board, and picking one of the five logo directions.

@@ -141,6 +141,11 @@ const screens = {
 let current = 'canvas', activeRoom = 'Canvas', roomKey = null;
 
 function show(name, room) {
+  /* rebuild on entry so late registrations and fresh data always show */
+  if (name === 'board') renderBoard();
+  if (name === 'states') renderStates();
+  if (name === 'rules') renderRules();
+  if (name === 'rooms') renderRooms($('#room-search') ? $('#room-search').value : '');
   current = name;
   for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
   if (room) activeRoom = room;
@@ -273,6 +278,7 @@ const ROOM_VIEWS = {
           .map(([k, n, s2]) => `<button class="row" data-sub="${k}"><span class="grow">
             <span class="n">${esc(n)}</span><span class="s">${esc(s2)}</span></span>
             <span class="chev">›</span></button>`).join('')}
+        ${subRows('Household')}
         ${featureRows('Household')}
       </div>`;
   },
@@ -306,6 +312,7 @@ const ROOM_VIEWS = {
         <button class="row" data-sub="mission"><span class="grow"><span class="n">Missions</span>
           <span class="s">${db.mission ? 'Both in' : 'One waiting on the other'}</span></span>
           <span class="chev">›</span></button>
+        ${subRows('Together')}
         ${featureRows('Together')}
       </div>`;
   },
@@ -330,6 +337,7 @@ const ROOM_VIEWS = {
       <div class="body" style="padding-top:20px">
         <button class="row" data-sub="jar"><span class="grow"><span class="n">Gratitude jar</span>
           <span class="s">${db.jarN} folded notes · drop one in</span></span><span class="chev">＋</span></button>
+        ${subRows('Memory')}
         ${featureRows('Memory', 'What’s in Memory')}
       </div>`;
   },
@@ -380,6 +388,7 @@ const ROOM_VIEWS = {
         <button class="row" data-sw="armour"><span class="grow"><span class="n">Meeting armour</span>
           <span class="s">${db.armour ? 'Armoured until 3:30' : 'Armour is off'}</span></span>
           <span class="sw${db.armour ? ' on' : ''}"><i></i></span></button>
+        ${subRows('Wellbeing')}
         ${featureRows('Wellbeing')}
       </div>`;
   },
@@ -424,8 +433,23 @@ function wireRoom(s, name) {
 
 /* ------------------------------------------------- sub-surfaces (20x/25x) */
 
+/* rooms2.js registers the rest of the design's surfaces through these. */
+const SUBS = {};                                   /* kind -> {title, build} */
+const SUBLISTS = { Household: [], Together: [], Memory: [], Wellbeing: [], Canvas: [] };
+const EXTRA_CARDS = [];                            /* (db) => card | null    */
+const PRESENCE_EXTRAS = [];                        /* (panelBody) => void    */
+
+function subRows(room) {
+  const list = SUBLISTS[room] || [];
+  if (!list.length) return '';
+  return list.map((r) => `<button class="row" data-sub="${r.key}"><span class="grow">
+    <span class="n">${esc(r.name)}</span><span class="s">${esc(r.sub())}</span></span>
+    <span class="chev">${r.right || '›'}</span></button>`).join('');
+}
+
 function openSub(kind) {
   const P = APP.openPanel; if (!P) return;
+  if (SUBS[kind]) return P(SUBS[kind].title, SUBS[kind].build);
   if (kind === 'list') {
     P('groceries', (body) => {
       const draw = () => {
@@ -593,10 +617,12 @@ function renderBoard() {
     <div class="eyebrow">Published from your board</div>
     <div class="body" style="padding-top:0">
       ${PUBS.map((p) => swRow(p.id, p.name, p.sub, !!db.pub[p.id])).join('')}
+      ${subRows('Board') ? '<div class="eyebrow" style="padding:14px 4px 2px">How the widget behaves</div>' + subRows('Board') : ''}
     </div>
     <div class="foot">She curates hers the same way. You never see your own widget.</div>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-states]', s).forEach((b) => b.addEventListener('click', () => show('states')));
+  $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw;
     db.pub[id] = !db.pub[id];
@@ -690,45 +716,50 @@ function renderRules() {
    Cards are built fresh each paint so the deck reflects the board exactly. */
 function deck() {
   const cards = [];
+  const add = (pri, c) => cards.push(Object.assign({ pri }, c));
   const partnerLive = APP.partnerDrawing && APP.partnerDrawing();
   const strokeN = APP.strokeCount ? APP.strokeCount() : 0;
 
   if (db.pub.leave && db.leaving)
-    cards.push({ kind: 'leave', tint: '#4ADE80', head: db.leaving.mins + ' min',
+    add(1, { kind: 'leave', tint: '#4ADE80', head: db.leaving.mins + ' min',
       foot: 'leaving now', render: leaveCard });
 
   if (db.pub.trace && (partnerLive || (strokeN && !db.traceSeen)))
-    cards.push({ kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
+    add(2, { kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
       foot: 'trace · one-time', spark: sparkline('#FFB020'), render: traceCard });
 
   /* a fresh tap is the warmest thing on the deck, so it sits behind only
      "leaving now" and the live trace — it ages out after ten minutes */
   const freshTap = db.thinking && (Date.now() - db.thinking.ts) < 6e5;
   if (freshTap)
-    cards.push({ kind: 'think', tint: '#FFB020', head: 'thinking of you',
+    add(3, { kind: 'think', tint: '#FFB020', head: 'thinking of you',
       foot: 'tapped your name', render: thinkCard });
 
   const open = db.tasks.filter((t) => !db.done[t.id]);
   if (db.pub.list && open.length)
-    cards.push({ kind: 'todo', tint: '#6EA8FF', head: open.length + ' left',
+    add(5, { kind: 'todo', tint: '#6EA8FF', head: open.length + ' left',
       foot: 'today’s list', render: todoCard });
 
   if (db.shopping && db.pub.list)
-    cards.push({ kind: 'shop', tint: '#6EA8FF', head: (db.items.length - count(db.got)) + ' left',
+    add(4, { kind: 'shop', tint: '#6EA8FF', head: (db.items.length - count(db.got)) + ' left',
       foot: 'groceries · he’s at the shop', render: shopCard });
 
   if (db.pub.notice && db.notices.length)
-    cards.push({ kind: 'notice', tint: '#FFB020', head: db.notices[0].when,
+    add(7, { kind: 'notice', tint: '#FFB020', head: db.notices[0].when,
       foot: 'notice', render: noticeCard });
 
   if (db.pub.cal && db.week.items.length)
-    cards.push({ kind: 'week', tint: '#FF7BC5', head: db.week.dow + ' ' + db.week.day,
+    add(8, { kind: 'week', tint: '#FF7BC5', head: db.week.dow + ' ' + db.week.day,
       foot: 'this week', render: weekCard });
 
-  if (!cards.length)
-    cards.push({ kind: 'quiet', tint: 'rgba(237,239,247,.6)', head: 'Nothing today', foot: 'quiet day', render: quietCard });
+  for (const fn of EXTRA_CARDS) { const c = fn(db); if (c) add(c.pri, c); }
 
-  return cards;
+  if (!cards.length)
+    add(99, { kind: 'quiet', tint: 'rgba(237,239,247,.6)', head: 'Nothing today',
+      foot: 'quiet day', render: quietCard });
+
+  /* 21c's order, as a number — so the flare (0) outranks even "leaving now" */
+  return cards.sort((a, b) => a.pri - b.pri);
 }
 
 const sparkline = (c) => `<svg viewBox="0 0 90 24" style="width:100%;height:24px">` +
@@ -782,7 +813,10 @@ function quietCard(b) {
   return {};
 }
 
-let widIdx = 0, rotate = null;
+let widIdx = 0, rotate = null, deckTouched = 0;
+/* an arrival goes to the front and gets its full dwell — the rotation
+   must not slide it away half a second later */
+function resetDeck() { widIdx = 0; deckTouched = Date.now(); }
 function paintWidget() {
   const cards = deck();
   if (widIdx >= cards.length) widIdx = 0;
@@ -842,11 +876,12 @@ $('#presence').addEventListener('click', () => {
     });
     body.append(el(`<div class="p-note">Two things that don’t need a sentence. Both land on her widget and neither one asks for an answer.</div>`), tap, leave,
       el(`<div class="eyebrow" style="padding:14px 0 2px">Say it, roughly</div>`));
+    for (const fn of PRESENCE_EXTRAS) fn(body);
     SAY.forEach((t) => {
       const c = el(`<button class="chip">${esc(t)}</button>`);
       c.addEventListener('click', () => {
         db.notices = [{ id: 'say', t, when: 'just now' }].concat(db.notices.filter((n) => n.id !== 'say'));
-        widIdx = 0; push('notice', { t }); paintWidget(); buzz(10); toast('said — it sits on her widget until she’s seen it');
+        resetDeck(); push('notice', { t }); paintWidget(); buzz(10); toast('said — it sits on her widget until she’s seen it');
       });
       body.appendChild(c);
     });
@@ -871,6 +906,7 @@ setInterval(refresh, 700); refresh();
 paintWidget();
 rotate = setInterval(() => {
   const home = $('#home');
+  if (Date.now() - deckTouched < 5000) return;
   if (home && !home.classList.contains('hidden') && deck().length > 1) {
     widIdx = (widIdx + 1) % deck().length; paintWidget();
   }
@@ -888,19 +924,46 @@ window.TRACE_BOARD = {
     else if (kind === 'thinking') db.thinking = { ts: Date.now() };
     else if (kind === 'notice') db.notices = [{ id: 'say', t: payload.t, when: 'just now' }]
       .concat(db.notices.filter((n) => n.id !== 'say'));
+    else if (kind === 'flare') db.flare = { ts: Date.now() };
+    else if (kind === 'guest') db.guest = payload.on;
+    else if (kind === 'car') db.carMode = payload.on;
+    else if (kind === 'unblock') db.unblocked[payload.id] = true;
+    else if (kind === 'decided') db.decided[payload.id] = !db.decided[payload.id];
+    else if (kind === 'load') { const l = (db.load || []).find((x) => x.id === payload.id); if (l) l.who = payload.who; }
+    else if (kind === 'rsvp') db.rsvp[payload.id] = payload.v;
+    else if (kind === 'renewal') db.cancelled[payload.id] = !db.cancelled[payload.id];
+    else if (kind === 'bucket') db.bucket[payload.id] = !db.bucket[payload.id];
+    else if (kind === 'week') { if (db.week7 && db.week7[payload.n]) db.week7[payload.n][1] = payload.t; }
+    else if (kind === 'stack') db.stack = payload.order;
+    else if (kind === 'meal') db.mealIdx = payload.i;
+    else if (kind === 'jar') db.jarN = payload.n;
+    else if (kind === 'baton') db.baton = payload.on;
+    else if (kind === 'dose') db.dosed[payload.id] = !db.dosed[payload.id];
     /* anything that arrives goes to the front of the deck — that's the
        whole arrival moment; it never repeats once it has been seen */
-    widIdx = 0;
+    resetDeck();
     save(); paintWidget();
     if (current === 'room' && roomKey) openRoom(roomKey);
   },
   /* the engine tells us a stroke landed, so the one-time trace re-arms */
-  inked() { db.traceSeen = false; widIdx = 0; save(); paintWidget(); },
+  inked() { db.traceSeen = false; resetDeck(); save(); paintWidget(); },
   paint: paintWidget,
+  /* the registry rooms2.js builds the rest of the design on */
+  addSub(kind, title, build) { SUBS[kind] = { title, build }; },
+  addRow(room, key, name, sub, right) { (SUBLISTS[room] || (SUBLISTS[room] = [])).push({ key, name, sub, right }); },
+  addCard(fn) { EXTRA_CARDS.push(fn); },
+  addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
+  resetDeck,
+  defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
+  openSub, openRoom, show, save, push,
+  el, esc, count, tickRow, navRow, swRow,
+  ui: { toast, buzz, panel: (t, b) => APP.openPanel && APP.openPanel(t, b) },
   /* "leaving now" and "thinking of you" are pushed, not polled */
-  leaving(mins) { db.leaving = { mins }; widIdx = 0; push('leaving', { mins }); paintWidget(); },
-  thinking() { db.thinking = { ts: Date.now() }; widIdx = 0; push('thinking', {}); paintWidget(); },
+  leaving(mins) { db.leaving = { mins }; resetDeck(); push('leaving', { mins }); paintWidget(); },
+  thinking() { db.thinking = { ts: Date.now() }; resetDeck(); push('thinking', {}); paintWidget(); },
   db,
 };
+/* the same object, under the name rooms2.js builds against */
+window.TRACE_ROOMS = window.TRACE_BOARD;
 
 })();
