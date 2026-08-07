@@ -113,12 +113,32 @@ now"; car-mode ETA (1, as a leaving card); the morning handoff (3.5); "N
 waiting" (6); the guests dot (9); asleep (10). An arrival resets the deck to
 the front and gets a full dwell before the rotation resumes.
 
+## Every surface — 24a, 22b, 22c, 24i
+
+`src/surfaces.js`, reachable from the board and the directory. Four tabs, and
+every one of them reads the same `deck()` the phone widget reads, so they
+cannot drift from what the board actually says:
+
+- **Watch (24a)** — Apple Watch 168×200 r48 complication + trace, Wear OS
+  180 circle tile. LEFT is the real open-task count; the tile line is
+  "home in N min" when you're leaving, otherwise what's next this week.
+- **Lock (22b)** — the iOS live activity over the Android glance. The
+  must-do card names the actual first open task and counts the rest; the
+  Android line switches between "leaving now" and "N waiting on you".
+- **Android home (22c)** — the Material stack: her board with the live
+  trace, the chip row, and two square widgets that swap between
+  goodnight/leaving and mission/groceries as the board changes.
+- **Tablet (24i)** — the 820×600 wall-mounted board with its 210px rail,
+  rendered at the frame's real size and scaled to fit. Room counts, the
+  canvas caption and the week all come from live state.
+
+They re-render every 3s while visible, so a task ticked on the other phone
+changes the watch complication here without a reload.
+
 ## Known gaps
 
-- Turns 22–27 include surfaces the phone build does not host: watches (24a),
-  lock screens (22b), Android home (22c), tablet board (24i), and the five
-  logo directions (27a–f). They render in `clean.html`; they are platform
-  work, not app work.
+- The five logo directions (27a–f) are a brand decision, not code. They
+  render in `clean.html`; one of them needs picking.
 - The directory adds a "Beyond the rooms" group (board, widget states,
-  rules) that the 19c frame does not draw. Five rooms stay the primary model;
-  this is the one addition, and it is labelled.
+  rules, every surface) that the 19c frame does not draw. Five rooms stay
+  the primary model; this is the one addition, and it is labelled.

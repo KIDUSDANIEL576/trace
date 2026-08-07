@@ -448,7 +448,7 @@ writeFileSync(join(at(OUT), 'app.html'),
     .replace('<!--FONT-->', () => `<style>${caveatCss}</style>`)
     .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
     .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
-    .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>`));
+    .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>\n<script>\n${read('src/surfaces.js')}\n</script>`));
 writeFileSync(join(at(OUT), 'index.html'), html);
 
 /* ------------------------------------------------- manifest + change log */

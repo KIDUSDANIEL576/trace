@@ -137,7 +137,9 @@ const stack = $('#stack');
 const screens = {
   canvas: $('#sc-canvas'), rooms: $('#sc-rooms'), room: $('#sc-room'),
   board: $('#sc-board'), states: $('#sc-states'), rules: $('#sc-rules'),
+  surfaces: $('#sc-surfaces'),
 };
+const RENDERERS = {};                              /* name -> () => void */
 let current = 'canvas', activeRoom = 'Canvas', roomKey = null;
 
 function show(name, room) {
@@ -145,6 +147,7 @@ function show(name, room) {
   if (name === 'board') renderBoard();
   if (name === 'states') renderStates();
   if (name === 'rules') renderRules();
+  if (RENDERERS[name]) RENDERERS[name]();
   if (name === 'rooms') renderRooms($('#room-search') ? $('#room-search').value : '');
   current = name;
   for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
@@ -154,6 +157,7 @@ function show(name, room) {
   if (name === 'board') activeRoom = 'Your board';
   if (name === 'states') activeRoom = 'Widget';
   if (name === 'rules') activeRoom = 'Quiet & private';
+  if (name === 'surfaces') activeRoom = 'Every surface';
   $('#cb-room').textContent = activeRoom;
   $('#screen').dataset.room = name === 'room' ? room : (name === 'canvas' ? 'Canvas' : 'Rooms');
   $('#cb-left').textContent = name === 'canvas' ? '✎' : '✎';
@@ -212,6 +216,7 @@ function renderRooms(query) {
       ['Your board', 'What her widget shows — you decide', () => show('board')],
       ['Every widget state', 'And who wins when they compete', () => show('states')],
       ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
+      ['Every surface', 'Watch, lock screen, Android, tablet', () => show('surfaces')],
     ]) {
       const row = el(navRow(label, sub));
       row.addEventListener('click', go);
@@ -435,6 +440,7 @@ function wireRoom(s, name) {
 
 /* rooms2.js registers the rest of the design's surfaces through these. */
 const SUBS = {};                                   /* kind -> {title, build} */
+const NAVS = {};                                   /* kind -> () => void     */
 const SUBLISTS = { Household: [], Together: [], Memory: [], Wellbeing: [], Canvas: [] };
 const EXTRA_CARDS = [];                            /* (db) => card | null    */
 const PRESENCE_EXTRAS = [];                        /* (panelBody) => void    */
@@ -448,6 +454,7 @@ function subRows(room) {
 }
 
 function openSub(kind) {
+  if (NAVS[kind]) return NAVS[kind]();            /* goes to a screen, not a panel */
   const P = APP.openPanel; if (!P) return;
   if (SUBS[kind]) return P(SUBS[kind].title, SUBS[kind].build);
   if (kind === 'list') {
@@ -950,10 +957,12 @@ window.TRACE_BOARD = {
   paint: paintWidget,
   /* the registry rooms2.js builds the rest of the design on */
   addSub(kind, title, build) { SUBS[kind] = { title, build }; },
+  addNav(kind, go) { NAVS[kind] = go; },
   addRow(room, key, name, sub, right) { (SUBLISTS[room] || (SUBLISTS[room] = [])).push({ key, name, sub, right }); },
   addCard(fn) { EXTRA_CARDS.push(fn); },
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
-  resetDeck,
+  addScreen(name, render) { RENDERERS[name] = render; },
+  screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,
   el, esc, count, tickRow, navRow, swRow,
