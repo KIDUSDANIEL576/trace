@@ -701,6 +701,13 @@ function deck() {
     cards.push({ kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
       foot: 'trace · one-time', spark: sparkline('#FFB020'), render: traceCard });
 
+  /* a fresh tap is the warmest thing on the deck, so it sits behind only
+     "leaving now" and the live trace — it ages out after ten minutes */
+  const freshTap = db.thinking && (Date.now() - db.thinking.ts) < 6e5;
+  if (freshTap)
+    cards.push({ kind: 'think', tint: '#FFB020', head: 'thinking of you',
+      foot: 'tapped your name', render: thinkCard });
+
   const open = db.tasks.filter((t) => !db.done[t.id]);
   if (db.pub.list && open.length)
     cards.push({ kind: 'todo', tint: '#6EA8FF', head: open.length + ' left',
@@ -717,9 +724,6 @@ function deck() {
   if (db.pub.cal && db.week.items.length)
     cards.push({ kind: 'week', tint: '#FF7BC5', head: db.week.dow + ' ' + db.week.day,
       foot: 'this week', render: weekCard });
-
-  if (db.thinking)
-    cards.push({ kind: 'think', tint: '#FFB020', head: 'thinking of you', foot: 'tapped your name', render: thinkCard });
 
   if (!cards.length)
     cards.push({ kind: 'quiet', tint: 'rgba(237,239,247,.6)', head: 'Nothing today', foot: 'quiet day', render: quietCard });
@@ -819,6 +823,35 @@ $('#cb-left').addEventListener('click', () => {
   APP.brushPop && APP.brushPop();
 });
 $('#to-board').addEventListener('click', () => show('board'));
+
+/* 20k "leaving now" + say-it, and 23e the tap — the two things you send
+   without opening anything. They land on her widget, not in a chat. */
+const SAY = ['Buy nothing, I cooked', 'Walk slow, it’s nice out', 'Call me when close'];
+$('#presence').addEventListener('click', () => {
+  if (!APP.openPanel) return;
+  APP.openPanel('without saying much', (body) => {
+    const tap = el(`<button class="p-cta">Tap her name — she feels it</button>`);
+    tap.addEventListener('click', () => {
+      TRACE_BOARD.thinking(); buzz(22);
+      toast('she felt that · no reply needed');
+    });
+    const leave = el(`<button class="p-ghost">Leaving now — 32 min away</button>`);
+    leave.addEventListener('click', () => {
+      TRACE_BOARD.leaving(32); buzz(14);
+      toast('on her widget now — it breaks through armour');
+    });
+    body.append(el(`<div class="p-note">Two things that don’t need a sentence. Both land on her widget and neither one asks for an answer.</div>`), tap, leave,
+      el(`<div class="eyebrow" style="padding:14px 0 2px">Say it, roughly</div>`));
+    SAY.forEach((t) => {
+      const c = el(`<button class="chip">${esc(t)}</button>`);
+      c.addEventListener('click', () => {
+        db.notices = [{ id: 'say', t, when: 'just now' }].concat(db.notices.filter((n) => n.id !== 'say'));
+        widIdx = 0; push('notice', { t }); paintWidget(); buzz(10); toast('said — it sits on her widget until she’s seen it');
+      });
+      body.appendChild(c);
+    });
+  });
+});
 $('#room-search').addEventListener('input', (e) => renderRooms(e.target.value));
 
 /* the room screens are built lazily, the light ones eagerly */
@@ -853,6 +886,11 @@ window.TRACE_BOARD = {
     else if (kind === 'savings') db.savings.have = payload.have;
     else if (kind === 'leaving') db.leaving = payload;
     else if (kind === 'thinking') db.thinking = { ts: Date.now() };
+    else if (kind === 'notice') db.notices = [{ id: 'say', t: payload.t, when: 'just now' }]
+      .concat(db.notices.filter((n) => n.id !== 'say'));
+    /* anything that arrives goes to the front of the deck — that's the
+       whole arrival moment; it never repeats once it has been seen */
+    widIdx = 0;
     save(); paintWidget();
     if (current === 'room' && roomKey) openRoom(roomKey);
   },
