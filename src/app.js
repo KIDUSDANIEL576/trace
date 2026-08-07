@@ -82,7 +82,8 @@ function drawStroke(s, upTo = Infinity, alpha = 1) {
       const a = pts[i - 1], b = pts[i];
       const v = Math.min(1, Math.hypot(b.x - a.x, b.y - a.y) / 26);
       const end = Math.min(1, (n - i) / 6) * Math.min(1, i / 4);
-      ctx.lineWidth = Math.max(1.2, s.w * boost * (1 - v * .55) * (.55 + .45 * end));
+      const pr = b.pr !== undefined ? b.pr : 1;   // stylus pressure rides on top
+      ctx.lineWidth = Math.max(1.2, s.w * boost * pr * (1 - v * .55) * (.55 + .45 * end));
       ctx.beginPath();
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
       if (i === 1) { ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); }
@@ -169,12 +170,12 @@ const SMOOTH = .42;                // lower = silkier, higher = snappier
 
 wrap.addEventListener('pointerdown', (e) => {
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
-  wrap.setPointerCapture(e.pointerId);
+  try { wrap.setPointerCapture(e.pointerId); } catch {}
   const p = pos(e);
   smooth = { ...p };
   if (featureHooks.down && featureHooks.down(p)) return;
   const cfg = brushCfg[state.brush] || BRUSH_DEFAULTS.pen;
-  cur = { pts: [{ ...p, t: now() }], c: state.color, w: cfg.size, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
+  cur = { pts: [{ ...p, t: now(), pr: pressure(e) }], c: state.color, w: cfg.size, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
   cur.id = Math.random().toString(36).slice(2, 9);
   strokes.push(cur);
   window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, alpha: cur.alpha, taper: cur.taper, brush: cur.brush, mirror: cur.mirror });
@@ -189,8 +190,9 @@ wrap.addEventListener('pointermove', (e) => {
   }
   const lp = cur.pts[cur.pts.length - 1];
   if (Math.hypot(p.x - lp.x, p.y - lp.y) < 1.6) return;
-  cur.pts.push({ ...p, t: now() });
-  window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4)] });
+  const pr = pressure(e);
+  cur.pts.push({ ...p, t: now(), pr });
+  window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4), pr === 1 ? 1 : +pr.toFixed(2)] });
   if (state.traceGuide) scoreTrace(p);
   redraw();
 });
@@ -207,6 +209,12 @@ wrap.addEventListener('pointercancel', up);
 function pos(e) {
   const r = wrap.getBoundingClientRect();
   return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+/* real stylus pressure when the hardware reports it (Pencil, S-Pen);
+   fingers and mice report a flat .5/0 — those stay 1 so nothing changes */
+function pressure(e) {
+  if (e.pointerType === 'pen' && e.pressure > 0) return Math.max(.15, Math.min(1, e.pressure * 1.5));
+  return 1;
 }
 function brushWidth() { return (brushCfg[state.brush] || BRUSH_DEFAULTS.pen).size; }
 
@@ -359,6 +367,11 @@ function toggleBrushPop() {
       <canvas class="bp-prev" width="120" height="40"></canvas>
     </div>
     <div class="bp-row"><span>size</span>
+      <button class="bp-quick" data-s="5">fine</button>
+      <button class="bp-quick" data-s="9">med</button>
+      <button class="bp-quick" data-s="16">bold</button>
+    </div>
+    <div class="bp-row"><span></span>
       <input class="bp-size" type="range" min="3" max="26" step="1" value="${cfg.size}">
       <b class="bp-sizen">${cfg.size}</b></div>
     <div class="bp-row"${isEraser ? ' hidden' : ''}><span>ink</span>
@@ -394,6 +407,12 @@ function toggleBrushPop() {
     prev.restore();
   };
   paintPrev();
+  popEl.querySelectorAll('.bp-quick').forEach((q) => q.addEventListener('click', () => {
+    cfg.size = +q.dataset.s;
+    popEl.querySelector('.bp-size').value = cfg.size;
+    popEl.querySelector('.bp-sizen').textContent = cfg.size;
+    saveBrushCfg(); paintPrev(); buzz(6);
+  }));
   popEl.querySelector('.bp-size').addEventListener('input', (e) => {
     cfg.size = +e.target.value; popEl.querySelector('.bp-sizen').textContent = cfg.size; saveBrushCfg(); paintPrev();
   });
@@ -408,10 +427,110 @@ function toggleBrushPop() {
   });
 }
 wrap.addEventListener('pointerdown', closeBrushPop);
-$$('.swatch').forEach(b => b.addEventListener('click', () => {
+$$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListener('click', () => {
+  closeColorPop();
   $$('.swatch').forEach(x => x.classList.toggle('is-on', x === b));
   state.color = b.dataset.c;
-}));
+}); });
+
+/* ---- the universal color cascade: any hue, any shade, three taps ---- */
+const hsl2hex = (h, sN, l) => {
+  const f = (n) => {
+    const k = (n + h / 30) % 12;
+    const c = l / 100 - (sN / 100) * Math.min(l / 100, 1 - l / 100) * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(255 * c).toString(16).padStart(2, '0');
+  };
+  return ('#' + f(0) + f(8) + f(4)).toUpperCase();
+};
+const anyBtn = $('#swatch-any');
+let colorPop = null, cpHue = store.get('cpHue', 24);
+const recentColors = store.get('recentColors', []);
+function rememberColor(c) {
+  const i = recentColors.indexOf(c);
+  if (i >= 0) recentColors.splice(i, 1);
+  recentColors.unshift(c);
+  recentColors.length = Math.min(recentColors.length, 8);
+  store.set('recentColors', recentColors);
+}
+function pickCustom(c) {
+  state.color = c;
+  anyBtn.style.setProperty('--picked', c);
+  $$('.swatch').forEach(x => x.classList.toggle('is-on', x === anyBtn));
+  rememberColor(c);
+}
+function closeColorPop() { if (colorPop) { colorPop.remove(); colorPop = null; } }
+function openColorPop() {
+  closeBrushPop(); closeColorPop();
+  colorPop = document.createElement('div');
+  colorPop.id = 'colorpop';
+  colorPop.innerHTML = `
+    <div class="cp-head">
+      <div class="cp-chip"></div>
+      <input class="cp-hex" maxlength="7" spellcheck="false">
+      <button class="cp-ok">Use it</button>
+    </div>
+    <input class="cp-hue" type="range" min="0" max="359" step="1" value="${cpHue}">
+    <div class="cp-label">every shade of this hue</div>
+    <div class="cp-grid"></div>
+    <div class="cp-label" ${recentColors.length ? '' : 'hidden'}>yours, lately</div>
+    <div class="cp-recent"></div>`;
+  $('#dock').before(colorPop);
+  const chip = colorPop.querySelector('.cp-chip');
+  const hex = colorPop.querySelector('.cp-hex');
+  const grid = colorPop.querySelector('.cp-grid');
+  let sel = state.color;
+  const setSel = (c) => { sel = c.toUpperCase(); chip.style.background = sel; hex.value = sel; };
+  const cascade = () => {
+    grid.innerHTML = '';
+    // a true cascade: rows step lightness, columns sweep saturation from
+    // muted to vivid — with the hue slider this reaches any color worth having
+    for (const light of [86, 71, 58, 44]) for (let c2 = 0; c2 < 8; c2++) {
+      const col = hsl2hex(cpHue, 22 + c2 * 11, light - c2 * 1.5);
+      const btn = document.createElement('button');
+      btn.style.background = col;
+      btn.addEventListener('click', () => {
+        setSel(col);
+        grid.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === btn));
+        buzz(6);
+      });
+      grid.appendChild(btn);
+    }
+    for (let g = 0; g < 8; g++) {
+      const col = hsl2hex(0, 0, 4 + g * 13.5);
+      const btn = document.createElement('button');
+      btn.style.background = col;
+      btn.addEventListener('click', () => {
+        setSel(col);
+        grid.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === btn));
+        buzz(6);
+      });
+      grid.appendChild(btn);
+    }
+  };
+  cascade(); setSel(sel);
+  colorPop.querySelector('.cp-hue').addEventListener('input', (e) => {
+    cpHue = +e.target.value; store.set('cpHue', cpHue); cascade();
+    setSel(hsl2hex(cpHue, 88, 60));
+  });
+  hex.addEventListener('input', () => {
+    let v = hex.value.trim().replace(/^([0-9a-f]{6})$/i, '#$1');
+    if (/^#[0-9a-f]{6}$/i.test(v)) chip.style.background = sel = v.toUpperCase();
+  });
+  const recent = colorPop.querySelector('.cp-recent');
+  recentColors.forEach((c) => {
+    const b2 = document.createElement('button');
+    b2.style.background = c;
+    b2.addEventListener('click', () => { pickCustom(c); closeColorPop(); toast(c + ' — yours again'); });
+    recent.appendChild(b2);
+  });
+  colorPop.querySelector('.cp-ok').addEventListener('click', () => {
+    pickCustom(sel); closeColorPop(); buzz(10);
+  });
+}
+anyBtn.addEventListener('click', () => (colorPop ? closeColorPop() : openColorPop()));
+wrap.addEventListener('pointerdown', closeColorPop);
+/* fixed swatches remember themselves too — the cascade's recent row is universal */
+$$('.swatch').forEach(b => { if (b.dataset.c) b.addEventListener('click', () => rememberColor(b.dataset.c)); });
 $('#undo-btn').addEventListener('click', () => {
   for (let i = strokes.length - 1; i >= 0; i--) {
     if (strokes[i].who === 'you') { strokes.splice(i, 1); redraw(); return; }
@@ -1578,8 +1697,8 @@ window.TRACE_APP = {
   },
   remotePts(p) {
     const s = remote[p.id]; if (!s) return;
-    for (const [nx, ny] of p.pts) {
-      const pt = { x: nx * W, y: ny * H, t: now() };
+    for (const [nx, ny, pr] of p.pts) {
+      const pt = { x: nx * W, y: ny * H, t: now(), pr: pr === undefined ? 1 : pr };
       s.pts.push(pt);
       sara.finger(pt.x, pt.y, true);
     }

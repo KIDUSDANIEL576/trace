@@ -358,3 +358,32 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* daylight sky flips the ink */
 #appview.is-light #dim{background:rgba(255,255,255,.05)}
 #appview.is-light #canvas-note{background:rgba(255,255,255,.8);color:#0A0A0C;border-color:rgba(0,0,0,.1)}
+
+/* ------------------------------------------------ universal color cascade */
+#swatch-any{position:relative;background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66)}
+#swatch-any::after{content:'';position:absolute;inset:6px;border-radius:50%;background:var(--picked,#0A0A0C);
+  border:1.5px solid rgba(0,0,0,.35)}
+#colorpop{position:relative;z-index:12;margin:0 20px;border-radius:22px;background:rgba(10,12,26,.96);
+  border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);padding:14px 16px;
+  display:flex;flex-direction:column;gap:12px;flex:none}
+#colorpop .cp-head{display:flex;align-items:center;gap:12px}
+#colorpop .cp-chip{width:44px;height:44px;border-radius:14px;flex:none;border:1px solid rgba(255,255,255,.25)}
+#colorpop .cp-hex{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);color:var(--ink);font:600 14px ui-monospace,Menlo,monospace;
+  letter-spacing:.08em;text-align:center;outline:none;text-transform:uppercase}
+#colorpop .cp-ok{height:40px;padding:0 18px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;
+  font-size:14px;font-weight:600;flex:none}
+#colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;outline:none;
+  background:linear-gradient(90deg,hsl(0,90%,60%),hsl(60,90%,60%),hsl(120,80%,55%),hsl(180,85%,55%),
+    hsl(240,90%,65%),hsl(300,90%,65%),hsl(360,90%,60%))}
+#colorpop .cp-hue::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:#fff;border:3px solid rgba(0,0,0,.45);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#colorpop .cp-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+#colorpop .cp-grid button{aspect-ratio:1;border-radius:9px;border:1.5px solid rgba(255,255,255,.08)}
+#colorpop .cp-grid button.on{border-color:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.6) inset}
+#colorpop .cp-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
+#colorpop .cp-recent{display:flex;gap:7px}
+#colorpop .cp-recent button{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);flex:none}
+#brushpop .bp-quick{flex:1;padding:9px 0;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);font-size:12.5px;color:var(--ink)}
+#brushpop .bp-quick:active{background:rgba(255,255,255,.14)}
