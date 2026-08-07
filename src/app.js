@@ -413,6 +413,10 @@ $('#undo-btn').addEventListener('click', () => {
   }
 });
 
+// the streak pill is The Thread's door — days of you two, never a breakable run
+const sp = $('#streakpill');
+if (sp) sp.addEventListener('click', () => openFeature('thread'));
+
 // long-press wordmark → settings/guardrails (the hidden door, as designed)
 let wmT;
 $('#wordmark').addEventListener('pointerdown', () => { wmT = setTimeout(() => openFeature('guardrails'), 650); });
@@ -625,6 +629,27 @@ function openSheet() {
     if (lastGroup) lastGroup.style.display = groupHas ? '' : 'none';
   });
   list.appendChild(q);
+
+  // "right now" — three context-aware suggestions (audit P0-2)
+  const hr = new Date().getHours();
+  const paired = window.TRACE_NET && TRACE_NET.live();
+  const nowIds = [];
+  if (!paired) nowIds.push('pair');
+  if (hr >= 6 && hr < 11) nowIds.push('slept', 'prompt');
+  else if (hr >= 21 || hr < 2) nowIds.push('bothhere', 'touching');
+  else nowIds.push('prompt', 'mirror');
+  const picks = nowIds.map(id => FEATURES.find(f => f.id === id)).filter(Boolean).slice(0, 3);
+  if (picks.length) {
+    const g = document.createElement('div'); g.className = 'sh-group'; g.textContent = 'right now';
+    list.appendChild(g);
+    for (const f of picks) {
+      const b = document.createElement('button');
+      b.className = 'sh-item sh-now';
+      b.innerHTML = `<svg class="ts-i"><use href="#i-${f.i}"/></svg><span><b>${f.n}</b><i>${f.d}</i></span>`;
+      b.addEventListener('click', () => openFeature(f.id));
+      list.appendChild(b);
+    }
+  }
   for (const f of FEATURES) {
     if (f.g) { const g = document.createElement('div'); g.className = 'sh-group'; g.textContent = f.g; list.appendChild(g); continue; }
     const b = document.createElement('button');
@@ -1468,7 +1493,51 @@ sizeCanvas();
 setInterval(() => { if (strokes.some(s => s.brush === 'ghost')) redraw(); }, 300);
 
 // opening moment: she's finishing something as you arrive
+/* first launch: pairing IS the front door (audit P0-1, Noteit pattern) */
+function firstRun() {
+  if (store.get('onboarded', false)) return;
+  const code = store.get('pairCode', null) || Math.random().toString(36).replace(/[^a-z0-9]/g, '').slice(0, 5);
+  store.set('pairCode', code);
+  const ob = document.createElement('div');
+  ob.id = 'onboard';
+  ob.innerHTML = `
+    <div class="ob-card">
+      <div class="ob-wm">tra<span>ce</span></div>
+      <div class="ob-h">one canvas.<br>two people.</div>
+      <input id="ob-name" placeholder="your name" maxlength="14">
+      <div class="ob-code-l">YOUR CODE</div>
+      <div class="ob-code">${code}</div>
+      <button class="ob-share">share it with your person</button>
+      <input id="ob-their" placeholder="or type their code" maxlength="5">
+      <button class="ob-go">connect</button>
+      <button class="ob-skip">try it alone first — Sara will draw back</button>
+    </div>`;
+  document.getElementById('screen').appendChild(ob);
+  const done = () => { store.set('onboarded', true); ob.remove(); };
+  ob.querySelector('.ob-share').addEventListener('click', async () => {
+    const text = 'draw with me on trace — my code is ' + code;
+    try { if (navigator.share) { await navigator.share({ text }); return; } } catch {}
+    try { await navigator.clipboard.writeText(text); toast('copied — send it to them'); } catch { toast('your code: ' + code); }
+  });
+  ob.querySelector('.ob-go').addEventListener('click', () => {
+    const name = ob.querySelector('#ob-name').value.trim();
+    if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
+    const theirs = ob.querySelector('#ob-their').value.trim().toLowerCase() || code;
+    if (window.TRACE_NET) TRACE_NET.join(theirs, 'supabase', (st) => {
+      if (st === 'open') toast('channel open — the first drawing does the rest');
+      if (st === 'error') toast('no internet path here — ⋯ → Pair has a two-windows mode');
+    });
+    done(); showApp();
+  });
+  ob.querySelector('.ob-skip').addEventListener('click', () => {
+    const name = ob.querySelector('#ob-name').value.trim();
+    if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
+    done();
+  });
+}
+
 showHome();
+firstRun();
 let opened = false;
 $('#widget').addEventListener('click', () => {
   if (opened) return; opened = true;

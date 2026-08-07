@@ -176,3 +176,21 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 #brushpop .bp-taper.on{border-color:#e23343;background:rgba(226,51,67,.14);color:#ff9ea9}
 #appview.is-light #brushpop{background:rgba(255,255,255,.9);border-color:rgba(43,32,41,.14)}
 #appview.is-light #brushpop .bp-taper{color:#2b2029;background:rgba(43,32,41,.05);border-color:rgba(43,32,41,.16)}
+
+/* first-launch onboarding — pairing is the front door */
+#onboard{position:absolute;inset:0;z-index:80;background:linear-gradient(180deg,#1d1633 0%,#4a2350 55%,#8a3b52 100%);display:flex;align-items:center;justify-content:center;padding:24px 18px}
+.ob-card{width:100%;display:flex;flex-direction:column;gap:11px;text-align:center}
+.ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:40px;color:#f3f0f4}
+.ob-wm span{color:#ff7a9c}
+.ob-h{font-family:Caveat,cursive;font-weight:700;font-size:31px;line-height:1;color:#fff;margin-bottom:6px}
+#onboard input{padding:13px 14px;border-radius:16px;border:1.5px solid rgba(255,255,255,.2);background:rgba(22,21,28,.4);color:#fff;font:14px system-ui;outline:none;text-align:center}
+#ob-their{font:700 15px ui-monospace,Menlo,monospace;letter-spacing:.2em;text-transform:lowercase}
+.ob-code-l{font:700 9.5px ui-monospace,Menlo,monospace;letter-spacing:.18em;color:rgba(255,255,255,.55);margin-top:4px}
+.ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:#f4c66b}
+.ob-share{min-height:48px;border-radius:24px;background:#db3141;border:1px solid #e23343;box-shadow:0 6px 14px rgba(226,51,67,.35);color:#fff;font-size:14.5px;font-weight:600}
+.ob-go{min-height:48px;border-radius:24px;border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:14.5px;font-weight:600}
+.ob-skip{margin-top:2px;font-size:12.5px;color:rgba(255,255,255,.62);text-decoration:underline;text-underline-offset:3px}
+
+/* contextual suggestions get the warm treatment */
+.sh-now{background:rgba(226,51,67,.10);border-color:rgba(226,51,67,.35);margin-bottom:4px}
+.sh-now .ts-i{color:#ff8a94}
