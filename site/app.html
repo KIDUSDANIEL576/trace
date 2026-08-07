@@ -44,10 +44,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 #statusbar{position:absolute;z-index:30;top:0;left:0;right:0;display:flex;justify-content:space-between;
   align-items:center;padding:16px 28px 0;font-size:15px;font-weight:600;pointer-events:none;
   font-variant-numeric:tabular-nums;color:var(--ink)}
-.sb-r{display:flex;align-items:center;gap:6px;opacity:.9}
-.sb-r i{font-style:normal;font-size:12px;letter-spacing:1px}
-.sb-bat{width:24px;height:12px;border:1px solid rgba(255,255,255,.6);border-radius:3px;position:relative}
-.sb-bat::after{content:'';position:absolute;inset:2px;background:#fff;border-radius:1px}
+.sb-r{display:flex;align-items:center;gap:7px;opacity:.95}
+#sb-cell{width:19px;height:12px;color:#fff}
+#sb-cell .cb4{opacity:.35}                              /* 3 of 4 bars — like every screenshot ever */
+#sb-wifi{width:17px;height:12px;color:#fff;transition:opacity .3s}
+#sb-wifi.off .w1,#sb-wifi.off .w2,#sb-wifi.off .w3{opacity:.28}
+#sb-wifi.off .wx{opacity:1}
+#sb-batt{width:25px;height:12.5px;border:1px solid rgba(255,255,255,.55);border-radius:4px;position:relative;display:inline-block}
+#sb-batt::after{content:'';position:absolute;right:-3.5px;top:3.5px;width:2px;height:5px;
+  border-radius:0 2px 2px 0;background:rgba(255,255,255,.55)}   /* the nub */
+#sb-batt-fill{position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:80%;border-radius:2px;background:#fff;
+  display:block;transition:width 1s,background .4s}
+#sb-batt.low #sb-batt-fill{background:#FFB020}
 #home-bar{position:absolute;z-index:31;bottom:14px;left:50%;transform:translateX(-50%);
   width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.5);border:0;padding:0}
 
@@ -567,7 +575,21 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
   <div id="statusbar">
     <span id="clock">9:41</span>
-    <span class="sb-r"><i>▍▍▍</i><i>◗</i><span class="sb-bat"></span></span>
+    <span class="sb-r">
+      <svg id="sb-cell" viewBox="0 0 18 12" aria-label="cellular"><g fill="currentColor">
+        <rect x="0"  y="8" width="3" height="4"  rx="1"/>
+        <rect x="5"  y="6" width="3" height="6"  rx="1"/>
+        <rect x="10" y="3" width="3" height="9"  rx="1"/>
+        <rect x="15" y="0" width="3" height="12" rx="1" class="cb4"/>
+      </g></svg>
+      <svg id="sb-wifi" viewBox="0 0 16 12" aria-label="wifi">
+        <path class="w1" d="M8 10.6 L9.8 8.8 A2.6 2.6 0 0 0 6.2 8.8 Z" fill="currentColor"/>
+        <path class="w2" d="M4.4 7 A5.2 5.2 0 0 1 11.6 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <path class="w3" d="M1.9 4.4 A8.6 8.6 0 0 1 14.1 4.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <line class="wx" x1="2.5" y1="1.5" x2="13.5" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0"/>
+      </svg>
+      <span id="sb-batt"><i id="sb-batt-fill"></i></span>
+    </span>
   </div>
   <button id="home-bar" title="home"></button>
   <div id="toast"></div>
@@ -3391,6 +3413,42 @@ function tickClock() {
 }
 setInterval(tickClock, 20000); tickClock();
 
+/* ---- the status bar is real: battery from the Battery API, wifi from
+   actual connectivity, and the pair channel folds into the same signal ---- */
+const sbWifi = $('#sb-wifi'), sbBatt = $('#sb-batt'), sbFill = $('#sb-batt-fill');
+function paintBattery(level, charging) {
+  if (!sbFill) return;
+  sbFill.style.width = Math.round(level * 100) * .92 + '%';
+  sbBatt.classList.toggle('low', level <= .2 && !charging);
+}
+if (navigator.getBattery) {
+  navigator.getBattery().then((b) => {
+    const p2 = () => paintBattery(b.level, b.charging);
+    b.addEventListener('levelchange', p2); b.addEventListener('chargingchange', p2); p2();
+  }).catch(() => paintBattery(.8, false));
+} else paintBattery(.8, false);
+
+let netDown = false;
+function paintNet() {
+  const online = navigator.onLine !== false;
+  if (sbWifi) sbWifi.classList.toggle('off', !online);
+  if (!online && !netDown) {
+    netDown = true;
+    toast('offline — your marks will wait, nothing is lost');
+    $('#presence-dot').style.background = '#FFB020';
+  }
+  if (online && netDown) {
+    netDown = false;
+    toast('back online — catching up');
+    /* the transport reconnects itself (1.8s backoff); nudge presence */
+    if (window.TRACE_NET && TRACE_NET.code) TRACE_NET.emit('hi', { name: TRACE_NET.name, reply: true });
+    $('#presence-dot').style.background = '#4ADE80';
+  }
+}
+addEventListener('online', paintNet);
+addEventListener('offline', paintNet);
+paintNet();
+
 new ResizeObserver(sizeCanvas).observe(wrap);
 sizeCanvas();
 
@@ -3430,7 +3488,17 @@ function firstRun() {
   ob.querySelector('.ob-go').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
-    const theirs = ob.querySelector('#ob-their').value.trim().toLowerCase() || code;
+    const field = ob.querySelector('#ob-their');
+    const raw = field.value.trim().toLowerCase();
+    /* a real error state, not a silent fallback: codes are 5 chars, a-z 0-9 */
+    if (raw && !/^[a-z0-9]{5}$/.test(raw)) {
+      field.style.borderColor = '#E23343';
+      field.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-7px)' },
+        { transform: 'translateX(7px)' }, { transform: 'translateX(0)' }], { duration: 240 });
+      toast('codes are 5 letters or numbers — check theirs again');
+      return;
+    }
+    const theirs = raw || code;
     if (window.TRACE_NET) TRACE_NET.join(theirs, 'supabase', (st) => {
       if (st === 'open') toast('channel open — the first drawing does the rest');
       if (st === 'error') toast('no internet path here — ⋯ → Pair has a two-windows mode');
@@ -3616,12 +3684,29 @@ try { db = Object.assign(DEFAULTS(), JSON.parse(localStorage.getItem(KEY) || '{}
 catch (e) { db = DEFAULTS(); }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
 
-/* board changes go over the same channel as ink, with the same semantics */
+/* board changes go over the same channel as ink, with the same semantics.
+   Offline (or before the partner appears) they queue, in order, and flush
+   the moment the channel is back — a tick made in airplane mode still
+   lands on her widget when you surface. */
+let outbox = [];
+try { outbox = JSON.parse(localStorage.getItem('trace.outbox') || '[]'); } catch (e) {}
+const saveOutbox = () => { try { localStorage.setItem('trace.outbox', JSON.stringify(outbox.slice(-60))); } catch (e) {} };
+function netLive() { return navigator.onLine !== false && window.TRACE_NET && TRACE_NET.live && TRACE_NET.live(); }
 function push(kind, payload) {
   save();
-  if (window.TRACE_NET && TRACE_NET.live && TRACE_NET.live())
-    TRACE_NET.emit('board', { kind, payload });
+  if (netLive()) { TRACE_NET.emit('board', { kind, payload }); return; }
+  outbox.push({ kind, payload, ts: Date.now() });
+  saveOutbox();
 }
+function flushOutbox() {
+  if (!netLive() || !outbox.length) return;
+  const n = outbox.length;
+  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload });
+  saveOutbox();
+  toast(n + (n === 1 ? ' change' : ' changes') + ' from while you were away — delivered');
+}
+addEventListener('online', () => setTimeout(flushOutbox, 1200));
+setInterval(flushOutbox, 5000);
 
 /* =============================================================== helpers */
 
@@ -4215,15 +4300,30 @@ function renderRules() {
     <div class="body" style="padding-top:12px">
       ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
     </div>
-    <div style="display:flex;gap:10px;padding:10px 20px 18px;flex:none">
+    <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
-    </div>`;
+    </div>
+    <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
+      color:#E23343;background:none;border:1px solid rgba(226,51,67,.35);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
   }));
   $$('[data-save]', s).forEach((b) => b.addEventListener('click', () => { save(); toast('saved on this device'); }));
+  $$('[data-wipe]', s).forEach((b) => b.addEventListener('click', () => {
+    /* two-step, in place — no modal theatre, but no accidents either */
+    if (b.dataset.armed) {
+      try { localStorage.clear(); } catch (e) {}
+      location.reload();
+      return;
+    }
+    b.dataset.armed = '1';
+    b.textContent = 'Tap again — gone for good, no copy exists anywhere';
+    b.style.background = 'rgba(226,51,67,.14)';
+    setTimeout(() => { if (b.isConnected) { delete b.dataset.armed;
+      b.textContent = 'Delete everything on this phone'; b.style.background = 'none'; } }, 4000);
+  }));
   $$('[data-export]', s).forEach((b) => b.addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');

@@ -101,12 +101,29 @@ try { db = Object.assign(DEFAULTS(), JSON.parse(localStorage.getItem(KEY) || '{}
 catch (e) { db = DEFAULTS(); }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
 
-/* board changes go over the same channel as ink, with the same semantics */
+/* board changes go over the same channel as ink, with the same semantics.
+   Offline (or before the partner appears) they queue, in order, and flush
+   the moment the channel is back — a tick made in airplane mode still
+   lands on her widget when you surface. */
+let outbox = [];
+try { outbox = JSON.parse(localStorage.getItem('trace.outbox') || '[]'); } catch (e) {}
+const saveOutbox = () => { try { localStorage.setItem('trace.outbox', JSON.stringify(outbox.slice(-60))); } catch (e) {} };
+function netLive() { return navigator.onLine !== false && window.TRACE_NET && TRACE_NET.live && TRACE_NET.live(); }
 function push(kind, payload) {
   save();
-  if (window.TRACE_NET && TRACE_NET.live && TRACE_NET.live())
-    TRACE_NET.emit('board', { kind, payload });
+  if (netLive()) { TRACE_NET.emit('board', { kind, payload }); return; }
+  outbox.push({ kind, payload, ts: Date.now() });
+  saveOutbox();
 }
+function flushOutbox() {
+  if (!netLive() || !outbox.length) return;
+  const n = outbox.length;
+  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload });
+  saveOutbox();
+  toast(n + (n === 1 ? ' change' : ' changes') + ' from while you were away — delivered');
+}
+addEventListener('online', () => setTimeout(flushOutbox, 1200));
+setInterval(flushOutbox, 5000);
 
 /* =============================================================== helpers */
 
@@ -700,15 +717,30 @@ function renderRules() {
     <div class="body" style="padding-top:12px">
       ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
     </div>
-    <div style="display:flex;gap:10px;padding:10px 20px 18px;flex:none">
+    <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
-    </div>`;
+    </div>
+    <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
+      color:#E23343;background:none;border:1px solid rgba(226,51,67,.35);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
   }));
   $$('[data-save]', s).forEach((b) => b.addEventListener('click', () => { save(); toast('saved on this device'); }));
+  $$('[data-wipe]', s).forEach((b) => b.addEventListener('click', () => {
+    /* two-step, in place — no modal theatre, but no accidents either */
+    if (b.dataset.armed) {
+      try { localStorage.clear(); } catch (e) {}
+      location.reload();
+      return;
+    }
+    b.dataset.armed = '1';
+    b.textContent = 'Tap again — gone for good, no copy exists anywhere';
+    b.style.background = 'rgba(226,51,67,.14)';
+    setTimeout(() => { if (b.isConnected) { delete b.dataset.armed;
+      b.textContent = 'Delete everything on this phone'; b.style.background = 'none'; } }, 4000);
+  }));
   $$('[data-export]', s).forEach((b) => b.addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');

@@ -1608,6 +1608,42 @@ function tickClock() {
 }
 setInterval(tickClock, 20000); tickClock();
 
+/* ---- the status bar is real: battery from the Battery API, wifi from
+   actual connectivity, and the pair channel folds into the same signal ---- */
+const sbWifi = $('#sb-wifi'), sbBatt = $('#sb-batt'), sbFill = $('#sb-batt-fill');
+function paintBattery(level, charging) {
+  if (!sbFill) return;
+  sbFill.style.width = Math.round(level * 100) * .92 + '%';
+  sbBatt.classList.toggle('low', level <= .2 && !charging);
+}
+if (navigator.getBattery) {
+  navigator.getBattery().then((b) => {
+    const p2 = () => paintBattery(b.level, b.charging);
+    b.addEventListener('levelchange', p2); b.addEventListener('chargingchange', p2); p2();
+  }).catch(() => paintBattery(.8, false));
+} else paintBattery(.8, false);
+
+let netDown = false;
+function paintNet() {
+  const online = navigator.onLine !== false;
+  if (sbWifi) sbWifi.classList.toggle('off', !online);
+  if (!online && !netDown) {
+    netDown = true;
+    toast('offline — your marks will wait, nothing is lost');
+    $('#presence-dot').style.background = '#FFB020';
+  }
+  if (online && netDown) {
+    netDown = false;
+    toast('back online — catching up');
+    /* the transport reconnects itself (1.8s backoff); nudge presence */
+    if (window.TRACE_NET && TRACE_NET.code) TRACE_NET.emit('hi', { name: TRACE_NET.name, reply: true });
+    $('#presence-dot').style.background = '#4ADE80';
+  }
+}
+addEventListener('online', paintNet);
+addEventListener('offline', paintNet);
+paintNet();
+
 new ResizeObserver(sizeCanvas).observe(wrap);
 sizeCanvas();
 
@@ -1647,7 +1683,17 @@ function firstRun() {
   ob.querySelector('.ob-go').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
-    const theirs = ob.querySelector('#ob-their').value.trim().toLowerCase() || code;
+    const field = ob.querySelector('#ob-their');
+    const raw = field.value.trim().toLowerCase();
+    /* a real error state, not a silent fallback: codes are 5 chars, a-z 0-9 */
+    if (raw && !/^[a-z0-9]{5}$/.test(raw)) {
+      field.style.borderColor = '#E23343';
+      field.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-7px)' },
+        { transform: 'translateX(7px)' }, { transform: 'translateX(0)' }], { duration: 240 });
+      toast('codes are 5 letters or numbers — check theirs again');
+      return;
+    }
+    const theirs = raw || code;
     if (window.TRACE_NET) TRACE_NET.join(theirs, 'supabase', (st) => {
       if (st === 'open') toast('channel open — the first drawing does the rest');
       if (st === 'error') toast('no internet path here — ⋯ → Pair has a two-windows mode');
