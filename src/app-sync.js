@@ -112,6 +112,7 @@ const NET = window.TRACE_NET = {
       else if (event === 'sky') app.remoteSky(p);
       else if (event === 'tug') app.remoteTug();
       else if (event === 'note') app.remoteNote(p.text);
+      else if (event === 'board') app.remoteBoard(p);
     };
     const onStatus = (s, why) => ui && ui(s, why);
     t = (mode === 'local' ? localTransport : supaTransport)(code, onMsg, (s, why) => {

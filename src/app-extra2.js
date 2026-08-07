@@ -30,22 +30,19 @@ const applySky = (name, strength, fromRemote) => {
   if (!fromRemote && window.TRACE_NET) TRACE_NET.emit('sky', { name, strength });
   const c = SKIES[name] || SKIES.dusk;
   const grad = `linear-gradient(180deg,${c[0]} 0%,${c[1]} 45%,${c[2]} 70%,${c[3]} 100%)`;
-  for (const id of ['#sky', '#card-sky']) {
-    const n = $(id); if (!n) continue;
-    n.style.background = grad;
-    n.style.opacity = (0.35 + 0.65 * strength).toFixed(2);
-  }
+  const n = $('#card-sky');
+  if (n) { n.style.background = grad; n.style.opacity = (0.35 + 0.65 * strength).toFixed(2); }
   ($('#appview') || $('#screen')).classList.toggle('is-light', name === 'daylight');
   store.set('sky', { name, strength });
 };
-const savedSky = store.get('sky', { name: 'dusk', strength: 1 });
+const savedSky = store.get('sky', { name: 'night', strength: .8 });
 setTimeout(() => applySky(savedSky.name, savedSky.strength), 0);
 
 function skyPicker() {
   openPanel('sky & strength', (body) => {
     body.appendChild(noteEl('Pick a background and how strongly it shows. The ink stays legible either way — that’s what strength is for.'));
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px"></div>');
-    let cursky = store.get('sky', { name: 'dusk', strength: 1 });
+    let cursky = store.get('sky', { name: 'night', strength: .8 });
     for (const [name, c] of Object.entries(SKIES)) {
       const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? '#e23343' : 'rgba(255,255,255,.14)'};
         background:linear-gradient(180deg,${c[0]},${c[1]} 45%,${c[2]} 70%,${c[3]});position:relative;overflow:hidden">

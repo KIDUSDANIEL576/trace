@@ -12,83 +12,140 @@
 
 <div id="stage">
 <div id="phone">
-<div id="screen">
+<div id="screen" data-room="Canvas">
 
-  <!-- ============ HOME — the widget is the display (frame 1o) ============ -->
+  <!-- ============ her home screen — frame 21b ============ -->
   <div id="home">
     <div id="home-time">9:41 · tuesday</div>
+
+    <button id="widget" title="open trace">
+      <span id="widget-brand">TRACE</span>
+      <span id="widget-body"></span>
+      <canvas id="widget-ink"></canvas>
+      <span id="widget-cap"></span>
+      <span id="widget-dots"></span>
+    </button>
+
     <div id="home-grid">
-      <button id="widget" title="open trace">
-        <canvas id="widget-ink"></canvas>
-        <span id="widget-cap">tra<i>ce</i> · just now</span>
-      </button>
       <div class="apptile"></div><div class="apptile"></div>
       <div class="apptile"></div><div class="apptile"></div>
+      <div class="apptile"></div><div class="apptile"></div>
+      <div class="apptile"></div>
+      <div class="apptile trace">
+        <svg viewBox="0 0 30 30" style="width:26px;height:26px">
+          <path d="M5 20 C11 8,15 24,25 10" stroke="#FFB020" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
     </div>
-    <div id="home-hint">no notification. it’s just there.<br><span>tap the widget</span></div>
+
+    <div id="home-hint">Her board, on your home screen.<br>Tap the widget to slide it.</div>
+    <div id="home-dock"><div></div><div></div><div></div><div></div></div>
   </div>
 
-  <!-- ================= THE CANVAS (frames 3a + 1a) ================= -->
+  <!-- ==================== the app ==================== -->
   <div id="appview" class="hidden">
     <div id="sky"></div>
     <div id="dim"></div>
 
     <div id="col">
-      <header id="top">
-        <div id="wordmark" title="hold for settings">tra<span>ce</span></div>
-        <div id="streakpill"><svg class="ts-i"><use href="#i-flame"/></svg><b id="streak-n">128</b></div>
-        <div id="presence">
-          <span id="presence-ico"><svg class="ts-i"><use href="#i-pencil"/></svg></span>
-          <span id="presence-txt">with Sara</span>
-          <span id="presence-dot"></span>
-        </div>
-      </header>
+      <div id="stack">
 
-      <div id="tabs">
-        <button data-p="us" class="tb on">us</button>
-        <button data-p="mine" class="tb"><svg class="ts-i"><use href="#i-pen-line"/></svg> my page</button>
-        <button data-p="hers" class="tb"><svg class="ts-i"><use href="#i-mail-heart"/></svg> Sara</button>
+        <!-- ---------- Canvas — 19b + 20a ---------- -->
+        <section class="scr" id="sc-canvas">
+          <div class="hd">
+            <div class="pill" id="presence">
+              <span class="dot" id="presence-dot"></span>
+              <span id="presence-txt">with Sara</span>
+              <span id="presence-ico" hidden><svg class="ts-i"><use href="#i-pencil"/></svg></span>
+            </div>
+            <button class="icob" id="to-board" title="your board">⤴</button>
+          </div>
+
+          <div class="title">
+            <div class="k">Today’s canvas</div>
+            <div class="v" id="canvas-count">0 marks, 0 hands</div>
+          </div>
+
+          <div id="canvas-zone">
+            <div id="canvas-wrap">
+              <div id="card-sky"></div>
+              <div id="card-light"></div>
+              <canvas id="ink"></canvas>
+              <div id="ghost-finger"><span>her finger</span></div>
+              <div id="mirror-line"></div>
+              <div id="warm-layer"></div>
+              <div id="bloom"></div>
+              <div id="whisper"></div>
+              <div id="canvas-tag">Sara</div>
+              <div id="canvas-note"></div>
+            </div>
+          </div>
+
+          <div class="stat2">
+            <div><div class="k">Goodnight in</div><div class="v" id="st-goodnight" style="color:#FF7BC5">2h 14m</div></div>
+            <div><div class="k">Days of you two</div><div class="v" id="st-streak" style="color:#4ADE80">41 days</div></div>
+          </div>
+
+          <div id="dock">
+            <div class="dock-row" id="brushes">
+              <button class="tool is-on" data-brush="pen" title="pen"><svg class="ts-i"><use href="#i-pencil"/></svg></button>
+              <button class="tool" data-brush="spark" title="sparkles"><svg class="ts-i"><use href="#i-sparkles"/></svg></button>
+              <button class="tool" data-brush="zap" title="zap"><svg class="ts-i"><use href="#i-zap"/></svg></button>
+              <button class="tool" data-brush="marker" title="marker"><svg class="ts-i"><use href="#i-marker"/></svg></button>
+              <button class="tool" data-brush="hi" title="highlighter"><svg class="ts-i"><use href="#i-highlighter"/></svg></button>
+              <button class="tool" data-brush="ghost" title="invisible ink"><svg class="ts-i"><use href="#i-ghost"/></svg></button>
+              <button class="tool" data-brush="eraser" title="eraser"><svg class="ts-i"><use href="#i-eraser"/></svg></button>
+            </div>
+            <div class="dock-row">
+              <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
+              <div id="colors">
+                <button class="swatch is-on" data-c="#FFB020" style="background:#FFB020"></button>
+                <button class="swatch" data-c="#FF7BC5" style="background:#FF7BC5"></button>
+                <button class="swatch" data-c="#6EA8FF" style="background:#6EA8FF"></button>
+                <button class="swatch" data-c="#4ADE80" style="background:#4ADE80"></button>
+                <button class="swatch" data-c="#EDEFF7" style="background:#EDEFF7"></button>
+              </div>
+              <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Rooms directory — 19c ---------- -->
+        <section class="scr hidden" id="sc-rooms">
+          <div class="hd">
+            <div style="width:36px"></div>
+            <div style="font-size:17px;font-weight:600">Rooms</div>
+            <button class="icob" data-back>✕</button>
+          </div>
+          <div class="search">
+            <input id="room-search" placeholder="Search 60 features" autocomplete="off">
+            <span>⌕</span>
+          </div>
+          <div class="body" id="rooms-list"></div>
+        </section>
+
+        <!-- ---------- a room — 19d / 19f / 19g / 19h / 19i ---------- -->
+        <section class="scr hidden" id="sc-room"></section>
+
+        <!-- ---------- your board — 21a ---------- -->
+        <section class="scr hidden" id="sc-board"></section>
+
+        <!-- ---------- every widget state — 21c ---------- -->
+        <section class="scr hidden" id="sc-states"></section>
+
+        <!-- ---------- rules — 19j ---------- -->
+        <section class="scr hidden" id="sc-rules"></section>
       </div>
 
-      <main id="canvas-zone">
-        <div id="canvas-wrap">
-          <div id="card-sky"></div>
-          <div id="card-light"></div>
-          <canvas id="ink"></canvas>
-          <div id="ghost-finger"><span>her finger</span></div>
-          <div id="mirror-line"></div>
-          <div id="warm-layer"></div>
-          <div id="bloom"></div>
-          <div id="whisper"></div>
-          <div id="canvas-note">draw how today feels</div>
-        </div>
-      </main>
-
-      <div id="dock">
-        <div class="dock-row" id="brushes">
-          <button class="tool is-on" data-brush="pen" title="pen"><svg class="ts-i"><use href="#i-pencil"/></svg></button>
-          <button class="tool" data-brush="spark" title="sparkles"><svg class="ts-i"><use href="#i-sparkles"/></svg></button>
-          <button class="tool" data-brush="zap" title="zap"><svg class="ts-i"><use href="#i-zap"/></svg></button>
-          <button class="tool" data-brush="marker" title="marker"><svg class="ts-i"><use href="#i-marker"/></svg></button>
-          <button class="tool" data-brush="hi" title="highlighter"><svg class="ts-i"><use href="#i-highlighter"/></svg></button>
-          <button class="tool" data-brush="ghost" title="invisible ink"><svg class="ts-i"><use href="#i-ghost"/></svg></button>
-          <button class="tool" data-brush="eraser" title="eraser"><svg class="ts-i"><use href="#i-eraser"/></svg></button>
-        </div>
-        <div class="dock-row">
-          <button class="swatch is-on" data-c="#e23343" style="background:#e23343"></button>
-          <button class="swatch" data-c="#ff7a9c" style="background:#ff7a9c"></button>
-          <button class="swatch" data-c="#fff" style="background:#fff"></button>
-          <button class="swatch" data-c="#f4c66b" style="background:#f4c66b"></button>
-          <button class="swatch" data-c="#7ec8ff" style="background:#7ec8ff"></button>
-          <span class="dock-sep"></span>
-          <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
-          <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
-          <button class="rbtn" id="more-btn" title="everything">⋯</button>
-        </div>
+      <!-- the one control bar — 19b/19c/19d, verbatim -->
+      <div id="controlbar">
+        <button class="cb" id="cb-left" title="pen">✎</button>
+        <button id="cb-room">Canvas</button>
+        <button class="cb" id="cb-right" title="rules">⚙</button>
       </div>
     </div>
 
-    <!-- feature sheet — frame 1a -->
+    <!-- feature directory sheet (all 57 legacy features, searchable) -->
     <div id="sheet" class="hidden">
       <div id="sheet-card">
         <div class="grab"></div>
@@ -105,9 +162,18 @@
       </div>
       <div id="panel-body"></div>
     </div>
+
+    <!-- kept for the engine; the clean system has no streak pill or tab strip -->
+    <div id="tabs"><button data-p="us" class="tb on">us</button></div>
+    <div id="streakpill"><b id="streak-n">41</b></div>
+    <div id="wordmark">trace</div>
+    <button id="more-btn" hidden>⋯</button>
   </div>
 
-  <div id="statusbar"><span id="clock">9:41</span><span class="sb-r">▮▮▮</span></div>
+  <div id="statusbar">
+    <span id="clock">9:41</span>
+    <span class="sb-r"><i>▍▍▍</i><i>◗</i><span class="sb-bat"></span></span>
+  </div>
   <button id="home-bar" title="home"></button>
   <div id="toast"></div>
 </div>

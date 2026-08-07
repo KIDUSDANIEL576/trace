@@ -57,7 +57,7 @@ const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
 
 const state = {
-  brush: 'pen', color: '#e23343',
+  brush: 'pen', color: '#FFB020',
   mode: null,            // null | mirror | trace | passpen | onemore...
   bothHere: false,
   penHolder: 'you',
@@ -235,13 +235,18 @@ function onYouDrew(s) {
 /* ================================================================ sara */
 
 const ghostEl = $('#ghost-finger');
+let drawingNow = false;   // is the other side inking right now
 const sara = {
   timers: [],
   after(ms, fn) { this.timers.push(setTimeout(fn, ms)); },
   clear() { this.timers.forEach(clearTimeout); this.timers = []; },
   presence(on) {
+    drawingNow = !!on;
     $('#presence').classList.toggle('live', on);
-    $('#presence-txt').innerHTML = on ? '<span style="color:#ff7a9c">Sara</span> is drawing' : 'with Sara';
+    $('#presence-txt').textContent = on ? 'Maya is drawing' : 'Maya is here';
+    $('#presence-dot').style.background = on ? '#FF7BC5' : '#4ADE80';
+    const tag = $('#canvas-tag'); if (tag) tag.classList.toggle('on', !!on);
+    window.TRACE_BOARD && TRACE_BOARD.paint && TRACE_BOARD.paint();
   },
   finger(x, y, show) {
     ghostEl.style.left = x + 'px'; ghostEl.style.top = y + 'px';
@@ -1431,16 +1436,17 @@ function showApp() {
 function showHome() {
   appEl.classList.add('hidden'); homeEl.classList.remove('hidden');
   document.getElementById('screen').classList.add('on-home');
-  paintWidget();
+  window.TRACE_BOARD && TRACE_BOARD.inked();
 }
-$('#widget').addEventListener('click', showApp);
 $('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showHome(); });
 
-/* the widget IS the display — it mirrors the live canvas */
-const wInk = $('#widget-ink');
+/* The widget is rooms.js's — it decides which card shows. When that card is
+   the one-time trace, it hands us the canvas to paint the ink into. */
 let lastInkAt = Date.now();
-function paintWidget() {
-  const r = $('#widget').getBoundingClientRect();
+function paintWidget(target) {
+  const wInk = target || $('#widget-ink');
+  if (!wInk) return;
+  const r = wInk.getBoundingClientRect();
   if (!r.width) return;
   wInk.width = r.width * DPR; wInk.height = r.height * DPR;
   const wx = wInk.getContext('2d');
@@ -1464,15 +1470,12 @@ function paintWidget() {
   }
   wx.globalCompositeOperation = 'source-over'; wx.globalAlpha = 1;
   wx.restore();
-  const mins = Math.floor((Date.now() - lastInkAt) / 60000);
-  $('#widget-cap').innerHTML = 'tra<i>ce</i> · ' + (mins < 1 ? 'just now' : mins + ' min ago');
 }
-setInterval(() => { if (!homeEl.classList.contains('hidden')) paintWidget(); }, 700);
 
-/* the phone is the design's exact 330×714, scaled as one unit */
+/* the phone is the clean system's exact 390×844, scaled as one unit */
 function fitPhone() {
-  const simW = innerWidth > 760 ? 270 : 0;
-  const z = Math.min((innerWidth - simW - 16) / 330, (innerHeight - 16) / 714);
+  const simW = innerWidth > 760 ? 280 : 0;
+  const z = Math.min((innerWidth - simW - 16) / 406, (innerHeight - 16) / 860);
   document.getElementById('phone').style.zoom = z.toFixed(3);
 }
 addEventListener('resize', fitPhone); fitPhone();
@@ -1500,17 +1503,20 @@ function firstRun() {
   store.set('pairCode', code);
   const ob = document.createElement('div');
   ob.id = 'onboard';
+  /* 19a: Meet Trace — one surface, both of you, all day. Pairing is the
+     front door, so the code and the join field are the whole screen. */
   ob.innerHTML = `
     <div class="ob-card">
-      <div class="ob-wm">tra<span>ce</span></div>
-      <div class="ob-h">one canvas.<br>two people.</div>
+      <div style="font-size:15px;color:var(--ink-2)">Meet</div>
+      <div class="ob-wm">Trace</div>
+      <div class="ob-h">One surface, both of you, all day.</div>
       <input id="ob-name" placeholder="your name" maxlength="14">
-      <div class="ob-code-l">YOUR CODE</div>
+      <div class="ob-code-l">Your code</div>
       <div class="ob-code">${code}</div>
-      <button class="ob-share">share it with your person</button>
-      <input id="ob-their" placeholder="or type their code" maxlength="5">
-      <button class="ob-go">connect</button>
-      <button class="ob-skip">try it alone first — Sara will draw back</button>
+      <button class="ob-share">Share it with your person</button>
+      <input id="ob-their" placeholder="or type theirs" maxlength="5">
+      <button class="ob-go">Start a canvas</button>
+      <button class="ob-skip">Try it alone first — Maya will draw back</button>
     </div>`;
   document.getElementById('screen').appendChild(ob);
   const done = () => { store.set('onboarded', true); ob.remove(); };
@@ -1553,9 +1559,18 @@ setTimeout(() => {
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
   }});
 }, 1600);
-/* receive side for real pairing (TRACE_NET) */
+/* receive side for real pairing (TRACE_NET) + the surface rooms.js drives */
 const remote = {};   // id -> stroke
 window.TRACE_APP = {
+  /* --- what the clean shell (rooms.js) needs from the engine --- */
+  toast, buzz, log, openPanel, openFeature, openSheet,
+  features: () => FEATURES,
+  strokeCount: () => strokes.filter(k => k.who !== 'fx').length,
+  handCount: () => new Set(strokes.filter(k => k.who !== 'fx').map(k => k.who)).size || 1,
+  partnerDrawing: () => drawingNow,
+  paintWidgetInk: (cv) => paintWidget(cv),
+  showApp, showHome, brushPop: toggleBrushPop,
+  remoteBoard(p) { window.TRACE_BOARD && TRACE_BOARD.receive(p); },
   remoteBegin(p) {
     remote[p.id] = { pts: [], c: p.c, w: p.w, alpha: p.alpha, taper: p.taper, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
     strokes.push(remote[p.id]);
@@ -1570,7 +1585,10 @@ window.TRACE_APP = {
     }
     redraw();
   },
-  remoteEnd(p) { lastInkAt = Date.now(); sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw(); },
+  remoteEnd(p) {
+    lastInkAt = Date.now(); sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw();
+    window.TRACE_BOARD && TRACE_BOARD.inked();
+  },
   remoteHeart() { heartArrive('partner'); },
   remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); redraw(); toast('they cleared the canvas'); },
   remoteSky(p) { window.TRACE_SKY && TRACE_SKY(p.name, p.strength); },
@@ -1579,7 +1597,7 @@ window.TRACE_APP = {
   partner(on, name) {
     const sim = $('#sim');
     if (sim) sim.style.opacity = on ? .28 : 1;
-    $('#presence-txt').textContent = on ? ('with ' + (name || 'them') + ' · live') : 'with Sara';
+    $('#presence-txt').textContent = on ? ((name || 'They') + ' is here') : 'Maya is here';
     $('#presence').classList.toggle('live', on);
     if (on) { sara.clear(); log('REAL PARTNER: ' + name + ' — simulation standing down'); }
     else log('partner left — simulation resumes');
@@ -1587,6 +1605,6 @@ window.TRACE_APP = {
 };
 
 log('simulation ready — you and a simulated Sara share this canvas');
-toast('draw anywhere. ⋯ has all ' + FEATURES.filter(f => f.id).length + ' features.', 3600);
+toast('draw anywhere. the room pill opens all ' + FEATURES.filter(f => f.id).length + ' features.', 3600);
 
 })();

@@ -1,0 +1,868 @@
+/* trace — rooms, board and the widget deck.
+ *
+ * This is the Trace Clean system (design turns 19–21) sitting on top of the
+ * canvas engine: five rooms plus one directory instead of a 59-item sheet,
+ * a board you curate, and the widget that is the other person's window into
+ * it. Data models, copy and colour are taken from the frames' own
+ * renderVals() — tasks, groceries, doses, buckets, habits, moods, savings,
+ * publish switches and the privacy toggles are the design's, not invented.
+ *
+ * Load order: app.js boots first and hands us TRACE_APP; we take over the
+ * home screen widget and everything above the control bar.
+ */
+(() => {
+'use strict';
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+const APP = window.TRACE_APP || {};
+const toast = APP.toast || (() => {});
+const buzz = APP.buzz || (() => {});
+
+/* =============================================================== store */
+
+const KEY = 'trace.clean.v2';
+const DEFAULTS = () => ({
+  /* 19d — household */
+  tasks: [
+    { id: 't1', title: 'Bins out before 7', meta: 'Recurring · Thursdays', who: 'You', chip: '#6EA8FF' },
+    { id: 't2', title: 'Call the plumber', meta: 'Claimed 2h ago', who: 'Maya', chip: '#FF7BC5' },
+    { id: 't3', title: 'Pick up the prescription', meta: 'Doctor’s note attached', who: 'Free', chip: '#EDEFF7' },
+    { id: 't4', title: 'Reply to the landlord', meta: 'Photo of the letter', who: 'You', chip: '#6EA8FF' },
+    { id: 't5', title: 'Book Sunday table', meta: 'Someone’s coming', who: 'Free', chip: '#EDEFF7' },
+    { id: 't6', title: 'Ten minutes, together', meta: 'Weekly reset', who: 'Both', chip: '#4ADE80' },
+  ],
+  done: { t2: true },
+  split: 60,
+  /* 19f — the list */
+  items: [
+    { id: 'g1', name: 'Oat milk', who: 'Maya' }, { id: 'g2', name: 'Sourdough', who: 'You' },
+    { id: 'g3', name: 'Tomatoes, the small ones', who: 'Maya' }, { id: 'g4', name: 'Coffee beans', who: 'You' },
+    { id: 'g5', name: 'Dish soap', who: 'You' }, { id: 'g6', name: 'Lemons', who: 'Maya' },
+    { id: 'g7', name: 'Something for Sunday', who: 'Both' },
+  ],
+  got: { g1: true, g4: true },
+  shopping: false,
+  /* 20j — meal wheel */
+  meals: ['Ramen night', 'Big salad', 'Maya’s curry', 'Breakfast for dinner', 'Whatever’s left', 'Out, somewhere small'],
+  mealIdx: 0,
+  /* 20w — doses */
+  doses: [
+    { id: 'd1', name: 'Vitamin D', meta: 'Morning, with food' },
+    { id: 'd2', name: 'Iron', meta: 'Evening · Maya’s' },
+    { id: 'd3', name: 'Allergy tab', meta: 'Before bed' },
+  ],
+  dosed: { d1: true },
+  /* 20p — handover baton, 25e — two-minute pile */
+  baton: false,
+  minis: [
+    { id: 'm1', t: 'Reply to the sitter', s: '30 sec' }, { id: 'm2', t: 'Move €40 to Kyoto', s: '20 sec' },
+    { id: 'm3', t: 'Book the car in', s: '90 sec' }, { id: 'm4', t: 'Text your mum back', s: '40 sec' },
+    { id: 'm5', t: 'Bin the expired meds', s: '60 sec' },
+  ],
+  miniDone: {},
+  /* 19g + 24g — together */
+  savings: { name: 'Kyoto, April', have: 3180, goal: 5000 },
+  dreams: [
+    { t: 'A kitchen with light', s: 'Both signed' },
+    { t: 'Learn to sail', s: 'Maya added' },
+  ],
+  promise: 'One Sunday a month, no plans',
+  buckets: [
+    { id: 'b1', t: 'Surf at dawn, badly', who: 'Maya' }, { id: 'b2', t: 'Drive the coast road, no map', who: 'You' },
+    { id: 'b3', t: 'Learn to sail', who: 'Maya' }, { id: 'b4', t: 'Kyoto in April', who: 'Both' },
+    { id: 'b5', t: 'Teach Leo chess', who: 'You' },
+  ],
+  bucket: { b1: true, b5: true },
+  mission: false,
+  /* 19h — memory */
+  marks: 218, chapter: 4, jarN: 12,
+  /* 19i + 22f — wellbeing */
+  mood: -1, herMood: 0,
+  habits: [
+    { name: 'Walk after dinner', meta: '5 of 7', days: [1, 1, 0, 1, 1, 0, 1] },
+    { name: 'Phones down by 10', meta: '4 of 7', days: [1, 0, 1, 1, 0, 1, 0] },
+    { name: 'One good question', meta: '6 of 7', days: [1, 1, 1, 0, 1, 1, 1] },
+  ],
+  focusOn: false, armour: false,
+  /* 21a — what her widget gets */
+  pub: { trace: true, list: true, cal: true, mood: false, leave: true, notice: true },
+  /* 19j — rules */
+  sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
+  /* board content */
+  notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
+  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: '#EDEFF7' }, { t: 'pick up cake', c: '#FFB020' }] },
+  leaving: null,          /* {mins} — auto, breaks through armour */
+  thinking: null,         /* {ts} — "thinking of you" */
+  traceSeen: false,       /* one-time trace burns after she sees it */
+});
+
+let db;
+try { db = Object.assign(DEFAULTS(), JSON.parse(localStorage.getItem(KEY) || '{}')); }
+catch (e) { db = DEFAULTS(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+
+/* board changes go over the same channel as ink, with the same semantics */
+function push(kind, payload) {
+  save();
+  if (window.TRACE_NET && TRACE_NET.live && TRACE_NET.live())
+    TRACE_NET.emit('board', { kind, payload });
+}
+
+/* =============================================================== helpers */
+
+const el = (html) => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const count = (o) => Object.values(o).filter(Boolean).length;
+
+function tickRow({ on, title, meta, right }) {
+  return `<button class="row"><span class="tick${on ? ' on' : ''}">${on ? '✓' : ''}</span>` +
+    `<span class="grow"><span class="n light" style="opacity:${on ? .45 : 1};display:block">${esc(title)}</span>` +
+    (meta ? `<span class="s">${esc(meta)}</span>` : '') + `</span>` +
+    (right || '') + `</button>`;
+}
+function navRow(title, sub, right) {
+  return `<button class="row"><span class="grow"><span class="n">${esc(title)}</span>` +
+    (sub ? `<span class="s">${esc(sub)}</span>` : '') + `</span>` +
+    `<span class="chev">${right || '›'}</span></button>`;
+}
+function swRow(id, name, sub, on, amber) {
+  return `<button class="row" data-sw="${id}"><span class="grow"><span class="n">${esc(name)}</span>` +
+    `<span class="s">${esc(sub)}</span></span>` +
+    `<span class="sw${on ? ' on' : ''}${amber ? ' amber' : ''}"><i></i></span></button>`;
+}
+
+/* =============================================================== screens */
+
+const stack = $('#stack');
+const screens = {
+  canvas: $('#sc-canvas'), rooms: $('#sc-rooms'), room: $('#sc-room'),
+  board: $('#sc-board'), states: $('#sc-states'), rules: $('#sc-rules'),
+};
+let current = 'canvas', activeRoom = 'Canvas', roomKey = null;
+
+function show(name, room) {
+  current = name;
+  for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
+  if (room) activeRoom = room;
+  if (name === 'canvas') activeRoom = 'Canvas';
+  if (name === 'rooms') activeRoom = 'Rooms';
+  if (name === 'board') activeRoom = 'Your board';
+  if (name === 'states') activeRoom = 'Widget';
+  if (name === 'rules') activeRoom = 'Quiet & private';
+  $('#cb-room').textContent = activeRoom;
+  $('#screen').dataset.room = name === 'room' ? room : (name === 'canvas' ? 'Canvas' : 'Rooms');
+  $('#cb-left').textContent = name === 'canvas' ? '✎' : '✎';
+  if (name === 'canvas') requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+}
+
+/* ------------------------------------------------- 19c the directory */
+
+const ROOMS = [
+  { name: 'Canvas', sub: 'Draw, presence, goodnight', tint: '#4ADE80', icon: '✎', count: () => 'live' },
+  { name: 'Household', sub: 'Tasks, lists, meals, split', tint: '#6EA8FF', icon: '⌂',
+    count: () => String(db.tasks.length - count(db.done)) },
+  { name: 'Together', sub: 'Savings, dreams, promises', tint: '#4ADE80', icon: '❑',
+    count: () => String(db.buckets.length - count(db.bucket)) },
+  { name: 'Memory', sub: 'Chapters, movies, jar', tint: '#FFB020', icon: '◔', count: () => String(db.marks) },
+  { name: 'Wellbeing', sub: 'Mood, habits, focus', tint: '#FF7BC5', icon: '◍',
+    count: () => String(db.habits.length - 1) },
+];
+
+/* which room each of the engine's features belongs to (the directory's
+   "Search 60 features" has to actually reach all of them) */
+const FEATURE_ROOM = {
+  Canvas: ['mirror', 'traceover', 'passpen', 'scratch', 'reveal', 'sky', 'photo', 'clear', 'fingerlive',
+    'vocab', 'stickers', 'translate', 'whisper', 'blind', 'finish', 'alive', 'theday', 'gestures', 'bad'],
+  Household: ['days', 'calx', 'say', 'comehere', 'banner'],
+  Together: ['bothhere', 'hold', 'touching', 'warm', 'string', 'palm', 'fog', 'thumb', 'hr',
+    'prompt', 'eyesshut', 'hotcold', 'pair', 'signs'],
+  Memory: ['replay', 'slept', 'capsule', 'thread', 'yearago', 'dict', 'yearmarks', 'moments',
+    'riso', 'replayx', 'weather', 'compose'],
+  Wellbeing: ['breathe', 'guardrails', 'positioning', 'donate', 'world', 'theline', 'widget'],
+};
+const roomOf = (id) => {
+  for (const r in FEATURE_ROOM) if (FEATURE_ROOM[r].includes(id)) return r;
+  return 'Canvas';
+};
+const featuresIn = (room) => (APP.features ? APP.features() : []).filter((f) => f.id && roomOf(f.id) === room);
+
+function renderRooms(query) {
+  const list = $('#rooms-list');
+  const q = (query || '').trim().toLowerCase();
+  list.innerHTML = '';
+
+  if (!q) {
+    list.appendChild(el(`<div class="eyebrow" style="padding:6px 4px 2px">Five rooms</div>`));
+    for (const r of ROOMS) {
+      const row = el(`<button class="row">
+        <span class="ico">${r.icon}</span>
+        <span class="grow"><span class="n">${r.name}</span><span class="s big">${r.sub}</span></span>
+        <span class="cnt" style="color:${r.tint}">${r.count()}</span>
+        <span class="chev">›</span></button>`);
+      row.addEventListener('click', () => openRoom(r.name));
+      list.appendChild(row);
+    }
+    list.appendChild(el(`<div class="eyebrow" style="padding:16px 4px 2px">Beyond the rooms</div>`));
+    for (const [label, sub, go] of [
+      ['Your board', 'What her widget shows — you decide', () => show('board')],
+      ['Every widget state', 'And who wins when they compete', () => show('states')],
+      ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
+    ]) {
+      const row = el(navRow(label, sub));
+      row.addEventListener('click', go);
+      list.appendChild(row);
+    }
+    return;
+  }
+
+  /* search runs across every feature the engine has, grouped by room */
+  const all = (APP.features ? APP.features() : []).filter((f) => f.id);
+  const hits = all.filter((f) => (f.n + ' ' + f.d).toLowerCase().includes(q));
+  if (!hits.length) {
+    list.appendChild(el(`<div class="foot" style="padding-top:30px">Nothing matches “${esc(q)}”.</div>`));
+    return;
+  }
+  let last = null;
+  for (const f of hits) {
+    const r = roomOf(f.id);
+    if (r !== last) { list.appendChild(el(`<div class="eyebrow" style="padding:14px 4px 2px">${r}</div>`)); last = r; }
+    const row = el(navRow(f.n, f.d));
+    row.addEventListener('click', () => APP.openFeature && APP.openFeature(f.id));
+    list.appendChild(row);
+  }
+}
+
+/* ------------------------------------------------------ the five rooms */
+
+function openRoom(name) {
+  if (name === 'Canvas') return show('canvas');
+  roomKey = name;
+  const s = screens.room;
+  s.innerHTML = ROOM_VIEWS[name]();
+  wireRoom(s, name);
+  show('room', name);
+}
+
+const ROOM_VIEWS = {
+
+  /* 19d — household */
+  Household() {
+    const open = db.tasks.length - count(db.done);
+    return `
+      <div class="hd"><button class="pill" data-back>Thursday</button>
+        <button class="icob" data-go="board">⤴</button></div>
+      <div class="title">
+        <div class="k">Left to do</div>
+        <div class="v">${open} thing${open === 1 ? '' : 's'}</div>
+        <div class="s">You’re carrying ${db.split}% of today.</div>
+      </div>
+      <div class="splitbar"><div class="a" style="width:${db.split}%"></div><div class="b"></div></div>
+      <div class="body">
+        ${db.tasks.map((t) => `<button class="row" data-task="${t.id}">
+            <span class="tick${db.done[t.id] ? ' on' : ''}">${db.done[t.id] ? '✓' : ''}</span>
+            <span class="grow"><span class="n light" style="opacity:${db.done[t.id] ? .45 : 1};display:block">${esc(t.title)}</span>
+              <span class="s">${esc(t.meta)}</span></span>
+            <span class="who" style="color:${t.chip}">${t.who}</span></button>`).join('')}
+        <div class="eyebrow" style="padding:14px 4px 2px">Also in Household</div>
+        ${[['list', 'Groceries', `${db.items.length - count(db.got)} left`],
+           ['meal', 'What’s for dinner', db.meals[db.mealIdx]],
+           ['split', 'Fair split', 'A month, not a scoreboard'],
+           ['baton', 'Handover baton', db.baton ? 'You’re carrying it' : 'Nobody has it'],
+           ['doses', 'Doses', `${count(db.dosed)} of ${db.doses.length} today`],
+           ['sprint', 'Two-minute pile', `${db.minis.length - count(db.miniDone)} left`]]
+          .map(([k, n, s2]) => `<button class="row" data-sub="${k}"><span class="grow">
+            <span class="n">${esc(n)}</span><span class="s">${esc(s2)}</span></span>
+            <span class="chev">›</span></button>`).join('')}
+        ${featureRows('Household')}
+      </div>`;
+  },
+
+  /* 19g — together */
+  Together() {
+    const pct = Math.round(db.savings.have / db.savings.goal * 100);
+    const eur = (n) => '€' + n.toLocaleString('en-US');
+    return `
+      <div class="hd"><button class="pill" data-back>Together</button>
+        <button class="icob" data-go="board">⤴</button></div>
+      <div class="title">
+        <div class="k">${esc(db.savings.name)}</div>
+        <div class="v">${eur(db.savings.have)} <span style="font-size:17px;font-weight:500;color:var(--ink-3)">of ${eur(db.savings.goal)}</span></div>
+      </div>
+      <div class="splitbar" style="height:10px"><div class="a" style="width:${pct}%;background:#4ADE80"></div>
+        <div class="b" style="background:rgba(255,255,255,.06)"></div></div>
+      <div class="body">
+        <div class="deck" style="padding:2px 0 4px">
+          ${[40, 80, 150].map((v) => `<button class="c" data-dep="${v}" style="min-width:88px;height:52px;display:flex;align-items:center;justify-content:center">
+            <b style="font-size:16px">+€${v}</b></button>`).join('')}
+        </div>
+        <div class="eyebrow" style="padding:10px 4px 2px">Dream board</div>
+        ${db.dreams.map((d) => `<div class="row"><span class="grow"><span class="n">${esc(d.t)}</span>
+          <span class="s">${esc(d.s)}</span></span></div>`).join('')}
+        <button class="row" data-sub="promise"><span class="grow"><span class="n">Co-signed promise</span>
+          <span class="s">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
+        <button class="row" data-sub="bucket"><span class="grow"><span class="n">Bucket list</span>
+          <span class="s">${db.buckets.length - count(db.bucket)} open · ${count(db.bucket)} done</span></span>
+          <span class="chev">›</span></button>
+        <button class="row" data-sub="mission"><span class="grow"><span class="n">Missions</span>
+          <span class="s">${db.mission ? 'Both in' : 'One waiting on the other'}</span></span>
+          <span class="chev">›</span></button>
+        ${featureRows('Together')}
+      </div>`;
+  },
+
+  /* 19h — memory */
+  Memory() {
+    const shades = ['rgba(255,255,255,.06)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', '#6EA8FF', '#FFB020'];
+    const heat = Array.from({ length: 98 }, (_, n) => {
+      const h = ((n * 2654435761) >>> 0) % 10;
+      return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
+    });
+    return `
+      <div class="hd"><button class="pill" data-back>Chapter ${db.chapter}</button>
+        <button class="icob" data-go="board">⤴</button></div>
+      <div class="title">
+        <div class="k">The year, one square a day</div>
+        <div class="v">${db.marks} marks</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px;padding:20px 20px 0;flex:none">
+        ${heat.map((c) => `<div style="aspect-ratio:1;border-radius:3px;background:${c}"></div>`).join('')}
+      </div>
+      <div class="body" style="padding-top:20px">
+        <button class="row" data-sub="jar"><span class="grow"><span class="n">Gratitude jar</span>
+          <span class="s">${db.jarN} folded notes · drop one in</span></span><span class="chev">＋</span></button>
+        ${featureRows('Memory', 'What’s in Memory')}
+      </div>`;
+  },
+
+  /* 19i — wellbeing */
+  Wellbeing() {
+    const MOODS = [
+      { n: 0, name: 'Bright', g: 'radial-gradient(circle at 40% 35%,#FFD98A,#FFB020)' },
+      { n: 1, name: 'Soft', g: 'radial-gradient(circle at 40% 35%,#9CC0FF,#3D5BD9)' },
+      { n: 2, name: 'Grey', g: 'radial-gradient(circle at 40% 35%,#B8BDCB,#565D75)' },
+      { n: 3, name: 'Heavy', g: 'radial-gradient(circle at 40% 35%,#7B8AE8,#232B66)' },
+      { n: 4, name: 'Storm', g: 'radial-gradient(circle at 40% 35%,#FF9ED4,#6A1E4C)' },
+    ];
+    const mine = db.mood >= 0 ? MOODS[db.mood] : null;
+    const hers = MOODS[db.herMood];
+    return `
+      <div class="hd"><button class="pill" data-back>Weather between us</button>
+        <button class="icob" data-go="board">⤴</button></div>
+      <div class="title">
+        <div class="k">Right now</div>
+        <div class="v">${mine ? mine.name + ', and ' + hers.name.toLowerCase() : 'Tell it how it is'}</div>
+      </div>
+      <div style="display:flex;gap:12px;padding:20px 20px 0;flex:none">
+        <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
+          <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${mine ? mine.g : 'rgba(255,255,255,.08)'}"></div>
+          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
+        </div>
+        <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
+          <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${hers.g}"></div>
+          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">Maya · ${hers.name.toLowerCase()}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
+        ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:38px;height:38px;border-radius:50%;
+          background:${m.g};border:3px solid ${db.mood === m.n ? '#EDEFF7' : 'transparent'};
+          opacity:${db.mood === -1 || db.mood === m.n ? 1 : .4}"></button>`).join('')}
+      </div>
+      <div class="body" style="padding-top:20px">
+        <div class="eyebrow" style="padding:0 4px 2px">Habits, side by side</div>
+        ${db.habits.map((h) => `<div class="row"><span class="grow"><span class="n light">${esc(h.name)}</span>
+          <span class="s">${esc(h.meta)}</span></span>
+          <span style="display:flex;gap:5px">${h.days.map((d) => `<span style="width:9px;height:9px;border-radius:50%;
+            background:${d ? '#4ADE80' : 'rgba(255,255,255,.1)'}"></span>`).join('')}</span></div>`).join('')}
+        <div class="eyebrow" style="padding:14px 4px 2px">Also in Wellbeing</div>
+        <button class="row" data-sub="focus"><span class="grow"><span class="n">Couple focus</span>
+          <span class="s">${db.focusOn ? 'Both phones are down' : 'It only counts if you both put the phone down'}</span></span>
+          <span class="chev">›</span></button>
+        <button class="row" data-sw="armour"><span class="grow"><span class="n">Meeting armour</span>
+          <span class="s">${db.armour ? 'Armoured until 3:30' : 'Armour is off'}</span></span>
+          <span class="sw${db.armour ? ' on' : ''}"><i></i></span></button>
+        ${featureRows('Wellbeing')}
+      </div>`;
+  },
+};
+
+function featureRows(room, label) {
+  const fs = featuresIn(room);
+  if (!fs.length) return '';
+  return `<div class="eyebrow" style="padding:14px 4px 2px">${label || 'On the canvas, from here'}</div>` +
+    fs.map((f) => `<button class="row" data-feat="${f.id}"><span class="grow">
+      <span class="n">${esc(f.n)}</span><span class="s">${esc(f.d)}</span></span>
+      <span class="chev">›</span></button>`).join('');
+}
+
+function wireRoom(s, name) {
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+  $$('[data-go="board"]', s).forEach((b) => b.addEventListener('click', () => show('board')));
+  $$('[data-feat]', s).forEach((b) => b.addEventListener('click', () => APP.openFeature && APP.openFeature(b.dataset.feat)));
+
+  $$('[data-task]', s).forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.task;
+    db.done[id] = !db.done[id];
+    buzz(10);
+    push('todo', { id, done: !!db.done[id] });
+    openRoom(name); paintWidget();
+    toast(db.done[id] ? 'done — it ticks on her widget too' : 'back on the list');
+  }));
+  $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
+  $$('[data-dep]', s).forEach((b) => b.addEventListener('click', () => {
+    db.savings.have += +b.dataset.dep; push('savings', { have: db.savings.have });
+    buzz(12); openRoom(name); toast('€' + b.dataset.dep + ' in. Split by what each can give.');
+  }));
+  $$('[data-mood]', s).forEach((b) => b.addEventListener('click', () => {
+    db.mood = +b.dataset.mood; push('mood', { n: db.mood }); buzz(10); openRoom(name);
+    toast(db.pub.mood ? 'she’ll see the weather change' : 'kept private — no gap shown');
+  }));
+  $$('[data-sw="armour"]', s).forEach((b) => b.addEventListener('click', () => {
+    db.armour = !db.armour; push('armour', { on: db.armour }); openRoom(name);
+    toast(db.armour ? 'armoured — only “leaving now” breaks through' : 'armour off');
+  }));
+}
+
+/* ------------------------------------------------- sub-surfaces (20x/25x) */
+
+function openSub(kind) {
+  const P = APP.openPanel; if (!P) return;
+  if (kind === 'list') {
+    P('groceries', (body) => {
+      const draw = () => {
+        body.innerHTML = '';
+        body.appendChild(el(`<div class="p-note">${db.items.length - count(db.got)} left · ticks sync both ways, instantly</div>`));
+        db.items.forEach((i) => {
+          const r = el(tickRow({ on: !!db.got[i.id], title: i.name, meta: null,
+            right: `<span class="who">${i.who}</span>` }));
+          r.addEventListener('click', () => {
+            db.got[i.id] = !db.got[i.id]; buzz(8);
+            push('list', { id: i.id, got: !!db.got[i.id] }); draw(); paintWidget();
+          });
+          body.appendChild(r);
+        });
+        const sh = el(`<button class="${db.shopping ? 'p-ghost' : 'p-cta'}">${db.shopping ? 'Done shopping' : 'I’m at the shop'}</button>`);
+        sh.addEventListener('click', () => {
+          db.shopping = !db.shopping; push('shopping', { on: db.shopping }); draw(); paintWidget();
+          toast(db.shopping ? 'her widget shows the list while you shop' : 'list card off her widget');
+        });
+        body.appendChild(sh);
+      };
+      draw();
+    });
+  }
+  if (kind === 'meal') {
+    P('what’s for dinner', (body) => {
+      const big = el(`<div class="p-stat" style="font-size:34px;padding:26px 0">${esc(db.meals[db.mealIdx])}</div>`);
+      const b = el(`<button class="p-cta">Spin it</button>`);
+      b.addEventListener('click', () => {
+        db.mealIdx = (db.mealIdx + 1 + Math.floor(Math.random() * 3)) % db.meals.length;
+        big.textContent = db.meals[db.mealIdx]; buzz(14); push('meal', { i: db.mealIdx });
+      });
+      body.append(big, b, el(`<div class="p-note">Neither of you decides. That’s the point.</div>`));
+    });
+  }
+  if (kind === 'split') {
+    P('fair split', (body) => {
+      body.append(
+        el(`<div class="p-stat">${db.split}% / ${100 - db.split}%</div>`),
+        el(`<div class="p-hint">You / Maya, this month</div>`),
+        el(`<div class="splitbar" style="margin:6px 0"><div class="a" style="width:${db.split}%"></div><div class="b"></div></div>`),
+        el(`<div class="p-note">A month, not a scoreboard. It resets on the 1st and nobody gets a notification about it.</div>`));
+    });
+  }
+  if (kind === 'baton') {
+    P('handover baton', (body) => {
+      const b = el(`<button class="${db.baton ? 'p-ghost' : 'p-cta'}">${db.baton ? 'Pass it back' : 'Take it'}</button>`);
+      b.addEventListener('click', () => {
+        db.baton = !db.baton; push('baton', { on: db.baton }); buzz(16);
+        b.textContent = db.baton ? 'Pass it back' : 'Take it';
+        b.className = db.baton ? 'p-ghost' : 'p-cta';
+        toast(db.baton ? 'you’re carrying today' : 'passed back');
+      });
+      body.append(el(`<div class="p-note">One of you is carrying the day. Taking the baton tells her she can stop holding it — no message needed.</div>`), b);
+    });
+  }
+  if (kind === 'doses') {
+    P('doses', (body) => {
+      const draw = () => {
+        body.innerHTML = '';
+        db.doses.forEach((d) => {
+          const r = el(tickRow({ on: !!db.dosed[d.id], title: d.name, meta: d.meta }));
+          r.addEventListener('click', () => { db.dosed[d.id] = !db.dosed[d.id]; buzz(8); push('dose', { id: d.id }); draw(); });
+          body.appendChild(r);
+        });
+        body.appendChild(el(`<div class="p-note">Counts only. What the medicine is for never leaves this phone.</div>`));
+      };
+      draw();
+    });
+  }
+  if (kind === 'sprint') {
+    P('two-minute pile', (body) => {
+      const draw = () => {
+        body.innerHTML = '';
+        body.appendChild(el(`<div class="p-hint">${db.minis.length - count(db.miniDone)} left · do them together</div>`));
+        db.minis.forEach((m) => {
+          const r = el(tickRow({ on: !!db.miniDone[m.id], title: m.t, meta: m.s }));
+          r.addEventListener('click', () => { db.miniDone[m.id] = !db.miniDone[m.id]; buzz(8); save(); draw(); });
+          body.appendChild(r);
+        });
+      };
+      draw();
+    });
+  }
+  if (kind === 'bucket') {
+    P('bucket list', (body) => {
+      const draw = () => {
+        body.innerHTML = '';
+        db.buckets.forEach((b2) => {
+          const r = el(tickRow({ on: !!db.bucket[b2.id], title: b2.t, meta: null,
+            right: `<span class="who">${b2.who}</span>` }));
+          r.addEventListener('click', () => { db.bucket[b2.id] = !db.bucket[b2.id]; buzz(10); push('bucket', { id: b2.id }); draw(); });
+          body.appendChild(r);
+        });
+      };
+      draw();
+    });
+  }
+  if (kind === 'mission') {
+    P('missions', (body) => {
+      const b = el(`<button class="${db.mission ? 'p-ghost' : 'p-cta'}">${db.mission ? 'Both in ✓' : 'I’m in'}</button>`);
+      b.addEventListener('click', () => {
+        db.mission = true; push('mission', { on: true }); buzz(20);
+        b.textContent = 'Both in ✓'; b.className = 'p-ghost';
+        toast('both in — that’s the whole ceremony');
+      });
+      body.append(el(`<div class="p-note">A mission only starts when both of you accept it. No nagging in between.</div>`), b);
+    });
+  }
+  if (kind === 'promise') {
+    P('co-signed promise', (body) => {
+      body.append(el(`<div class="p-stat" style="font-size:22px;line-height:1.4">${esc(db.promise)}</div>`),
+        el(`<div class="p-note">Signed by both of you. It can be dropped, but only together.</div>`));
+    });
+  }
+  if (kind === 'jar') {
+    P('gratitude jar', (body) => {
+      const n = el(`<div class="p-stat">${db.jarN}</div>`);
+      const b = el(`<button class="p-cta">Drop one in</button>`);
+      b.addEventListener('click', () => { db.jarN++; n.textContent = db.jarN; buzz(12); push('jar', { n: db.jarN }); });
+      body.append(n, el(`<div class="p-hint">folded notes, unread until the year turns</div>`), b);
+    });
+  }
+  if (kind === 'focus') {
+    P('couple focus', (body) => {
+      const b = el(`<button class="${db.focusOn ? 'p-ghost' : 'p-cta'}">${db.focusOn ? 'End early' : 'Start 25 minutes'}</button>`);
+      b.addEventListener('click', () => {
+        db.focusOn = !db.focusOn; push('focus', { on: db.focusOn });
+        b.textContent = db.focusOn ? 'End early' : 'Start 25 minutes';
+        b.className = db.focusOn ? 'p-ghost' : 'p-cta';
+        toast(db.focusOn ? 'both phones down. it ends if either of you picks up.' : 'focus ended');
+      });
+      body.append(el(`<div class="p-note">Invite Maya — it only counts if you both put the phone down.</div>`), b);
+    });
+  }
+}
+
+/* ------------------------------------------------------ 21a your board */
+
+const PUBS = [
+  { id: 'trace', name: 'Drawing traces', sub: 'One-time — burns after she sees it' },
+  { id: 'list', name: 'Today’s list', sub: 'Live counts, ticks as you go' },
+  { id: 'cal', name: 'This week', sub: 'Whatever’s next, in your hand' },
+  { id: 'mood', name: 'Mood weather', sub: 'Off = private, no gap shown' },
+  { id: 'leave', name: '“Leaving now”', sub: 'Auto · breaks through armour' },
+  { id: 'notice', name: 'Notices', sub: 'Deadlines from letters, doses' },
+];
+
+function renderBoard() {
+  const s = screens.board;
+  const next = deck().slice(0, 3);
+  s.innerHTML = `
+    <div class="hd"><button class="pill" data-back>Your board</button>
+      <button class="icob" data-states>⤴</button></div>
+    <div class="title">
+      <div class="k">What Maya’s widget shows</div>
+      <div class="v">You decide, always</div>
+    </div>
+    <div class="eyebrow">Next up on her widget</div>
+    <div class="deck">
+      ${next.map((c) => `<div class="c">
+        ${c.spark || `<b style="color:${c.tint}">${esc(c.head)}</b>`}
+        <i>${esc(c.foot)}</i></div>`).join('') || '<div class="c"><i>nothing right now — quiet</i></div>'}
+    </div>
+    <div class="eyebrow">Published from your board</div>
+    <div class="body" style="padding-top:0">
+      ${PUBS.map((p) => swRow(p.id, p.name, p.sub, !!db.pub[p.id])).join('')}
+    </div>
+    <div class="foot">She curates hers the same way. You never see your own widget.</div>`;
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+  $$('[data-states]', s).forEach((b) => b.addEventListener('click', () => show('states')));
+  $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.sw;
+    db.pub[id] = !db.pub[id];
+    buzz(8); push('pub', { id, on: db.pub[id] });
+    renderBoard(); paintWidget();
+    toast(db.pub[id] ? 'on her widget from now on' : 'off her widget — no gap shown');
+  }));
+}
+
+/* --------------------------------------------------- 21c every state */
+
+function renderStates() {
+  const s = screens.states;
+  const card = (bd, bg, tint, k, v, note, big) => `
+    <div class="row" style="border-radius:20px;background:${bg};border:1px solid ${bd};padding:14px 16px;align-items:center">
+      <span class="grow"><span style="font-size:13px;font-weight:600;color:${tint};display:block">${k}</span>
+        <span style="font-size:${big ? 26 : 17}px;font-weight:600;margin-top:${big ? 2 : 4}px;display:block">${v}</span></span>
+      <span style="font-size:11px;color:var(--ink-4);text-align:right;width:104px;flex:none">${note}</span>
+    </div>`;
+  s.innerHTML = `
+    <div class="hd"><button class="pill" data-back>Every widget state</button>
+      <button class="icob" data-close>✕</button></div>
+    <div class="body" style="padding-top:18px;gap:10px">
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FF7BC5',
+        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF7BC5;margin-right:6px"></span>Goodnight in',
+        '<span style="color:#FF7BC5">27:14</span>', 'shows nightly<br>from 9 PM', true)}
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#6EA8FF', 'Groceries',
+        `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
+        'only while<br>someone shops', true)}
+      ${card('rgba(74,222,128,.3)', 'linear-gradient(160deg,#153A2C,#0B1F18)', '#4ADE80', 'Leaving now',
+        '<span style="color:#4ADE80">32 min</span>', 'auto · breaks<br>through armour', true)}
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FFB020', 'Notice',
+        'Landlord letter — reply by <span style="color:#FFB020">Aug 15</span>', 'until it’s<br>handled')}
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', 'rgba(237,239,247,.6)', 'Quiet day',
+        `Nothing today. <span style="color:#4ADE80">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
+      <div class="row" style="border-radius:20px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.15);padding:14px 16px">
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Priority when states compete: leaving now → live drawing →
+          must-dos → notices → week → quiet. One-time things show once, then burn. Nothing repeats, nothing nags.</span>
+      </div>
+    </div>
+    <div class="foot">The widget is the app for days you never open it.</div>`;
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('board')));
+  $$('[data-close]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+}
+
+/* --------------------------------------------------------- 19j rules */
+
+const SWS = [
+  { id: 'presence', name: 'Show that I’m here', sub: 'A dot, never a location' },
+  { id: 'quiet', name: 'Quiet hours', sub: 'Nothing buzzes 10pm–7am' },
+  { id: 'pocket', name: 'The pocket', sub: 'Hidden planning, absent from her device' },
+  { id: 'ink', name: 'Permanent ink', sub: 'Keep marks past the day' },
+  { id: 'coach', name: 'Tiny suggestions', sub: 'Facts only, never advice' },
+  { id: 'backup', name: 'On-device only', sub: 'Drawings never sync raw' },
+];
+
+function renderRules() {
+  const s = screens.rules;
+  s.innerHTML = `
+    <div class="hd"><div style="width:36px"></div>
+      <div style="font-size:17px;font-weight:600">Quiet &amp; private</div>
+      <button class="icob" data-back>✕</button></div>
+    <div style="padding:18px 20px 0;flex:none">
+      <div class="row" style="background:rgba(255,255,255,.04);border-style:dashed">
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Three rules the app can’t break: home is always the canvas,
+          no room notifies about itself, and nothing that reads a drawing leaves this phone.</span></div>
+    </div>
+    <div class="body" style="padding-top:12px">
+      ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
+    </div>
+    <div style="display:flex;gap:10px;padding:10px 20px 18px;flex:none">
+      <button class="p-cta" data-save>Save</button>
+      <button class="p-ghost" data-export>Export data</button>
+    </div>`;
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+  $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
+  }));
+  $$('[data-save]', s).forEach((b) => b.addEventListener('click', () => { save(); toast('saved on this device'); }));
+  $$('[data-export]', s).forEach((b) => b.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'trace-board.json'; a.click();
+    toast('everything you have, as a file');
+  }));
+}
+
+/* ============================================== the widget deck — 21b/21c */
+
+/* 21c: leaving now → live drawing → must-dos → notices → week → quiet.
+   Cards are built fresh each paint so the deck reflects the board exactly. */
+function deck() {
+  const cards = [];
+  const partnerLive = APP.partnerDrawing && APP.partnerDrawing();
+  const strokeN = APP.strokeCount ? APP.strokeCount() : 0;
+
+  if (db.pub.leave && db.leaving)
+    cards.push({ kind: 'leave', tint: '#4ADE80', head: db.leaving.mins + ' min',
+      foot: 'leaving now', render: leaveCard });
+
+  if (db.pub.trace && (partnerLive || (strokeN && !db.traceSeen)))
+    cards.push({ kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
+      foot: 'trace · one-time', spark: sparkline('#FFB020'), render: traceCard });
+
+  const open = db.tasks.filter((t) => !db.done[t.id]);
+  if (db.pub.list && open.length)
+    cards.push({ kind: 'todo', tint: '#6EA8FF', head: open.length + ' left',
+      foot: 'today’s list', render: todoCard });
+
+  if (db.shopping && db.pub.list)
+    cards.push({ kind: 'shop', tint: '#6EA8FF', head: (db.items.length - count(db.got)) + ' left',
+      foot: 'groceries · he’s at the shop', render: shopCard });
+
+  if (db.pub.notice && db.notices.length)
+    cards.push({ kind: 'notice', tint: '#FFB020', head: db.notices[0].when,
+      foot: 'notice', render: noticeCard });
+
+  if (db.pub.cal && db.week.items.length)
+    cards.push({ kind: 'week', tint: '#FF7BC5', head: db.week.dow + ' ' + db.week.day,
+      foot: 'this week', render: weekCard });
+
+  if (db.thinking)
+    cards.push({ kind: 'think', tint: '#FFB020', head: 'thinking of you', foot: 'tapped your name', render: thinkCard });
+
+  if (!cards.length)
+    cards.push({ kind: 'quiet', tint: 'rgba(237,239,247,.6)', head: 'Nothing today', foot: 'quiet day', render: quietCard });
+
+  return cards;
+}
+
+const sparkline = (c) => `<svg viewBox="0 0 90 24" style="width:100%;height:24px">` +
+  `<path d="M4 16 C24 4,40 22,86 8" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+
+function traceCard(b, live) {
+  b.innerHTML = `<div class="w-live" style="color:#FF7BC5"><b style="background:#FF7BC5"></b>` +
+    (live ? 'Maya is drawing — live' : 'Maya left you a trace') + `</div>`;
+  return { ink: true, cap: 'One-time trace · fades once you’ve seen it · tap to join' };
+}
+function todoCard(b) {
+  const open = db.tasks.filter((t) => !db.done[t.id]).slice(0, 2);
+  const oneDone = db.tasks.find((t) => db.done[t.id]);
+  b.innerHTML = `<div class="w-kicker" style="color:#6EA8FF">Must do — from his board</div>` +
+    open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
+    (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
+  return { cap: 'Ticks sync both ways, instantly' };
+}
+function shopCard(b) {
+  const left = db.items.length - count(db.got);
+  b.innerHTML = `<div class="w-kicker" style="color:#6EA8FF">Groceries</div>` +
+    `<div class="w-big">${left} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span></div>`;
+  return { cap: 'Only while someone is shopping' };
+}
+function weekCard(b) {
+  b.innerHTML = `<div class="w-cal"><div class="d"><i>${db.week.dow}</i><b>${db.week.day}</b></div>
+    <div class="rule"></div><div class="items">
+    ${db.week.items.map((i) => `<p style="color:${i.c}">${esc(i.t)}</p>`).join('')}
+    <div class="w-foot" style="margin-top:2px">His week, in his handwriting</div></div></div>`;
+  return {};
+}
+function noticeCard(b) {
+  const n = db.notices[0];
+  b.innerHTML = `<div class="w-kicker" style="color:#FFB020">Notice</div>` +
+    `<div class="w-note">${esc(n.t)} <span style="color:#FFB020">${esc(n.when)}</span></div>`;
+  return { cap: 'Stays until it’s handled' };
+}
+function leaveCard(b) {
+  b.innerHTML = `<div class="w-kicker" style="color:#4ADE80">Leaving now</div>` +
+    `<div class="w-big" style="color:#4ADE80">${db.leaving.mins} min</div>`;
+  return { cap: 'Auto · breaks through armour' };
+}
+function thinkCard(b) {
+  b.innerHTML = `<div class="w-mid"><div class="w-orb"></div><b>He’s thinking of you</b>
+    <i>Tapped your name · just now · no reply needed</i></div>`;
+  return {};
+}
+function quietCard(b) {
+  b.innerHTML = `<div class="w-mid"><b>Nothing today.</b>
+    <i><span style="color:#4ADE80">41 days</span> still yours.</i></div>`;
+  return {};
+}
+
+let widIdx = 0, rotate = null;
+function paintWidget() {
+  const cards = deck();
+  if (widIdx >= cards.length) widIdx = 0;
+  const c = cards[widIdx];
+  const body = $('#widget-body'), ink = $('#widget-ink'), cap = $('#widget-cap'), dots = $('#widget-dots');
+  if (!body) return;
+  const live = APP.partnerDrawing && APP.partnerDrawing();
+  const out = c.render(body, live) || {};
+  ink.classList.toggle('hidden', !out.ink);
+  if (out.ink && APP.paintWidgetInk) APP.paintWidgetInk(ink);
+  cap.textContent = out.cap || '';
+  cap.classList.toggle('hidden', !out.cap);
+  dots.innerHTML = cards.map((_, n) => `<span class="${n === widIdx ? 'on' : ''}"></span>`).join('');
+  $('#widget').dataset.card = c.kind;
+}
+
+function cycleWidget() {
+  const cards = deck();
+  const c = cards[widIdx % cards.length];
+  /* the live-trace card says "tap to join" — so it opens the app instead */
+  if (c.kind === 'trace') {
+    db.traceSeen = true; save();
+    return APP.showApp && APP.showApp();
+  }
+  widIdx = (widIdx + 1) % cards.length;
+  buzz(6); paintWidget();
+}
+
+/* ================================================================= wire */
+
+$('#widget').addEventListener('click', cycleWidget);
+$('.apptile.trace').addEventListener('click', () => APP.showApp && APP.showApp());
+
+$('#cb-room').addEventListener('click', () => show(current === 'rooms' ? 'canvas' : 'rooms'));
+$('#cb-right').addEventListener('click', () => show(current === 'rules' ? 'canvas' : 'rules'));
+$('#cb-left').addEventListener('click', () => {
+  if (current !== 'canvas') return show('canvas');
+  APP.brushPop && APP.brushPop();
+});
+$('#to-board').addEventListener('click', () => show('board'));
+$('#room-search').addEventListener('input', (e) => renderRooms(e.target.value));
+
+/* the room screens are built lazily, the light ones eagerly */
+renderRooms(); renderBoard(); renderStates(); renderRules();
+show('canvas');
+
+/* keep the canvas headline and the widget honest */
+function refresh() {
+  const n = APP.strokeCount ? APP.strokeCount() : 0;
+  const hands = APP.handCount ? APP.handCount() : 1;
+  const cc = $('#canvas-count');
+  if (cc) cc.textContent = `${n} mark${n === 1 ? '' : 's'}, ${hands} hand${hands === 1 ? '' : 's'}`;
+  const home = $('#home');
+  if (home && !home.classList.contains('hidden')) paintWidget();
+}
+setInterval(refresh, 700); refresh();
+paintWidget();
+rotate = setInterval(() => {
+  const home = $('#home');
+  if (home && !home.classList.contains('hidden') && deck().length > 1) {
+    widIdx = (widIdx + 1) % deck().length; paintWidget();
+  }
+}, 6000);
+
+/* receive the other side's board changes over the same channel as ink */
+window.TRACE_BOARD = {
+  receive({ kind, payload }) {
+    if (kind === 'todo') db.done[payload.id] = payload.done;
+    else if (kind === 'list') db.got[payload.id] = payload.got;
+    else if (kind === 'shopping') db.shopping = payload.on;
+    else if (kind === 'mood') db.herMood = payload.n;
+    else if (kind === 'savings') db.savings.have = payload.have;
+    else if (kind === 'leaving') db.leaving = payload;
+    else if (kind === 'thinking') db.thinking = { ts: Date.now() };
+    save(); paintWidget();
+    if (current === 'room' && roomKey) openRoom(roomKey);
+  },
+  /* the engine tells us a stroke landed, so the one-time trace re-arms */
+  inked() { db.traceSeen = false; widIdx = 0; save(); paintWidget(); },
+  paint: paintWidget,
+  /* "leaving now" and "thinking of you" are pushed, not polled */
+  leaving(mins) { db.leaving = { mins }; widIdx = 0; push('leaving', { mins }); paintWidget(); },
+  thinking() { db.thinking = { ts: Date.now() }; widIdx = 0; push('thinking', {}); paintWidget(); },
+  db,
+};
+
+})();
