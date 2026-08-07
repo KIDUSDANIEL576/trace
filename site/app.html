@@ -404,6 +404,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   background:rgba(255,255,255,.05);font-size:12.5px;color:var(--ink)}
 #brushpop .bp-quick:active{background:rgba(255,255,255,.14)}
 
+/* accessibility: reduced motion quiets every pulse, beat and drift */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style>
 </head>
 <body>
@@ -1280,9 +1285,10 @@ const NET = window.TRACE_NET = {
       partnerSeen = performance.now();
       if (event === 'hi') {
         partnerName = p.name || 'them';
+        if (p.tz) NET.partnerTz = p.tz;
         app.partner(true, partnerName);
         if (p.reply) return;
-        NET.emit('hi', { name: NET.name, reply: true });
+        NET.emit('hi', { name: NET.name, reply: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
       }
       else if (event === 'sb') app.remoteBegin(p);
       else if (event === 'sp') app.remotePts(p);
@@ -1297,9 +1303,9 @@ const NET = window.TRACE_NET = {
     const onStatus = (s, why) => ui && ui(s, why);
     t = (mode === 'local' ? localTransport : supaTransport)(code, onMsg, (s, why) => {
       if (s === 'open') {
-        NET.emit('hi', { name: NET.name });
+        NET.emit('hi', { name: NET.name, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
         clearInterval(hello);
-        hello = setInterval(() => NET.emit('hi', { name: NET.name, reply: true }), 4000);
+        hello = setInterval(() => NET.emit('hi', { name: NET.name, reply: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }), 4000);
       }
       onStatus(s, why);
     });
@@ -1974,6 +1980,7 @@ let smooth = null;                 // EMA of pointer samples — the jitter filt
 const SMOOTH = .42;                // lower = silkier, higher = snappier
 
 wrap.addEventListener('pointerdown', (e) => {
+  if (window.TRACE_SEALED) { toast('this canvas is sealed — the last chapter keeps it'); return; }
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
   try { wrap.setPointerCapture(e.pointerId); } catch {}
   const p = pos(e);
@@ -3499,10 +3506,17 @@ function firstRun() {
       return;
     }
     const theirs = raw || code;
-    if (window.TRACE_NET) TRACE_NET.join(theirs, 'supabase', (st) => {
-      if (st === 'open') toast('channel open — the first drawing does the rest');
-      if (st === 'error') toast('no internet path here — ⋯ → Pair has a two-windows mode');
-    });
+    if (window.TRACE_NET) {
+      $('#presence-txt').textContent = 'reaching for them…';
+      const t0 = setTimeout(() => {
+        if (!$('#presence').classList.contains('live'))
+          toast('nobody’s holding that code yet — it waits with you');
+      }, 8000);
+      TRACE_NET.join(theirs, 'supabase', (st) => {
+        if (st === 'open') { clearTimeout(t0); toast('channel open — the first drawing does the rest'); }
+        if (st === 'error') toast('no internet path here — the Pair feature has a two-windows mode');
+      });
+    }
     done(); showApp();
   });
   ob.querySelector('.ob-skip').addEventListener('click', () => {
@@ -3694,14 +3708,15 @@ const saveOutbox = () => { try { localStorage.setItem('trace.outbox', JSON.strin
 function netLive() { return navigator.onLine !== false && window.TRACE_NET && TRACE_NET.live && TRACE_NET.live(); }
 function push(kind, payload) {
   save();
-  if (netLive()) { TRACE_NET.emit('board', { kind, payload }); return; }
-  outbox.push({ kind, payload, ts: Date.now() });
+  const ts = Date.now();
+  if (netLive()) { TRACE_NET.emit('board', { kind, payload, ts }); return; }
+  outbox.push({ kind, payload, ts });
   saveOutbox();
 }
 function flushOutbox() {
   if (!netLive() || !outbox.length) return;
   const n = outbox.length;
-  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload });
+  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload, ts: m.ts });
   saveOutbox();
   toast(n + (n === 1 ? ' change' : ' changes') + ' from while you were away — delivered');
 }
@@ -4300,6 +4315,14 @@ function renderRules() {
     <div class="body" style="padding-top:12px">
       ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
     </div>
+    <div style="padding:0 20px;flex:none;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+      <button class="row" data-sub="loud"><span class="grow"><span class="n">How loud</span>
+        <span class="s">What rings, what banners, what stays on the widget</span></span><span class="chev">›</span></button>
+      <button class="row" data-sub="key"><span class="grow"><span class="n">Your key</span>
+        <span class="s">Restore everything on a new phone</span></span><span class="chev">›</span></button>
+      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:#E23343">Unpair</span>
+        <span class="s">The canvas seals. Nothing is deleted for her.</span></span><span class="chev">›</span></button>
+    </div>
     <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
@@ -4307,6 +4330,7 @@ function renderRules() {
     <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
       color:#E23343;background:none;border:1px solid rgba(226,51,67,.35);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+  $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
   }));
@@ -4528,6 +4552,7 @@ setInterval(refresh, 700); refresh();
 paintWidget();
 rotate = setInterval(() => {
   const home = $('#home');
+  if (window.TRACE_LOWPOWER) return;   // battery saver: the card holds still
   if (Date.now() - deckTouched < 5000) return;
   if (home && !home.classList.contains('hidden') && deck().length > 1) {
     widIdx = (widIdx + 1) % deck().length; paintWidget();
@@ -4535,8 +4560,14 @@ rotate = setInterval(() => {
 }, 6000);
 
 /* receive the other side's board changes over the same channel as ink */
+const seenTs = {};   // per-key last-write-wins — the offline merge rule
 window.TRACE_BOARD = {
-  receive({ kind, payload }) {
+  receive({ kind, payload, ts }) {
+    if (ts && payload && payload.id) {
+      const k = kind + ':' + payload.id;
+      if (seenTs[k] && seenTs[k] > ts) return;   // an older offline echo — drop it
+      seenTs[k] = ts;
+    }
     if (kind === 'todo') db.done[payload.id] = payload.done;
     else if (kind === 'list') db.got[payload.id] = payload.got;
     else if (kind === 'shopping') db.shopping = payload.on;
@@ -5760,6 +5791,294 @@ R.addRow('Board', 'surfaces', 'Every surface', () => 'Watch, lock screen, Androi
 R.addNav('surfaces', () => R.show('surfaces'));
 
 render();
+})();
+
+</script>
+<script>
+/* trace — the four missing flows, designed in the clean system's language,
+ * plus the honest list (AUDIT-FLOWS.md P1/P2).
+ *
+ * These are the screens no design file draws and every shipped app has:
+ *   1. Permission priming — one iOS prompt, ever, so the primer comes first,
+ *      and only at the first moment of received value.
+ *   2. The notification taxonomy — what rings, what banners, what stays on
+ *      the widget. The flare is locked loud; the widget is locked silent.
+ *   3. Your key — account restore without an account: one copyable key that
+ *      re-arms the pairing and the board on a new phone.
+ *   4. Unpair — the hardest screen in a couples app. Instant, no consent
+ *      theatre, the canvas seals into a last chapter, the pocket burns.
+ *
+ * Honest list, also here: widget add-tutorial · loading/failed states (in
+ * app.js) · accessibility (labels + reduced motion) · offline merge rule (in
+ * rooms.js) · her-time from real timezones · low-power mode · the review ask.
+ */
+(() => {
+'use strict';
+const R = window.TRACE_ROOMS;
+if (!R) return;
+const { el, esc, save, ui } = R;
+const db = R.db;
+const toast = ui.toast, buzz = ui.buzz;
+const $ = (s2, r) => (r || document).querySelector(s2);
+const $$ = (s2, r) => [...(r || document).querySelectorAll(s2)];
+
+R.defaults({
+  perm: 'unasked',          /* notification permission: unasked|later|granted|denied */
+  loud: { flare: 'ring', leave: 'banner', goodnight: 'banner', trace: 'widget', notice: 'widget', list: 'widget' },
+  widgetTut: false,
+  sealed: null,             /* {when, marks} — the last chapter */
+  reviewAsked: false,
+});
+
+const kv = (k, v, tint) => `<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 14px;
+  border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)">
+  <span style="font-size:13px;color:rgba(237,239,247,.5)">${esc(k)}</span>
+  <span style="font-size:14px;font-weight:600;color:${tint || '#EDEFF7'}">${esc(v)}</span></div>`;
+const note = (t) => el(`<div class="p-note">${t}</div>`);
+
+/* ================= 1 · permission priming — first received value ========= */
+
+let primerUp = false;
+function showPrimer() {
+  if (primerUp || db.perm !== 'unasked') return;
+  primerUp = true;
+  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:flex-end">
+    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid rgba(255,255,255,.1);
+      border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:12px;text-align:center">
+      <div style="width:44px;height:44px;border-radius:14px;margin:0 auto;background:linear-gradient(160deg,#1B2A6B,#0E1740);
+        border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 30 30" style="width:24px;height:24px"><path d="M5 20 C11 8,15 24,25 10"
+          stroke="#FFB020" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+      <div style="font-size:20px;font-weight:600">She just left you something</div>
+      <div style="font-size:14px;line-height:1.5;color:rgba(237,239,247,.55)">Moments like this can land quietly —
+        the widget changes, nothing buzzes. The only loud thing, ever, is the flare.</div>
+      <button class="p-cta" data-allow>Let them land</button>
+      <button class="ob-skip" data-later style="margin:0">not now — the widget still works</button>
+    </div></div>`);
+  $('#screen').appendChild(ov);
+  ov.querySelector('[data-allow]').addEventListener('click', async () => {
+    db.perm = 'granted';
+    try { if ('Notification' in window) db.perm = (await Notification.requestPermission()) === 'granted' ? 'granted' : 'denied'; } catch (e) {}
+    save(); ov.remove(); primerUp = false; buzz(10);
+    toast(db.perm === 'granted' ? 'set — only what you chose in How loud' : 'kept quiet — the widget carries everything');
+  });
+  ov.querySelector('[data-later]').addEventListener('click', () => {
+    db.perm = 'later'; save(); ov.remove(); primerUp = false;
+  });
+}
+
+/* ============ honest list · widget add-tutorial — the Locket moment ====== */
+
+function showWidgetTut() {
+  if (db.widgetTut || primerUp) return;
+  db.widgetTut = 'shown';
+  const step = (n, t) => `<div style="display:flex;gap:12px;align-items:center;text-align:left">
+    <span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);flex:none;
+      display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">${n}</span>
+    <span style="font-size:14px;color:rgba(237,239,247,.8)">${t}</span></div>`;
+  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:flex-end">
+    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid rgba(255,255,255,.1);
+      border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:20px;font-weight:600;text-align:center">Put her on your home screen</div>
+      <div style="font-size:13px;color:rgba(237,239,247,.5);text-align:center">The widget is the app for days you never open it.</div>
+      ${step(1, 'Touch and hold your home screen until the apps jiggle')}
+      ${step(2, 'Tap <b>＋</b>, search <b>Trace</b>')}
+      ${step(3, 'Add the medium one — her board fits it exactly')}
+      <button class="p-cta" data-done>Done — it’s there</button>
+      <button class="ob-skip" data-skip style="margin:0">I’ll do it later</button>
+    </div></div>`);
+  $('#screen').appendChild(ov);
+  ov.querySelector('[data-done]').addEventListener('click', () => {
+    db.widgetTut = true; save(); ov.remove(); buzz(14);
+    toast('that’s the whole setup — it just changes now');
+  });
+  ov.querySelector('[data-skip]').addEventListener('click', () => {
+    db.widgetTut = 'later'; save(); ov.remove();   /* asks once more, then never */
+  });
+}
+
+/* first received ink triggers the primer; the next one, the tutorial */
+let lastPartnerN = 0;
+setInterval(() => {
+  const APP = window.TRACE_APP; if (!APP || !APP.strokeCount) return;
+  const total = APP.strokeCount();
+  const partnerish = total - lastPartnerN;
+  if (APP.handCount() >= 2 && total > lastPartnerN) {
+    lastPartnerN = total;
+    if (db.perm === 'unasked') showPrimer();
+    else if (!db.widgetTut || db.widgetTut === 'later') showWidgetTut();
+  }
+}, 2500);
+
+/* ==================== 2 · the notification taxonomy ====================== */
+
+const LOUD_KINDS = [
+  { id: 'flare', n: 'The flare', s: 'Three a year · full screen', locked: 'ring' },
+  { id: 'leave', n: '“Leaving now”', s: 'Home in N minutes' },
+  { id: 'goodnight', n: 'Goodnight', s: 'The seal, nightly' },
+  { id: 'trace', n: 'Drawing traces', s: 'One-time ink', lockedMax: 'banner' },
+  { id: 'notice', n: 'Notices', s: 'Deadlines, letters, doses' },
+  { id: 'list', n: 'List ticks', s: 'Ticks as they happen', locked: 'widget' },
+];
+const LEVELS = ['ring', 'banner', 'widget'];
+const LEVEL_LABEL = { ring: 'Rings', banner: 'Banner', widget: 'Widget only' };
+
+R.addSub('loud', 'how loud', (body) => {
+  const draw = () => {
+    body.innerHTML = '';
+    body.appendChild(note('One rule above all of it: the widget changing is never a notification. These are the exceptions you allow.'));
+    LOUD_KINDS.forEach((k) => {
+      const cur = k.locked || db.loud[k.id] || 'widget';
+      const row = el(`<div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <div><span class="n">${esc(k.n)}</span><span class="s">${esc(k.s)}${k.locked ? ' · can’t be turned down' : ''}</span></div>
+        <div style="display:flex;gap:6px">${LEVELS.map((lv) => {
+          const dis = (k.locked && lv !== k.locked) || (k.lockedMax === 'banner' && lv === 'ring');
+          const on = cur === lv;
+          return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;padding:9px 0;border-radius:12px;
+            font-size:12.5px;font-weight:600;opacity:${dis ? .3 : 1};
+            background:${on ? '#EDEFF7' : 'rgba(255,255,255,.07)'};color:${on ? '#0A0A0C' : '#EDEFF7'}">${LEVEL_LABEL[lv]}</button>`;
+        }).join('')}</div></div>`);
+      row.querySelectorAll('[data-lv]').forEach((b) => b.addEventListener('click', () => {
+        if (k.locked) return;
+        db.loud[k.id] = b.dataset.lv; save(); buzz(6); draw();
+      }));
+      body.appendChild(row);
+    });
+    body.appendChild(note('Quiet hours mute banners and rings — everything but the flare. The flare is the one promise: it always gets through.'));
+  };
+  draw();
+});
+
+/* ======================== 3 · your key — restore ========================= */
+
+function makeKey() {
+  let code = localStorage.getItem('trace:pairCode') ||
+    (JSON.parse(localStorage.getItem('trace:store') || '{}').pairCode) || 'xxxxx';
+  code = String(code).replace(/[^a-z0-9]/gi, '').slice(0, 5) || 'xxxxx';
+  const name = localStorage.getItem('trace:myname') || 'me';
+  return 'trace-' + code + '-' + btoa(unescape(encodeURIComponent(name))).replace(/=+$/, '').toLowerCase();
+}
+R.addSub('key', 'your key', (body) => {
+  const key = makeKey();
+  body.appendChild(note('A new phone starts from this. It re-arms the pairing and pulls your board back — <b>drawings stay on the phones that drew them</b>, as promised.'));
+  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:rgba(255,176,32,.07);
+    border:1px dashed rgba(255,176,32,.4);text-align:center">
+    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(237,239,247,.4)">Your key</div>
+    <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:#FFB020;margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
+  const copy = el(`<button class="p-cta">Copy it somewhere safe</button>`);
+  copy.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(key); toast('copied — a notes app or a password manager'); }
+    catch (e) { toast(key); }
+  });
+  body.appendChild(copy);
+  body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">On the new phone</div>`));
+  const field = el(`<input placeholder="paste a key" style="padding:14px;border-radius:14px;text-align:center;
+    border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#EDEFF7;
+    font:600 13px ui-monospace,Menlo,monospace;outline:none">`);
+  const go = el(`<button class="p-ghost">Restore from it</button>`);
+  go.addEventListener('click', () => {
+    const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());
+    if (!m) { field.style.borderColor = '#E23343'; toast('that’s not a trace key'); return; }
+    localStorage.setItem('trace:pairCode', m[1]);
+    try { localStorage.setItem('trace:myname', decodeURIComponent(escape(atob(m[2])))); } catch (e) {}
+    if (window.TRACE_NET) TRACE_NET.join(m[1], 'supabase', () => {});
+    buzz(14); toast('restored — the pairing is reaching for her now');
+  });
+  body.append(field, go);
+  body.appendChild(note('In production this key lives in the iCloud / Google keychain and restore is invisible. The manual key is the fallback that always works.'));
+});
+
+/* ====================== 4 · unpair — the last chapter ==================== */
+
+R.addSub('unpair', 'unpair', (body) => {
+  if (db.sealed) {
+    body.appendChild(el(`<div class="p-stat" style="font-size:22px">The canvas is sealed</div>`));
+    body.appendChild(note(`Since ${esc(db.sealed.when)}. ${db.sealed.marks} marks stay readable, here, forever. Nothing was deleted on her side either.`));
+    const re = el(`<button class="p-ghost">Start again — a new canvas, chapter 1</button>`);
+    re.addEventListener('click', () => {
+      db.sealed = null; window.TRACE_SEALED = false; save();
+      buzz(14); toast('a new canvas. it remembers nothing, on purpose.');
+      const x = $('#panel-close'); x && x.click();
+      R.show('canvas');
+    });
+    body.appendChild(re);
+    return;
+  }
+  body.appendChild(note('No consent theatre — either of you can do this alone, instantly. Here is exactly what happens:'));
+  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', '#FFB020')));
+  body.appendChild(el(kv('Your history', 'stays on your phone', '#4ADE80')));
+  body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', '#4ADE80')));
+  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', '#E23343')));
+  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', '#6EA8FF')));
+  const hold = el(`<button class="p-cta" style="background:#E23343;color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
+  let t = null;
+  const start = () => { t = setTimeout(() => {
+    const APP = window.TRACE_APP;
+    db.sealed = { when: new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric' }),
+      marks: APP && APP.strokeCount ? APP.strokeCount() : 0 };
+    db.pocket = { what: '—', when: '', steps: [], reveal: 'burned, unread' };
+    window.TRACE_SEALED = true;
+    if (window.TRACE_NET && TRACE_NET.leave) TRACE_NET.leave();
+    save(); buzz(30);
+    R.resetDeck(); R.paint && R.paint();
+    toast('sealed. take care of yourself.');
+    const x = $('#panel-close'); x && x.click();
+    R.show('canvas');
+  }, 3000); };
+  const stop = () => clearTimeout(t);
+  hold.addEventListener('pointerdown', start);
+  hold.addEventListener('pointerup', stop);
+  hold.addEventListener('pointerleave', stop);
+  body.appendChild(hold);
+  body.appendChild(note('Re-pairing later — with anyone — starts at chapter 1. Nothing follows you in.'));
+});
+
+/* the sealed canvas states itself on the widget too */
+R.addCard((d) => d.sealed ? {
+  pri: 11, kind: 'sealed', tint: 'rgba(237,239,247,.6)', head: 'sealed', foot: 'the last chapter',
+  render(b) {
+    b.innerHTML = `<div class="w-mid" style="opacity:.7"><b>The canvas is sealed</b>
+      <i>${d.sealed.marks} marks, kept. Chapter closed ${esc(d.sealed.when)}.</i></div>`;
+    return {};
+  } } : null);
+window.TRACE_SEALED = !!db.sealed;
+
+/* ============== honest list · a11y, her time, low power, review ========= */
+
+/* labels: every icon-only button speaks its title */
+$$('button[title]:not([aria-label])').forEach((b) => b.setAttribute('aria-label', b.title));
+
+/* her local time, from the tz the hi-handshake carries — shown where you
+   already go to reach her (the presence panel) */
+R.addPresence((body) => {
+  const tz = window.TRACE_NET && TRACE_NET.partnerTz;
+  if (!tz) return;
+  let hers;
+  try { hers = new Intl.DateTimeFormat(undefined, { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(new Date()); }
+  catch (e) { return; }
+  body.prepend(el(`<div class="p-hint" style="margin:-2px 0 2px">Where she is, it’s <b>${esc(hers)}</b></div>`));
+});
+
+/* low power: honor the battery — the deck holds still, and says so once */
+if (navigator.getBattery) navigator.getBattery().then((b) => {
+  const check = () => {
+    const low = b.level <= .2 && !b.charging;
+    if (low && !window.TRACE_LOWPOWER) toast('battery saver — the widget holds still, ink still flows');
+    window.TRACE_LOWPOWER = low;
+  };
+  b.addEventListener('levelchange', check); b.addEventListener('chargingchange', check); check();
+}).catch(() => {});
+
+/* the review ask: only ever on a day both of you drew, once, quietly */
+setInterval(() => {
+  if (db.reviewAsked || db.sealed) return;
+  const APP = window.TRACE_APP; if (!APP || !APP.strokeCount) return;
+  if (APP.handCount() >= 2 && APP.strokeCount() >= 6) {
+    db.reviewAsked = true; save();
+    toast('a good day on this canvas. if trace is working for you two, a rating helps it reach more people — Quiet & private has the link.', 5200);
+  }
+}, 45000);
+
 })();
 
 </script>

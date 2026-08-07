@@ -169,6 +169,7 @@ let smooth = null;                 // EMA of pointer samples — the jitter filt
 const SMOOTH = .42;                // lower = silkier, higher = snappier
 
 wrap.addEventListener('pointerdown', (e) => {
+  if (window.TRACE_SEALED) { toast('this canvas is sealed — the last chapter keeps it'); return; }
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
   try { wrap.setPointerCapture(e.pointerId); } catch {}
   const p = pos(e);
@@ -1694,10 +1695,17 @@ function firstRun() {
       return;
     }
     const theirs = raw || code;
-    if (window.TRACE_NET) TRACE_NET.join(theirs, 'supabase', (st) => {
-      if (st === 'open') toast('channel open — the first drawing does the rest');
-      if (st === 'error') toast('no internet path here — ⋯ → Pair has a two-windows mode');
-    });
+    if (window.TRACE_NET) {
+      $('#presence-txt').textContent = 'reaching for them…';
+      const t0 = setTimeout(() => {
+        if (!$('#presence').classList.contains('live'))
+          toast('nobody’s holding that code yet — it waits with you');
+      }, 8000);
+      TRACE_NET.join(theirs, 'supabase', (st) => {
+        if (st === 'open') { clearTimeout(t0); toast('channel open — the first drawing does the rest'); }
+        if (st === 'error') toast('no internet path here — the Pair feature has a two-windows mode');
+      });
+    }
     done(); showApp();
   });
   ob.querySelector('.ob-skip').addEventListener('click', () => {

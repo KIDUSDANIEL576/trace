@@ -111,14 +111,15 @@ const saveOutbox = () => { try { localStorage.setItem('trace.outbox', JSON.strin
 function netLive() { return navigator.onLine !== false && window.TRACE_NET && TRACE_NET.live && TRACE_NET.live(); }
 function push(kind, payload) {
   save();
-  if (netLive()) { TRACE_NET.emit('board', { kind, payload }); return; }
-  outbox.push({ kind, payload, ts: Date.now() });
+  const ts = Date.now();
+  if (netLive()) { TRACE_NET.emit('board', { kind, payload, ts }); return; }
+  outbox.push({ kind, payload, ts });
   saveOutbox();
 }
 function flushOutbox() {
   if (!netLive() || !outbox.length) return;
   const n = outbox.length;
-  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload });
+  for (const m of outbox.splice(0)) TRACE_NET.emit('board', { kind: m.kind, payload: m.payload, ts: m.ts });
   saveOutbox();
   toast(n + (n === 1 ? ' change' : ' changes') + ' from while you were away — delivered');
 }
@@ -717,6 +718,14 @@ function renderRules() {
     <div class="body" style="padding-top:12px">
       ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
     </div>
+    <div style="padding:0 20px;flex:none;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+      <button class="row" data-sub="loud"><span class="grow"><span class="n">How loud</span>
+        <span class="s">What rings, what banners, what stays on the widget</span></span><span class="chev">›</span></button>
+      <button class="row" data-sub="key"><span class="grow"><span class="n">Your key</span>
+        <span class="s">Restore everything on a new phone</span></span><span class="chev">›</span></button>
+      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:#E23343">Unpair</span>
+        <span class="s">The canvas seals. Nothing is deleted for her.</span></span><span class="chev">›</span></button>
+    </div>
     <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
@@ -724,6 +733,7 @@ function renderRules() {
     <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
       color:#E23343;background:none;border:1px solid rgba(226,51,67,.35);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
+  $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
   }));
@@ -945,6 +955,7 @@ setInterval(refresh, 700); refresh();
 paintWidget();
 rotate = setInterval(() => {
   const home = $('#home');
+  if (window.TRACE_LOWPOWER) return;   // battery saver: the card holds still
   if (Date.now() - deckTouched < 5000) return;
   if (home && !home.classList.contains('hidden') && deck().length > 1) {
     widIdx = (widIdx + 1) % deck().length; paintWidget();
@@ -952,8 +963,14 @@ rotate = setInterval(() => {
 }, 6000);
 
 /* receive the other side's board changes over the same channel as ink */
+const seenTs = {};   // per-key last-write-wins — the offline merge rule
 window.TRACE_BOARD = {
-  receive({ kind, payload }) {
+  receive({ kind, payload, ts }) {
+    if (ts && payload && payload.id) {
+      const k = kind + ':' + payload.id;
+      if (seenTs[k] && seenTs[k] > ts) return;   // an older offline echo — drop it
+      seenTs[k] = ts;
+    }
     if (kind === 'todo') db.done[payload.id] = payload.done;
     else if (kind === 'list') db.got[payload.id] = payload.got;
     else if (kind === 'shopping') db.shopping = payload.on;

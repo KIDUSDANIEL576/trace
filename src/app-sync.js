@@ -100,9 +100,10 @@ const NET = window.TRACE_NET = {
       partnerSeen = performance.now();
       if (event === 'hi') {
         partnerName = p.name || 'them';
+        if (p.tz) NET.partnerTz = p.tz;
         app.partner(true, partnerName);
         if (p.reply) return;
-        NET.emit('hi', { name: NET.name, reply: true });
+        NET.emit('hi', { name: NET.name, reply: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
       }
       else if (event === 'sb') app.remoteBegin(p);
       else if (event === 'sp') app.remotePts(p);
@@ -117,9 +118,9 @@ const NET = window.TRACE_NET = {
     const onStatus = (s, why) => ui && ui(s, why);
     t = (mode === 'local' ? localTransport : supaTransport)(code, onMsg, (s, why) => {
       if (s === 'open') {
-        NET.emit('hi', { name: NET.name });
+        NET.emit('hi', { name: NET.name, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
         clearInterval(hello);
-        hello = setInterval(() => NET.emit('hi', { name: NET.name, reply: true }), 4000);
+        hello = setInterval(() => NET.emit('hi', { name: NET.name, reply: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }), 4000);
       }
       onStatus(s, why);
     });
