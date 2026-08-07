@@ -1,0 +1,452 @@
+{
+  "turns": [
+    {
+      "turn": "t27",
+      "title": "Five logos for Trace"
+    },
+    {
+      "turn": "t26",
+      "title": "The logo, and Trace's way of doing a to-do"
+    },
+    {
+      "turn": "t25",
+      "title": "Ten that were hiding in plain sight"
+    },
+    {
+      "turn": "t24",
+      "title": "Ten more — every surface, every remaining screen"
+    },
+    {
+      "turn": "t23",
+      "title": "The last four — and three the widget made possible"
+    },
+    {
+      "turn": "t22",
+      "title": "The rest of the set — and both platforms"
+    },
+    {
+      "turn": "t21",
+      "title": "The widget — your board on her home screen"
+    },
+    {
+      "turn": "t20",
+      "title": "Everything from turns 1–18, rebuilt"
+    },
+    {
+      "turn": "t19",
+      "title": "the system"
+    }
+  ],
+  "frames": [
+    {
+      "id": "27a",
+      "turn": "t27",
+      "caption": "My pick — the mark is the product"
+    },
+    {
+      "id": "27b",
+      "turn": "t27",
+      "caption": "Best animated — red arrives second"
+    },
+    {
+      "id": "27c",
+      "turn": "t27",
+      "caption": "Heart evolution — half yours, half hers"
+    },
+    {
+      "id": "27d",
+      "turn": "t27",
+      "caption": "Warmest — the goodnight gesture"
+    },
+    {
+      "id": "27e",
+      "turn": "t27",
+      "caption": "Heart evolution — the groove it leaves"
+    },
+    {
+      "id": "27f",
+      "turn": "t27",
+      "caption": "Side by side at icon size"
+    },
+    {
+      "id": "26a",
+      "turn": "t26",
+      "caption": "The logo — red draws with a white tip, then white draws with a red tip, taking turns. That IS the loading spinner."
+    },
+    {
+      "id": "26b",
+      "turn": "t26",
+      "caption": "Four alternative directions — my pick is the unfinished e"
+    },
+    {
+      "id": "26c",
+      "turn": "t26",
+      "caption": "Tap the keyboard — it types, then renders"
+    },
+    {
+      "id": "26d",
+      "turn": "t26",
+      "caption": "Her notification — handwritten, both platforms"
+    },
+    {
+      "id": "26e",
+      "turn": "t26",
+      "caption": "Her list — both hands, paper ground"
+    },
+    {
+      "id": "26f",
+      "turn": "t26",
+      "caption": "The daily loop — four moments, 90 seconds"
+    },
+    {
+      "id": "26g",
+      "turn": "t26",
+      "caption": "Launch — mark, wordmark, slogan"
+    },
+    {
+      "id": "25a",
+      "turn": "t25",
+      "caption": "Decision debt — close one"
+    },
+    {
+      "id": "25b",
+      "turn": "t25",
+      "caption": "Mental load — the work nobody counts"
+    },
+    {
+      "id": "25c",
+      "turn": "t25",
+      "caption": "Waiting room — what's blocked on whom"
+    },
+    {
+      "id": "25d",
+      "turn": "t25",
+      "caption": "Money truth — one number, not a budget"
+    },
+    {
+      "id": "25e",
+      "turn": "t25",
+      "caption": "Two-minute pile — tick, then clear together"
+    },
+    {
+      "id": "25f",
+      "turn": "t25",
+      "caption": "The brief — context, not just the task"
+    },
+    {
+      "id": "25g",
+      "turn": "t25",
+      "caption": "Energy match — tap a band"
+    },
+    {
+      "id": "25h",
+      "turn": "t25",
+      "caption": "Renewal radar — the quiet money leak"
+    },
+    {
+      "id": "25i",
+      "turn": "t25",
+      "caption": "Yes/no board — answer together"
+    },
+    {
+      "id": "25j",
+      "turn": "t25",
+      "caption": "Where is it — tap to reveal"
+    },
+    {
+      "id": "24a",
+      "turn": "t24",
+      "caption": "Watch — Apple + Wear OS"
+    },
+    {
+      "id": "24b",
+      "turn": "t24",
+      "caption": "New — the flare, tap it through"
+    },
+    {
+      "id": "24c",
+      "turn": "t24",
+      "caption": "New — asleep / awake, tap to switch"
+    },
+    {
+      "id": "24d",
+      "turn": "t24",
+      "caption": "New — tap a row to move it up"
+    },
+    {
+      "id": "24e",
+      "turn": "t24",
+      "caption": "Search — tap a query"
+    },
+    {
+      "id": "24f",
+      "turn": "t24",
+      "caption": "Movie player — scrub it"
+    },
+    {
+      "id": "24g",
+      "turn": "t24",
+      "caption": "Savings — pick an amount"
+    },
+    {
+      "id": "24h",
+      "turn": "t24",
+      "caption": "New — car mode, flip it on"
+    },
+    {
+      "id": "24i",
+      "turn": "t24",
+      "caption": "New — iPad / Android tablet, the wall-mounted board"
+    },
+    {
+      "id": "24j",
+      "turn": "t24",
+      "caption": "Day one — onboarding is one stroke"
+    },
+    {
+      "id": "23a",
+      "turn": "t23",
+      "caption": "Guest mode — flip it on"
+    },
+    {
+      "id": "23b",
+      "turn": "t23",
+      "caption": "Doctor's note — questions, not records"
+    },
+    {
+      "id": "23c",
+      "turn": "t23",
+      "caption": "Recurring + ask nicely — pick an ask"
+    },
+    {
+      "id": "23d",
+      "turn": "t23",
+      "caption": "Tiny AI — counts only, on device"
+    },
+    {
+      "id": "23e",
+      "turn": "t23",
+      "caption": "New — the tap, tap it three times"
+    },
+    {
+      "id": "23f",
+      "turn": "t23",
+      "caption": "New — what she left overnight"
+    },
+    {
+      "id": "23g",
+      "turn": "t23",
+      "caption": "New — rituals, noticed not enforced"
+    },
+    {
+      "id": "22a",
+      "turn": "t22",
+      "caption": "Pairing — iPhone + Android, one code"
+    },
+    {
+      "id": "22b",
+      "turn": "t22",
+      "caption": "Lock screens — live activity + glance, both platforms"
+    },
+    {
+      "id": "22c",
+      "turn": "t22",
+      "caption": "Android home — Material widgets, resizable"
+    },
+    {
+      "id": "22d",
+      "turn": "t22",
+      "caption": "Weekly ten + gratitude jar — drop one in"
+    },
+    {
+      "id": "22e",
+      "turn": "t22",
+      "caption": "Bucket list — tick one off"
+    },
+    {
+      "id": "22f",
+      "turn": "t22",
+      "caption": "Mood weather — pick yours"
+    },
+    {
+      "id": "21a",
+      "turn": "t21",
+      "caption": "Your board — toggle what she gets"
+    },
+    {
+      "id": "21b",
+      "turn": "t21",
+      "caption": "Her home screen — tap the widget to slide"
+    },
+    {
+      "id": "21c",
+      "turn": "t21",
+      "caption": "All states + who wins when they compete"
+    },
+    {
+      "id": "20a",
+      "turn": "t20",
+      "caption": "Draw — pick a color, pressure travels"
+    },
+    {
+      "id": "20b",
+      "turn": "t20",
+      "caption": "Goodnight — tap to seal the day"
+    },
+    {
+      "id": "20c",
+      "turn": "t20",
+      "caption": "Prompt deck — shuffle works"
+    },
+    {
+      "id": "20d",
+      "turn": "t20",
+      "caption": "Nothing today — absence isn't failure"
+    },
+    {
+      "id": "20e",
+      "turn": "t20",
+      "caption": "Voice ink — sound becomes a line"
+    },
+    {
+      "id": "20f",
+      "turn": "t20",
+      "caption": "Dawn & dusk — her sky above yours"
+    },
+    {
+      "id": "20g",
+      "turn": "t20",
+      "caption": "Day map + the margin's notes"
+    },
+    {
+      "id": "20h",
+      "turn": "t20",
+      "caption": "The wall — what survived midnight"
+    },
+    {
+      "id": "20i",
+      "turn": "t20",
+      "caption": "Week — typed, shown in your hand"
+    },
+    {
+      "id": "20j",
+      "turn": "t20",
+      "caption": "Meal wheel — spin it"
+    },
+    {
+      "id": "20k",
+      "turn": "t20",
+      "caption": "Leaving now + say-it — tap a chip"
+    },
+    {
+      "id": "20l",
+      "turn": "t20",
+      "caption": "Meeting armour — flip it on"
+    },
+    {
+      "id": "20m",
+      "turn": "t20",
+      "caption": "Kid's corner + wrong-answer bin"
+    },
+    {
+      "id": "20n",
+      "turn": "t20",
+      "caption": "Letter — snap it, it becomes a task"
+    },
+    {
+      "id": "20o",
+      "turn": "t20",
+      "caption": "Fair split — a month, not a scoreboard"
+    },
+    {
+      "id": "20p",
+      "turn": "t20",
+      "caption": "Handover baton — take it"
+    },
+    {
+      "id": "20q",
+      "turn": "t20",
+      "caption": "Missions — accept it"
+    },
+    {
+      "id": "20r",
+      "turn": "t20",
+      "caption": "The pocket — secret planning"
+    },
+    {
+      "id": "20s",
+      "turn": "t20",
+      "caption": "Chapters — the story shelves itself"
+    },
+    {
+      "id": "20t",
+      "turn": "t20",
+      "caption": "Journal — facts only, coach defanged"
+    },
+    {
+      "id": "20u",
+      "turn": "t20",
+      "caption": "Legacy — a year becomes a book"
+    },
+    {
+      "id": "20v",
+      "turn": "t20",
+      "caption": "Couple focus — start it"
+    },
+    {
+      "id": "20w",
+      "turn": "t20",
+      "caption": "Doses — tick them off"
+    },
+    {
+      "id": "19a",
+      "turn": "t19",
+      "caption": "Open"
+    },
+    {
+      "id": "19b",
+      "turn": "t19",
+      "caption": "Home — always the canvas"
+    },
+    {
+      "id": "19c",
+      "turn": "t19",
+      "caption": "Directory — tap a room"
+    },
+    {
+      "id": "19d",
+      "turn": "t19",
+      "caption": "Household — tap to claim / finish"
+    },
+    {
+      "id": "19e",
+      "turn": "t19",
+      "caption": "Presence — two clocks"
+    },
+    {
+      "id": "19f",
+      "turn": "t19",
+      "caption": "Lists — tap to tick"
+    },
+    {
+      "id": "19g",
+      "turn": "t19",
+      "caption": "Together — savings, dreams, promises"
+    },
+    {
+      "id": "19h",
+      "turn": "t19",
+      "caption": "Memory — heatmap, movies, jar"
+    },
+    {
+      "id": "19i",
+      "turn": "t19",
+      "caption": "Wellbeing — mood weather + habits"
+    },
+    {
+      "id": "19j",
+      "turn": "t19",
+      "caption": "Rules — tap the switches"
+    }
+  ]
+}

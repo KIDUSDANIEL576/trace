@@ -18,7 +18,7 @@
  * Anything the build had to guess at is reported at the end.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SPRITE, EMOJI_ICONS } from './src/icons.mjs';
@@ -490,3 +490,20 @@ if (unknown.size) {
   for (const [dim, how] of unknown) console.log(`  ${dim}  ${how}`);
 }
 for (const n of notes) console.log(`\nnote: ${n}`);
+
+/* ------------------------------------------- the clean redesign (t19-27) */
+
+/* Trace Clean is a separate design document with its own runtime (templated,
+   not static markup), so it gets its own compiler. Run it here so a single
+   `node build.mjs` absorbs both handoffs. */
+{
+  const clean = at('project/Trace Clean.dc.html');
+  if (existsSync(clean)) {
+    console.log('');
+    const { execFileSync } = await import('node:child_process');
+    execFileSync(process.execPath, [at('clean.mjs'), clean, at(OUT)], { stdio: 'inherit' });
+  }
+  /* design assets referenced by src="assets/..." in either document */
+  const assets = at('project/assets');
+  if (existsSync(assets)) cpSync(assets, join(at(OUT), 'assets'), { recursive: true });
+}
