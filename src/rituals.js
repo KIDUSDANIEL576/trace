@@ -280,7 +280,7 @@ setInterval(paintPin, 1200);
 const whisper = $('#whisper');
 if (whisper) whisper.addEventListener('click', () => { if (APP.strokeCount() === 0) show('prompt'); });
 
-R.addRow('Canvas', 'prompts', 'Prompt deck', '52 ways to start a canvas');
+R.addRow('Canvas', 'prompts', 'Prompt deck', () => '52 ways to start a canvas');
 R.addNav('prompts', () => show('prompt'));
 
 R.addScreen('goodnight', renderGoodnight);

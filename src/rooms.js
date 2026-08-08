@@ -1052,6 +1052,7 @@ window.TRACE_BOARD = {
   addCard(fn) { EXTRA_CARDS.push(fn); },
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
+  subRows,
   addBeyond(label, sub, screen) { BEYOND.push([label, sub, () => show(screen)]); },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },

@@ -386,8 +386,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* a padded block card, and its inverted twin */
 .card{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);
   padding:16px 18px;text-align:left;width:100%;color:var(--ink);display:block}
-.card .t{font-size:15px;font-weight:700}
-.card .d{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.45}
+.card .t{font-size:15px;font-weight:700;display:block}
+.card .d{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.45;display:block}
 .card.ink{background:var(--emph);border-color:transparent;color:var(--emph-ink)}
 .card.ink .d{color:var(--emph-ink-3)}
 .card.ink .lbl{font-size:12px;font-weight:700;color:var(--emph-red);
@@ -395,6 +395,35 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .card.ink .body{font-size:14px;line-height:1.5;color:var(--emph-ink-2);margin-top:8px}
 .card.quiet{background:var(--ground-alt);border-color:var(--hairline)}
 button.card:active{transform:scale(.99)}
+
+/* the emphasised card — 2px, and only ever one per screen */
+.card.pick{border:2px solid var(--red);padding:15px 17px}
+.card.pick-ink{border:2px solid var(--ink);padding:15px 17px}
+/* a card that is really a row */
+.card.line{display:flex;align-items:center;gap:14px}
+.card.line .grow{flex:1;min-width:0}
+.card.line .end{font-size:13px;font-weight:700;flex:none}
+.card.line .end.red{color:var(--red-text)}
+.card.line .end.mute{color:var(--ink-4);font-weight:600}
+.card.warn{background:var(--red-wash);border-color:var(--red-line)}
+
+/* segmented choice — p28, p30, p45 */
+.seg{display:flex;gap:8px;padding:16px 20px 0;flex:none}
+.seg button{flex:1;padding:12px 0;border-radius:14px;font-size:14px;background:var(--surface);
+  border:1px solid var(--hairline);color:var(--ink)}
+.seg button.on{background:var(--emph);color:var(--emph-ink);border-color:transparent;font-weight:600}
+
+/* one progress bar shape — savings, trips, missions */
+.bar{height:9px;border-radius:99px;background:var(--ground-alt);overflow:hidden;margin-top:12px}
+.bar > i{display:block;height:100%;background:var(--red);transition:width .3s ease}
+
+/* the red banner — a clash, a shock, anything the screen is actually about */
+.banner{margin:18px 20px 0;border-radius:22px;background:var(--red);color:var(--on-red);
+  padding:22px;flex:none}
+.banner .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.banner .h{font-size:26px;font-weight:700;line-height:1.2;margin-top:10px}
+.banner.ink{background:var(--emph);color:var(--emph-ink)}
+.banner.ink .lbl{color:var(--emph-red);opacity:1;font-weight:700}
 
 /* the dashed aside — always the rule, never the content */
 .note{border-radius:18px;background:var(--ground-alt);border:1px dashed var(--dashed);
