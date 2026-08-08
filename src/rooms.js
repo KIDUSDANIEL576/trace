@@ -957,8 +957,8 @@ function weekCard(b) {
 }
 function noticeCard(b) {
   const n = db.notices[0];
-  b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">Notice</div>` +
-    `<div class="w-note">${esc(n.t)} <span style="color:var(--amber)">${esc(n.when)}</span></div>`;
+  b.innerHTML = `<div class="w-kicker" style="color:var(--red-text)">Notice</div>` +
+    `<div class="w-note">${esc(n.t)} <span style="color:var(--ink-3)">${esc(n.when)}</span></div>`;
   return { cap: 'Stays until it’s handled' };
 }
 function leaveCard(b) {

@@ -191,7 +191,7 @@ window.TRACE_EXTRA = (api) => {
       store.set('pairCode', code);
       body.appendChild(el(`<div style="text-align:center;padding:6px 0 0">
         <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:var(--ink-3)">YOUR CODE</div>
-        <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--amber);padding-left:.3em">${code}</div></div>`));
+        <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--red-text);padding-left:.3em">${code}</div></div>`));
 
       const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;text-transform:lowercase">');
       body.appendChild(codeIn);

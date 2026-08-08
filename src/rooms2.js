@@ -520,7 +520,7 @@ R.addSub('sleep', 'her state', (body) => {
     const a = db.awake;
     body.appendChild(el(`<div style="text-align:center;padding:8px 0">
       <div style="width:72px;height:72px;border-radius:50%;margin:0 auto;
-        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--ink),#26356F)'}"></div>
+        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--ink-3),var(--ink))'}"></div>
       <div style="font-size:24px;font-weight:600;margin-top:14px">${a ? 'She just woke up' : 'Maya is asleep'}</div>
       <div style="font-size:14px;color:var(--ink-3);margin-top:4px">${a ? 'Berlin, 7:02 AM · your marks are waiting for her' : 'Berlin, 2:41 AM · nothing will buzz on her side'}</div></div>`));
     [['Your marks', 'wait quietly'], ['Her widget', 'dims, doesn’t update'], ['The flare', 'still gets through']]
@@ -698,7 +698,7 @@ R.addSub('kids', 'kid’s corner', (body) => {
 R.addSub('letter', 'photo of the letter', (body) => {
   const l = db.letter;
   body.appendChild(el(`<div class="p-canvas" style="height:200px;background:var(--surface);
-    display:flex;align-items:center;justify-content:center;color:rgba(243,240,244,.35);font-size:13px">letter, read on device</div>`));
+    display:flex;align-items:center;justify-content:center;color:var(--ink-4);font-size:13px">letter, read on device</div>`));
   body.appendChild(el(kv('From', l.from, 'var(--ink)')));
   body.appendChild(el(kv('Reply by', l.by, 'var(--red-text)')));
   body.appendChild(el(kv('Read on device', 'photo never uploaded', 'var(--ink)')));

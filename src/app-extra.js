@@ -17,7 +17,7 @@ function toggleRow(body, label, sub, on, onChange) {
     <span><b style="display:block;font-size:14px;font-weight:600">${label}</b><i style="display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:2px">${sub}</i></span>
     <span class="tg" style="flex:none;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s"><i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i></span></button>`);
   const k = row.querySelector('.tg');
-  const paint = () => { k.style.background = on ? '#c64b52' : 'var(--hairline)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
+  const paint = () => { k.style.background = on ? 'var(--red)' : 'var(--track)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
   paint();
   row.addEventListener('click', () => { on = !on; paint(); buzz(8); onChange && onChange(on); });
   body.appendChild(row);
@@ -54,7 +54,7 @@ function palmToPalm() {
       // guide, so the panel is never an empty box
       if (!yours) { x.setLineDash([6, 9]); hand(w2, h2, .96, 'rgba(247,239,233,.22)', 3); x.setLineDash([]); }
       if (yours) hand(w2, h2, .96, 'rgba(247,239,233,.6)', 4);
-      if (yours && yours.her) hand(w2, h2, .87, '#ff9ea9', 4);
+      if (yours && yours.her) hand(w2, h2, .87, TOK('--emph-red'), 4);
       raf = requestAnimationFrame(paint);
     };
     paint();
@@ -356,7 +356,7 @@ function gestures() {
     ];
     for (const [t, d, i] of rows) {
       body.appendChild(el(`<div style="display:flex;align-items:center;gap:14px;padding:13px 14px;border-radius:18px;background:var(--surface);border:1px solid var(--hairline)">
-        <svg class="ts-i" style="font-size:22px;color:#ff8a94"><use href="#i-${i}"/></svg>
+        <svg class="ts-i" style="font-size:22px;color:var(--emph-red)"><use href="#i-${i}"/></svg>
         <span><b style="display:block;font-size:14.5px">${t}</b><i style="display:block;font-style:normal;font-size:12px;color:var(--ink-3);margin-top:2px">${d}</i></span></div>`));
     }
     body.appendChild(hint('nothing else to learn.'));
@@ -478,7 +478,7 @@ function risoPrint() {
         const cx = cc.getContext('2d'); cx.setTransform(DPR, 0, 0, DPR, 0, 0);
         const s2 = cc.clientWidth;
         cx.lineCap = cx.lineJoin = 'round';
-        cx.strokeStyle = i % 3 ? TOK('--red') : '#1d3f8f'; cx.lineWidth = 4;
+        cx.strokeStyle = i % 3 ? TOK('--red') : TOK('--ink'); cx.lineWidth = 4;
         const shape = [SHAPES.heart, SHAPES.sun, SHAPES.squiggle, SHAPES.come, SHAPES.xo][i % 5];
         cx.beginPath();
         shape.forEach(([px, py], j) => { const X = jit((px - .2) * s2 * 1.3, 2), Y = jit((py - .15) * s2 * 1.3, 2); j ? cx.lineTo(X, Y) : cx.moveTo(X, Y); });

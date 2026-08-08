@@ -309,7 +309,11 @@ function yearInMarks() {
     body.appendChild(noteEl('One mark a month, pulled from what you actually drew.'));
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>');
     const MO = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    const cols = ['#dfeaf6','#ffdfe7','#e9f6d8','#3c4a5a','#fff4d6','#bfe6ff','var(--amber)','#ffe9c4','#20304f','#2a0f1c','#0b1226','var(--ground-alt)'];
+    /* twelve months as one ramp in the palette the app actually owns — paper,
+     through red, into ink — rather than six blues, a green and two navies */
+    const cols = ['var(--ground)', 'var(--ground-alt)', 'var(--ground-deep)', 'var(--red-wash)',
+      'rgba(226,51,67,.18)', 'rgba(226,51,67,.28)', 'rgba(226,51,67,.42)', 'rgba(226,51,67,.58)',
+      'rgba(26,26,26,.25)', 'rgba(26,26,26,.45)', 'rgba(26,26,26,.7)', 'var(--ink)'];
     MO.forEach((m, i) => {
       const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:linear-gradient(180deg,${cols[i]},var(--scrim))"></div>`);
       const cc = document.createElement('canvas'); cc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
@@ -397,7 +401,7 @@ function positioning() {
       <div><b>Not a social network.</b> The maximum audience is one. Nothing here gets more valuable with more people in it.</div>
       <div><b>Not a memory box.</b> Memory boxes are for after. This is for during.</div>
     </div>`));
-    body.appendChild(el('<div class="p-note" style="margin-top:10px;color:var(--amber);font-weight:700">and the three we will not build</div>'));
+    body.appendChild(el('<div class="p-note" style="margin-top:10px;color:var(--red-text);font-weight:700">and the three we will not build</div>'));
     body.appendChild(el(`<div class="list-quiet">
       <div><span class="no">✕</span><b>Story mining.</b> We never read a canvas to find content. Donation is opt-in, deliberate, and reversible.</div>
       <div><span class="no">✕</span><b>Engagement targets on a relationship.</b> No number in here is allowed to go up because we made someone anxious.</div>

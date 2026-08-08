@@ -1379,7 +1379,7 @@ function openCapsule() {
         const days = Math.max(0, Math.ceil((new Date(cp.opens) - Date.now()) / 864e5));
         list.insertAdjacentHTML('beforeend',
           `<div class="chip" style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-            <span>${cp.label}</span><span style="font:700 11px ui-monospace,monospace;color:var(--amber)">OPENS IN ${days} DAYS</span></div>`);
+            <span>${cp.label}</span><span style="font:700 11px ui-monospace,monospace;color:var(--red-text)">OPENS IN ${days} DAYS</span></div>`);
       }
     };
     render();
@@ -1577,7 +1577,7 @@ function openDonate() {
       <div class="p-note">give one mark to everyone. one mark, chosen by you — nothing near it leaves the phone.</div>`);
     const consent1 = mkToggle(body, 'share the shape and the meaning', true);
     const consent2 = mkToggle(body, 'let others adopt it as theirs', false);
-    body.insertAdjacentHTML('beforeend', '<div class="p-note" style="color:var(--amber)">4,180 people already did</div>');
+    body.insertAdjacentHTML('beforeend', '<div class="p-note" style="color:var(--ink-3)">4,180 people already did</div>');
     const go = document.createElement('button'); go.className = 'p-cta'; go.textContent = 'donate this sign';
     go.addEventListener('click', () => {
       toast(consent1.on() ? 'donated. it belongs to everyone now.' : 'pick what to share first');
@@ -1590,7 +1590,7 @@ function mkToggle(body, label, on) {
   const row = document.createElement('button');
   row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);color:var(--ink);font-size:13.5px';
   const k = document.createElement('span');
-  const paint = () => k.style.cssText = `width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:${on ? '#c64b52' : 'var(--hairline)'}`;
+  const paint = () => k.style.cssText = `width:46px;height:28px;border-radius:99px;position:relative;transition:background .2s;background:${on ? 'var(--red)' : 'var(--track)'}`;
   k.innerHTML = '<i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i>';
   const knob = () => k.firstChild.style.transform = on ? 'translateX(18px)' : '';
   paint(); requestAnimationFrame(knob);
@@ -1642,7 +1642,10 @@ function openWidget() {
   openPanel('the widget', (body) => {
     body.insertAdjacentHTML('beforeend', '<div class="p-note">no notification. it’s just there — the canvas lands where she already looks 80 times a day.</div>');
     const home = document.createElement('div');
-    home.style.cssText = 'border-radius:22px;padding:18px;background:linear-gradient(180deg,#0b1226,#33406b);display:grid;grid-template-columns:1fr 1fr;gap:12px';
+    /* the same ground the real springboard uses (#home is --ground-alt) — this
+       preview was the last navy gradient in the app, and a phone wallpaper is
+       not a licence to leave the palette */
+    home.style.cssText = 'border-radius:22px;padding:18px;background:var(--ground-alt);display:grid;grid-template-columns:1fr 1fr;gap:12px';
     const wg = document.createElement('div');
     wg.style.cssText = 'grid-column:span 2;aspect-ratio:2/1;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--hairline)';
     const wc = document.createElement('canvas');

@@ -109,7 +109,7 @@ function lockScreens() {
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
             <div style="font-size:12px;color:var(--ink-2)">TRACE · MUST DO</div>
             <div style="font-size:13px;font-weight:600;margin-top:4px">${esc((t[0] || {}).title || 'nothing left')}
-              ${t.length > 1 ? `<span style="color:var(--amber)">+${t.length - 1}</span>` : ''}</div></div>
+              ${t.length > 1 ? `<span style="color:var(--red-text)">+${t.length - 1}</span>` : ''}</div></div>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ function androidHome() {
           <path d="M8 44 C56 12,96 58,152 26 S244 50,302 18" stroke="var(--red)" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
         <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">
           <div style="padding:7px 12px;border-radius:999px;background:var(--hairline);font-size:12px">${openTasks().length} left today</div>
-          <div style="padding:7px 12px;border-radius:999px;background:var(--hairline);font-size:12px;font-style:italic;color:var(--amber)">${esc(nextWeekItem())}</div>
+          <div style="padding:7px 12px;border-radius:999px;background:var(--hairline);font-size:12px;font-style:italic;color:var(--red-text)">${esc(nextWeekItem())}</div>
           <div style="padding:7px 12px;border-radius:999px;background:var(--ground-alt);font-size:12px;color:var(--ink)">41 days</div>
         </div>
       </div>
