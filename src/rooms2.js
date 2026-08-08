@@ -348,7 +348,7 @@ R.addSub('where', 'where is it', (body) => {
     db.things.forEach((t) => {
       const on = found === t.n;
       const row = el(`<button class="row" style="flex-direction:column;align-items:stretch;gap:6px;
-        ${on ? 'background:rgba(244,198,107,.1);border-color:var(--hairline)' : ''}">
+        ${on ? 'background:var(--red-wash);border-color:var(--red-line)' : ''}">
         <span class="n">${esc(t.t)}</span>
         ${on ? `<span class="s big">${esc(t.w)}</span><span class="s">${esc(t.who)}</span>` : '<span class="s">tap to reveal</span>'}
       </button>`);
@@ -595,7 +595,7 @@ R.addSub('wall', 'the wall', (body) => {
       display:flex;align-items:center;justify-content:center;position:relative">
       <svg viewBox="0 0 70 70" style="width:80%;height:80%"><path d="M14 44 C28 18,40 52,58 26"
         stroke="${COLS[i % 5]}" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-      ${i === db.wallKept - 1 ? '<span style="position:absolute;bottom:5px;font-size:9px;color:var(--ink-3)">today</span>' : ''}
+      ${i === db.wallKept - 1 ? '<span style="position:absolute;bottom:4px;font-size:12px;color:var(--ink-3)">today</span>' : ''}
     </div>`));
   }
   body.appendChild(grid);
@@ -676,7 +676,7 @@ R.addSub('pocket', 'the pocket', (body) => {
   const p = db.pocket;
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(`<div class="row" style="background:var(--ground-alt);border-color:rgba(244,198,107,.28)">
+    body.appendChild(el(`<div class="row" style="background:var(--emph);color:var(--emph-ink);border-color:transparent">
       <span style="font-size:18px">◈</span><span class="grow"><span class="s">The pocket — does not exist on Maya’s device</span></span></div>`));
     body.appendChild(el(bigNum(p.what, p.when)));
     p.steps.forEach((st, n) => {

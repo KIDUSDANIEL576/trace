@@ -5,7 +5,11 @@
  * one driver means a finding on one screen reproduces the same way on another.
  *
  *   node qa/drive.mjs list                       every reachable screen
+ *   node qa/drive.mjs panels                     every overlay panel key
  *   node qa/drive.mjs shot <screen> [out.png]    screenshot it (paper)
+ *
+ * A panel target is written `panel:<key>` — the 33 overlays are a surface the
+ * screen walk never reaches, because they are not `.scr` sections.
  *   node qa/drive.mjs shot <screen> out.png dark screenshot it (dark)
  *   node qa/drive.mjs probe <screen>             JSON: text, buttons, colours
  *   node qa/drive.mjs click <screen> <selector>  click, then report the result
@@ -46,6 +50,16 @@ const openDirectory = (page) => page.evaluate(() => document.getElementById('cb-
 async function goto(page, spec) {
   if (!spec || spec === 'canvas') return true;
   const [a, b] = spec.split(':');
+  /* panels are overlays opened by key, not screens you navigate to */
+  if (a === 'panel') {
+    const ok = await page.evaluate((k) => {
+      if (!window.TRACE_ROOMS || !window.TRACE_ROOMS.openSub) return false;
+      window.TRACE_ROOMS.openSub(k);
+      return true;
+    }, b);
+    await page.waitForTimeout(700);
+    return ok && await page.evaluate(() => !document.getElementById('panel').classList.contains('hidden'));
+  }
   await openDirectory(page); await page.waitForTimeout(400);
   const hit = await page.evaluate((label) => {
     const r = [...document.querySelectorAll('#rooms-list .row')].find((x) => x.textContent.includes(label));
@@ -68,6 +82,13 @@ const visible = (page) => page.evaluate(() => {
 });
 
 async function main() {
+  if (cmd === 'panels') {
+    const { browser, page } = await boot();
+    const keys = await page.evaluate(() => (window.TRACE_ROOMS && window.TRACE_ROOMS.subKeys) ? window.TRACE_ROOMS.subKeys() : []);
+    console.log(JSON.stringify(keys, null, 2));
+    await browser.close(); return;
+  }
+
   if (cmd === 'list') {
     const { browser, page } = await boot();
     await openDirectory(page); await page.waitForTimeout(500);
@@ -109,7 +130,10 @@ async function main() {
     const ok = await goto(page, target);
     if (!ok) { console.log(JSON.stringify({ error: 'screen not reachable: ' + target })); await browser.close(); process.exit(1); }
     const data = await page.evaluate(() => {
-      const s = [...document.querySelectorAll('.scr')].find((x) => !x.classList.contains('hidden'));
+      const pn = document.getElementById('panel');
+      const s = pn && !pn.classList.contains('hidden')
+        ? pn
+        : [...document.querySelectorAll('.scr')].find((x) => !x.classList.contains('hidden'));
       if (!s) return { error: 'no visible screen' };
       const rect = (e) => { const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top) }; };
       const cs = (e, p) => getComputedStyle(e)[p];

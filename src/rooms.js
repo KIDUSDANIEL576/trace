@@ -1115,6 +1115,7 @@ window.TRACE_BOARD = {
   paint: paintWidget,
   /* the registry rooms2.js builds the rest of the design on */
   addSub(kind, title, build) { SUBS[kind] = { title, build }; },
+  subKeys() { return Object.keys(SUBS); },
   addNav(kind, go) { NAVS[kind] = go; },
   addRow(room, key, name, sub, right) { (SUBLISTS[room] || (SUBLISTS[room] = [])).push({ key, name, sub, right }); },
   addCard(fn) { EXTRA_CARDS.push(fn); },

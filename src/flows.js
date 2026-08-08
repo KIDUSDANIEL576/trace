@@ -189,7 +189,7 @@ R.addSub('loud', 'how loud', (body) => {
         <div style="display:flex;gap:6px">${LEVELS.map((lv) => {
           const dis = (k.locked && lv !== k.locked) || (k.lockedMax === 'banner' && lv === 'ring');
           const on = cur === lv;
-          return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;padding:9px 0;border-radius:12px;
+          return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;min-height:44px;border-radius:12px;
             font-size:12.5px;font-weight:600;opacity:${dis ? .3 : 1};
             background:${on ? 'var(--ink)' : 'var(--surface)'};color:${on ? 'var(--emph-ink)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
         }).join('')}</div></div>`);
@@ -216,7 +216,7 @@ function makeKey() {
 R.addSub('key', 'your key', (body) => {
   const key = makeKey();
   body.appendChild(note('A new phone starts from this. It re-arms the pairing and pulls your board back — <b>drawings stay on the phones that drew them</b>, as promised.'));
-  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:rgba(244,198,107,.07);
+  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:var(--red-wash);
     border:1px dashed rgba(233,161,59,.3);text-align:center">
     <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">Your key</div>
     <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--amber);margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));

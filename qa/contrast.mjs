@@ -20,6 +20,11 @@ for (const g of list) for (const r of g.rows) {
   if (!r) continue;
   targets.push(g.section.includes('sub-rows') ? `${g.section.split(' ')[0]}:${r}` : r);
 }
+/* the 33 overlays are not `.scr` sections, so a screen walk never reaches
+   them — and they carry a third of the app's copy */
+for (const k of JSON.parse(execSync('node qa/drive.mjs panels', { cwd: process.cwd(), maxBuffer: 1e8 }))) {
+  targets.push('panel:' + k);
+}
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const page = await browser.newPage({ viewport: { width: 470, height: 900 } });
@@ -54,7 +59,10 @@ const CHECK = `(() => {
     return bg;
   };
   const out = [];
-  document.querySelectorAll('.scr:not(.hidden) *').forEach(el => {
+  const pn = document.getElementById('panel');
+  const root = pn && !pn.classList.contains('hidden') ? pn : document.querySelector('.scr:not(.hidden)');
+  if (!root) return out;
+  root.querySelectorAll('*').forEach(el => {
     if (!el.offsetWidth || !el.offsetHeight) return;
     const txt = [...el.childNodes].filter(n => n.nodeType===3 && n.textContent.trim()).map(n=>n.textContent.trim()).join(' ');
     if (!txt) return;
@@ -82,6 +90,15 @@ let bad = 0;
 for (const t of targets) {
   try {
     const [a, b] = t.split(':');
+    if (a === 'panel') {
+      await page.evaluate((k) => window.TRACE_ROOMS.openSub(k), b);
+      await page.waitForTimeout(650);
+      const hits = await page.evaluate(CHECK);
+      if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1 (needs ${h.need})  ${h.size}px  "${h.txt}"`); }
+      await page.evaluate(() => window.TRACE_APP.closePanel && window.TRACE_APP.closePanel());
+      await page.waitForTimeout(200);
+      continue;
+    }
     await page.evaluate(() => document.getElementById('cb-room').click());
     await page.waitForTimeout(300);
     await page.evaluate((l) => { [...document.querySelectorAll('#rooms-list .row')].find(x => x.textContent.includes(l))?.click(); }, a);

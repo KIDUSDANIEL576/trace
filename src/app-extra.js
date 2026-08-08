@@ -187,7 +187,7 @@ function keepAlive() {
     const { wrap } = canvas();
     if (!wrap.isConnected) return clearInterval(decay);
     alive -= .012;
-    s.c = `rgba(244,198,107,${Math.max(0, alive)})`;
+    s.c = `rgba(233,161,59,${Math.max(0, alive)})`;
     redraw();
     if (alive <= 0) {
       clearInterval(decay);
@@ -203,7 +203,7 @@ function keepAlive() {
     const p = { x: e.clientX - r.left, y: e.clientY - r.top };
     for (const q of s.pts) if (Math.hypot(p.x - q.x, p.y - q.y) < 22) {
       alive = Math.min(1, alive + .06);
-      s.c = `rgba(244,198,107,${alive})`;
+      s.c = `rgba(233,161,59,${alive})`;
       if (alive > .95) note('alive again. for now.');
       redraw(); break;
     }
