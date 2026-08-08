@@ -264,6 +264,8 @@ function renderRooms(query) {
 
 function openRoom(name) {
   if (name === 'Canvas') return show('canvas');
+  /* a name nobody built a view for goes to the directory, never to a crash */
+  if (!ROOM_VIEWS[name]) return show('rooms');
   roomKey = name;
   const s = screens.room;
   s.innerHTML = ROOM_VIEWS[name]();
@@ -752,9 +754,23 @@ function renderRules() {
       b.textContent = 'Delete everything on this phone'; b.style.background = 'none'; } }, 4000);
   }));
   $$('[data-export]', s).forEach((b) => b.addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    /* "everything you have" has to mean everything — the board, the ink on all
+       three pages, your name, your pairing. Never the channel token: that is a
+       live key, and a file that leaks it hands someone your canvas. */
+    const all = { exported: new Date().toISOString(), version: 1, board: db, ink: {}, you: {} };
+    try {
+      if (APP.exportPages) all.ink = APP.exportPages();
+      all.you.name = localStorage.getItem('trace:myname') || 'me';
+      all.you.pairCode = localStorage.getItem('trace:pairCode') || null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('trace:') && !k.startsWith('trace:token:')) all.you[k] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'trace-board.json'; a.click();
+    a.href = URL.createObjectURL(blob); a.download = 'trace-everything.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     toast('everything you have, as a file');
   }));
 }

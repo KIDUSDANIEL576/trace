@@ -868,7 +868,16 @@ sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); }
 
 function openFeature(id) {
   const f = FEATURES.find(x => x.id === id);
-  if (f) { closeSheet(); f.run(); }
+  if (!f) return;
+  closeSheet(); f.run();
+  /* most features open a panel; the rest paint on the canvas — and a feature
+     launched from a room would otherwise animate on a screen nobody is looking
+     at. If nothing opened, go where the feature actually happens. */
+  const R = window.TRACE_ROOMS;
+  if (!R || !R.screens) return;
+  const panelOpen = !panel.classList.contains('hidden');
+  const onCanvas = !R.screens.canvas.classList.contains('hidden');
+  if (!panelOpen && !onCanvas) R.show('canvas');
 }
 
 /* --- reveal (invisible ink) --- */
@@ -1830,6 +1839,17 @@ window.TRACE_APP = {
   showApp, showHome, brushPop: toggleBrushPop,
   setPage, curPage: () => curPage,
   hersCount: () => pages.hers.length,
+  /* every page of ink, as plain data — for "Export data" */
+  exportPages() {
+    syncPageRef();
+    const out = {};
+    for (const k in pages) out[k] = pages[k].filter((s) => s.who !== 'fx').map((s) => ({
+      id: s.id, who: s.who, type: s.type || 'ink', color: s.c, w: s.w, born: s.born,
+      text: s.text, font: s.font, size: s.size, x: s.x, y: s.y,
+      pts: (s.pts || []).map((pt) => [Math.round(pt.x), Math.round(pt.y), pt.pr === undefined ? 1 : +pt.pr.toFixed(2)]),
+    }));
+    return out;
+  },
   addTextStroke,
   remoteBoard(p) { window.TRACE_BOARD && TRACE_BOARD.receive(p); },
   remoteBegin(p) {

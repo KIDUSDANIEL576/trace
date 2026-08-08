@@ -2720,7 +2720,16 @@ sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); }
 
 function openFeature(id) {
   const f = FEATURES.find(x => x.id === id);
-  if (f) { closeSheet(); f.run(); }
+  if (!f) return;
+  closeSheet(); f.run();
+  /* most features open a panel; the rest paint on the canvas — and a feature
+     launched from a room would otherwise animate on a screen nobody is looking
+     at. If nothing opened, go where the feature actually happens. */
+  const R = window.TRACE_ROOMS;
+  if (!R || !R.screens) return;
+  const panelOpen = !panel.classList.contains('hidden');
+  const onCanvas = !R.screens.canvas.classList.contains('hidden');
+  if (!panelOpen && !onCanvas) R.show('canvas');
 }
 
 /* --- reveal (invisible ink) --- */
@@ -3682,6 +3691,17 @@ window.TRACE_APP = {
   showApp, showHome, brushPop: toggleBrushPop,
   setPage, curPage: () => curPage,
   hersCount: () => pages.hers.length,
+  /* every page of ink, as plain data — for "Export data" */
+  exportPages() {
+    syncPageRef();
+    const out = {};
+    for (const k in pages) out[k] = pages[k].filter((s) => s.who !== 'fx').map((s) => ({
+      id: s.id, who: s.who, type: s.type || 'ink', color: s.c, w: s.w, born: s.born,
+      text: s.text, font: s.font, size: s.size, x: s.x, y: s.y,
+      pts: (s.pts || []).map((pt) => [Math.round(pt.x), Math.round(pt.y), pt.pr === undefined ? 1 : +pt.pr.toFixed(2)]),
+    }));
+    return out;
+  },
   addTextStroke,
   remoteBoard(p) { window.TRACE_BOARD && TRACE_BOARD.receive(p); },
   remoteBegin(p) {
@@ -4001,6 +4021,8 @@ function renderRooms(query) {
 
 function openRoom(name) {
   if (name === 'Canvas') return show('canvas');
+  /* a name nobody built a view for goes to the directory, never to a crash */
+  if (!ROOM_VIEWS[name]) return show('rooms');
   roomKey = name;
   const s = screens.room;
   s.innerHTML = ROOM_VIEWS[name]();
@@ -4489,9 +4511,23 @@ function renderRules() {
       b.textContent = 'Delete everything on this phone'; b.style.background = 'none'; } }, 4000);
   }));
   $$('[data-export]', s).forEach((b) => b.addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    /* "everything you have" has to mean everything — the board, the ink on all
+       three pages, your name, your pairing. Never the channel token: that is a
+       live key, and a file that leaks it hands someone your canvas. */
+    const all = { exported: new Date().toISOString(), version: 1, board: db, ink: {}, you: {} };
+    try {
+      if (APP.exportPages) all.ink = APP.exportPages();
+      all.you.name = localStorage.getItem('trace:myname') || 'me';
+      all.you.pairCode = localStorage.getItem('trace:pairCode') || null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('trace:') && !k.startsWith('trace:token:')) all.you[k] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'trace-board.json'; a.click();
+    a.href = URL.createObjectURL(blob); a.download = 'trace-everything.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     toast('everything you have, as a file');
   }));
 }
