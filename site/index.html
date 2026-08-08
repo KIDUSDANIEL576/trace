@@ -61,7 +61,7 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   margin: 0;
   background: #e8e4dd;
-  color: #1a1a1a;
+  color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -143,24 +143,24 @@ body {
   display: inline-block;
   vertical-align: -.12em;
   flex: none;
-  color: #f3f0f4;
+  color: var(--ink);
 }
 /* daylight dock tiles (1s) and its accent pencil tile */
-[style*="rgba(43,32,41,.06)"] > .ts-i { color: #2b2029; }
-[style*="rgba(255,77,109,.12)"] > .ts-i { color: #e23343; }
+[style*="rgba(43,32,41,.06)"] > .ts-i { color: var(--ground-alt); }
+[style*="rgba(255,77,109,.12)"] > .ts-i { color: var(--red); }
 /* accent tool tile on dark keeps light ink but picks up the brand red */
-[style*="rgba(226,51,67,.16)"] > .ts-i { color: #ff8a94; }
+[style*="var(--red-wash)"] > .ts-i { color: #ff8a94; }
 /* light surfaces: gold streak pills, white pills — dark ink. Matched on the
    background declaration specifically (a bare rgba substring would also hit
    text-color declarations), and descendant not child, because icons often
    sit inside a sizing span within the pill. */
-[style*="background:#f4c66b"] .ts-i,
-[style*="background:rgba(255,255,255,.7)"] .ts-i,
-[style*="background:rgba(255,255,255,.85)"] .ts-i,
-[style*="background:rgba(255,255,255,.86)"] .ts-i,
-[style*="background:rgba(255,255,255,.9)"] .ts-i { color: #2b2029; }
+[style*="background:var(--amber)"] .ts-i,
+[style*="background:var(--ink-3)"] .ts-i,
+[style*="background:var(--surface)"] .ts-i,
+[style*="background:var(--surface)"] .ts-i,
+[style*="background:var(--surface)"] .ts-i { color: var(--ground-alt); }
 /* …except icons on saturated chips inside those light docks */
-[style*="background:rgba(255,255,255,.86)"] [style*="linear-gradient(180deg,#ea4256"] .ts-i { color: #fff; }
+[style*="background:var(--surface)"] [style*="linear-gradient(180deg,#ea4256"] .ts-i { color: #fff; }
 
 /* 1h's invisible ink. The prototype carried a `style-hover` attribute that no
    browser honours, so the reveal its caption promises never fired. */
@@ -205,7 +205,7 @@ html.ts-calm .dv-beat:hover *::after {
   content: '';
   position: absolute;
   inset: 5px;
-  border: 1.5px dashed rgba(255,255,255,.3);
+  border: 1.5px dashed var(--ink-5);
   border-radius: 8px;
   pointer-events: none;
 }
@@ -217,17 +217,17 @@ html.ts-calm .dv-beat:hover *::after {
   justify-content: center;
   text-align: center;
   font: 500 9.5px/1.4 system-ui, sans-serif;
-  color: rgba(255,255,255,.5);
+  color: var(--ink-4);
   pointer-events: none;
 }
-.ts-slot.is-over::before { border-color: #e23343; border-style: solid; }
+.ts-slot.is-over::before { border-color: var(--red); border-style: solid; }
 .ts-slot.is-filled::before,
 .ts-slot.is-filled .ts-slot-cap { display: none; }
 .ts-slot.is-filled { background-color: transparent; }
 .ts-slot-clear {
   position: absolute; top: 5px; right: 5px; z-index: 5;
   width: 19px; height: 19px; padding: 0; border: 0; border-radius: 99px;
-  background: rgba(0,0,0,.6); color: #fff; font-size: 11px; line-height: 19px;
+  background: var(--scrim); color: #fff; font-size: 11px; line-height: 19px;
   cursor: pointer; opacity: 0; transition: opacity .18s;
 }
 .ts-slot.is-filled:hover .ts-slot-clear { opacity: 1; }
@@ -260,7 +260,7 @@ html.ts-calm .dv-beat:hover *::after {
 
 .ts-fsz {
   font: 600 9.5px ui-monospace, Menlo, monospace;
-  color: rgba(0,0,0,.5);
+  color: var(--scrim);
   padding-left: 5px;
   white-space: nowrap;
 }
@@ -269,12 +269,12 @@ html.ts-calm .dv-beat:hover *::after {
   padding: 4px 8px;
   border: 0;
   border-radius: 5px;
-  background: #1a1a1a;
+  background: var(--ink);
   color: #fff;
   cursor: pointer;
   white-space: nowrap;
 }
-.ts-fx:hover { background: #e23343; }
+.ts-fx:hover { background: var(--red); }
 .ts-fx[disabled] { opacity: .5; cursor: default; }
 
 /* ==========================================================================
@@ -304,9 +304,9 @@ html.ts-calm .dv-beat:hover *::after {
   font-weight: 700;
   font-size: 27px;
   line-height: 1;
-  color: #1a1a1a;
+  color: var(--ink);
 }
-.ts-wm span { color: #e23343; }
+.ts-wm span { color: var(--red); }
 .ts-kit {
   font: 700 9px ui-monospace, Menlo, monospace;
   letter-spacing: .16em;
@@ -320,15 +320,15 @@ html.ts-calm .dv-beat:hover *::after {
 .ts-chip {
   font: 600 11px system-ui, sans-serif;
   padding: 5px 11px;
-  border: 1px solid rgba(0,0,0,.13);
+  border: 1px solid var(--hairline);
   border-radius: 99px;
   background: transparent;
   color: rgba(0,0,0,.62);
   cursor: pointer;
   transition: background .15s, color .15s, border-color .15s;
 }
-.ts-chip:hover { border-color: rgba(0,0,0,.32); color: #1a1a1a; }
-.ts-chip.is-on { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.ts-chip:hover { border-color: rgba(0,0,0,.32); color: var(--ink); }
+.ts-chip.is-on { background: var(--ink); border-color: var(--ink); color: #fff; }
 
 .ts-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 
@@ -337,12 +337,12 @@ html.ts-calm .dv-beat:hover *::after {
   align-items: center;
   gap: 6px;
   padding: 5px 11px;
-  border: 1px solid rgba(0,0,0,.13);
+  border: 1px solid var(--hairline);
   border-radius: 99px;
-  background: rgba(255,255,255,.5);
+  background: var(--ink-4);
   color: rgba(0,0,0,.4);
 }
-.ts-search:focus-within { border-color: #e23343; color: #e23343; }
+.ts-search:focus-within { border-color: var(--red); color: var(--red); }
 .ts-search svg { width: 13px; height: 13px; flex: none; }
 .ts-search input {
   width: 120px;
@@ -350,22 +350,22 @@ html.ts-calm .dv-beat:hover *::after {
   background: none;
   outline: none;
   font: 500 11.5px system-ui, sans-serif;
-  color: #1a1a1a;
+  color: var(--ink);
 }
 .ts-search input::-webkit-search-cancel-button { cursor: pointer; }
 
 .ts-btn {
   font: 600 11px system-ui, sans-serif;
   padding: 6px 12px;
-  border: 1px solid rgba(0,0,0,.13);
+  border: 1px solid var(--hairline);
   border-radius: 99px;
   background: transparent;
   color: rgba(0,0,0,.62);
   cursor: pointer;
 }
-.ts-btn:hover { border-color: rgba(0,0,0,.32); color: #1a1a1a; }
-.ts-btn[aria-pressed="true"] { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
-.ts-btn-go { background: #e23343; border-color: #e23343; color: #fff; }
+.ts-btn:hover { border-color: rgba(0,0,0,.32); color: var(--ink); }
+.ts-btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.ts-btn-go { background: var(--red); border-color: var(--red); color: #fff; }
 .ts-btn-go:hover { background: #c2185b; border-color: #c2185b; color: #fff; }
 .ts-btn[disabled] { opacity: .55; cursor: default; }
 
@@ -387,10 +387,10 @@ html.ts-calm .dv-beat:hover *::after {
   border: 1px solid rgba(0,0,0,.16);
   border-radius: 5px;
   background: transparent;
-  color: rgba(0,0,0,.5);
+  color: var(--scrim);
   cursor: pointer;
 }
-.ts-tx:hover { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.ts-tx:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
 .dv-thd { align-items: center; }
 
 .ts-hide { display: none !important; }
@@ -398,14 +398,14 @@ html.ts-calm .dv-beat:hover *::after {
 .ts-empty {
   padding: 70px 48px;
   font: 400 13px system-ui, sans-serif;
-  color: rgba(0,0,0,.45);
+  color: var(--scrim);
 }
 
 .ts-foot {
   padding: 34px 48px 60px;
   max-width: 720px;
   font: 400 12px/1.65 system-ui, sans-serif;
-  color: rgba(0,0,0,.5);
+  color: var(--scrim);
 }
 .ts-foot p { margin: 0 0 8px; }
 .ts-foot-dim { color: rgba(0,0,0,.36); }
@@ -424,7 +424,7 @@ html.ts-calm .dv-beat:hover *::after {
   z-index: 500;
   padding: 10px 18px;
   border-radius: 99px;
-  background: #1a1a1a;
+  background: var(--ink);
   color: #fff;
   font: 600 12px system-ui, sans-serif;
   opacity: 0;

@@ -13,11 +13,11 @@ const cta = (t, fn) => { const b = el(`<button class="p-cta">${t}</button>`); b.
 const ghostBtn = (t, fn) => { const b = el(`<button class="p-ghost">${t}</button>`); b.addEventListener('click', fn); return b; };
 
 function toggleRow(body, label, sub, on, onChange) {
-  const row = el(`<button style="display:flex;align-items:center;gap:12px;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#f3f0f4;text-align:left">
-    <span><b style="display:block;font-size:14px;font-weight:600">${label}</b><i style="display:block;font-style:normal;font-size:11.5px;color:#9a93a5;margin-top:2px">${sub}</i></span>
+  const row = el(`<button style="display:flex;align-items:center;gap:12px;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);color:var(--ink);text-align:left">
+    <span><b style="display:block;font-size:14px;font-weight:600">${label}</b><i style="display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:2px">${sub}</i></span>
     <span class="tg" style="flex:none;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s"><i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i></span></button>`);
   const k = row.querySelector('.tg');
-  const paint = () => { k.style.background = on ? '#c64b52' : 'rgba(255,255,255,.15)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
+  const paint = () => { k.style.background = on ? '#c64b52' : 'var(--hairline)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
   paint();
   row.addEventListener('click', () => { on = !on; paint(); buzz(8); onChange && onChange(on); });
   body.appendChild(row);
@@ -90,7 +90,7 @@ function fogged() {
       fit();
       const w2 = box.clientWidth, h2 = box.clientHeight;
       const g = x.createLinearGradient(0, 0, 0, h2);
-      g.addColorStop(0, '#33445f'); g.addColorStop(1, '#8a6b73');
+      g.addColorStop(0, TOK('--ground-alt')); g.addColorStop(1, TOK('--ink-3'));
       x.fillStyle = g; x.fillRect(0, 0, w2, h2);
       x.lineCap = 'round'; x.strokeStyle = '#fff'; x.lineWidth = 10;
       const pts = SHAPES.heart.map(([px, py]) => ({ x: px * w2, y: py * h2 }));
@@ -131,7 +131,7 @@ function thumbprint() {
     const d = document.createElement('div');
     d.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:34px;height:44px;margin:-22px 0 0 -17px;border-radius:50% 50% 45% 45%;
       background:radial-gradient(ellipse at 50% 45%, rgba(255,255,255,${mine ? .13 : .10}), rgba(255,255,255,0) 68%);
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);transform:rotate(${(Math.random() - .5) * 40}deg);pointer-events:none`;
+      box-shadow:inset 0 0 0 1px var(--surface);transform:rotate(${(Math.random() - .5) * 40}deg);pointer-events:none`;
     layer.appendChild(d);
   };
   const onDown = (e) => {
@@ -177,7 +177,7 @@ function heartRate() {
 function keepAlive() {
   api.closeSheet();
   const { W, H } = canvas();
-  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: '#f4c66b', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
+  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: 'var(--amber)', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
   strokes.add(s);
   note('she drew this. it dies unless you trace it.');
   toast('go over her line to keep it alive');
@@ -231,7 +231,7 @@ function finishSentence() {
       requestAnimationFrame(fit);
       const r = box.getBoundingClientRect();
       pts.push({ x: e.clientX - r.left, y: e.clientY - r.top });
-      draw('#f3f0f4');
+      draw('var(--ink)');
       if (++count > 45) {
         handed = true;
         h.textContent = 'the pen is hers now';
@@ -243,7 +243,7 @@ function finishSentence() {
           if (!box.isConnected) return clearInterval(cont);
           const a = i / 26;
           pts.push({ x: last.x + a * 90 + Math.sin(a * 7) * 12, y: last.y + Math.sin(a * 5) * 22 });
-          draw('#ff7a9c');
+          draw('var(--red)');
           if (++i > 26) { clearInterval(cont); h.textContent = 'she finished it.'; }
         }, 60);
       }
@@ -273,10 +273,10 @@ function blindPortrait() {
       requestAnimationFrame(fit);
       x.clearRect(0, 0, box.clientWidth, box.clientHeight);
       x.lineCap = x.lineJoin = 'round'; x.lineWidth = 6;
-      x.strokeStyle = '#e23343'; x.beginPath();
+      x.strokeStyle = TOK('--red'); x.beginPath();
       pts.forEach((p, i) => i ? x.lineTo(p.x, p.y) : x.moveTo(p.x, p.y)); x.stroke();
       // hers
-      x.strokeStyle = '#ff7a9c'; x.beginPath();
+      x.strokeStyle = TOK('--red'); x.beginPath();
       const w2 = box.clientWidth, h2 = box.clientHeight;
       SHAPES.sun.forEach(([px, py], i) => { const X = jit(px * w2, 9), Y = jit(py * h2, 9); i ? x.lineTo(X, Y) : x.moveTo(X, Y); });
       x.stroke();
@@ -289,7 +289,7 @@ function blindPortrait() {
       const r = box.getBoundingClientRect();
       pts.push({ x: e.clientX - r.left, y: e.clientY - r.top });
       // invisible while drawing — only the faintest trace
-      x.fillStyle = 'rgba(255,255,255,.05)';
+      x.fillStyle = TOK('--surface');
       x.beginPath(); x.arc(e.clientX - r.left, e.clientY - r.top, 3, 0, 7); x.fill();
     });
     body.appendChild(ghostBtn('reveal now', reveal));
@@ -312,7 +312,7 @@ function whisper() {
       x.clearRect(0, 0, w2, h2);
       x.save();
       x.translate(w2 / 2, h2 / 2); x.scale(zoom, zoom); x.translate(-w2 / 2, -h2 / 2);
-      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = '#ff7a9c'; x.lineWidth = 1.4 / zoom * 3;
+      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = TOK('--red'); x.lineWidth = 1.4 / zoom * 3;
       x.beginPath();
       const sc = .07;
       SHAPES.heart.forEach(([px, py], i) => {
@@ -340,7 +340,7 @@ function comeHere() {
     { transform: 'translateX(9px)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(0)' }],
     { duration: 620, easing: 'ease-in-out' });
   note('her whole phone just leaned toward you');
-  sara.after(3400, () => { note(''); sara.drawShape('come', { c: '#ff7a9c' }); });
+  sara.after(3400, () => { note(''); sara.drawShape('come', { c: 'var(--red)' }); });
 }
 
 /* --------------------------------------------- 2g · gesture onboarding */
@@ -355,9 +355,9 @@ function gestures() {
       ['long-press the wordmark', 'settings hide there, on purpose', 'pencil'],
     ];
     for (const [t, d, i] of rows) {
-      body.appendChild(el(`<div style="display:flex;align-items:center;gap:14px;padding:13px 14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)">
+      body.appendChild(el(`<div style="display:flex;align-items:center;gap:14px;padding:13px 14px;border-radius:18px;background:var(--surface);border:1px solid var(--hairline)">
         <svg class="ts-i" style="font-size:22px;color:#ff8a94"><use href="#i-${i}"/></svg>
-        <span><b style="display:block;font-size:14.5px">${t}</b><i style="display:block;font-style:normal;font-size:12px;color:#9a93a5;margin-top:2px">${d}</i></span></div>`));
+        <span><b style="display:block;font-size:14.5px">${t}</b><i style="display:block;font-style:normal;font-size:12px;color:var(--ink-3);margin-top:2px">${d}</i></span></div>`));
     }
     body.appendChild(hint('nothing else to learn.'));
     body.appendChild(cta('Draw something', () => { api.closePanel(); note('draw how today feels'); setTimeout(() => note(''), 4000); }));
@@ -379,12 +379,12 @@ function bannerDay() {
   ];
   letters.forEach((L, i) => {
     sara.after(400 + i * 520, () => {
-      strokes.add({ pts: wobblePath(L, 3, 4), c: '#f4c66b', w: 8, brush: 'pen', who: 'sara', born: now() });
+      strokes.add({ pts: wobblePath(L, 3, 4), c: 'var(--amber)', w: 8, brush: 'pen', who: 'sara', born: now() });
       buzz(10);
     });
   });
   sara.after(400 + letters.length * 520 + 400, () => {
-    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: '#e23343', w: 9, brush: 'pen', who: 'sara', born: now() });
+    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: 'var(--red)', w: 9, brush: 'pen', who: 'sara', born: now() });
     note('drawn two days ago. sealed until 00:00.');
     setTimeout(() => note(''), 5000);
   });
@@ -419,16 +419,16 @@ function signVariants() {
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>');
     const counts = [4180, 2204, 1877, 1290, 998, 861, 744, 690, 612, 540, 498, 441, 402, 377, 340, 311];
     for (let i = 0; i < 16; i++) {
-      const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);overflow:hidden"></div>`);
+      const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:12px;background:var(--surface);border:1px solid var(--surface);overflow:hidden"></div>`);
       const cc = document.createElement('canvas');
       cc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
       cell.appendChild(cc);
-      cell.appendChild(el(`<div style="position:absolute;left:5px;bottom:3px;font:700 8.5px ui-monospace,monospace;color:rgba(255,255,255,.55)">${counts[i].toLocaleString()}</div>`));
+      cell.appendChild(el(`<div style="position:absolute;left:5px;bottom:3px;font:700 8.5px ui-monospace,monospace;color:var(--ink-3)">${counts[i].toLocaleString()}</div>`));
       grid.appendChild(cell);
       requestAnimationFrame(() => {
         cc.width = cell.clientWidth * DPR; cc.height = cell.clientHeight * DPR;
         const cx = cc.getContext('2d'); cx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        cx.lineCap = cx.lineJoin = 'round'; cx.strokeStyle = ['#ff7a9c', '#f4c66b', '#7ec8ff', '#f3f0f4'][i % 4]; cx.lineWidth = 4;
+        cx.lineCap = cx.lineJoin = 'round'; cx.strokeStyle = [TOK('--red'), TOK('--amber'), TOK('--violet'), TOK('--ink')][i % 4]; cx.lineWidth = 4;
         const w2 = cell.clientWidth, h2 = cell.clientHeight;
         // each variant is a different crude "here" arrow/corner
         const forms = [[[.3,.7],[.3,.35],[.7,.35]], [[.25,.5],[.7,.5],[.55,.35]], [[.3,.3],[.7,.7]],
@@ -447,13 +447,13 @@ function weatherReport() {
   openPanel('the weather report', (body) => {
     body.appendChild(noteEl('What the whole app felt like this week — in counts. No drawing ever leaves a phone to make this.'));
     const rows = [
-      ['hearts sent', '1.42M', '#e23343'], ['drawings that arrived after midnight', '318,904', '#ff7a9c'],
-      ['“come here”', '92,410', '#f4c66b'], ['apologies, drawn not typed', '11,208', '#7ec8ff'],
-      ['capsules sealed', '4,116', '#f3f0f4'], ['couples who drew every day', '61,330', '#e23343'],
+      ['hearts sent', '1.42M', 'var(--red)'], ['drawings that arrived after midnight', '318,904', 'var(--red)'],
+      ['“come here”', '92,410', 'var(--amber)'], ['apologies, drawn not typed', '11,208', 'var(--violet)'],
+      ['capsules sealed', '4,116', 'var(--ink)'], ['couples who drew every day', '61,330', 'var(--red)'],
     ];
     for (const [t, n, c] of rows) {
-      body.appendChild(el(`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <span style="font-size:13px;color:rgba(243,240,244,.8)">${t}</span>
+      body.appendChild(el(`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:11px 2px;border-bottom:1px solid var(--surface)">
+        <span style="font-size:13px;color:var(--ink-2)">${t}</span>
         <b style="font:700 17px ui-monospace,Menlo,monospace;color:${c};font-variant-numeric:tabular-nums">${n}</b></div>`));
     }
     body.appendChild(hint('this week, everyone was up late.'));
@@ -465,7 +465,7 @@ function weatherReport() {
 function risoPrint() {
   openPanel('printed and posted', (body) => {
     body.appendChild(noteEl('At twelve months, the year’s marks come back as a real risograph print — the only copy, mailed. Two colours, one edition.'));
-    const sheet = el(`<div style="border-radius:14px;background:#f4ece0;padding:20px 18px;color:#2b2029;box-shadow:0 18px 40px rgba(0,0,0,.45)">
+    const sheet = el(`<div style="border-radius:14px;background:#f4ece0;padding:20px 18px;color:var(--ground-alt);box-shadow:0 18px 40px var(--scrim)">
       <div style="font:700 9px ui-monospace,monospace;letter-spacing:.14em;color:rgba(43,32,41,.55)">AUG 2025 — AUG 2026 · EDITION OF ONE</div></div>`);
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px"></div>');
     sheet.appendChild(grid);
@@ -478,7 +478,7 @@ function risoPrint() {
         const cx = cc.getContext('2d'); cx.setTransform(DPR, 0, 0, DPR, 0, 0);
         const s2 = cc.clientWidth;
         cx.lineCap = cx.lineJoin = 'round';
-        cx.strokeStyle = i % 3 ? '#e23343' : '#1d3f8f'; cx.lineWidth = 4;
+        cx.strokeStyle = i % 3 ? TOK('--red') : '#1d3f8f'; cx.lineWidth = 4;
         const shape = [SHAPES.heart, SHAPES.sun, SHAPES.squiggle, SHAPES.come, SHAPES.xo][i % 5];
         cx.beginPath();
         shape.forEach(([px, py], j) => { const X = jit((px - .2) * s2 * 1.3, 2), Y = jit((py - .15) * s2 * 1.3, 2); j ? cx.lineTo(X, Y) : cx.moveTo(X, Y); });
@@ -500,10 +500,10 @@ function replayExport() {
     const mine = strokes.all().filter(s => s.who !== 'fx');
     const total = mine.reduce((n, s) => n + s.pts.length, 0) || 1;
     const sliderWrap = el('<div style="display:flex;gap:5px;align-items:center"></div>');
-    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:#e23343">');
+    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:var(--red)">');
     sliderWrap.appendChild(range);
     body.appendChild(sliderWrap);
-    const tl = el('<div style="display:flex;justify-content:space-between;font:11px ui-monospace,monospace;color:#9a93a5"><span>first stroke</span><span>6.0s</span></div>');
+    const tl = el('<div style="display:flex;justify-content:space-between;font:11px ui-monospace,monospace;color:var(--ink-3)"><span>first stroke</span><span>6.0s</span></div>');
     body.appendChild(tl);
     const paint = () => {
       requestAnimationFrame(fit);

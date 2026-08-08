@@ -34,9 +34,9 @@ R.defaults({
 });
 
 const kv = (k, v, tint) => `<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 14px;
-  border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)">
-  <span style="font-size:13px;color:rgba(243,240,244,.5)">${esc(k)}</span>
-  <span style="font-size:14px;font-weight:600;color:${tint || '#F3F0F4'}">${esc(v)}</span></div>`;
+  border-radius:14px;background:var(--surface);border:1px solid var(--surface)">
+  <span style="font-size:13px;color:var(--ink-3)">${esc(k)}</span>
+  <span style="font-size:14px;font-weight:600;color:${tint || 'var(--ink)'}">${esc(v)}</span></div>`;
 const note = (t) => el(`<div class="p-note">${t}</div>`);
 
 /* ================= 1 · permission priming — first received value ========= */
@@ -45,15 +45,15 @@ let primerUp = false;
 function showPrimer() {
   if (primerUp || db.perm !== 'unasked') return;
   primerUp = true;
-  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid rgba(255,255,255,.1);
+  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
+    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:12px;text-align:center">
-      <div style="width:44px;height:44px;border-radius:14px;margin:0 auto;background:linear-gradient(160deg,#1B2A6B,#0E1740);
-        border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center">
+      <div style="width:44px;height:44px;border-radius:14px;margin:0 auto;background:linear-gradient(160deg,var(--ground-alt),var(--surface));
+        border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center">
         <svg viewBox="0 0 30 30" style="width:24px;height:24px"><path d="M5 20 C11 8,15 24,25 10"
-          stroke="#F4C66B" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+          stroke="var(--amber)" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
       <div style="font-size:20px;font-weight:600">She just left you something</div>
-      <div style="font-size:14px;line-height:1.5;color:rgba(243,240,244,.55)">Moments like this can land quietly —
+      <div style="font-size:14px;line-height:1.5;color:var(--ink-2)">Moments like this can land quietly —
         the widget changes, nothing buzzes. The only loud thing, ever, is the flare.</div>
       <button class="p-cta" data-allow>Let them land</button>
       <button class="ob-skip" data-later style="margin:0">not now — the widget still works</button>
@@ -113,14 +113,14 @@ function showWidgetTut() {
   if (db.widgetTut || primerUp) return;
   db.widgetTut = 'shown';
   const step = (n, t) => `<div style="display:flex;gap:12px;align-items:center;text-align:left">
-    <span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);flex:none;
+    <span style="width:26px;height:26px;border-radius:50%;background:var(--hairline);flex:none;
       display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">${n}</span>
-    <span style="font-size:14px;color:rgba(243,240,244,.8)">${t}</span></div>`;
-  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid rgba(255,255,255,.1);
+    <span style="font-size:14px;color:var(--ink-2)">${t}</span></div>`;
+  const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
+    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:14px">
       <div style="font-size:20px;font-weight:600;text-align:center">Put her on your home screen</div>
-      <div style="font-size:13px;color:rgba(243,240,244,.5);text-align:center">Installed, trace runs full-screen and her things can reach you.</div>
+      <div style="font-size:13px;color:var(--ink-3);text-align:center">Installed, trace runs full-screen and her things can reach you.</div>
       ${/iphone|ipad|ipod/i.test(navigator.userAgent)
         ? step(1, 'Open trace in <b>Safari</b>') + step(2, 'Tap <b>Share</b> → <b>Add to Home Screen</b>')
           + step(3, 'Open it from the icon — that’s the one that can ring')
@@ -178,7 +178,7 @@ R.addSub('loud', 'how loud', (body) => {
           const on = cur === lv;
           return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;padding:9px 0;border-radius:12px;
             font-size:12.5px;font-weight:600;opacity:${dis ? .3 : 1};
-            background:${on ? '#F3F0F4' : 'rgba(255,255,255,.07)'};color:${on ? '#0C0B10' : '#F3F0F4'}">${LEVEL_LABEL[lv]}</button>`;
+            background:${on ? 'var(--ink)' : 'var(--surface)'};color:${on ? 'var(--emph-ink)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
         }).join('')}</div></div>`);
       row.querySelectorAll('[data-lv]').forEach((b) => b.addEventListener('click', () => {
         if (k.locked) return;
@@ -204,9 +204,9 @@ R.addSub('key', 'your key', (body) => {
   const key = makeKey();
   body.appendChild(note('A new phone starts from this. It re-arms the pairing and pulls your board back — <b>drawings stay on the phones that drew them</b>, as promised.'));
   body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:rgba(244,198,107,.07);
-    border:1px dashed rgba(244,198,107,.4);text-align:center">
-    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(243,240,244,.4)">Your key</div>
-    <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:#F4C66B;margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
+    border:1px dashed rgba(233,161,59,.3);text-align:center">
+    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">Your key</div>
+    <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--amber);margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
   const copy = el(`<button class="p-cta">Copy it somewhere safe</button>`);
   copy.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(key); toast('copied — a notes app or a password manager'); }
@@ -215,12 +215,12 @@ R.addSub('key', 'your key', (body) => {
   body.appendChild(copy);
   body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">On the new phone</div>`));
   const field = el(`<input placeholder="paste a key" style="padding:14px;border-radius:14px;text-align:center;
-    border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#F3F0F4;
+    border:1px solid var(--hairline);background:var(--surface);color:var(--ink);
     font:600 13px ui-monospace,Menlo,monospace;outline:none">`);
   const go = el(`<button class="p-ghost">Restore from it</button>`);
   go.addEventListener('click', () => {
     const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());
-    if (!m) { field.style.borderColor = '#E23343'; toast('that’s not a trace key'); return; }
+    if (!m) { field.style.borderColor = 'var(--red)'; toast('that’s not a trace key'); return; }
     localStorage.setItem('trace:pairCode', m[1]);
     try { localStorage.setItem('trace:myname', decodeURIComponent(escape(atob(m[2])))); } catch (e) {}
     if (window.TRACE_NET) TRACE_NET.join(m[1], 'supabase', () => {});
@@ -247,12 +247,12 @@ R.addSub('unpair', 'unpair', (body) => {
     return;
   }
   body.appendChild(note('No consent theatre — either of you can do this alone, instantly. Here is exactly what happens:'));
-  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', '#F4C66B')));
-  body.appendChild(el(kv('Your history', 'stays on your phone', '#4ADE80')));
-  body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', '#4ADE80')));
-  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', '#E23343')));
-  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', '#7EC8FF')));
-  const hold = el(`<button class="p-cta" style="background:#E23343;color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
+  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--amber)')));
+  body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
+  body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
+  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
+  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--violet)')));
+  const hold = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
     const APP = window.TRACE_APP;
@@ -277,7 +277,7 @@ R.addSub('unpair', 'unpair', (body) => {
 
 /* the sealed canvas states itself on the widget too */
 R.addCard((d) => d.sealed ? {
-  pri: 11, kind: 'sealed', tint: 'rgba(243,240,244,.6)', head: 'sealed', foot: 'the last chapter',
+  pri: 11, kind: 'sealed', tint: 'var(--ink-2)', head: 'sealed', foot: 'the last chapter',
   render(b) {
     b.innerHTML = `<div class="w-mid" style="opacity:.7"><b>The canvas is sealed</b>
       <i>${d.sealed.marks} marks, kept. Chapter closed ${esc(d.sealed.when)}.</i></div>`;

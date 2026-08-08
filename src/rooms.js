@@ -24,12 +24,12 @@ const KEY = 'trace.clean.v2';
 const DEFAULTS = () => ({
   /* 19d — household */
   tasks: [
-    { id: 't1', title: 'Bins out before 7', meta: 'Recurring · Thursdays', who: 'You', chip: '#7EC8FF' },
-    { id: 't2', title: 'Call the plumber', meta: 'Claimed 2h ago', who: 'Maya', chip: '#FF7A9C' },
-    { id: 't3', title: 'Pick up the prescription', meta: 'Doctor’s note attached', who: 'Free', chip: '#F3F0F4' },
-    { id: 't4', title: 'Reply to the landlord', meta: 'Photo of the letter', who: 'You', chip: '#7EC8FF' },
-    { id: 't5', title: 'Book Sunday table', meta: 'Someone’s coming', who: 'Free', chip: '#F3F0F4' },
-    { id: 't6', title: 'Ten minutes, together', meta: 'Weekly reset', who: 'Both', chip: '#4ADE80' },
+    { id: 't1', title: 'Bins out before 7', meta: 'Recurring · Thursdays', who: 'You' },
+    { id: 't2', title: 'Call the plumber', meta: 'Claimed 2h ago', who: 'Maya' },
+    { id: 't3', title: 'Pick up the prescription', meta: 'Doctor’s note attached', who: 'Free' },
+    { id: 't4', title: 'Reply to the landlord', meta: 'Photo of the letter', who: 'You' },
+    { id: 't5', title: 'Book Sunday table', meta: 'Someone’s coming', who: 'Free' },
+    { id: 't6', title: 'Ten minutes, together', meta: 'Weekly reset', who: 'Both' },
   ],
   done: { t2: true },
   split: 60,
@@ -90,7 +90,7 @@ const DEFAULTS = () => ({
   sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
   /* board content */
   notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
-  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: '#F3F0F4' }, { t: 'pick up cake', c: '#F4C66B' }] },
+  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'var(--ink)' }, { t: 'pick up cake', c: 'var(--amber)' }] },
   leaving: null,          /* {mins} — auto, breaks through armour */
   thinking: null,         /* {ts} — "thinking of you" */
   traceSeen: false,       /* one-time trace burns after she sees it */
@@ -185,13 +185,13 @@ function show(name, room) {
 /* ------------------------------------------------- 19c the directory */
 
 const ROOMS = [
-  { name: 'Canvas', sub: 'Draw, presence, goodnight', tint: '#4ADE80', icon: '✎', count: () => 'live' },
-  { name: 'Household', sub: 'Tasks, lists, meals, split', tint: '#7EC8FF', icon: '⌂',
+  { name: 'Canvas', sub: 'Draw, presence, goodnight', tint: 'var(--red)', icon: '✎', count: () => 'live' },
+  { name: 'Household', sub: 'Tasks, lists, meals, split', tint: 'var(--ink)', icon: '⌂',
     count: () => String(db.tasks.length - count(db.done)) },
-  { name: 'Together', sub: 'Savings, dreams, promises', tint: '#4ADE80', icon: '❑',
+  { name: 'Together', sub: 'Savings, dreams, promises', tint: 'var(--ink)', icon: '❑',
     count: () => String(db.buckets.length - count(db.bucket)) },
-  { name: 'Memory', sub: 'Chapters, movies, jar', tint: '#F4C66B', icon: '◔', count: () => String(db.marks) },
-  { name: 'Wellbeing', sub: 'Mood, habits, focus', tint: '#FF7A9C', icon: '◍',
+  { name: 'Memory', sub: 'Chapters, movies, jar', tint: 'var(--ink)', icon: '◔', count: () => String(db.marks) },
+  { name: 'Wellbeing', sub: 'Mood, habits, focus', tint: 'var(--ink)', icon: '◍',
     count: () => String(db.habits.length - 1) },
 ];
 
@@ -222,7 +222,7 @@ function renderRooms(query) {
     list.appendChild(el(`<div class="eyebrow" style="padding:6px 4px 2px">Five rooms</div>`));
     for (const r of ROOMS) {
       const row = el(`<button class="row">
-        <span class="ico">${r.icon}</span>
+        <span class="ico${r.name === 'Canvas' ? ' red' : ' ink'}">${r.icon}</span>
         <span class="grow"><span class="n">${r.name}</span><span class="s big">${r.sub}</span></span>
         <span class="cnt" style="color:${r.tint}">${r.count()}</span>
         <span class="chev">›</span></button>`);
@@ -292,7 +292,7 @@ const ROOM_VIEWS = {
             <span class="tick${db.done[t.id] ? ' on' : ''}">${db.done[t.id] ? '✓' : ''}</span>
             <span class="grow"><span class="n light" style="opacity:${db.done[t.id] ? .45 : 1};display:block">${esc(t.title)}</span>
               <span class="s">${esc(t.meta)}</span></span>
-            <span class="who" style="color:${t.chip}">${t.who}</span></button>`).join('')}
+            <span class="who ${t.who === 'Free' ? 'free' : t.who === 'You' || t.who === 'Both' ? '' : 'them'}">${t.who}</span></button>`).join('')}
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Household</div>
         ${[['list', 'Groceries', `${db.items.length - count(db.got)} left`],
            ['meal', 'What’s for dinner', db.meals[db.mealIdx]],
@@ -319,8 +319,8 @@ const ROOM_VIEWS = {
         <div class="k">${esc(db.savings.name)}</div>
         <div class="v">${eur(db.savings.have)} <span style="font-size:17px;font-weight:500;color:var(--ink-3)">of ${eur(db.savings.goal)}</span></div>
       </div>
-      <div class="splitbar" style="height:10px"><div class="a" style="width:${pct}%;background:#4ADE80"></div>
-        <div class="b" style="background:rgba(255,255,255,.06)"></div></div>
+      <div class="splitbar" style="height:10px"><div class="a" style="width:${pct}%;background:var(--ink)"></div>
+        <div class="b" style="background:var(--surface)"></div></div>
       <div class="body">
         <div class="deck" style="padding:2px 0 4px">
           ${[40, 80, 150].map((v) => `<button class="c" data-dep="${v}" style="min-width:88px;height:52px;display:flex;align-items:center;justify-content:center">
@@ -344,7 +344,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['rgba(255,255,255,.06)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', '#7EC8FF', '#F4C66B'];
+    const shades = ['var(--surface)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', 'var(--violet)', 'var(--amber)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -369,12 +369,14 @@ const ROOM_VIEWS = {
 
   /* 19i — wellbeing */
   Wellbeing() {
+    /* p22's weather runs warm — amber through red to ink. It reads as a single
+       dial rather than five unrelated hues, and it keeps red meaning "heavy". */
     const MOODS = [
-      { n: 0, name: 'Bright', g: 'radial-gradient(circle at 40% 35%,#FFD98A,#F4C66B)' },
-      { n: 1, name: 'Soft', g: 'radial-gradient(circle at 40% 35%,#9CC0FF,#3D5BD9)' },
-      { n: 2, name: 'Grey', g: 'radial-gradient(circle at 40% 35%,#B8BDCB,#565D75)' },
-      { n: 3, name: 'Heavy', g: 'radial-gradient(circle at 40% 35%,#7B8AE8,#232B66)' },
-      { n: 4, name: 'Storm', g: 'radial-gradient(circle at 40% 35%,#FF9ED4,#6A1E4C)' },
+      { n: 0, name: 'Bright', g: '#E9A13B' },
+      { n: 1, name: 'Soft', g: '#F7D8A8' },
+      { n: 2, name: 'Grey', g: '#F0A9B0' },
+      { n: 3, name: 'Heavy', g: '#E23343' },
+      { n: 4, name: 'Storm', g: '#B3202E' },
     ];
     const mine = db.mood >= 0 ? MOODS[db.mood] : null;
     const hers = MOODS[db.herMood];
@@ -387,7 +389,7 @@ const ROOM_VIEWS = {
       </div>
       <div style="display:flex;gap:12px;padding:20px 20px 0;flex:none">
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
-          <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${mine ? mine.g : 'rgba(255,255,255,.08)'}"></div>
+          <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${mine ? mine.g : 'var(--surface)'}"></div>
           <div style="font-size:13px;color:var(--ink-2);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
         </div>
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
@@ -397,7 +399,7 @@ const ROOM_VIEWS = {
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
         ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:38px;height:38px;border-radius:50%;
-          background:${m.g};border:3px solid ${db.mood === m.n ? '#F3F0F4' : 'transparent'};
+          background:${m.g};border:3px solid ${db.mood === m.n ? 'var(--ink)' : 'transparent'};
           opacity:${db.mood === -1 || db.mood === m.n ? 1 : .4}"></button>`).join('')}
       </div>
       <div class="body" style="padding-top:20px">
@@ -405,7 +407,7 @@ const ROOM_VIEWS = {
         ${db.habits.map((h) => `<div class="row"><span class="grow"><span class="n light">${esc(h.name)}</span>
           <span class="s">${esc(h.meta)}</span></span>
           <span style="display:flex;gap:5px">${h.days.map((d) => `<span style="width:9px;height:9px;border-radius:50%;
-            background:${d ? '#4ADE80' : 'rgba(255,255,255,.1)'}"></span>`).join('')}</span></div>`).join('')}
+            background:${d ? 'var(--ink)' : 'var(--hairline)'}"></span>`).join('')}</span></div>`).join('')}
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Wellbeing</div>
         <button class="row" data-sub="focus"><span class="grow"><span class="n">Couple focus</span>
           <span class="s">${db.focusOn ? 'Both phones are down' : 'It only counts if you both put the phone down'}</span></span>
@@ -673,19 +675,19 @@ function renderStates() {
     <div class="hd"><button class="pill" data-back>Every widget state</button>
       <button class="icob" data-close>✕</button></div>
     <div class="body" style="padding-top:18px;gap:10px">
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FF7A9C',
-        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF7A9C;margin-right:6px"></span>Goodnight in',
-        '<span style="color:#FF7A9C">27:14</span>', 'shows nightly<br>from 9 PM', true)}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#7EC8FF', 'Groceries',
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
+        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
+        '<span style="color:var(--red)">27:14</span>', 'shows nightly<br>from 9 PM', true)}
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--violet)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
         'only while<br>someone shops', true)}
-      ${card('rgba(74,222,128,.3)', 'linear-gradient(160deg,#153A2C,#0B1F18)', '#4ADE80', 'Leaving now',
-        '<span style="color:#4ADE80">32 min</span>', 'auto · breaks<br>through armour', true)}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#F4C66B', 'Notice',
-        'Landlord letter — reply by <span style="color:#F4C66B">Aug 15</span>', 'until it’s<br>handled')}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', 'rgba(243,240,244,.6)', 'Quiet day',
-        `Nothing today. <span style="color:#4ADE80">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
-      <div class="row" style="border-radius:20px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.15);padding:14px 16px">
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--ground-alt),var(--ground-alt))', 'var(--ink)', 'Leaving now',
+        '<span style="color:var(--ink)">32 min</span>', 'auto · breaks<br>through armour', true)}
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--amber)', 'Notice',
+        'Landlord letter — reply by <span style="color:var(--amber)">Aug 15</span>', 'until it’s<br>handled')}
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
+        `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
+      <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">
         <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Priority when states compete: leaving now → live drawing →
           must-dos → notices → week → quiet. One-time things show once, then burn. Nothing repeats, nothing nags.</span>
       </div>
@@ -706,6 +708,8 @@ const SWS = [
   { id: 'backup', name: 'On-device only', sub: 'Drawings never sync raw' },
 ];
 
+const theme = () => (window.TRACE_THEME ? TRACE_THEME.get() : 'paper');
+
 function renderRules() {
   const s = screens.rules;
   s.innerHTML = `
@@ -713,11 +717,22 @@ function renderRules() {
       <div style="font-size:17px;font-weight:600">Quiet &amp; private</div>
       <button class="icob" data-back>✕</button></div>
     <div style="padding:18px 20px 0;flex:none">
-      <div class="row" style="background:rgba(255,255,255,.04);border-style:dashed">
+      <div class="row" style="background:var(--surface);border-style:dashed">
         <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Three rules the app can’t break: home is always the canvas,
           no room notifies about itself, and nothing that reads a drawing leaves this phone.</span></div>
     </div>
     <div class="body" style="padding-top:12px">
+      <div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <span class="grow"><span class="n">Appearance</span>
+          <span class="s">Paper is the app. Dark is for the dark.</span></span>
+        <div style="display:flex;gap:6px">
+          ${[['paper', 'Paper'], ['dark', 'Dark'], ['auto', 'Match phone']].map(([v, label]) =>
+            `<button data-theme-pick="${v}" style="flex:1;padding:9px 0;border-radius:12px;font-size:13px;font-weight:600;
+              border:1px solid ${theme() === v ? 'var(--red)' : 'var(--hairline)'};
+              background:${theme() === v ? 'var(--red-wash)' : 'var(--ground-alt)'};
+              color:${theme() === v ? 'var(--red-text)' : 'var(--ink)'}">${label}</button>`).join('')}
+        </div>
+      </div>
       ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
     </div>
     <div style="padding:0 20px;flex:none;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
@@ -725,7 +740,7 @@ function renderRules() {
         <span class="s">What rings, what banners, what stays on the widget</span></span><span class="chev">›</span></button>
       <button class="row" data-sub="key"><span class="grow"><span class="n">Your key</span>
         <span class="s">Restore everything on a new phone</span></span><span class="chev">›</span></button>
-      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:#E23343">Unpair</span>
+      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:var(--red)">Unpair</span>
         <span class="s">The canvas seals. Nothing is deleted for her.</span></span><span class="chev">›</span></button>
     </div>
     <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
@@ -733,11 +748,14 @@ function renderRules() {
       <button class="p-ghost" data-export>Export data</button>
     </div>
     <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
-      color:#E23343;background:none;border:1px solid rgba(226,51,67,.35);flex:none">Delete everything on this phone</button>`;
+      color:var(--red);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
     const id = b.dataset.sw; db.sw[id] = !db.sw[id]; buzz(8); save(); renderRules();
+  }));
+  $$('[data-theme-pick]', s).forEach((b) => b.addEventListener('click', () => {
+    window.TRACE_THEME && TRACE_THEME.set(b.dataset.themePick); buzz(8); renderRules();
   }));
   $$('[data-save]', s).forEach((b) => b.addEventListener('click', () => { save(); toast('saved on this device'); }));
   $$('[data-wipe]', s).forEach((b) => b.addEventListener('click', () => {
@@ -749,7 +767,7 @@ function renderRules() {
     }
     b.dataset.armed = '1';
     b.textContent = 'Tap again — gone for good, no copy exists anywhere';
-    b.style.background = 'rgba(226,51,67,.14)';
+    b.style.background = 'var(--red-wash)';
     setTimeout(() => { if (b.isConnected) { delete b.dataset.armed;
       b.textContent = 'Delete everything on this phone'; b.style.background = 'none'; } }, 4000);
   }));
@@ -786,42 +804,42 @@ function deck() {
   const strokeN = APP.strokeCount ? APP.strokeCount() : 0;
 
   if (db.pub.leave && db.leaving)
-    add(1, { kind: 'leave', tint: '#4ADE80', head: db.leaving.mins + ' min',
+    add(1, { kind: 'leave', tint: 'var(--ink)', head: db.leaving.mins + ' min',
       foot: 'leaving now', render: leaveCard });
 
   const hersN = (APP.hersCount && APP.hersCount()) || 0;
   if (db.pub.trace && (partnerLive || ((strokeN + hersN) && !db.traceSeen)))
-    add(2, { kind: 'trace', tint: '#FF7A9C', head: partnerLive ? 'drawing' : 'a trace',
-      foot: 'trace · one-time', spark: sparkline('#F4C66B'), render: traceCard });
+    add(2, { kind: 'trace', tint: 'var(--red)', head: partnerLive ? 'drawing' : 'a trace',
+      foot: 'trace · one-time', spark: sparkline('var(--amber)'), render: traceCard });
 
   /* a fresh tap is the warmest thing on the deck, so it sits behind only
      "leaving now" and the live trace — it ages out after ten minutes */
   const freshTap = db.thinking && (Date.now() - db.thinking.ts) < 6e5;
   if (freshTap)
-    add(3, { kind: 'think', tint: '#F4C66B', head: 'thinking of you',
+    add(3, { kind: 'think', tint: 'var(--amber)', head: 'thinking of you',
       foot: 'tapped your name', render: thinkCard });
 
   const open = db.tasks.filter((t) => !db.done[t.id]);
   if (db.pub.list && open.length)
-    add(5, { kind: 'todo', tint: '#7EC8FF', head: open.length + ' left',
+    add(5, { kind: 'todo', tint: 'var(--violet)', head: open.length + ' left',
       foot: 'today’s list', render: todoCard });
 
   if (db.shopping && db.pub.list)
-    add(4, { kind: 'shop', tint: '#7EC8FF', head: (db.items.length - count(db.got)) + ' left',
+    add(4, { kind: 'shop', tint: 'var(--violet)', head: (db.items.length - count(db.got)) + ' left',
       foot: 'groceries · he’s at the shop', render: shopCard });
 
   if (db.pub.notice && db.notices.length)
-    add(7, { kind: 'notice', tint: '#F4C66B', head: db.notices[0].when,
+    add(7, { kind: 'notice', tint: 'var(--amber)', head: db.notices[0].when,
       foot: 'notice', render: noticeCard });
 
   if (db.pub.cal && db.week.items.length)
-    add(8, { kind: 'week', tint: '#FF7A9C', head: db.week.dow + ' ' + db.week.day,
+    add(8, { kind: 'week', tint: 'var(--red)', head: db.week.dow + ' ' + db.week.day,
       foot: 'this week', render: weekCard });
 
   for (const fn of EXTRA_CARDS) { const c = fn(db); if (c) add(c.pri, c); }
 
   if (!cards.length)
-    add(99, { kind: 'quiet', tint: 'rgba(243,240,244,.6)', head: 'Nothing today',
+    add(99, { kind: 'quiet', tint: 'var(--ink-2)', head: 'Nothing today',
       foot: 'quiet day', render: quietCard });
 
   /* 21c's order, as a number — so the flare (0) outranks even "leaving now" */
@@ -832,21 +850,21 @@ const sparkline = (c) => `<svg viewBox="0 0 90 24" style="width:100%;height:24px
   `<path d="M4 16 C24 4,40 22,86 8" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
 
 function traceCard(b, live) {
-  b.innerHTML = `<div class="w-live" style="color:#FF7A9C"><b style="background:#FF7A9C"></b>` +
+  b.innerHTML = `<div class="w-live" style="color:var(--red)"><b style="background:var(--red)"></b>` +
     (live ? 'Maya is drawing — live' : 'Maya left you a trace') + `</div>`;
   return { ink: true, cap: 'One-time trace · fades once you’ve seen it · tap to join' };
 }
 function todoCard(b) {
   const open = db.tasks.filter((t) => !db.done[t.id]).slice(0, 2);
   const oneDone = db.tasks.find((t) => db.done[t.id]);
-  b.innerHTML = `<div class="w-kicker" style="color:#7EC8FF">Must do — from his board</div>` +
+  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Must do — from his board</div>` +
     open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
     (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
   return { cap: 'Ticks sync both ways, instantly' };
 }
 function shopCard(b) {
   const left = db.items.length - count(db.got);
-  b.innerHTML = `<div class="w-kicker" style="color:#7EC8FF">Groceries</div>` +
+  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Groceries</div>` +
     `<div class="w-big">${left} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span></div>`;
   return { cap: 'Only while someone is shopping' };
 }
@@ -859,13 +877,13 @@ function weekCard(b) {
 }
 function noticeCard(b) {
   const n = db.notices[0];
-  b.innerHTML = `<div class="w-kicker" style="color:#F4C66B">Notice</div>` +
-    `<div class="w-note">${esc(n.t)} <span style="color:#F4C66B">${esc(n.when)}</span></div>`;
+  b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">Notice</div>` +
+    `<div class="w-note">${esc(n.t)} <span style="color:var(--amber)">${esc(n.when)}</span></div>`;
   return { cap: 'Stays until it’s handled' };
 }
 function leaveCard(b) {
-  b.innerHTML = `<div class="w-kicker" style="color:#4ADE80">Leaving now</div>` +
-    `<div class="w-big" style="color:#4ADE80">${db.leaving.mins} min</div>`;
+  b.innerHTML = `<div class="w-kicker" style="color:var(--ink)">Leaving now</div>` +
+    `<div class="w-big" style="color:var(--ink)">${db.leaving.mins} min</div>`;
   return { cap: 'Auto · breaks through armour' };
 }
 function thinkCard(b) {
@@ -875,7 +893,7 @@ function thinkCard(b) {
 }
 function quietCard(b) {
   b.innerHTML = `<div class="w-mid"><b>Nothing today.</b>
-    <i><span style="color:#4ADE80">41 days</span> still yours.</i></div>`;
+    <i><span style="color:var(--ink)">41 days</span> still yours.</i></div>`;
   return {};
 }
 

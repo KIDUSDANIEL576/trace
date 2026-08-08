@@ -16,11 +16,15 @@ const ghostBtn = (t, fn) => { const b = el(`<button class="p-ghost">${t}</button
 
 /* ------------------------------------------------------ skies & themes */
 
+/* p36. The sky is opt-in weather for the canvas card, not the canvas itself —
+   the default is plain paper, because invariant #1 says home is the canvas and
+   the canvas is white. Every other sky is a wash the user asks for. */
 const SKIES = {
-  dusk:     ['#33445f', '#5c5f78', '#8a6b73', '#2e2733'],
+  paper:    ['#FFFFFF', '#FFFFFF', '#FFFDF9', '#FBF4EA'],
+  dusk:     ['var(--ground-alt)', '#5c5f78', 'var(--ink-3)', '#2e2733'],
   daylight: ['#bfe3ff', '#ffd7e6', '#ffe9c7', '#fff1e6'],
   night:    ['#05070f', '#111a2e', '#1b2340', '#05060d'],
-  sunset:   ['#ff9a5a', '#ff6f7d', '#c14a86', '#5b2a6b'],
+  sunset:   ['var(--amber)', '#ff6f7d', 'var(--red-text)', 'var(--ground-alt)'],
   sea:      ['#04121f', '#0d3b45', '#2c7a6b', '#123a52'],
   bruise:   ['#1b0b18', '#3f1130', '#6b1b44', '#2a0d22'],
   ember:    ['#2b1216', '#6d2530', '#c04a3d', '#f2894f'],
@@ -28,35 +32,38 @@ const SKIES = {
 window.TRACE_SKY = (n, st) => applySky(n, st, true);
 const applySky = (name, strength, fromRemote) => {
   if (!fromRemote && window.TRACE_NET) TRACE_NET.emit('sky', { name, strength });
-  const c = SKIES[name] || SKIES.dusk;
+  const c = SKIES[name] || SKIES.paper;
   const grad = `linear-gradient(180deg,${c[0]} 0%,${c[1]} 45%,${c[2]} 70%,${c[3]} 100%)`;
   const n = $('#card-sky');
-  if (n) { n.style.background = grad; n.style.opacity = (0.35 + 0.65 * strength).toFixed(2); }
+  /* "paper" is the absence of a sky, not a white one — painting it would wash
+     over the card's own surface and go grey the moment dark mode is on. */
+  if (n && name === 'paper') { n.style.background = 'none'; n.style.opacity = 0; }
+  else if (n) { n.style.background = grad; n.style.opacity = (0.35 + 0.65 * strength).toFixed(2); }
   ($('#appview') || $('#screen')).classList.toggle('is-light', name === 'daylight');
   store.set('sky', { name, strength });
 };
-const savedSky = store.get('sky', { name: 'night', strength: .8 });
+const savedSky = store.get('sky', { name: 'paper', strength: 0 });
 setTimeout(() => applySky(savedSky.name, savedSky.strength), 0);
 
 function skyPicker() {
   openPanel('sky & strength', (body) => {
     body.appendChild(noteEl('Pick a background and how strongly it shows. The ink stays legible either way — that’s what strength is for.'));
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px"></div>');
-    let cursky = store.get('sky', { name: 'night', strength: .8 });
+    let cursky = store.get('sky', { name: 'paper', strength: 0 });
     for (const [name, c] of Object.entries(SKIES)) {
-      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? '#e23343' : 'rgba(255,255,255,.14)'};
+      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? 'var(--red)' : 'var(--hairline)'};
         background:linear-gradient(180deg,${c[0]},${c[1]} 45%,${c[2]} 70%,${c[3]});position:relative;overflow:hidden">
-        <span style="position:absolute;left:5px;bottom:4px;font:700 8px ui-monospace,monospace;color:${name === 'daylight' ? '#2b2029' : '#fff'};opacity:.85">${name}</span></button>`);
+        <span style="position:absolute;left:5px;bottom:4px;font:700 8px ui-monospace,monospace;color:${name === 'daylight' ? 'var(--ground-alt)' : '#fff'};opacity:.85">${name}</span></button>`);
       b.addEventListener('click', () => {
         cursky = { ...cursky, name };
-        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? '#e23343' : 'rgba(255,255,255,.14)');
+        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? 'var(--red)' : 'var(--hairline)');
         applySky(name, cursky.strength); buzz(8); log('sky → ' + name);
       });
       grid.appendChild(b);
     }
     body.appendChild(grid);
     body.appendChild(el('<div class="p-note" style="margin-top:6px">strength</div>'));
-    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:#e23343">`);
+    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:var(--red)">`);
     sl.addEventListener('input', () => { cursky.strength = sl.value / 100; applySky(cursky.name, cursky.strength); });
     body.appendChild(sl);
     body.appendChild(hint('the same sky is on her phone right now'));
@@ -154,7 +161,7 @@ function theLine() {
       x.clearRect(0, 0, w2, h2);
       x.lineCap = 'round'; x.lineWidth = 4;
       const g = x.createLinearGradient(0, 0, w2, 0);
-      ['#7ec8ff', '#f4c66b', '#ff7a9c', '#e23343'].forEach((cc, i) => g.addColorStop(i / 3, cc));
+      [TOK('--violet'), TOK('--amber'), TOK('--red'), TOK('--red')].forEach((cc, i) => g.addColorStop(i / 3, cc));
       x.strokeStyle = g; x.beginPath();
       for (let px = -20; px < w2 + 20; px += 3) {
         const py = h2 / 2 + Math.sin((px + off) / 31) * 24 + Math.sin((px + off) / 7) * 5;
@@ -165,7 +172,7 @@ function theLine() {
         x.strokeStyle = '#fff'; x.lineWidth = 6;
         const px = w2 * .5;
         x.beginPath(); x.moveTo(px - 14, h2 / 2 + 6); x.lineTo(px + 12, h2 / 2 - 10); x.stroke();
-        x.fillStyle = 'rgba(255,255,255,.7)'; x.font = '9px ui-monospace,monospace';
+        x.fillStyle = TOK('--ink-3'); x.font = '9px ui-monospace,monospace';
         x.fillText('yours', px - 12, h2 / 2 + 26);
       }
       off += .5;
@@ -192,7 +199,7 @@ function theDay() {
     body.appendChild(el(`<div style="text-align:center;padding:10px 0">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:96px;line-height:.9">${d.getDate()}</div>
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:30px;color:#ff9ea9;margin-top:2px">the day we met, 4 years ago</div>
-      <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:rgba(243,240,244,.45);margin-top:10px">${d.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}</div></div>`));
+      <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:var(--ink-3);margin-top:10px">${d.toLocaleDateString(undefined,{month:'long',year:'numeric'}).toUpperCase()}</div></div>`));
     body.appendChild(noteEl('Not “Event”. What it actually is, in your own handwriting. You’ve both drawn on it — hers is underneath yours.'));
     const { box, c, x, fit } = miniCanvas(180);
     body.appendChild(box);
@@ -200,10 +207,10 @@ function theDay() {
       fit();
       const w2 = box.clientWidth, h2 = box.clientHeight;
       x.lineCap = x.lineJoin = 'round';
-      x.strokeStyle = '#ff7a9c'; x.lineWidth = 8; x.beginPath();
+      x.strokeStyle = TOK('--red'); x.lineWidth = 8; x.beginPath();
       SHAPES.heart.forEach(([px, py], i) => { const X = jit((px - .1) * w2, 3), Y = jit(py * h2 * 1.2, 3); i ? x.lineTo(X, Y) : x.moveTo(X, Y); });
       x.stroke();
-      x.strokeStyle = '#e23343'; x.beginPath();
+      x.strokeStyle = TOK('--red'); x.beginPath();
       SHAPES.sun.forEach(([px, py], i) => { const X = jit((px + .25) * w2, 3), Y = jit(py * h2 * 1.2, 3); i ? x.lineTo(X, Y) : x.moveTo(X, Y); });
       x.stroke();
     });
@@ -213,22 +220,22 @@ function theDay() {
 
 /* --------------------------------------------------- 2e quick marks */
 const MARKS = [
-  ['sunny here', 'sun', '#f4c66b'], ['raining', 'squiggle', '#7ec8ff'], ['coffee?', 'come', '#f3f0f4'],
-  ['the cat', 'xo', '#ff7a9c'], ['come here', 'come', '#e23343'], ['6:40 wake me', 'squiggle', '#f4c66b'],
-  ['happy bday', 'sun', '#fff'], ['meet here', 'come', '#7ec8ff'], ['xoxo', 'xo', '#ff7a9c'],
-  ['your turn', 'squiggle', '#fff'], ['i’m sorry', 'heartL', '#f3f0f4'], ['a flower', 'sun', '#ff7a9c'],
-  ['just a squiggle', 'squiggle', '#fff'], ['ok, one heart', 'heart', '#e23343'],
+  ['sunny here', 'sun', 'var(--amber)'], ['raining', 'squiggle', 'var(--violet)'], ['coffee?', 'come', 'var(--ink)'],
+  ['the cat', 'xo', 'var(--red)'], ['come here', 'come', 'var(--red)'], ['6:40 wake me', 'squiggle', 'var(--amber)'],
+  ['happy bday', 'sun', '#fff'], ['meet here', 'come', 'var(--violet)'], ['xoxo', 'xo', 'var(--red)'],
+  ['your turn', 'squiggle', '#fff'], ['i’m sorry', 'heartL', 'var(--ink)'], ['a flower', 'sun', 'var(--red)'],
+  ['just a squiggle', 'squiggle', '#fff'], ['ok, one heart', 'heart', 'var(--red)'],
 ];
 function quickMarks(title, list, blurb) {
   openPanel(title, (body) => {
     body.appendChild(noteEl(blurb));
     const grid = el('<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px"></div>');
     for (const [label, shape, col] of list) {
-      const cell = el(`<button style="position:relative;aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);overflow:hidden"></button>`);
+      const cell = el(`<button style="position:relative;aspect-ratio:1;border-radius:14px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden"></button>`);
       const cc = document.createElement('canvas');
       cc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
       cell.appendChild(cc);
-      cell.appendChild(el(`<span style="position:absolute;left:6px;bottom:4px;font-size:9px;color:rgba(255,255,255,.55)">${label}</span>`));
+      cell.appendChild(el(`<span style="position:absolute;left:6px;bottom:4px;font-size:9px;color:var(--ink-3)">${label}</span>`));
       grid.appendChild(cell);
       requestAnimationFrame(() => {
         cc.width = cell.clientWidth * DPR; cc.height = cell.clientHeight * DPR;
@@ -253,11 +260,11 @@ function quickMarks(title, list, blurb) {
 const markVocab = () => quickMarks('things we draw', MARKS,
   'Sixteen real things people send. None of them is a heart, except the one that is.');
 const badDays = () => quickMarks('for the hard days', [
-  ['38.4 · staying in', 'squiggle', '#f3f0f4'], ['hot water bottle', 'come', '#ff4d6d'],
-  ['out of spoons', 'squiggle', '#9a93a5'], ['cloud over my head', 'squiggle', '#7ec8ff'],
-  ['don’t talk yet', 'xo', '#f3f0f4'], ['call me when you can', 'come', '#f4c66b'],
+  ['38.4 · staying in', 'squiggle', 'var(--ink)'], ['hot water bottle', 'come', 'var(--red)'],
+  ['out of spoons', 'squiggle', 'var(--ink-3)'], ['cloud over my head', 'squiggle', 'var(--violet)'],
+  ['don’t talk yet', 'xo', 'var(--ink)'], ['call me when you can', 'come', 'var(--amber)'],
   ['i’m on the bus, crying', 'squiggle', '#8f9bb3'], ['it got better at 4pm', 'sun', '#f5a524'],
-  ['left on your side of bed', 'heart', '#ff4d6d'],
+  ['left on your side of bed', 'heart', 'var(--red)'],
 ], 'Every couples app sells the good bits. Some days you can’t type a sentence.');
 
 /* ----------------------------------------------------- 4g sticker pack */
@@ -265,12 +272,12 @@ function stickers() {
   openPanel('sticker sheet №1', (body) => {
     body.appendChild(noteEl('The marks as die-cut stickers. Tap one to drop it on the canvas — or order the sheet.'));
     const row = el('<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center"></div>');
-    const kinds = [['heart', '#ff4d6d', 1], ['xoxo', null, 0], ['6:40', null, 0], ['come', '#e23343', 1],
-      ['sun', '#f5a524', 1], ['squiggle', '#2b2029', 1], ['trace', null, 0]];
+    const kinds = [['heart', 'var(--red)', 1], ['xoxo', null, 0], ['6:40', null, 0], ['come', 'var(--red)', 1],
+      ['sun', '#f5a524', 1], ['squiggle', 'var(--ground-alt)', 1], ['trace', null, 0]];
     for (const [k, col, isShape] of kinds) {
-      const st = el(`<button style="width:86px;height:86px;border-radius:${Math.random() > .5 ? '99px' : '18px'};background:#fff;border:3px solid #2b2029;
-        transform:rotate(${(Math.random() - .5) * 16}deg);box-shadow:0 6px 14px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;
-        font-family:Caveat,cursive;font-weight:700;font-size:24px;color:#2b2029;position:relative;overflow:hidden"></button>`);
+      const st = el(`<button style="width:86px;height:86px;border-radius:${Math.random() > .5 ? '99px' : '18px'};background:#fff;border:3px solid var(--ground-alt);
+        transform:rotate(${(Math.random() - .5) * 16}deg);box-shadow:0 6px 14px var(--ink-5);display:flex;align-items:center;justify-content:center;
+        font-family:Caveat,cursive;font-weight:700;font-size:24px;color:var(--ground-alt);position:relative;overflow:hidden"></button>`);
       if (isShape) {
         const cc = document.createElement('canvas');
         cc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
@@ -302,18 +309,18 @@ function yearInMarks() {
     body.appendChild(noteEl('One mark a month, pulled from what you actually drew.'));
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>');
     const MO = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    const cols = ['#dfeaf6','#ffdfe7','#e9f6d8','#3c4a5a','#fff4d6','#bfe6ff','#ff9a5a','#ffe9c4','#20304f','#2a0f1c','#0b1226','#33445f'];
+    const cols = ['#dfeaf6','#ffdfe7','#e9f6d8','#3c4a5a','#fff4d6','#bfe6ff','var(--amber)','#ffe9c4','#20304f','#2a0f1c','#0b1226','var(--ground-alt)'];
     MO.forEach((m, i) => {
-      const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:linear-gradient(180deg,${cols[i]},rgba(0,0,0,.55))"></div>`);
+      const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:linear-gradient(180deg,${cols[i]},var(--scrim))"></div>`);
       const cc = document.createElement('canvas'); cc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
       cell.appendChild(cc);
-      cell.appendChild(el(`<div style="position:absolute;left:5px;top:4px;font:700 8px ui-monospace,monospace;color:rgba(255,255,255,.85)">${m}</div>`));
+      cell.appendChild(el(`<div style="position:absolute;left:5px;top:4px;font:700 8px ui-monospace,monospace;color:var(--surface)">${m}</div>`));
       grid.appendChild(cell);
       requestAnimationFrame(() => {
         cc.width = cell.clientWidth * DPR; cc.height = cell.clientHeight * DPR;
         const cx = cc.getContext('2d'); cx.setTransform(DPR, 0, 0, DPR, 0, 0);
         const w2 = cell.clientWidth, h2 = cell.clientHeight;
-        cx.lineCap = cx.lineJoin = 'round'; cx.strokeStyle = i === 11 ? '#e23343' : '#fff'; cx.lineWidth = 4;
+        cx.lineCap = cx.lineJoin = 'round'; cx.strokeStyle = i === 11 ? TOK('--red') : '#fff'; cx.lineWidth = 4;
         const sh = [SHAPES.squiggle, SHAPES.heart, SHAPES.sun, SHAPES.xo, SHAPES.come][i % 5];
         cx.beginPath();
         sh.forEach(([px, py], j) => { const X = jit(px * w2, 2), Y = jit((py - .05) * h2, 2); j ? cx.lineTo(X, Y) : cx.moveTo(X, Y); });
@@ -323,7 +330,7 @@ function yearInMarks() {
     body.appendChild(grid);
     body.appendChild(el(`<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-top:6px">
       <div style="font-family:Caveat,cursive;font-weight:700;font-size:30px;line-height:.98">4,812 strokes.<br>none of them typed.</div>
-      <div style="font:700 9.5px/1.7 ui-monospace,monospace;color:rgba(243,240,244,.5);text-align:right">318 DAYS DRAWN<br>41 CAPSULES<br>2 PEOPLE</div></div>`));
+      <div style="font:700 9.5px/1.7 ui-monospace,monospace;color:var(--ink-3);text-align:right">318 DAYS DRAWN<br>41 CAPSULES<br>2 PEOPLE</div></div>`));
   });
 }
 
@@ -337,7 +344,7 @@ function translateThis() {
       fit();
       const w2 = box.clientWidth, h2 = box.clientHeight;
       const g = x.createLinearGradient(0, 0, 0, h2);
-      g.addColorStop(0, '#ff9a5a'); g.addColorStop(1, '#5b2a6b');
+      g.addColorStop(0, TOK('--amber')); g.addColorStop(1, TOK('--ground-alt'));
       x.fillStyle = g; x.fillRect(0, 0, w2, h2);
       x.lineCap = x.lineJoin = 'round'; x.strokeStyle = '#fff'; x.lineWidth = 9;
       x.beginPath();
@@ -350,7 +357,7 @@ function translateThis() {
     const answers = ['a bird, apparently', '“pick me up”', 'he was falling asleep'];
     const votes = store.get('translateVotes', [12, 31, 57]);
     answers.forEach((a, i) => {
-      const b = el(`<button style="position:relative;width:100%;padding:13px 15px;border-radius:14px;background:rgba(255,255,255,.9);color:#2b2029;font-size:13.5px;font-weight:600;text-align:left;overflow:hidden">
+      const b = el(`<button style="position:relative;width:100%;padding:13px 15px;border-radius:14px;background:var(--surface);color:var(--ground-alt);font-size:13.5px;font-weight:600;text-align:left;overflow:hidden">
         <span style="position:absolute;inset:0;width:${votes[i]}%;background:rgba(226,51,67,.22)"></span>
         <span style="position:relative">${a}</span>
         <span style="position:relative;float:right;font:700 12px ui-monospace,monospace">${votes[i]}%</span></button>`);
@@ -374,10 +381,10 @@ function moments() {
       ['NOV', 'the anniversary', 'one year ago tonight'], ['DEC', 'the year in ink', 'riso print'],
     ];
     for (const [m, moment, format] of rows) {
-      body.appendChild(el(`<div style="display:flex;align-items:baseline;gap:12px;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <b style="font:700 10px ui-monospace,monospace;color:#e23343;width:30px;flex:none">${m}</b>
+      body.appendChild(el(`<div style="display:flex;align-items:baseline;gap:12px;padding:9px 2px;border-bottom:1px solid var(--surface)">
+        <b style="font:700 10px ui-monospace,monospace;color:var(--red);width:30px;flex:none">${m}</b>
         <span style="flex:1;font-size:12.5px">${moment}</span>
-        <i style="font-style:normal;font-size:11px;color:#9a93a5">${format}</i></div>`));
+        <i style="font-style:normal;font-size:11px;color:var(--ink-3)">${format}</i></div>`));
     }
   });
 }
@@ -390,7 +397,7 @@ function positioning() {
       <div><b>Not a social network.</b> The maximum audience is one. Nothing here gets more valuable with more people in it.</div>
       <div><b>Not a memory box.</b> Memory boxes are for after. This is for during.</div>
     </div>`));
-    body.appendChild(el('<div class="p-note" style="margin-top:10px;color:#f4c66b;font-weight:700">and the three we will not build</div>'));
+    body.appendChild(el('<div class="p-note" style="margin-top:10px;color:var(--amber);font-weight:700">and the three we will not build</div>'));
     body.appendChild(el(`<div class="list-quiet">
       <div><span class="no">✕</span><b>Story mining.</b> We never read a canvas to find content. Donation is opt-in, deliberate, and reversible.</div>
       <div><span class="no">✕</span><b>Engagement targets on a relationship.</b> No number in here is allowed to go up because we made someone anxious.</div>

@@ -1,3 +1,14 @@
+/* Canvas 2D has no cascade — var() never resolves against a 2D context, so
+   every token used as a strokeStyle has to be read off the document first.
+   Cached, and dropped whenever the theme flips. */
+const _tok = new Map();
+function TOK(name){
+  if (!_tok.has(name)) _tok.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#1A1A1A');
+  return _tok.get(name);
+}
+window.TOK = TOK;
+window.addEventListener('themechange', () => _tok.clear());
+
 /* trace — app simulation.
    A working, single-file Trace: real ink, a simulated partner, and every
    feature from the ten design turns functional in-browser. This file is the
@@ -81,7 +92,7 @@ const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
 
 const state = {
-  brush: 'pen', color: '#E23343',
+  brush: 'pen', color: 'var(--red)',
   mode: null,            // null | mirror | trace | passpen | onemore...
   bothHere: false,
   penHolder: 'you',
@@ -330,7 +341,7 @@ const sara = {
     drawingNow = !!on;
     $('#presence').classList.toggle('live', on);
     $('#presence-txt').textContent = on ? 'Maya is drawing' : 'Maya is here';
-    $('#presence-dot').style.background = on ? '#FF7A9C' : '#4ADE80';
+    $('#presence-dot').style.background = on ? 'var(--red)' : 'var(--ink)';
     const tag = $('#canvas-tag'); if (tag) tag.classList.toggle('on', !!on);
     window.TRACE_BOARD && TRACE_BOARD.paint && TRACE_BOARD.paint();
   },
@@ -341,7 +352,7 @@ const sara = {
   drawShape(name, opts = {}) {
     const base = SHAPES[name] || SHAPES.squiggle;
     const pts = wobblePath(base, 4, 5);
-    const s = { pts: [], c: opts.c || '#ff7a9c', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
+    const s = { pts: [], c: opts.c || 'var(--red)', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
     strokes.push(s);
     this.presence(true);
     log('sara draws ' + name);
@@ -380,7 +391,7 @@ const sara = {
 let yourHeartAt = 0, saraHeartAt = 0;
 $('#heart-btn').addEventListener('click', () => {
   yourHeartAt = now();
-  heartBloom(W * .5, H * .55, '#e23343');
+  heartBloom(W * .5, H * .55, 'var(--red)');
   buzz(24);
   window.TRACE_NET && TRACE_NET.emit('heart', {});
   if (now() - saraHeartAt < 3000) erupt();
@@ -391,7 +402,7 @@ $('#heart-btn').addEventListener('click', () => {
 });
 function heartArrive(who) {
   saraHeartAt = now();
-  heartBloom(W * .5, H * .45, '#ff7a9c');
+  heartBloom(W * .5, H * .45, 'var(--red)');
   buzz([20, 60, 20]);
   if (now() - yourHeartAt < 3000) erupt();
 }
@@ -411,7 +422,7 @@ function erupt() {
     const a = Math.random() * Math.PI * 2, d = .1 + Math.random() * .22;
     const cx = .5 + Math.cos(a) * d, cy = .5 + Math.sin(a) * d * .8;
     const mini = SHAPES.heart.map(([x, y]) => [cx + (x - .5) * .3, cy + (y - .5) * .3]);
-    const s = { pts: wobblePath(mini, 2, 4), c: i % 2 ? '#ff7a9c' : '#e23343', w: 6, brush: 'pen', who: 'fx', born: now() };
+    const s = { pts: wobblePath(mini, 2, 4), c: i % 2 ? 'var(--red)' : 'var(--red)', w: 6, brush: 'pen', who: 'fx', born: now() };
     strokes.push(s);
   }
   redraw();
@@ -467,7 +478,7 @@ function toggleBrushPop() {
     const realCtx = ctx; const swap = Object.getOwnPropertyDescriptor(window, 'noop');
     prev.save(); prev.lineCap = prev.lineJoin = 'round';
     prev.globalAlpha = isEraser ? .5 : cfg.alpha;
-    prev.strokeStyle = isEraser ? 'rgba(243,240,244,.6)' : state.color;
+    prev.strokeStyle = isEraser ? TOK('--ink-2') : state.color;
     if (isEraser) prev.setLineDash([2, 7]);
     if (cfg.taper) {
       const pts = fake.pts;
@@ -510,6 +521,20 @@ $$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListen
   $$('.swatch').forEach(x => x.classList.toggle('is-on', x === b));
   state.color = b.dataset.c;
 }); });
+
+/* The pen palette is four literals because the canvas needs literals, but the
+   ink pen means "the colour you write in" — near-black on paper, cream in the
+   dark. It follows the theme; red, amber and violet do not. */
+function retintPens() {
+  $$('.swatch[data-tok]').forEach(b => {
+    const was = b.dataset.c;
+    b.dataset.c = TOK(b.dataset.tok);
+    b.style.background = b.dataset.c;
+    if (state.color === was) state.color = b.dataset.c;
+  });
+}
+window.addEventListener('themechange', () => { retintPens(); redraw(); });
+retintPens();
 
 /* ---- the universal color cascade: any hue, any shade, three taps ---- */
 const hsl2hex = (h, sN, l) => {
@@ -716,7 +741,7 @@ function playInto(x, box, shapes, opts = {}) {
         for (let s = 0; s < 5; s++) dense.push({
           x: jit(pts[i].x + (pts[i + 1].x - pts[i].x) * s / 5, 3),
           y: jit(pts[i].y + (pts[i + 1].y - pts[i].y) * s / 5, 3) });
-      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = sh.c || '#ff7a9c'; x.lineWidth = sh.w || 8;
+      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = sh.c || TOK('--red'); x.lineWidth = sh.w || 8;
       for (let i = 1; i < dense.length; i++) {
         if (stop || !box.isConnected) return;
         x.beginPath(); x.moveTo(dense[i - 1].x, dense[i - 1].y); x.lineTo(dense[i].x, dense[i].y); x.stroke();
@@ -740,7 +765,7 @@ const FEATURES = [
     run() {
       toggleMode('trace');
       if (state.mode === 'trace') {
-        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: '#f3f0f4', w: 14, brush: 'pen' };
+        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: 'var(--ink)', w: 14, brush: 'pen' };
         state.traceHits = 0;
         $('#canvas-note').textContent = 'her line. put yours on top of it.';
       } else { state.traceGuide = null; $('#canvas-note').textContent = ''; }
@@ -814,7 +839,7 @@ function openSheet() {
   // 50+ features: a filter is no longer optional
   const q = document.createElement('input');
   q.type = 'search'; q.placeholder = 'search features';
-  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#f3f0f4;font:14px system-ui;outline:none';
+  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui;outline:none';
   q.addEventListener('input', () => {
     const v = q.value.trim().toLowerCase();
     let lastGroup = null, groupHas = false;
@@ -892,7 +917,7 @@ function openReveal() {
   };
   toast('hold-to-reveal on — draw with the ghost brush first. tap ✕ ⋯ to exit');
   sara.after(400, () => { if (!strokes.some(s => s.brush === 'ghost'))
-    sara.drawShape('xo', { c: '#7ec8ff' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
+    sara.drawShape('xo', { c: 'var(--violet)' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
   exitOnSheet(() => { featureHooks = {}; holdReveal = false; note.textContent = ''; });
 }
 function exitOnSheet(fn) {
@@ -918,14 +943,14 @@ function openScratch() {
       const under = document.createElement('canvas'); under.width = w * DPR; under.height = h * DPR;
       const ux = under.getContext('2d'); ux.setTransform(DPR, 0, 0, DPR, 0, 0);
       const grad = ux.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#ff9a5a'); grad.addColorStop(.5, '#c14a86'); grad.addColorStop(1, '#5b2a6b');
+      grad.addColorStop(0, TOK('--amber')); grad.addColorStop(.5, TOK('--red-text')); grad.addColorStop(1, TOK('--ground-alt'));
       ux.fillStyle = grad; ux.fillRect(0, 0, w, h);
       ux.lineCap = ux.lineJoin = 'round'; ux.strokeStyle = '#fff'; ux.lineWidth = 11;
       const pts = SHAPES.heart.map(([px, py]) => ({ x: px * w, y: py * h }));
       ux.beginPath(); ux.moveTo(pts[0].x, pts[0].y);
       pts.forEach(p => ux.lineTo(jit(p.x, 3), jit(p.y, 3))); ux.stroke();
       // cover
-      g.fillStyle = '#2b2029';
+      g.fillStyle = TOK('--ground-alt');
       g.fillRect(0, 0, w, h);
       g.fillStyle = '#37262f';
       for (let i = -h; i < w; i += 14) { g.save(); g.translate(i, 0); g.rotate(.45); g.fillRect(0, 0, 7, h * 1.6); g.restore(); }
@@ -956,8 +981,8 @@ function openHold() {
     row.style.cssText = 'display:flex;justify-content:center;gap:34px;padding:12px 0';
     const mk = (c) => { const b = document.createElement('div'); b.className = 'bar-v';
       const f = document.createElement('div'); f.style.background = c; b.appendChild(f); row.appendChild(b); return f; };
-    const you = mk('linear-gradient(180deg,#e23343,#8f2b3d)');
-    const her = mk('linear-gradient(180deg,#ff7a9c,#c14a86)');
+    const you = mk('linear-gradient(180deg,var(--red),#8f2b3d)');
+    const her = mk('linear-gradient(180deg,var(--red),var(--red-text))');
     body.appendChild(row);
     const stat = document.createElement('div'); stat.className = 'p-stat'; stat.textContent = '00:00'; body.appendChild(stat);
     const best = document.createElement('div'); best.className = 'p-note'; best.style.textAlign = 'center';
@@ -1066,7 +1091,7 @@ function openBreathe() {
     ringWrap.style.cssText = 'position:relative;height:240px;display:flex;align-items:center;justify-content:center';
     ringWrap.innerHTML = `
       <div id="br-ring" style="position:absolute;width:180px;height:180px;border-radius:99px;border:2px solid rgba(255,122,156,.55);transform:scale(.72);transition:transform 4s ease-in-out"></div>
-      <div style="width:70px;height:70px;border-radius:99px;background:radial-gradient(circle,rgba(255,122,156,.9),rgba(226,51,67,.35) 70%);box-shadow:0 0 40px rgba(226,51,67,.5)"></div>`;
+      <div style="width:70px;height:70px;border-radius:99px;background:radial-gradient(circle,rgba(255,122,156,.9),var(--red-line) 70%);box-shadow:0 0 40px var(--red-line)"></div>`;
     body.appendChild(ringWrap);
     const word = document.createElement('div'); word.className = 'p-hint';
     word.style.cssText = 'font-size:34px;font-weight:700'; word.textContent = 'hold to begin';
@@ -1105,18 +1130,18 @@ function openString() {
       const y0 = h * .45;
       x.lineCap = 'round';
       if (!snapped) {
-        x.strokeStyle = '#f4c66b'; x.lineWidth = 4.5;
+        x.strokeStyle = TOK('--amber'); x.lineWidth = 4.5;
         x.beginPath(); x.moveTo(26, y0);
         x.quadraticCurveTo(w / 2, y0 + sag - pull * 1.6, w - 26, y0);
         x.stroke();
       } else {
-        x.strokeStyle = 'rgba(244,198,107,.55)'; x.lineWidth = 4;
+        x.strokeStyle = 'rgba(233,161,59,.4)'; x.lineWidth = 4;
         x.beginPath(); x.moveTo(26, y0); x.quadraticCurveTo(w * .3, y0 + 30, w * .42, y0 + 60); x.stroke();
         x.beginPath(); x.moveTo(w - 26, y0); x.quadraticCurveTo(w * .7, y0 + 30, w * .58, y0 + 60); x.stroke();
       }
       const dot = (px, col) => { x.fillStyle = col; x.beginPath(); x.arc(px, y0, 12, 0, 7); x.fill();
         x.strokeStyle = '#fff'; x.lineWidth = 3; x.stroke(); };
-      dot(26, '#e23343'); dot(box.clientWidth - 26, '#ff7a9c');
+      dot(26, 'var(--red)'); dot(box.clientWidth - 26, 'var(--red)');
       pull *= .92;
       raf = requestAnimationFrame(loop);
     };
@@ -1148,7 +1173,7 @@ function openEyesShut() {
     bars.style.cssText = 'display:flex;gap:5px;align-items:flex-end;height:34px;justify-content:center';
     for (const hgt of [40, 80, 55, 95, 35]) {
       const b = document.createElement('div');
-      b.style.cssText = `width:6px;height:${hgt}%;border-radius:3px;background:#f4c66b;opacity:.25;transition:opacity .2s`;
+      b.style.cssText = `width:6px;height:${hgt}%;border-radius:3px;background:var(--amber);opacity:.25;transition:opacity .2s`;
       bars.appendChild(b);
     }
     body.appendChild(bars);
@@ -1173,22 +1198,22 @@ function openEyesShut() {
       const p = { x: e.clientX - r.left, y: e.clientY - r.top };
       your.push(p);
       // blind: barely visible while drawing
-      x.fillStyle = 'rgba(226,51,67,.12)'; x.beginPath(); x.arc(p.x, p.y, 4, 0, 7); x.fill();
+      x.fillStyle = TOK('--red-wash'); x.beginPath(); x.arc(p.x, p.y, 4, 0, 7); x.fill();
     });
     go.addEventListener('click', () => {
       const w = box.clientWidth, h = box.clientHeight;
       x.clearRect(0, 0, w, h);
       // hers on left
       x.save(); x.translate(0, 0); x.scale(.5, 1);
-      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = '#ff7a9c'; x.lineWidth = 9;
+      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = TOK('--red'); x.lineWidth = 9;
       const pts = SHAPES.sun.map(([px, py]) => ({ x: px * w, y: py * h }));
       x.beginPath(); x.moveTo(pts[0].x, pts[0].y); pts.forEach(p => x.lineTo(jit(p.x, 3), jit(p.y, 3))); x.stroke(); x.restore();
       // yours on right
       x.save(); x.translate(w / 2, 0); x.scale(.5, 1);
-      x.strokeStyle = '#e23343'; x.lineWidth = 9;
+      x.strokeStyle = TOK('--red'); x.lineWidth = 9;
       if (your.length > 1) { x.beginPath(); x.moveTo(your[0].x, your[0].y); your.forEach(p => x.lineTo(p.x, p.y)); x.stroke(); }
       x.restore();
-      x.strokeStyle = 'rgba(255,255,255,.25)'; x.setLineDash([5, 8]); x.beginPath(); x.moveTo(w / 2, 10); x.lineTo(w / 2, h - 10); x.stroke(); x.setLineDash([]);
+      x.strokeStyle = TOK('--ink-5'); x.setLineDash([5, 8]); x.beginPath(); x.moveTo(w / 2, 10); x.lineTo(w / 2, h - 10); x.stroke(); x.setLineDash([]);
       const match = 40 + Math.floor(Math.random() * 45);
       go.textContent = `match ${match}% — it was a sun`;
       log(`eyes shut: ${match}% match`);
@@ -1268,8 +1293,8 @@ function openSlept() {
     const pauseNote = document.createElement('div'); pauseNote.className = 'p-hint'; pauseNote.textContent = '';
     body.appendChild(pauseNote);
     const stop = playInto(x, box, [
-      { shape: 'heartL', c: '#ff7a9c', w: 10, speed: 46, pause: 2200 },
-      { shape: 'heart', c: '#ff7a9c', w: 10, speed: 40 },
+      { shape: 'heartL', c: 'var(--red)', w: 10, speed: 46, pause: 2200 },
+      { shape: 'heart', c: 'var(--red)', w: 10, speed: 40 },
     ], {
       onPause: () => { pauseNote.textContent = 'she stopped here.'; setTimeout(() => pauseNote.textContent = '', 2100); },
       done: () => { pauseNote.textContent = 'she was awake 26 minutes.'; log('while-you-slept replay done'); },
@@ -1290,7 +1315,7 @@ function openCapsule() {
         const days = Math.max(0, Math.ceil((new Date(cp.opens) - Date.now()) / 864e5));
         list.insertAdjacentHTML('beforeend',
           `<div class="chip" style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-            <span>${cp.label}</span><span style="font:700 11px ui-monospace,monospace;color:#f4c66b">OPENS IN ${days} DAYS</span></div>`);
+            <span>${cp.label}</span><span style="font:700 11px ui-monospace,monospace;color:var(--amber)">OPENS IN ${days} DAYS</span></div>`);
       }
     };
     render();
@@ -1319,7 +1344,7 @@ function openThread() {
     body.appendChild(box);
     requestAnimationFrame(() => { fit();
       const w = box.clientWidth, h = box.clientHeight, y0 = h / 2;
-      const segs = [[0, .28, 6, '#e23343'], [.28, .4, 3, '#8d8494'], [.4, .52, 2.2, '#6f6879'], [.52, .64, 3, '#8d8494'], [.64, 1, 6, '#e23343']];
+      const segs = [[0, .28, 6, 'var(--red)'], [.28, .4, 3, '#8d8494'], [.4, .52, 2.2, '#6f6879'], [.52, .64, 3, '#8d8494'], [.64, 1, 6, 'var(--red)']];
       x.lineCap = 'round';
       for (const [a, b2, lw, col] of segs) {
         x.strokeStyle = col; x.lineWidth = lw; x.beginPath();
@@ -1338,7 +1363,7 @@ function openThread() {
 /* --- one year ago --- */
 function openYearAgo() {
   closeSheet();
-  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: '#f3f0f4', w: 13 };
+  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: 'var(--ink)', w: 13 };
   redraw();
   $('#canvas-note').textContent = 'one year ago tonight, she drew this. draw it again, worse.';
   toast('both versions stay, stacked, forever');
@@ -1427,7 +1452,7 @@ function openDict() {
       const row = document.createElement('div'); row.className = 'dict-row';
       const mc = document.createElement('canvas'); mc.width = 112; mc.height = 76;
       const mx = mc.getContext('2d');
-      mx.lineCap = mx.lineJoin = 'round'; mx.strokeStyle = '#ff7a9c'; mx.lineWidth = 5;
+      mx.lineCap = mx.lineJoin = 'round'; mx.strokeStyle = TOK('--red'); mx.lineWidth = 5;
       const pts = (SHAPES[d.shape] || SHAPES.squiggle).map(([px, py]) => ({ x: px * 112, y: py * 76 }));
       mx.beginPath(); mx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => mx.lineTo(jit(p.x, 2), jit(p.y, 2))); mx.stroke();
       row.appendChild(mc);
@@ -1462,7 +1487,7 @@ function openCompose() {
       const out = document.createElement('canvas'); out.width = ow; out.height = oh;
       const ox = out.getContext('2d');
       const g = ox.createLinearGradient(0, 0, 0, oh);
-      ['#33445f', '#5c5f78', '#8a6b73', '#2e2733'].forEach((c2, i) => g.addColorStop([0, .45, .7, 1][i], c2));
+      [TOK('--ground-alt'), '#5c5f78', TOK('--ink-3'), '#2e2733'].forEach((c2, i) => g.addColorStop([0, .45, .7, 1][i], c2));
       ox.fillStyle = g; ox.fillRect(0, 0, ow, oh);
       const k = Math.min(ow / W, oh / H) * .82;
       ox.save();
@@ -1470,8 +1495,8 @@ function openCompose() {
       ox.drawImage(cv, 0, 0);
       ox.restore();
       ox.font = '700 ' + Math.round(oh * .045) + 'px Caveat, cursive';
-      ox.fillStyle = '#f3f0f4'; ox.fillText('tra', ow * .05, oh * .95);
-      ox.fillStyle = '#e23343'; ox.fillText('ce', ow * .05 + ox.measureText('tra').width, oh * .95);
+      ox.fillStyle = TOK('--ink'); ox.fillText('tra', ow * .05, oh * .95);
+      ox.fillStyle = TOK('--red'); ox.fillText('ce', ow * .05 + ox.measureText('tra').width, oh * .95);
       const a = document.createElement('a');
       a.href = out.toDataURL('image/png'); a.download = `trace-post-${label.replace(':', 'x')}.png`; a.click();
       toast('exported ' + ow + '×' + oh);
@@ -1488,7 +1513,7 @@ function openDonate() {
       <div class="p-note">give one mark to everyone. one mark, chosen by you — nothing near it leaves the phone.</div>`);
     const consent1 = mkToggle(body, 'share the shape and the meaning', true);
     const consent2 = mkToggle(body, 'let others adopt it as theirs', false);
-    body.insertAdjacentHTML('beforeend', '<div class="p-note" style="color:#f4c66b">4,180 people already did</div>');
+    body.insertAdjacentHTML('beforeend', '<div class="p-note" style="color:var(--amber)">4,180 people already did</div>');
     const go = document.createElement('button'); go.className = 'p-cta'; go.textContent = 'donate this sign';
     go.addEventListener('click', () => {
       toast(consent1.on() ? 'donated. it belongs to everyone now.' : 'pick what to share first');
@@ -1499,9 +1524,9 @@ function openDonate() {
 }
 function mkToggle(body, label, on) {
   const row = document.createElement('button');
-  row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#f3f0f4;font-size:13.5px';
+  row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);color:var(--ink);font-size:13.5px';
   const k = document.createElement('span');
-  const paint = () => k.style.cssText = `width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:${on ? '#c64b52' : 'rgba(255,255,255,.15)'}`;
+  const paint = () => k.style.cssText = `width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:${on ? '#c64b52' : 'var(--hairline)'}`;
   k.innerHTML = '<i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i>';
   const knob = () => k.firstChild.style.transform = on ? 'translateX(18px)' : '';
   paint(); requestAnimationFrame(knob);
@@ -1527,7 +1552,7 @@ function openWorld() {
       x.clearRect(0, 0, w, h);
       x.lineCap = 'round'; x.lineWidth = 5;
       const grad = x.createLinearGradient(0, 0, w, 0);
-      ['#7ec8ff', '#f4c66b', '#ff7a9c', '#e23343'].forEach((c2, i) => grad.addColorStop(i / 3, c2));
+      [TOK('--violet'), TOK('--amber'), TOK('--red'), TOK('--red')].forEach((c2, i) => grad.addColorStop(i / 3, c2));
       x.strokeStyle = grad;
       x.beginPath();
       for (let px = -20; px < w + 20; px += 4) {
@@ -1555,18 +1580,18 @@ function openWidget() {
     const home = document.createElement('div');
     home.style.cssText = 'border-radius:22px;padding:18px;background:linear-gradient(180deg,#0b1226,#33406b);display:grid;grid-template-columns:1fr 1fr;gap:12px';
     const wg = document.createElement('div');
-    wg.style.cssText = 'grid-column:span 2;aspect-ratio:2/1;border-radius:18px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.18)';
+    wg.style.cssText = 'grid-column:span 2;aspect-ratio:2/1;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--hairline)';
     const wc = document.createElement('canvas');
     wc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
     wg.appendChild(wc);
     home.appendChild(wg);
-    for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.style.cssText = 'aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.08)'; home.appendChild(d); }
+    for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.style.cssText = 'aspect-ratio:1;border-radius:14px;background:var(--surface)'; home.appendChild(d); }
     body.appendChild(home);
     requestAnimationFrame(() => {
       wc.width = wg.clientWidth * DPR; wc.height = wg.clientHeight * DPR;
       const wx = wc.getContext('2d');
       const g = wx.createLinearGradient(0, 0, 0, wc.height);
-      g.addColorStop(0, '#ff9a5a'); g.addColorStop(.6, '#c14a86'); g.addColorStop(1, '#5b2a6b');
+      g.addColorStop(0, TOK('--amber')); g.addColorStop(.6, TOK('--red-text')); g.addColorStop(1, TOK('--ground-alt'));
       wx.fillStyle = g; wx.fillRect(0, 0, wc.width, wc.height);
       const k = Math.min(wc.width / cv.width, wc.height / cv.height);
       wx.translate((wc.width - cv.width * k) / 2, (wc.height - cv.height * k) / 2);
@@ -1725,14 +1750,14 @@ function paintNet() {
   if (!online && !netDown) {
     netDown = true;
     toast('offline — your marks will wait, nothing is lost');
-    $('#presence-dot').style.background = '#F4C66B';
+    $('#presence-dot').style.background = 'var(--amber)';
   }
   if (online && netDown) {
     netDown = false;
     toast('back online — catching up');
     /* the transport reconnects itself (1.8s backoff); nudge presence */
     if (window.TRACE_NET && TRACE_NET.code) TRACE_NET.emit('hi', { name: TRACE_NET.name, reply: true });
-    $('#presence-dot').style.background = '#4ADE80';
+    $('#presence-dot').style.background = 'var(--ink)';
   }
 }
 addEventListener('online', paintNet);
@@ -1782,7 +1807,7 @@ function firstRun() {
     const raw = field.value.trim().toLowerCase();
     /* a real error state, not a silent fallback: codes are 5 chars, a-z 0-9 */
     if (raw && !/^[a-z0-9]{5}$/.test(raw)) {
-      field.style.borderColor = '#E23343';
+      field.style.borderColor = 'var(--red)';
       field.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-7px)' },
         { transform: 'translateX(7px)' }, { transform: 'translateX(0)' }], { duration: 240 });
       toast('codes are 5 letters or numbers — check theirs again');
@@ -1816,12 +1841,12 @@ $('#widget').addEventListener('click', () => {
   if (opened) return; opened = true;
   setTimeout(() => {
     if (window.TRACE_NET && TRACE_NET.live()) return;
-    sara.drawShape('sun', { c: '#f4c66b' });
+    sara.drawShape('sun', { c: 'var(--amber)' });
   }, 1200);
 });
 setTimeout(() => {
   if (true) return;   // opening moment now happens on first widget tap
-  sara.drawShape('sun', { c: '#f4c66b', then: () => {
+  sara.drawShape('sun', { c: 'var(--amber)', then: () => {
     $('#canvas-note').textContent = 'draw how today feels';
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
   }});

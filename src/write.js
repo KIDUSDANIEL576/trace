@@ -40,9 +40,9 @@ function paintPills() {
     const on = b.dataset.page === cur;
     /* red is the selection colour now — the store shot's active pill is a red
        outline on a dark red fill, not a lighter grey */
-    b.style.background = on ? 'rgba(226,51,67,.16)' : 'rgba(255,255,255,.05)';
-    b.style.borderColor = on ? '#E23343' : 'rgba(255,255,255,.08)';
-    b.style.color = on ? '#F3F0F4' : 'var(--ink)';
+    b.style.background = on ? 'var(--red-wash)' : 'var(--surface)';
+    b.style.borderColor = on ? 'var(--red)' : 'var(--surface)';
+    b.style.color = on ? 'var(--ink)' : 'var(--ink)';
     b.style.opacity = on ? 1 : .65;
   });
   const k = $('#sc-canvas .title .k');
@@ -92,23 +92,23 @@ function openPad() {
   if (pad) return closePad();
   if (APP.curPage() === 'hers') { toast('her page — you can’t write here'); return; }
   pad = el(`<div id="writepad" style="position:relative;z-index:12;margin:0 20px;border-radius:22px;
-    background:rgba(10,12,26,.96);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);
+    background:var(--surface);border:1px solid var(--hairline);backdrop-filter:blur(16px);
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
     <div id="wp-prev" style="min-height:52px;display:flex;align-items:center;justify-content:center;
-      border-radius:14px;background:rgba(255,255,255,.04);padding:6px 10px;overflow:hidden;
-      font:700 ${size}px '${font}',cursive;color:#F3F0F4"></div>
+      border-radius:14px;background:var(--surface);padding:6px 10px;overflow:hidden;
+      font:700 ${size}px '${font}',cursive;color:var(--ink)"></div>
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
-      style="padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);color:var(--ink);font:15px inherit;outline:none">
+      style="padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);
+      background:var(--surface);color:var(--ink);font:15px inherit;outline:none">
     <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none" id="wp-fonts">
       ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;padding:7px 14px;
-        border-radius:999px;font:600 16px '${f}',cursive;color:var(--ink);border:1px solid rgba(255,255,255,.1);
-        background:rgba(255,255,255,.05)">${f === 'Caveat' ? 'trace' : 'trace'}</button>`).join('')}
+        border-radius:999px;font:600 16px '${f}',cursive;color:var(--ink);border:1px solid var(--hairline);
+        background:var(--surface)">${f === 'Caveat' ? 'trace' : 'trace'}</button>`).join('')}
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
-      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:#F4C66B;min-width:0">
-      <button id="wp-send" style="padding:11px 22px;border-radius:999px;background:#F3F0F4;color:#0C0B10;
+      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:var(--amber);min-width:0">
+      <button id="wp-send" style="padding:11px 22px;border-radius:999px;background:var(--ink);color:var(--emph-ink);
         font-size:14px;font-weight:600">Send</button>
     </div>
   </div>`);
@@ -129,7 +129,7 @@ function openPad() {
   $$('#wp-fonts [data-font]', pad).forEach((b) => b.addEventListener('click', () => {
     font = b.dataset.font; buzz(6); wobble();
     $$('#wp-fonts [data-font]', pad).forEach((x) => x.style.borderColor =
-      x === b ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.1)');
+      x === b ? 'rgba(255,255,255,.4)' : 'var(--hairline)');
   }));
   $('#wp-size', pad).addEventListener('input', (e) => { size = +e.target.value; wobble(); });
   const send = () => {
@@ -157,14 +157,14 @@ if (simActions) {
       pts.push([+(0.5 + 0.16 * Math.pow(Math.sin(t), 3) * 1.4).toFixed(4),
                 +(0.42 - 0.13 * (Math.cos(t) - .45 * Math.cos(2 * t) - .2 * Math.cos(3 * t))).toFixed(4), 1]);
     }
-    APP.receivePageInk({ pts, c: '#FF7A9C', w: 8, alpha: 1, taper: true, brush: 'pen' });
+    APP.receivePageInk({ pts, c: 'var(--red)', w: 8, alpha: 1, taper: true, brush: 'pen' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('her page reached your widget');
   });
   simActions.appendChild(b);
   const b2 = el(`<button>she writes in her hand</button>`);
   b2.addEventListener('click', () => {
-    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: '#FF7A9C' });
+    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: 'var(--red)' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('“miss you”, in her hand, on your widget');
   });

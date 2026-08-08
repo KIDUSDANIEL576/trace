@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#0A0A0C; }
+  * { box-sizing:border-box; }
+  @keyframes traceDraw { 0%{stroke-dashoffset:320;opacity:1} 42%{stroke-dashoffset:0;opacity:1} 50%{stroke-dashoffset:0;opacity:1} 58%{opacity:0} 100%{stroke-dashoffset:320;opacity:0} }
+  @keyframes traceDot { 0%{opacity:0} 38%{opacity:0} 44%{opacity:1} 52%{opacity:1} 60%{opacity:0} 100%{opacity:0} }
+  @keyframes writeWord { 0%{clip-path:inset(-20% 100% -25% -10%)} 46%{clip-path:inset(-20% -14% -25% -10%)} 84%{clip-path:inset(-20% -14% -25% -10%);opacity:1} 93%{opacity:0} 94%{clip-path:inset(-20% 100% -25% -10%);opacity:0} 100%{clip-path:inset(-20% 100% -25% -10%);opacity:1} }
+  @keyframes nibMove { 0%{left:0;opacity:1} 46%{left:103%;opacity:1} 54%{opacity:0} 100%{left:0;opacity:0} }
+  @keyframes spinDraw { 0%{stroke-dashoffset:120;opacity:1} 40%{stroke-dashoffset:0} 55%{stroke-dashoffset:0;opacity:1} 62%{opacity:0} 100%{stroke-dashoffset:120;opacity:0} }
+</style>
+</helmet>
+
+<div style="min-height:100%;padding:56px 64px 100px;background:#0A0A0C;font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;color:#EDEFF7">
+
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:44px;max-width:720px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#E23343">Trace — final brand</span>
+      <span style="height:1px;flex:1;background:rgba(255,255,255,.12)"></span>
+    </div>
+    <h1 style="margin:0;font-size:38px;font-weight:600;letter-spacing:-.02em">The mark, the wordmark, the loader</h1>
+    <p style="margin:0;font-size:16px;line-height:1.5;color:rgba(237,239,247,.55);text-wrap:pretty">One red stroke with a white tip that takes turns with a white stroke and a red tip — two hands, one canvas. The Caveat wordmark writes itself alongside it.</p>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:40px">
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:720px">
+      <div style="width:720px;height:400px;border-radius:24px;background:#1A1A1A;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:40px">
+        <svg viewBox="0 0 120 120" style="width:170px;height:170px">
+          <path d="M18 82 C42 26,66 96,102 34" stroke="#E23343" stroke-width="13" fill="none" stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite"></path>
+          <circle cx="102" cy="34" r="8" fill="#EDEFF7" style="animation:traceDot 4.4s linear infinite"></circle>
+          <path d="M18 82 C42 26,66 96,102 34" stroke="#EDEFF7" stroke-width="13" fill="none" stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite;animation-delay:2.2s;opacity:0"></path>
+          <circle cx="102" cy="34" r="8" fill="#E23343" style="animation:traceDot 4.4s linear infinite;animation-delay:2.2s;opacity:0"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px">
+          <div style="position:relative;display:inline-block">
+            <div style="font-family:Caveat,cursive;font-weight:700;font-size:92px;line-height:1;color:#FFFFFF;letter-spacing:-.01em;padding-right:16px;animation:writeWord 4.4s linear infinite">tra<span style="color:#E23343">ce</span></div>
+            <span style="position:absolute;top:14%;width:5px;height:58%;border-radius:3px;background:#E23343;animation:nibMove 4.4s linear infinite"></span>
+          </div>
+          <div style="font-family:Caveat,cursive;font-weight:600;font-size:32px;line-height:1.1;color:rgba(255,255,255,.8);padding-left:6px">Leave me a trace.</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:rgba(237,239,247,.5)">Primary lockup — both animations on a shared 4.4s loop</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:340px">
+      <div style="width:340px;height:300px;border-radius:24px;background:#FBF4EA;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+        <svg viewBox="0 0 120 120" style="width:88px;height:88px">
+          <path d="M18 82 C42 26,66 96,102 34" stroke="#E23343" stroke-width="13" fill="none" stroke-linecap="round"></path>
+          <circle cx="102" cy="34" r="8" fill="#1A1A1A"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-family:Caveat,cursive;font-weight:700;font-size:52px;line-height:1;color:#1A1A1A">tra<span style="color:#E23343">ce</span></div>
+          <div style="font-family:Caveat,cursive;font-weight:600;font-size:23px;color:rgba(0,0,0,.6)">Leave me a trace.</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:rgba(237,239,247,.5)">On paper — static, print, packaging</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:340px">
+      <div style="width:340px;height:300px;border-radius:24px;background:#E23343;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+        <svg viewBox="0 0 120 120" style="width:88px;height:88px">
+          <path d="M18 82 C42 26,66 96,102 34" stroke="#FFFFFF" stroke-width="13" fill="none" stroke-linecap="round"></path>
+          <circle cx="102" cy="34" r="8" fill="#1A1A1A"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-family:Caveat,cursive;font-weight:700;font-size:52px;line-height:1;color:#FFFFFF">trace</div>
+          <div style="font-family:Caveat,cursive;font-weight:600;font-size:23px;color:rgba(255,255,255,.85)">Leave me a trace.</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:rgba(237,239,247,.5)">Red field — one-colour reverse</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:340px">
+      <div style="width:340px;height:300px;border-radius:24px;background:#111114;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:22px">
+        <div style="width:104px;height:104px;border-radius:24px;background:#E23343;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 120 120" style="width:68px;height:68px"><path d="M18 82 C42 26,66 96,102 34" stroke="#fff" stroke-width="14" fill="none" stroke-linecap="round"></path><circle cx="102" cy="34" r="9" fill="#1A1A1A"></circle></svg></div>
+        <div style="width:68px;height:68px;border-radius:16px;background:#1A1A1A;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 120 120" style="width:46px;height:46px"><path d="M18 82 C42 26,66 96,102 34" stroke="#E23343" stroke-width="14" fill="none" stroke-linecap="round"></path><circle cx="102" cy="34" r="9" fill="#EDEFF7"></circle></svg></div>
+        <div style="width:40px;height:40px;border-radius:10px;background:#E23343;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 120 120" style="width:28px;height:28px"><path d="M18 82 C42 26,66 96,102 34" stroke="#fff" stroke-width="16" fill="none" stroke-linecap="round"></path><circle cx="102" cy="34" r="10" fill="#1A1A1A"></circle></svg></div>
+      </div>
+      <div style="font-size:14px;color:rgba(237,239,247,.5)">App icon — 104 / 68 / 40px</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:340px">
+      <div style="width:340px;height:300px;border-radius:24px;background:#1A1A1A;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px">
+        <svg viewBox="0 0 120 60" style="width:150px;height:75px">
+          <path d="M14 44 C36 12,58 52,106 20" stroke="#E23343" stroke-width="9" fill="none" stroke-linecap="round" style="stroke-dasharray:120;animation:spinDraw 1.6s linear infinite"></path>
+          <path d="M14 44 C36 12,58 52,106 20" stroke="#EDEFF7" stroke-width="9" fill="none" stroke-linecap="round" style="stroke-dasharray:120;animation:spinDraw 1.6s linear infinite;animation-delay:.8s;opacity:0"></path>
+        </svg>
+        <div style="font-size:13px;color:rgba(237,239,247,.45)">Loading — red, white, red, white</div>
+      </div>
+      <div style="font-size:14px;color:rgba(237,239,247,.5)">The loader is the logo at 1.6s</div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
