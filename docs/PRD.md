@@ -141,3 +141,52 @@ done:
 - Undo semantics when both drew since (v1: retract own stroke only, tombstone in log).
 - E2E encryption of stroke payloads (v1.1 target; realtime broadcast supports opaque payloads today).
 - Live Activities / Dynamic Island for Both Here (category is moving there in 2026 — spike in v1.1).
+
+
+## 12. Pages: us / mine / hers (built v0.9, spec backfill)
+
+- **us** — one shared canvas, both hands, live (`sb/sp/se` events, 80 ms batch).
+- **mine** — my page. Strokes and typed lines ride the board channel as
+  `pageink` (normalized pts + text/font/size), land on the PARTNER's widget
+  as a one-time trace, and are never writable by the partner.
+- **hers** — the partner's page arriving here; read-only by law. Page ink is
+  stored normalized and re-projected on resize, so it renders even if the
+  canvas was never sized (widget falls back to its own aspect).
+
+## 13. The handwriting keys (built v0.9, spec backfill)
+
+Type ≤40 chars, pick a hand (Caveat · Dancing Script · Sacramento · Kaushan
+· Yellowtail · Parisienne, all embedded), size 20–56, send. Rendered with
+per-glyph wobble seeded from the stroke id — deterministic, so both phones
+draw the identical hand and repaints never shimmer. Canvas `fillText` does
+not trigger `@font-face` loading: all hands are warmed at boot.
+
+## 14. Notification matrix ("How loud" → APNs categories, v1.0)
+
+| Kind | Levels allowed | Default | Lock |
+|---|---|---|---|
+| The flare | Rings | Rings | LOCKED loud — 3/year, breaks quiet hours |
+| Leaving now | Rings·Banner·Widget | Banner | — |
+| Goodnight | Rings·Banner·Widget | Banner | — |
+| Drawing traces | Banner·Widget | Widget | capped at Banner |
+| Notices | Rings·Banner·Widget | Widget | — |
+| List ticks | Widget | Widget | LOCKED silent |
+
+Quiet hours mute Rings+Banner for everything except the flare. v0.9 maps
+Rings/Banner onto Web Push (`urgency: high/normal`); Widget-only never
+pushes. v1.0 maps 1:1 onto APNs interruption levels (flare = time-sensitive).
+
+## 15. Analytics — counts only, if enabled
+
+| Event | Answers | Payload |
+|---|---|---|
+| install | reach | platform |
+| pair_created / pair_joined | activation funnel | — |
+| first_stroke_sent / first_stroke_received | aha moment | — |
+| day2_open | retention | — |
+| flare_sent | is the promise used | — |
+| unpair | churn shape | days_paired (bucketed) |
+
+Deliberately never counted: stroke contents, text, colors, page names,
+feature usage beyond the six above, anything per-partner. One random
+install id, no IP retention, drop the table on request.

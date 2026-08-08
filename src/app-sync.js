@@ -92,6 +92,24 @@ const NET = window.TRACE_NET = {
     t.send(event, { ...payload, from: me });
   },
 
+  /* the security gate: a 5-char code is never a channel name. It exchanges
+     (once, cached) for an unguessable token via the pair edge function, and
+     the channel is named by the token. */
+  async resolveToken(code) {
+    const k = 'trace:token:' + code;
+    const hit = localStorage.getItem(k);
+    if (hit) return hit;
+    const r = await fetch('https://doadibyqqdimzzywcglv.supabase.co/functions/v1/pair', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', apikey: 'sb_publishable_W1K6K6qLY2ftOWNBbdm4hA__B7DpmtJ' },
+      body: JSON.stringify({ code }),
+    });
+    if (!r.ok) throw new Error('pair ' + r.status);
+    const { token } = await r.json();
+    localStorage.setItem(k, token);
+    return token;
+  },
+
   join(code, mode, ui) {
     NET.leave();
     const app = window.TRACE_APP;
@@ -116,7 +134,23 @@ const NET = window.TRACE_NET = {
       else if (event === 'board') app.remoteBoard(p);
     };
     const onStatus = (s, why) => ui && ui(s, why);
-    t = (mode === 'local' ? localTransport : supaTransport)(code, onMsg, (s, why) => {
+    if (mode !== 'local') {
+      NET.resolveToken(code).then((token) => {
+        NET.token = token;
+        if (NET.code !== code) return;          /* user moved on meanwhile */
+        t = supaTransport(token, onMsg, (s, why) => {
+          if (s === 'open') {
+            NET.emit('hi', { name: NET.name, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
+            clearInterval(hello);
+            hello = setInterval(() => NET.emit('hi', { name: NET.name, reply: true, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }), 4000);
+          }
+          onStatus(s, why);
+        });
+      }).catch(() => onStatus('error', 'code exchange failed — check the connection'));
+      NET.code = code; NET.mode = mode;
+      return;
+    }
+    t = localTransport(code, onMsg, (s, why) => {
       if (s === 'open') {
         NET.emit('hi', { name: NET.name, tz: Intl.DateTimeFormat().resolvedOptions().timeZone });
         clearInterval(hello);

@@ -478,6 +478,7 @@ R.addSub('flare', 'the flare', (body) => {
       let t = null;
       const start = () => { t = setTimeout(() => {
         db.flares--; db.flare = { ts: Date.now() }; resetDeck(); push('flare', {}); buzz(40); paint(); draw();
+        window.TRACE_PUSH && TRACE_PUSH.ring('flare', 'I need you');
         toast('sent — her phone is ringing, whatever she’s doing');
       }, 3000); };
       const stop = () => clearTimeout(t);

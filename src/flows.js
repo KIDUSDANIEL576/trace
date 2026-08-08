@@ -63,12 +63,49 @@ function showPrimer() {
     db.perm = 'granted';
     try { if ('Notification' in window) db.perm = (await Notification.requestPermission()) === 'granted' ? 'granted' : 'denied'; } catch (e) {}
     save(); ov.remove(); primerUp = false; buzz(10);
+    if (db.perm === 'granted') subscribePush();
     toast(db.perm === 'granted' ? 'set — only what you chose in How loud' : 'kept quiet — the widget carries everything');
   });
   ov.querySelector('[data-later]').addEventListener('click', () => {
     db.perm = 'later'; save(); ov.remove(); primerUp = false;
   });
 }
+
+/* real web push: the device subscribes under the pairing token, and the
+   flare rings the partner through the push edge function. Silent no-op
+   wherever the platform can't (that honesty is in the tutorial copy). */
+const VAPID_PUB = 'BKTgp0RYCDJmgT8i9mQ-sl3EU_YTuvjxCYqhFfCJyPXWznKpjyuWXPqC9idiqri5mnKTyd0mcTOhM-VELJY1uzo';
+const PUSH_URL = 'https://doadibyqqdimzzywcglv.supabase.co/functions/v1/push';
+const PUSH_KEY = 'sb_publishable_W1K6K6qLY2ftOWNBbdm4hA__B7DpmtJ';
+function b64uToBytes(str) {
+  const pad = '='.repeat((4 - str.length % 4) % 4);
+  const raw = atob((str + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+async function subscribePush() {
+  try {
+    const token = window.TRACE_NET && TRACE_NET.token;
+    if (!token || !('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uToBytes(VAPID_PUB) });
+    db.pushEndpoint = sub.endpoint; save();
+    await fetch(PUSH_URL, { method: 'POST',
+      headers: { 'content-type': 'application/json', apikey: PUSH_KEY },
+      body: JSON.stringify({ op: 'sub', token, sub: sub.toJSON() }) });
+  } catch (e) { /* platform said no — the widget still carries everything */ }
+}
+window.TRACE_PUSH = {
+  subscribe: subscribePush,
+  ring(kind, body2) {
+    const token = window.TRACE_NET && TRACE_NET.token;
+    if (!token) return;
+    fetch(PUSH_URL, { method: 'POST',
+      headers: { 'content-type': 'application/json', apikey: PUSH_KEY },
+      body: JSON.stringify({ op: 'ring', token, kind, body: body2, self: db.pushEndpoint }) }).catch(() => {});
+  },
+};
+/* already granted on a previous visit → re-arm silently */
+if (db.perm === 'granted') setTimeout(subscribePush, 3000);
 
 /* ============ honest list · widget add-tutorial — the Locket moment ====== */
 
@@ -83,10 +120,12 @@ function showWidgetTut() {
     <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid rgba(255,255,255,.1);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:14px">
       <div style="font-size:20px;font-weight:600;text-align:center">Put her on your home screen</div>
-      <div style="font-size:13px;color:rgba(237,239,247,.5);text-align:center">The widget is the app for days you never open it.</div>
-      ${step(1, 'Touch and hold your home screen until the apps jiggle')}
-      ${step(2, 'Tap <b>＋</b>, search <b>Trace</b>')}
-      ${step(3, 'Add the medium one — her board fits it exactly')}
+      <div style="font-size:13px;color:rgba(237,239,247,.5);text-align:center">Installed, trace runs full-screen and her things can reach you.</div>
+      ${/iphone|ipad|ipod/i.test(navigator.userAgent)
+        ? step(1, 'Open trace in <b>Safari</b>') + step(2, 'Tap <b>Share</b> → <b>Add to Home Screen</b>')
+          + step(3, 'Open it from the icon — that’s the one that can ring')
+        : step(1, 'Tap the browser menu <b>⋮</b>') + step(2, 'Choose <b>Install app</b> (or Add to Home screen)')
+          + step(3, 'Open it from the icon — that’s the one that can ring')}
       <button class="p-cta" data-done>Done — it’s there</button>
       <button class="ob-skip" data-skip style="margin:0">I’ll do it later</button>
     </div></div>`);

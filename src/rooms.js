@@ -1020,7 +1020,8 @@ window.TRACE_BOARD = {
   el, esc, count, tickRow, navRow, swRow,
   ui: { toast, buzz, panel: (t, b) => APP.openPanel && APP.openPanel(t, b) },
   /* "leaving now" and "thinking of you" are pushed, not polled */
-  leaving(mins) { db.leaving = { mins }; resetDeck(); push('leaving', { mins }); paintWidget(); },
+  leaving(mins) { db.leaving = { mins }; resetDeck(); push('leaving', { mins }); paintWidget();
+    if ((db.loud || {}).leave !== 'widget' && window.TRACE_PUSH) TRACE_PUSH.ring('leave', 'Leaving now — home in ' + mins + ' min'); },
   thinking() { db.thinking = { ts: Date.now() }; resetDeck(); push('thinking', {}); paintWidget(); },
   db,
 };

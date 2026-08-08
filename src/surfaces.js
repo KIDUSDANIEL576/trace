@@ -276,7 +276,7 @@ function render() {
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Every surface</button>
       <button class="icob" data-close>✕</button></div>
-    <div class="title"><div class="k">${esc(cur[2])}</div><div class="v">${esc(cur[3])}</div></div>
+    <div class="title"><div class="k">${esc(cur[2])} · <span style="color:#FFB020">coming with the store build</span></div><div class="v">${esc(cur[3])}</div></div>
     <div class="deck" style="padding:16px 20px 0">
       ${TABS.map(([k, label]) => `<button class="c" data-tab="${k}" style="min-width:0;height:38px;padding:0 16px;
         display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:600;

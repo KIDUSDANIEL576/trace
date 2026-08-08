@@ -473,6 +473,22 @@ self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
   e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r})
     .catch(()=>caches.match(e.request).then(r=>r||caches.match('./app.html'))));
+});
+self.addEventListener('push',e=>{
+  let d={kind:'note',body:''}; try{d=e.data.json()}catch(_){ }
+  const flare=d.kind==='flare';
+  e.waitUntil(self.registration.showNotification(flare?'I need you':'trace',{
+    body:d.body||(flare?'The flare. Open now.':'Something landed for you.'),
+    tag:'trace-'+d.kind, renotify:flare, requireInteraction:flare,
+    icon:'pwa/icon-512.png', badge:'pwa/icon-512.png', vibrate:flare?[300,120,300,120,600]:[60],
+  }));
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(ws=>{
+    for(const w of ws){ if('focus' in w) return w.focus(); }
+    return clients.openWindow('./app.html');
+  }));
 });`);
 const PWA_HEAD = `<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0A0A0C">
@@ -528,6 +544,65 @@ if (unknown.size) {
   for (const [dim, how] of unknown) console.log(`  ${dim}  ${how}`);
 }
 for (const n of notes) console.log(`\nnote: ${n}`);
+
+/* ------------------------------------------------- the front door + legal */
+{
+  const md2html = (md) => md.split(/\n\n+/).map((blk) => {
+    const t = blk.trim();
+    if (t.startsWith('# ')) return `<h1>${t.slice(2)}</h1>`;
+    if (t.startsWith('## ')) return `<h2>${t.slice(3)}</h2>`;
+    if (/^([-*]|\d+\.) /m.test(t)) return '<ul>' + t.split(/\n/).map((l) =>
+      `<li>${l.replace(/^([-*]|\d+\.) /, '')}</li>`).join('') + '</ul>';
+    return `<p>${t}</p>`;
+  }).join('\n').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  const legalCss = `<style>*{box-sizing:border-box}body{margin:0;background:#0A0A0C;color:#EDEFF7;
+    font:15px/1.65 -apple-system,'Segoe UI',system-ui,sans-serif;padding:40px 22px 80px}
+    .w{max-width:680px;margin:0 auto}h1{font-size:26px;letter-spacing:-.01em}h2{font-size:18px;margin-top:26px}
+    p,li{color:rgba(237,239,247,.72)}b{color:#EDEFF7}a{color:#6EA8FF}ul{padding-left:20px}
+    .back{font-size:13px;color:rgba(237,239,247,.45)}</style>`;
+  for (const [src2, out2, title2] of [['docs/PRIVACY.md', 'privacy.html', 'privacy'], ['docs/TERMS.md', 'terms.html', 'terms']]) {
+    writeFileSync(join(at(OUT), out2),
+      `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>trace — ${title2}</title>${legalCss}</head><body><div class="w">
+      <p class="back"><a href="start.html">← trace</a></p>${md2html(read(src2))}</div></body></html>`);
+  }
+
+  const dsB64 = readFileSync(at('src/fonts/script/Dancing-Script.woff2')).toString('base64');
+  writeFileSync(join(at(OUT), 'start.html'), `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>trace — one canvas, both of you</title>
+<meta name="theme-color" content="#0A0A0C">
+<style>
+@font-face{font-family:'Dancing Script';font-weight:700;src:url(data:font/woff2;base64,${dsB64}) format('woff2')}
+*{box-sizing:border-box;margin:0}
+body{background:#0A0A0C;color:#EDEFF7;font:16px/1.6 -apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:40px 24px;text-align:center}
+.mark{font-family:'Dancing Script';font-weight:700;font-size:88px;line-height:1.35;display:flex;align-items:baseline}
+.mark svg{width:82px;height:40px;overflow:visible;transform:translateY(-8px)}
+.line{font-size:18px;color:rgba(237,239,247,.6);margin:10px 0 34px;max-width:34ch;text-wrap:balance}
+.go{display:inline-block;padding:16px 42px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;
+  font-size:17px;font-weight:650;text-decoration:none}
+.how{margin-top:38px;max-width:420px;width:100%;text-align:left;border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:18px 20px;background:rgba(255,255,255,.04)}
+.how b{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:rgba(237,239,247,.45)}
+.how p{font-size:14.5px;color:rgba(237,239,247,.72);margin-top:8px}
+.foot{margin-top:40px;font-size:12.5px;color:rgba(237,239,247,.35)}
+.foot a{color:rgba(237,239,247,.5)}
+</style></head><body>
+<div class="mark">trac<svg viewBox="0 0 140 70"><path d="M6 50 C28 12, 60 66, 98 28 C110 17, 122 15, 133 21"
+  fill="none" stroke="#E23343" stroke-width="10" stroke-linecap="round"/></svg></div>
+<p class="line">One canvas, both of you, all day. Draw, and it lands on their home screen.</p>
+<a class="go" href="app.html">Open trace</a>
+<div class="how" id="how"><b>Put it on your home screen</b><p id="steps"></p></div>
+<p class="foot">Two people. No feed. No audience. · <a href="privacy.html">privacy</a> · <a href="terms.html">terms</a></p>
+<script>
+const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+document.getElementById('steps').innerHTML = ios
+  ? 'Open in <b>Safari</b> → tap <b>Share</b> → <b>Add to Home Screen</b>. It runs full-screen, works offline, and notifications work from the installed icon (iOS 16.4+).'
+  : 'Tap the browser menu <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>). It installs like any app — offline, notifications, the lot.';
+</script></body></html>`);
+}
 
 /* ------------------------------------------- the clean redesign (t19-27) */
 
