@@ -116,9 +116,16 @@ rather than by eye.
 ```
 node qa/registry.mjs                            duplicate db keys, screens, rows, dead rows
 node qa/contrast.mjs [dark]                     text that cannot be read against its ground
+node qa/targets.mjs                             every tap target, on every surface
 node qa/deadends.mjs                            press every control; report what moved nothing
 node qa/deadends.mjs "Repair,New event"         a slice, in order, for a repro
 ```
+
+`targets` exists because the sweep it replaces reported "no tap target under
+44px" for weeks, and was true — of `.scr` sections, which is not the app. Three
+surfaces are not sections: the launch splash, the 33 panels, and the two dock
+overlays. "I have a code" — the only route to pairing — sat at 18px behind that
+clean result. This one prints the scope it walked, every run, for that reason.
 
 `deadends` exists because every other check here can pass on a photograph. A
 palette audit cannot tell a working switch from a painted one. So it presses
@@ -138,6 +145,9 @@ like it:
   541 to 387 and read as an improvement. When something is unreachable the tool
   names what covered it — "181 unreachable" is not a finding, it is a question,
   and the answer was one line of markup.
+- **State the scope with the number.** Every one of these prints what it
+  walked. A clean result over a scope the tool never mentions is the most
+  expensive kind of green, because it gets believed.
 
 ### App icon
 
