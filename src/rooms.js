@@ -678,13 +678,13 @@ function renderStates() {
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
         '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
         '<span style="color:var(--red)">27:14</span>', 'shows nightly<br>from 9 PM', true)}
-      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--violet)', 'Groceries',
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
         'only while<br>someone shops', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--ground-alt),var(--ground-alt))', 'var(--ink)', 'Leaving now',
         '<span style="color:var(--ink)">32 min</span>', 'auto · breaks<br>through armour', true)}
-      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--amber)', 'Notice',
-        'Landlord letter — reply by <span style="color:var(--amber)">Aug 15</span>', 'until it’s<br>handled')}
+      ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Notice',
+        'Landlord letter — reply by <span style="color:var(--red-text)">Aug 15</span>', 'until it’s<br>handled')}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
         `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">
@@ -810,26 +810,26 @@ function deck() {
   const hersN = (APP.hersCount && APP.hersCount()) || 0;
   if (db.pub.trace && (partnerLive || ((strokeN + hersN) && !db.traceSeen)))
     add(2, { kind: 'trace', tint: 'var(--red)', head: partnerLive ? 'drawing' : 'a trace',
-      foot: 'trace · one-time', spark: sparkline('var(--amber)'), render: traceCard });
+      foot: 'trace · one-time', spark: sparkline('var(--red)'), render: traceCard });
 
   /* a fresh tap is the warmest thing on the deck, so it sits behind only
      "leaving now" and the live trace — it ages out after ten minutes */
   const freshTap = db.thinking && (Date.now() - db.thinking.ts) < 6e5;
   if (freshTap)
-    add(3, { kind: 'think', tint: 'var(--amber)', head: 'thinking of you',
+    add(3, { kind: 'think', tint: 'var(--red)', head: 'thinking of you',
       foot: 'tapped your name', render: thinkCard });
 
   const open = db.tasks.filter((t) => !db.done[t.id]);
   if (db.pub.list && open.length)
-    add(5, { kind: 'todo', tint: 'var(--violet)', head: open.length + ' left',
+    add(5, { kind: 'todo', tint: 'var(--ink)', head: open.length + ' left',
       foot: 'today’s list', render: todoCard });
 
   if (db.shopping && db.pub.list)
-    add(4, { kind: 'shop', tint: 'var(--violet)', head: (db.items.length - count(db.got)) + ' left',
+    add(4, { kind: 'shop', tint: 'var(--ink)', head: (db.items.length - count(db.got)) + ' left',
       foot: 'groceries · he’s at the shop', render: shopCard });
 
   if (db.pub.notice && db.notices.length)
-    add(7, { kind: 'notice', tint: 'var(--amber)', head: db.notices[0].when,
+    add(7, { kind: 'notice', tint: 'var(--ink)', head: db.notices[0].when,
       foot: 'notice', render: noticeCard });
 
   if (db.pub.cal && db.week.items.length)

@@ -87,19 +87,28 @@ const keysBtn = el(`<button class="rbtn" title="write in your hand" aria-label="
 $('#undo-btn').before(keysBtn);
 
 let pad = null;
-function closePad() { if (pad) { pad.remove(); pad = null; } }
+/* p14 is a composer screen, not a drawing one — the brush bar has no job
+   while you are typing, and hiding it is what makes the pad fit on a 390. */
+function closePad() {
+  if (!pad) return;
+  pad.remove(); pad = null;
+  const dock = $('#dock'); if (dock) dock.style.display = '';
+  $('#sc-canvas').classList.remove('composing');
+}
 function openPad() {
   if (pad) return closePad();
   if (APP.curPage() === 'hers') { toast('her page — you can’t write here'); return; }
   pad = el(`<div id="writepad" style="position:relative;z-index:12;margin:0 20px;border-radius:22px;
     background:var(--surface);border:1px solid var(--hairline);backdrop-filter:blur(16px);
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
-    <div id="wp-prev" style="min-height:52px;display:flex;align-items:center;justify-content:center;
-      border-radius:14px;background:var(--surface);padding:6px 10px;overflow:hidden;
-      font:700 ${size}px '${font}',cursive;color:var(--ink)"></div>
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
-      style="padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);
-      background:var(--surface);color:var(--ink);font:15px inherit;outline:none">
+      style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);
+      background:var(--surface);color:var(--ink);font:17px inherit;outline:none">
+    <div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
+      <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
+      <div id="wp-prev" style="min-height:44px;margin-top:8px;overflow:hidden;word-break:break-word;
+        font:700 ${size}px '${font}',cursive;color:var(--ink);line-height:1.15"></div>
+    </div>
     <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none" id="wp-fonts">
       ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;padding:7px 14px;
         border-radius:999px;font:600 16px '${f}',cursive;color:var(--ink);border:1px solid var(--hairline);
@@ -107,12 +116,15 @@ function openPad() {
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
-      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:var(--amber);min-width:0">
-      <button id="wp-send" style="padding:11px 22px;border-radius:999px;background:var(--ink);color:var(--emph-ink);
-        font-size:14px;font-weight:600">Send</button>
+      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:var(--red);min-width:0">
+      <button id="wp-send" style="padding:12px 24px;border-radius:999px;background:var(--red);color:var(--on-red);
+        font-size:15px;font-weight:600">Send</button>
     </div>
   </div>`);
-  $('#dock').before(pad);
+  const dock = $('#dock');
+  dock.before(pad);
+  dock.style.display = 'none';
+  $('#sc-canvas').classList.add('composing');
 
   const input = $('#wp-in', pad), prev = $('#wp-prev', pad);
   const wobble = () => {
@@ -129,7 +141,7 @@ function openPad() {
   $$('#wp-fonts [data-font]', pad).forEach((b) => b.addEventListener('click', () => {
     font = b.dataset.font; buzz(6); wobble();
     $$('#wp-fonts [data-font]', pad).forEach((x) => x.style.borderColor =
-      x === b ? 'rgba(255,255,255,.4)' : 'var(--hairline)');
+      x === b ? 'var(--red)' : 'var(--hairline)');
   }));
   $('#wp-size', pad).addEventListener('input', (e) => { size = +e.target.value; wobble(); });
   const send = () => {
@@ -157,14 +169,14 @@ if (simActions) {
       pts.push([+(0.5 + 0.16 * Math.pow(Math.sin(t), 3) * 1.4).toFixed(4),
                 +(0.42 - 0.13 * (Math.cos(t) - .45 * Math.cos(2 * t) - .2 * Math.cos(3 * t))).toFixed(4), 1]);
     }
-    APP.receivePageInk({ pts, c: 'var(--red)', w: 8, alpha: 1, taper: true, brush: 'pen' });
+    APP.receivePageInk({ pts, c: TOK('--red'), w: 8, alpha: 1, taper: true, brush: 'pen' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('her page reached your widget');
   });
   simActions.appendChild(b);
   const b2 = el(`<button>she writes in her hand</button>`);
   b2.addEventListener('click', () => {
-    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: 'var(--red)' });
+    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: TOK('--red') });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('“miss you”, in her hand, on your widget');
   });

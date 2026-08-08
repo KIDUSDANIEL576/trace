@@ -290,7 +290,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .deck .c i{font-style:normal;font-size:10px;color:var(--ink-3);margin-top:6px;display:block}
 
 /* ------------------------------------------------- the canvas room — p2, p36 */
-#canvas-zone{flex:1;min-height:0;display:flex;padding:20px 20px 0}
+/* the composer and the brush pop both push up from the dock; the canvas may
+   shrink for them but must never vanish — it is the home screen. */
+#canvas-zone{flex:1;min-height:140px;display:flex;padding:20px 20px 0}
+/* p14 is its own screen in the design. Here it opens over the canvas, so the
+   canvas yields to a strip and the stat cards stand down — a composer needs
+   the height, and neither number means anything while you are typing. */
+#sc-canvas.composing #canvas-zone{min-height:0;flex:0 1 96px}
+#sc-canvas.composing .stat2{display:none}
 #canvas-wrap{position:relative;flex:1;border-radius:24px;overflow:hidden;background:var(--surface);
   border:1px solid var(--hairline);touch-action:none}
 #card-sky{position:absolute;inset:0;opacity:0;transition:opacity .6s}
