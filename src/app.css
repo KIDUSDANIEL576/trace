@@ -203,8 +203,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* rooms tint the paper, they do not change it. p46/p51 use paper-alt, p54 paper-deep. */
 #screen[data-room="Canvas"]    #sky{background:var(--ground)}
 #screen[data-room="Household"] #sky{background:var(--ground)}
-#screen[data-room="Memory"]    #sky{background:var(--ground-alt)}
-#screen[data-room="Wellbeing"] #sky{background:var(--ground-alt)}
+/* paper-alt is for the quiet screens the token table names — repair, grief,
+   the end. Memory and wellbeing are ordinary rooms and their frames use paper. */
+#screen[data-room="Memory"]    #sky{background:var(--ground)}
+#screen[data-room="Wellbeing"] #sky{background:var(--ground)}
 #dim{position:absolute;inset:0;pointer-events:none;background:transparent}
 #col{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:46px}
 

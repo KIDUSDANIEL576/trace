@@ -57,6 +57,7 @@ const head = (k, h, l, big) => `<div class="head"><div class="k">${k}</div>
 
 function renderUnsaid() {
   const s = screens.unsaid;
+  s.dataset.ground = 'alt';   /* the same quiet ground as repair and the end */
   const live = db.unsaid.filter((u) => !u.let_go);
   const gone = db.unsaid.filter((u) => u.let_go);
   s.innerHTML = `
@@ -139,7 +140,8 @@ function renderNewborn() {
     <div class="hd"><button class="pill" data-back>Newborn</button>
       <button class="icob" data-close>✕</button></div>
     <div class="page">
-      ${head(`Week ${sl.week} · newborn mode`, on ? 'You’re on until 6' : 'One of you is always on')}
+      ${head(on ? `Week ${sl.week} · newborn mode` : 'Newborn mode · off',
+        on ? 'You’re on until 6' : 'One of you is always on')}
       <div style="padding:18px 20px 0;flex:none">
         <div class="card ink" style="border-radius:22px;padding:20px 22px">
           <div style="display:flex;justify-content:space-between">
@@ -153,13 +155,20 @@ function renderNewborn() {
       </div>
       <div class="eyebrow">Tonight so far</div>
       <div class="stackcol" style="padding-top:0">
-        ${db.nights.map((n) => `
-          <div class="card line" style="border-radius:16px;padding:12px 16px">
-            <span style="font-size:13px;font-weight:700;width:48px;flex:none">${esc(n.at)}</span>
+        ${db.nights.map((n, i) => {
+          const live = i === db.nights.length - 1;
+          return `<div class="card line${live ? ' warn' : ''}" style="border-radius:16px;padding:12px 16px">
+            <span style="font-size:13px;font-weight:700;width:48px;flex:none${live ? ';color:var(--red-text)' : ''}">${esc(n.at)}</span>
             <span class="grow" style="font-size:15px">${esc(n.t)}</span>
-            <span style="font-size:12px;color:var(--ink-4)">${esc(n.who)}</span></div>`).join('')}
+            <span style="font-size:12px;${live ? 'font-weight:700;color:var(--red-text)' : 'color:var(--ink-4)'}">${live ? 'now' : esc(n.who)}</span></div>`;
+        }).join('')}
         <button class="card" data-log style="border-style:dashed;text-align:center;color:var(--ink-3)">
           <span class="t" style="font-weight:500;color:var(--ink-3)">Log one, one tap</span></button>
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card"><div class="hand" style="font-size:26px;line-height:1.25">bottle’s already
+          made. you’re doing fine.</div>
+          <div class="d" style="margin-top:8px">Maya, 23:40</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
@@ -275,6 +284,11 @@ function renderMoving() {
                 ${done ? 'done' : st.left ? st.left + ' left' : ''}</span></div>
             <div class="d">${st.d}</div></button>`;
         }).join('')}
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card warn"><div class="t">Trace is watching for</div>
+          <div class="d" style="font-size:14px;color:var(--ink-2)">the two of you both thinking the
+            other booked the van.</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">

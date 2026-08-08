@@ -120,7 +120,10 @@ function renderWheel() {
 
 function renderMemory() {
   const s = screens.memory;
-  const shades = ['var(--ground-alt)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
+  /* empty days are a pale ink tint, not white — on paper, white cells would be
+     the brightest thing on the grid and the blank weeks would read as the loud
+     ones. SCREENS.md p21: "Empty days are pale, never red." */
+  const shades = ['rgba(26,26,26,.07)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
   const cells = Array.from({ length: 98 }, (_, n) => {
     const h = ((n * 2654435761) >>> 0) % 10;
     return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -189,10 +192,10 @@ function renderLoop() {
       </div>
       <div class="eyebrow">And the three rules</div>
       <div style="padding:0 20px;flex:none">
-        <div class="sheet">
-          <div class="r"><span class="k">Home is always the canvas</span><span class="v">always</span></div>
-          <div class="r"><span class="k">No room notifies about itself</span><span class="v">always</span></div>
-          <div class="r"><span class="k">Nothing that reads a drawing leaves the phone</span><span class="v">always</span></div>
+        <div class="card ink" style="padding:0;overflow:hidden">
+          <div style="padding:14px 18px;font-size:14px">1 · Home is always the canvas</div>
+          <div style="padding:14px 18px;font-size:14px;border-top:1px solid var(--emph-line)">2 · No room notifies about itself</div>
+          <div style="padding:14px 18px;font-size:14px;border-top:1px solid var(--emph-line)">3 · Nothing that reads a drawing leaves the device</div>
         </div>
       </div>
       <div style="padding:14px 20px 0;flex:none">
@@ -284,6 +287,14 @@ function renderPeople() {
       <div class="search" style="margin:16px 20px 0">
         <input id="ppl-q" placeholder="Search people" autocomplete="off"><span>⌕</span></div>
       <div class="stackcol" id="ppl-list">${draw('')}</div>
+      <div class="eyebrow">In an emergency</div>
+      <div style="padding:0 20px;flex:none">
+        <div class="card ink"><div class="t">Reachable from a locked phone</div>
+          <div class="d" style="line-height:1.5">Maya · Leo’s GP · your mum’s ward. No passcode, no
+            app, nothing else visible.</div>
+          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--red);
+            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
+      </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">The second line is the point: who usually arranges this one. It is the
@@ -300,6 +311,9 @@ function renderPeople() {
   }));
   q.addEventListener('input', () => { list.innerHTML = draw(q.value); wire(); });
   wire();
+  $$('[data-emerg]', s).forEach((b) => b.addEventListener('click', () => {
+    buzz(10); toast('three people, on the lock screen. nothing else is exposed.');
+  }));
 }
 
 /* ================================================================ p49 settle up
@@ -333,18 +347,27 @@ function renderSettle() {
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
-        <div class="note">Trace never nudges about this, never sends a reminder, and never shows it
-          on a widget. It is here when one of you wants to look, and invisible otherwise.</div>
+        <div class="note">No running total across months. It resets on the 1st whether you settle
+          or not — because a relationship isn’t a balance sheet, and “leave it” is a real answer.</div>
       </div>
       <div class="actions" style="padding-top:14px">
-        <button class="btn-plain" data-even>Call it even</button>
-        <button class="btn-red" style="flex:0 0 130px" data-add>Add one</button>
+        <button class="btn-ink" data-even>Even it up</button>
+        <button class="btn-plain" data-leave>Leave it</button>
+      </div>
+      <div style="padding:0 20px 18px;flex:none">
+        <button class="btn-plain" data-add style="min-height:44px;font-size:15px">Add one</button>
       </div>
     </div>`;
   back(s);
+  /* Both endings clear the month and neither is scored. "Leave it" is not a
+     lesser button — the frame gives it the same size, and the note says so. */
   $$('[data-even]', s).forEach((b) => b.addEventListener('click', () => {
     db.ledger = []; save(); R.push('settle', { even: true }); buzz(12);
-    toast('cleared. no record of who was ahead.'); renderSettle();
+    toast('evened up. no record of who was ahead.'); renderSettle();
+  }));
+  $$('[data-leave]', s).forEach((b) => b.addEventListener('click', () => {
+    db.ledger = []; save(); R.push('settle', { left: true }); buzz(10);
+    toast('left. it resets on the 1st either way.'); renderSettle();
   }));
   $$('[data-add]', s).forEach((b) => b.addEventListener('click', () => {
     ui.panel('add one', (body) => {

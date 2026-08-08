@@ -218,8 +218,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* rooms tint the paper, they do not change it. p46/p51 use paper-alt, p54 paper-deep. */
 #screen[data-room="Canvas"]    #sky{background:var(--ground)}
 #screen[data-room="Household"] #sky{background:var(--ground)}
-#screen[data-room="Memory"]    #sky{background:var(--ground-alt)}
-#screen[data-room="Wellbeing"] #sky{background:var(--ground-alt)}
+/* paper-alt is for the quiet screens the token table names — repair, grief,
+   the end. Memory and wellbeing are ordinary rooms and their frames use paper. */
+#screen[data-room="Memory"]    #sky{background:var(--ground)}
+#screen[data-room="Wellbeing"] #sky{background:var(--ground)}
 #dim{position:absolute;inset:0;pointer-events:none;background:transparent}
 #col{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:46px}
 
@@ -4492,7 +4494,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['var(--surface)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
+    const shades = ['rgba(26,26,26,.07)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -8178,6 +8180,7 @@ const head = (k, h, l, big) => `<div class="head"><div class="k">${k}</div>
 
 function renderUnsaid() {
   const s = screens.unsaid;
+  s.dataset.ground = 'alt';   /* the same quiet ground as repair and the end */
   const live = db.unsaid.filter((u) => !u.let_go);
   const gone = db.unsaid.filter((u) => u.let_go);
   s.innerHTML = `
@@ -8260,7 +8263,8 @@ function renderNewborn() {
     <div class="hd"><button class="pill" data-back>Newborn</button>
       <button class="icob" data-close>✕</button></div>
     <div class="page">
-      ${head(`Week ${sl.week} · newborn mode`, on ? 'You’re on until 6' : 'One of you is always on')}
+      ${head(on ? `Week ${sl.week} · newborn mode` : 'Newborn mode · off',
+        on ? 'You’re on until 6' : 'One of you is always on')}
       <div style="padding:18px 20px 0;flex:none">
         <div class="card ink" style="border-radius:22px;padding:20px 22px">
           <div style="display:flex;justify-content:space-between">
@@ -8274,13 +8278,20 @@ function renderNewborn() {
       </div>
       <div class="eyebrow">Tonight so far</div>
       <div class="stackcol" style="padding-top:0">
-        ${db.nights.map((n) => `
-          <div class="card line" style="border-radius:16px;padding:12px 16px">
-            <span style="font-size:13px;font-weight:700;width:48px;flex:none">${esc(n.at)}</span>
+        ${db.nights.map((n, i) => {
+          const live = i === db.nights.length - 1;
+          return `<div class="card line${live ? ' warn' : ''}" style="border-radius:16px;padding:12px 16px">
+            <span style="font-size:13px;font-weight:700;width:48px;flex:none${live ? ';color:var(--red-text)' : ''}">${esc(n.at)}</span>
             <span class="grow" style="font-size:15px">${esc(n.t)}</span>
-            <span style="font-size:12px;color:var(--ink-4)">${esc(n.who)}</span></div>`).join('')}
+            <span style="font-size:12px;${live ? 'font-weight:700;color:var(--red-text)' : 'color:var(--ink-4)'}">${live ? 'now' : esc(n.who)}</span></div>`;
+        }).join('')}
         <button class="card" data-log style="border-style:dashed;text-align:center;color:var(--ink-3)">
           <span class="t" style="font-weight:500;color:var(--ink-3)">Log one, one tap</span></button>
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card"><div class="hand" style="font-size:26px;line-height:1.25">bottle’s already
+          made. you’re doing fine.</div>
+          <div class="d" style="margin-top:8px">Maya, 23:40</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
@@ -8396,6 +8407,11 @@ function renderMoving() {
                 ${done ? 'done' : st.left ? st.left + ' left' : ''}</span></div>
             <div class="d">${st.d}</div></button>`;
         }).join('')}
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card warn"><div class="t">Trace is watching for</div>
+          <div class="d" style="font-size:14px;color:var(--ink-2)">the two of you both thinking the
+            other booked the van.</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
@@ -8528,9 +8544,10 @@ R.defaults({
   solo: { yours: 'Wednesdays', hers: 'Mondays', on: true },
   care: { who: 'Your mum', age: 78, you: 82 },
   careItems: [
-    { id: 'c1', t: 'Thursday pharmacy run', s: 'Weekly · always you', swap: true },
+    { id: 'c1', t: 'Weekly pharmacy run', s: 'Thursdays · always you', swap: true },
     { id: 'c2', t: 'Cardiology, Sep 3', s: 'Someone has to drive' },
-    { id: 'c3', t: 'The forms, again', s: 'Third time this year', swap: true },
+    { id: 'c3', t: 'The conversation about the stairs', s: 'Deferred 7 times' },
+    { id: 'c4', t: 'Her brother', s: 'Not on Trace. Counts anyway.', off: true },
   ],
   visitor: { who: 'Her cousin', nights: 3, day: 2, on: true,
     pact: '“Three nights, not four. We say it on day one, not day three.”', signed: 'Aug 30' },
@@ -8587,24 +8604,35 @@ function renderDrift() {
             <span>Jun</span><span>now</span></div>
         </div>
       </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card ink"><div class="body" style="margin:0">This isn’t a judgement and it isn’t a
+          score. It’s the one number neither of you can see from inside the week.</div></div>
+      </div>
       <div class="stackcol">
-        <div class="card quiet"><div class="t">${d[0]} hours, then. ${d[d.length - 1]} hours, now.</div>
-          <div class="d">Nothing is wrong. Both of your calendars simply filled up, one week at a time.</div></div>
-        <button class="card" data-d="time"><div class="t">Find us one evening</div>
+        <button class="card" data-d="reset"><div class="t">Reset the week</div>
+          <div class="d">Clear what can be cleared, together, in ten minutes.</div></button>
+        <button class="card" data-d="time"><div class="t">Just one evening</div>
           <div class="d">The next window you’re both actually free — and awake.</div></button>
-        <button class="card" data-d="solo"><div class="t">Protect one night each</div>
-          <div class="d">Time apart on purpose is what makes the rest deliberate.</div></button>
+        <button class="card" data-d="fine"><div class="t">It’s a busy season, that’s fine</div>
+          <div class="d">A real answer. Trace closes this and doesn’t raise it again for months.</div></button>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">Trace shows the shape and stops. It will never tell you what this means
           about the two of you — it doesn’t know, and neither does any app.</div>
       </div>
-      <div class="foot">Shown once every six weeks, at most. Never as a notification.</div>
+      <div class="foot">Shown at most four times a year, to both of you at once. Never as a notification.</div>
     </div>`;
   back(s);
   $$('[data-d]', s).forEach((b) => b.addEventListener('click', () => {
-    buzz(8); show(b.dataset.d === 'time' ? 'findtime' : 'solo');
+    buzz(8);
+    const k = b.dataset.d;
+    if (k === 'time') return show('findtime');
+    if (k === 'reset') return show('solo');
+    /* "that's fine" has to actually be an answer, or the screen is a nag */
+    db.driftSeen = true; save();
+    toast('closed. it won’t come up again for months.');
+    show('canvas');
   }));
 }
 
@@ -8614,12 +8642,16 @@ function renderDrift() {
  * load-bearing: without consent it is surveillance, without read-only it is a
  * third party in the marriage, and without the expiry someone forgets. */
 
+/* the three `never` rows are the screen's whole argument, so they are listed
+   rather than omitted — a third person sees how you are doing, never what you
+   said, and the absence has to be visible to be reassuring */
 const FRIEND_ROWS = [
   ['hours', 'Hours together, per week'],
-  ['split', 'The fair split'],
+  ['split', 'Who’s carrying'],
   ['mood', 'Mood weather'],
-  ['canvas', 'The canvas'],
-  ['pocket', 'Either pocket'],
+  ['canvas', 'Your drawings'],
+  ['unsaid', 'The unsaid, the pocket'],
+  ['quiet', 'Anything from a quiet day'],
 ];
 
 function renderFriend() {
@@ -8652,7 +8684,7 @@ function renderFriend() {
         <div class="sheet">
           ${FRIEND_ROWS.map(([k, label]) => {
             const on = db.friendSees[k];
-            const locked = k === 'pocket' || k === 'canvas';
+            const locked = k === 'canvas' || k === 'unsaid' || k === 'quiet';
             return `<div class="r"><span class="k">${label}</span>
               ${locked
                 ? '<span class="v" style="color:var(--ink-4)">never</span>'
@@ -8663,7 +8695,7 @@ function renderFriend() {
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
-        <div class="note">The canvas and both pockets are never on this list, at any setting.
+        <div class="note">Either of you can revoke it instantly, without telling the other why.
           A third person can see how you are doing, never what you said.</div>
       </div>
       <div class="actions" style="padding-top:14px">
@@ -8695,9 +8727,9 @@ function renderFriend() {
 const SOLO_RULES = [
   ['Presence dot', 'off', true],
   ['“Leaving now”', 'off', true],
-  ['Her widget', 'says nothing'],
+  ['Goodnight', 'still yours'],
   ['The canvas', 'still open'],
-  ['The flare', 'gets through', true],
+  ['The flare', 'always', true],
 ];
 
 function renderSolo() {
@@ -8707,7 +8739,7 @@ function renderSolo() {
     <div class="hd"><button class="pill" data-back>Solo nights</button>
       <button class="icob" data-close>✕</button></div>
     <div class="page">
-      ${head('Time apart, on purpose', so.on ? esc(so.yours) + ' is yours' : 'Nothing is protected yet')}
+      ${head('Time apart, on purpose', so.on ? esc(so.yours).replace(/s$/, '') + ' is yours' : 'Nothing is protected yet')}
       <div style="padding:18px 20px 0;flex:none">
         <div class="card ink" style="border-radius:22px;padding:20px 22px">
           <div style="display:flex;justify-content:space-between;gap:20px">
@@ -8726,6 +8758,11 @@ function renderSolo() {
           ${SOLO_RULES.map(([k, v, red]) => `<div class="r"><span class="k">${k}</span>
             <span class="v${red ? ' red' : ''}">${v}</span></div>`).join('')}
         </div>
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card"><div class="hand" style="font-size:26px;line-height:1.25">have a good one.
+          don’t wait up.</div>
+          <div class="d" style="margin-top:8px">Maya, this morning</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
@@ -8770,6 +8807,10 @@ function renderCare() {
           </div>`).join('')}
       </div>
       <div style="padding:14px 20px 0;flex:none">
+        <div class="note">Care work is invisible until someone counts it. Trace counts it and says
+          nothing else.</div>
+      </div>
+      <div style="padding:9px 20px 0;flex:none">
         <div class="card ink"><div class="t">It counts as household work</div>
           <div class="d" style="line-height:1.5">Hours spent on a parent go into the fair split like
             anything else. That is the only opinion Trace has about it.</div></div>
@@ -8803,8 +8844,8 @@ function renderVisitor() {
   const rows = [
     ['Guest mode', v.on ? 'on since Tue' : 'off', v.on],
     ['Extra hands each day', '+2 tasks'],
-    ['Doing the hosting', 'you 70%'],
-    ['The canvas', 'hidden'],
+    ['Doing the hosting', 'you 70 / 30'],
+    ['Solo night, Wednesday', 'still yours', true],
     ['Ends automatically', 'day ' + v.nights],
   ];
   s.innerHTML = `
@@ -8831,11 +8872,17 @@ function renderVisitor() {
         <div class="note">The pact is shown while it still matters. Trace will not raise it afterwards,
           and it keeps no record of whether you kept it.</div>
       </div>
-      <div class="actions" style="padding-top:14px">
+      <div class="actions" style="padding-top:14px;flex-direction:column">
+        <button class="btn-red" data-rescue>Rescue me in ten minutes</button>
         <button class="btn-plain" data-extend>He’s staying another night</button>
       </div>
     </div>`;
   back(s);
+  /* sent from the kitchen, and it reaches her without reaching the room */
+  $$('[data-rescue]', s).forEach((b) => b.addEventListener('click', () => {
+    R.push('rescue', { mins: 10 }); buzz(14);
+    toast('she has it. nothing showed on her screen he can see.');
+  }));
   /* extending is allowed and unremarked — the pact is a plan, not a contract */
   $$('[data-extend]', s).forEach((b) => b.addEventListener('click', () => {
     db.visitor = { ...v, nights: v.nights + 1 }; save(); R.push('visitor', { nights: db.visitor.nights });
@@ -8984,7 +9031,10 @@ function renderWheel() {
 
 function renderMemory() {
   const s = screens.memory;
-  const shades = ['var(--ground-alt)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
+  /* empty days are a pale ink tint, not white — on paper, white cells would be
+     the brightest thing on the grid and the blank weeks would read as the loud
+     ones. SCREENS.md p21: "Empty days are pale, never red." */
+  const shades = ['rgba(26,26,26,.07)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
   const cells = Array.from({ length: 98 }, (_, n) => {
     const h = ((n * 2654435761) >>> 0) % 10;
     return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -9053,10 +9103,10 @@ function renderLoop() {
       </div>
       <div class="eyebrow">And the three rules</div>
       <div style="padding:0 20px;flex:none">
-        <div class="sheet">
-          <div class="r"><span class="k">Home is always the canvas</span><span class="v">always</span></div>
-          <div class="r"><span class="k">No room notifies about itself</span><span class="v">always</span></div>
-          <div class="r"><span class="k">Nothing that reads a drawing leaves the phone</span><span class="v">always</span></div>
+        <div class="card ink" style="padding:0;overflow:hidden">
+          <div style="padding:14px 18px;font-size:14px">1 · Home is always the canvas</div>
+          <div style="padding:14px 18px;font-size:14px;border-top:1px solid var(--emph-line)">2 · No room notifies about itself</div>
+          <div style="padding:14px 18px;font-size:14px;border-top:1px solid var(--emph-line)">3 · Nothing that reads a drawing leaves the device</div>
         </div>
       </div>
       <div style="padding:14px 20px 0;flex:none">
@@ -9148,6 +9198,14 @@ function renderPeople() {
       <div class="search" style="margin:16px 20px 0">
         <input id="ppl-q" placeholder="Search people" autocomplete="off"><span>⌕</span></div>
       <div class="stackcol" id="ppl-list">${draw('')}</div>
+      <div class="eyebrow">In an emergency</div>
+      <div style="padding:0 20px;flex:none">
+        <div class="card ink"><div class="t">Reachable from a locked phone</div>
+          <div class="d" style="line-height:1.5">Maya · Leo’s GP · your mum’s ward. No passcode, no
+            app, nothing else visible.</div>
+          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--red);
+            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
+      </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">The second line is the point: who usually arranges this one. It is the
@@ -9164,6 +9222,9 @@ function renderPeople() {
   }));
   q.addEventListener('input', () => { list.innerHTML = draw(q.value); wire(); });
   wire();
+  $$('[data-emerg]', s).forEach((b) => b.addEventListener('click', () => {
+    buzz(10); toast('three people, on the lock screen. nothing else is exposed.');
+  }));
 }
 
 /* ================================================================ p49 settle up
@@ -9197,18 +9258,27 @@ function renderSettle() {
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
-        <div class="note">Trace never nudges about this, never sends a reminder, and never shows it
-          on a widget. It is here when one of you wants to look, and invisible otherwise.</div>
+        <div class="note">No running total across months. It resets on the 1st whether you settle
+          or not — because a relationship isn’t a balance sheet, and “leave it” is a real answer.</div>
       </div>
       <div class="actions" style="padding-top:14px">
-        <button class="btn-plain" data-even>Call it even</button>
-        <button class="btn-red" style="flex:0 0 130px" data-add>Add one</button>
+        <button class="btn-ink" data-even>Even it up</button>
+        <button class="btn-plain" data-leave>Leave it</button>
+      </div>
+      <div style="padding:0 20px 18px;flex:none">
+        <button class="btn-plain" data-add style="min-height:44px;font-size:15px">Add one</button>
       </div>
     </div>`;
   back(s);
+  /* Both endings clear the month and neither is scored. "Leave it" is not a
+     lesser button — the frame gives it the same size, and the note says so. */
   $$('[data-even]', s).forEach((b) => b.addEventListener('click', () => {
     db.ledger = []; save(); R.push('settle', { even: true }); buzz(12);
-    toast('cleared. no record of who was ahead.'); renderSettle();
+    toast('evened up. no record of who was ahead.'); renderSettle();
+  }));
+  $$('[data-leave]', s).forEach((b) => b.addEventListener('click', () => {
+    db.ledger = []; save(); R.push('settle', { left: true }); buzz(10);
+    toast('left. it resets on the 1st either way.'); renderSettle();
   }));
   $$('[data-add]', s).forEach((b) => b.addEventListener('click', () => {
     ui.panel('add one', (body) => {

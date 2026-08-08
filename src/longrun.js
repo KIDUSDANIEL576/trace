@@ -28,9 +28,10 @@ R.defaults({
   solo: { yours: 'Wednesdays', hers: 'Mondays', on: true },
   care: { who: 'Your mum', age: 78, you: 82 },
   careItems: [
-    { id: 'c1', t: 'Thursday pharmacy run', s: 'Weekly · always you', swap: true },
+    { id: 'c1', t: 'Weekly pharmacy run', s: 'Thursdays · always you', swap: true },
     { id: 'c2', t: 'Cardiology, Sep 3', s: 'Someone has to drive' },
-    { id: 'c3', t: 'The forms, again', s: 'Third time this year', swap: true },
+    { id: 'c3', t: 'The conversation about the stairs', s: 'Deferred 7 times' },
+    { id: 'c4', t: 'Her brother', s: 'Not on Trace. Counts anyway.', off: true },
   ],
   visitor: { who: 'Her cousin', nights: 3, day: 2, on: true,
     pact: '“Three nights, not four. We say it on day one, not day three.”', signed: 'Aug 30' },
@@ -87,24 +88,35 @@ function renderDrift() {
             <span>Jun</span><span>now</span></div>
         </div>
       </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card ink"><div class="body" style="margin:0">This isn’t a judgement and it isn’t a
+          score. It’s the one number neither of you can see from inside the week.</div></div>
+      </div>
       <div class="stackcol">
-        <div class="card quiet"><div class="t">${d[0]} hours, then. ${d[d.length - 1]} hours, now.</div>
-          <div class="d">Nothing is wrong. Both of your calendars simply filled up, one week at a time.</div></div>
-        <button class="card" data-d="time"><div class="t">Find us one evening</div>
+        <button class="card" data-d="reset"><div class="t">Reset the week</div>
+          <div class="d">Clear what can be cleared, together, in ten minutes.</div></button>
+        <button class="card" data-d="time"><div class="t">Just one evening</div>
           <div class="d">The next window you’re both actually free — and awake.</div></button>
-        <button class="card" data-d="solo"><div class="t">Protect one night each</div>
-          <div class="d">Time apart on purpose is what makes the rest deliberate.</div></button>
+        <button class="card" data-d="fine"><div class="t">It’s a busy season, that’s fine</div>
+          <div class="d">A real answer. Trace closes this and doesn’t raise it again for months.</div></button>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">Trace shows the shape and stops. It will never tell you what this means
           about the two of you — it doesn’t know, and neither does any app.</div>
       </div>
-      <div class="foot">Shown once every six weeks, at most. Never as a notification.</div>
+      <div class="foot">Shown at most four times a year, to both of you at once. Never as a notification.</div>
     </div>`;
   back(s);
   $$('[data-d]', s).forEach((b) => b.addEventListener('click', () => {
-    buzz(8); show(b.dataset.d === 'time' ? 'findtime' : 'solo');
+    buzz(8);
+    const k = b.dataset.d;
+    if (k === 'time') return show('findtime');
+    if (k === 'reset') return show('solo');
+    /* "that's fine" has to actually be an answer, or the screen is a nag */
+    db.driftSeen = true; save();
+    toast('closed. it won’t come up again for months.');
+    show('canvas');
   }));
 }
 
@@ -114,12 +126,16 @@ function renderDrift() {
  * load-bearing: without consent it is surveillance, without read-only it is a
  * third party in the marriage, and without the expiry someone forgets. */
 
+/* the three `never` rows are the screen's whole argument, so they are listed
+   rather than omitted — a third person sees how you are doing, never what you
+   said, and the absence has to be visible to be reassuring */
 const FRIEND_ROWS = [
   ['hours', 'Hours together, per week'],
-  ['split', 'The fair split'],
+  ['split', 'Who’s carrying'],
   ['mood', 'Mood weather'],
-  ['canvas', 'The canvas'],
-  ['pocket', 'Either pocket'],
+  ['canvas', 'Your drawings'],
+  ['unsaid', 'The unsaid, the pocket'],
+  ['quiet', 'Anything from a quiet day'],
 ];
 
 function renderFriend() {
@@ -152,7 +168,7 @@ function renderFriend() {
         <div class="sheet">
           ${FRIEND_ROWS.map(([k, label]) => {
             const on = db.friendSees[k];
-            const locked = k === 'pocket' || k === 'canvas';
+            const locked = k === 'canvas' || k === 'unsaid' || k === 'quiet';
             return `<div class="r"><span class="k">${label}</span>
               ${locked
                 ? '<span class="v" style="color:var(--ink-4)">never</span>'
@@ -163,7 +179,7 @@ function renderFriend() {
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
-        <div class="note">The canvas and both pockets are never on this list, at any setting.
+        <div class="note">Either of you can revoke it instantly, without telling the other why.
           A third person can see how you are doing, never what you said.</div>
       </div>
       <div class="actions" style="padding-top:14px">
@@ -195,9 +211,9 @@ function renderFriend() {
 const SOLO_RULES = [
   ['Presence dot', 'off', true],
   ['“Leaving now”', 'off', true],
-  ['Her widget', 'says nothing'],
+  ['Goodnight', 'still yours'],
   ['The canvas', 'still open'],
-  ['The flare', 'gets through', true],
+  ['The flare', 'always', true],
 ];
 
 function renderSolo() {
@@ -207,7 +223,7 @@ function renderSolo() {
     <div class="hd"><button class="pill" data-back>Solo nights</button>
       <button class="icob" data-close>✕</button></div>
     <div class="page">
-      ${head('Time apart, on purpose', so.on ? esc(so.yours) + ' is yours' : 'Nothing is protected yet')}
+      ${head('Time apart, on purpose', so.on ? esc(so.yours).replace(/s$/, '') + ' is yours' : 'Nothing is protected yet')}
       <div style="padding:18px 20px 0;flex:none">
         <div class="card ink" style="border-radius:22px;padding:20px 22px">
           <div style="display:flex;justify-content:space-between;gap:20px">
@@ -226,6 +242,11 @@ function renderSolo() {
           ${SOLO_RULES.map(([k, v, red]) => `<div class="r"><span class="k">${k}</span>
             <span class="v${red ? ' red' : ''}">${v}</span></div>`).join('')}
         </div>
+      </div>
+      <div style="padding:14px 20px 0;flex:none">
+        <div class="card"><div class="hand" style="font-size:26px;line-height:1.25">have a good one.
+          don’t wait up.</div>
+          <div class="d" style="margin-top:8px">Maya, this morning</div></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
@@ -270,6 +291,10 @@ function renderCare() {
           </div>`).join('')}
       </div>
       <div style="padding:14px 20px 0;flex:none">
+        <div class="note">Care work is invisible until someone counts it. Trace counts it and says
+          nothing else.</div>
+      </div>
+      <div style="padding:9px 20px 0;flex:none">
         <div class="card ink"><div class="t">It counts as household work</div>
           <div class="d" style="line-height:1.5">Hours spent on a parent go into the fair split like
             anything else. That is the only opinion Trace has about it.</div></div>
@@ -303,8 +328,8 @@ function renderVisitor() {
   const rows = [
     ['Guest mode', v.on ? 'on since Tue' : 'off', v.on],
     ['Extra hands each day', '+2 tasks'],
-    ['Doing the hosting', 'you 70%'],
-    ['The canvas', 'hidden'],
+    ['Doing the hosting', 'you 70 / 30'],
+    ['Solo night, Wednesday', 'still yours', true],
     ['Ends automatically', 'day ' + v.nights],
   ];
   s.innerHTML = `
@@ -331,11 +356,17 @@ function renderVisitor() {
         <div class="note">The pact is shown while it still matters. Trace will not raise it afterwards,
           and it keeps no record of whether you kept it.</div>
       </div>
-      <div class="actions" style="padding-top:14px">
+      <div class="actions" style="padding-top:14px;flex-direction:column">
+        <button class="btn-red" data-rescue>Rescue me in ten minutes</button>
         <button class="btn-plain" data-extend>He’s staying another night</button>
       </div>
     </div>`;
   back(s);
+  /* sent from the kitchen, and it reaches her without reaching the room */
+  $$('[data-rescue]', s).forEach((b) => b.addEventListener('click', () => {
+    R.push('rescue', { mins: 10 }); buzz(14);
+    toast('she has it. nothing showed on her screen he can see.');
+  }));
   /* extending is allowed and unremarked — the pact is a plan, not a contract */
   $$('[data-extend]', s).forEach((b) => b.addEventListener('click', () => {
     db.visitor = { ...v, nights: v.nights + 1 }; save(); R.push('visitor', { nights: db.visitor.nights });
