@@ -235,6 +235,7 @@ function renderRooms(query) {
       ['Every widget state', 'And who wins when they compete', () => show('states')],
       ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
       ['Every surface', 'Watch, lock screen, Android, tablet', () => show('surfaces')],
+      ...BEYOND,
     ]) {
       const row = el(navRow(label, sub));
       row.addEventListener('click', go);
@@ -464,6 +465,9 @@ function wireRoom(s, name) {
 const SUBS = {};                                   /* kind -> {title, build} */
 const NAVS = {};                                   /* kind -> () => void     */
 const SUBLISTS = { Household: [], Together: [], Memory: [], Wellbeing: [], Canvas: [] };
+/* screens that belong to no room — the hard parts, the life-happens modes.
+   Registered by the modules that own them so the directory stays one list. */
+const BEYOND = [];
 const EXTRA_CARDS = [];                            /* (db) => card | null    */
 const PRESENCE_EXTRAS = [];                        /* (panelBody) => void    */
 
@@ -1048,6 +1052,7 @@ window.TRACE_BOARD = {
   addCard(fn) { EXTRA_CARDS.push(fn); },
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
+  addBeyond(label, sub, screen) { BEYOND.push([label, sub, () => show(screen)]); },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,

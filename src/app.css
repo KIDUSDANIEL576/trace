@@ -372,6 +372,62 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:500;width:100%;color:var(--ink)}
 .btn-red:active,.btn-ink:active,.btn-plain:active{transform:scale(.98)}
 
+/* ------------------------------------------- the shapes every frame reuses */
+/* The 61 frames are built from about six blocks. These are those blocks, so a
+   screen is a list of them rather than a page of inline style. */
+
+/* eyebrow + display + lede, left-aligned — p46/p47/p50/p51 and most rooms */
+.head{padding:22px 24px 0;flex:none}
+.head .k{font-size:14px;color:var(--ink-3)}
+.head .h{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:2px;line-height:1.1}
+.head .h.sm{font-size:30px}
+.head .l{font-size:14px;line-height:1.55;color:var(--ink-2);margin-top:10px}
+
+/* a padded block card, and its inverted twin */
+.card{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);
+  padding:16px 18px;text-align:left;width:100%;color:var(--ink);display:block}
+.card .t{font-size:15px;font-weight:700}
+.card .d{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.45}
+.card.ink{background:var(--emph);border-color:transparent;color:var(--emph-ink)}
+.card.ink .d{color:var(--emph-ink-3)}
+.card.ink .lbl{font-size:12px;font-weight:700;color:var(--emph-red);
+  letter-spacing:.14em;text-transform:uppercase}
+.card.ink .body{font-size:14px;line-height:1.5;color:var(--emph-ink-2);margin-top:8px}
+.card.quiet{background:var(--ground-alt);border-color:var(--hairline)}
+button.card:active{transform:scale(.99)}
+
+/* the dashed aside — always the rule, never the content */
+.note{border-radius:18px;background:var(--ground-alt);border:1px dashed var(--dashed);
+  padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+
+/* a grouped table of label/value rows sharing one card — p51, p35, p26 */
+.sheet{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
+.sheet .r{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px}
+.sheet .r + .r{border-top:1px solid var(--divider)}
+.sheet .r .k{font-size:15px;color:var(--ink-2)}
+.sheet .r .v{font-size:14px;font-weight:700;flex:none}
+.sheet .r .v.red{color:var(--red-text)}
+
+/* a column of blocks at the screen's rail */
+.stackcol{padding:18px 20px 0;display:flex;flex-direction:column;gap:9px;flex:none}
+.stackcol.grow{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none}
+.stackcol.grow::-webkit-scrollbar{display:none}
+
+/* Everything below the header scrolls. The frames are drawn at exactly 844
+   and several sit flush against it, so any copy that runs a line long — or
+   any language that is not English — would push the primary action off the
+   bottom of a screen that has no way to reach it. */
+.page{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  display:flex;flex-direction:column;scrollbar-width:none}
+.page::-webkit-scrollbar{display:none}
+.page > .spacer{flex:1 0 12px}
+
+/* the quiet grounds — p46/p51 sit on paper-alt, p54 on paper-deep */
+.scr[data-ground="alt"]{background:var(--ground-alt)}
+.scr[data-ground="deep"]{background:var(--ground-deep)}
+.actions{display:flex;gap:12px;padding:0 20px 18px;flex:none}
+.spacer{flex:1;min-height:8px}
+
 #tabs,#streakpill,#wordmark,#more-btn{display:none}
 
 #sheet{position:absolute;inset:0;z-index:40;background:var(--scrim)}
