@@ -104,7 +104,7 @@ function openPad() {
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
       style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);
-      background:var(--surface);color:var(--ink);font:17px inherit;outline:none">
+      background:var(--surface);color:var(--ink);font:17px inherit">
     <div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
       <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
       <div id="wp-prev" style="min-height:44px;margin-top:8px;overflow:hidden;word-break:break-word;

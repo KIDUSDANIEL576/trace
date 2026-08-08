@@ -45,12 +45,19 @@ const note = (t) => el(`<div class="p-note">${t}</div>`);
 
 /* ================= 1 · permission priming — first received value ========= */
 
+/* Both sheets below used to paint their panel `rgba(10,12,26,.97)` — a
+   near-black blue left over from the pre-paper design — while filling it with
+   --ink tokens. On paper that is dark text on a dark panel, i.e. unreadable,
+   and it is off-palette on both grounds. It survived every audit because
+   neither sheet is a screen: they are appended to #screen on a trigger (first
+   received ink, then the one after), so a walk of the 72 screens never sees
+   them. --surface is the token that means "the panel a sheet is drawn on". */
 let primerUp = false;
 function showPrimer() {
   if (primerUp || db.perm !== 'unasked') return;
   primerUp = true;
   const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
+    <div style="width:100%;border-radius:26px 26px 0 0;background:var(--surface);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:12px;text-align:center">
       <div style="width:44px;height:44px;border-radius:14px;margin:0 auto;background:linear-gradient(160deg,var(--ground-alt),var(--surface));
         border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center">
@@ -121,7 +128,7 @@ function showWidgetTut() {
       display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">${n}</span>
     <span style="font-size:14px;color:var(--ink-2)">${t}</span></div>`;
   const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
+    <div style="width:100%;border-radius:26px 26px 0 0;background:var(--surface);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:14px">
       <div style="font-size:20px;font-weight:600;text-align:center">Put her on your home screen</div>
       <div style="font-size:13px;color:var(--ink-3);text-align:center">Installed, trace runs full-screen and her things can reach you.</div>
@@ -229,7 +236,7 @@ R.addSub('key', 'your key', (body) => {
   body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">On the new phone</div>`));
   const field = el(`<input placeholder="paste a key" style="padding:14px;border-radius:14px;text-align:center;
     border:1px solid var(--hairline);background:var(--surface);color:var(--ink);
-    font:600 13px ui-monospace,Menlo,monospace;outline:none">`);
+    font:600 13px ui-monospace,Menlo,monospace">`);
   const go = el(`<button class="p-ghost">Restore from it</button>`);
   go.addEventListener('click', () => {
     const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());

@@ -112,7 +112,7 @@ function renderUnsaid() {
     ui.panel('write one badly', (body) => {
       const ta = el(`<textarea rows="4" placeholder="in the wrong words, at midnight"
         style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
-        color:var(--ink);font-family:Caveat,cursive;font-weight:700;font-size:24px;outline:none;resize:none"></textarea>`);
+        color:var(--ink);font-family:Caveat,cursive;font-weight:700;font-size:24px;resize:none"></textarea>`);
       body.appendChild(ta);
       const save2 = el(`<button class="p-cta">Hold it</button>`);
       save2.addEventListener('click', () => {

@@ -27,6 +27,7 @@
  *
  *   node qa/deadends.mjs             every screen and panel
  *   node qa/deadends.mjs Repair      one target, for a repro
+ *   node qa/deadends.mjs "If it,Settle,unsaid,Newborn"   a slice, in order
  */
 import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -47,7 +48,11 @@ for (const g of list) {
 for (const k of JSON.parse(execSync('node qa/drive.mjs panels', { cwd: process.cwd(), maxBuffer: 1e8 }))) {
   targets.push('panel:' + k);
 }
-const work = only ? targets.filter((t) => t.includes(only)) : targets;
+/* a comma-separated list, so a slice across a suspicious transition can be
+   reproduced in seconds instead of re-running the whole sweep */
+const work = only
+  ? targets.filter((t) => only.split(',').some((o) => t.includes(o.trim())))
+  : targets;
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const page = await browser.newPage({ viewport: { width: 470, height: 900 } });
@@ -136,12 +141,26 @@ const LAID_OUT = `(e) => {
   return r.width >= 1 && r.height >= 1;
 }`;
 
-/* clipped by an ancestor's overflow, or covered — asked only once it is in view */
-const HITTABLE = `(e) => {
+/* Clipped by an ancestor's overflow, or covered — asked only once it is in
+   view. Returns '' when reachable and otherwise names what got in the way,
+   because "359 unreachable" is not a finding, it is a question. */
+const BLOCKER = `(e) => {
   const r = e.getBoundingClientRect();
-  if (r.bottom < 0 || r.top > innerHeight) return false;
+  if (r.bottom < 0 || r.top > innerHeight) return 'off-screen after scrolling';
   const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-  return !!hit && (e === hit || e.contains(hit) || hit.contains(e));
+  if (!hit) return 'nothing at its centre';
+  if (e === hit || e.contains(hit) || hit.contains(e)) return '';
+  /* className is an SVGAnimatedString on SVG nodes, so it has to be coerced
+     before it can be split, or the label comes out as "[object" */
+  const id = (n) => {
+    if (n.id) return '#' + n.id;
+    const c = typeof n.className === 'string' ? n.className : (n.className?.baseVal || '');
+    return c ? '.' + c.trim().split(/\s+/)[0] : n.tagName.toLowerCase();
+  };
+  const chain = [];
+  for (let n = hit; n && n !== document.body && chain.length < 4; n = n.parentElement) chain.push(id(n));
+  const tag = hit.outerHTML.slice(0, 70).replace(/\s+/g, ' ');
+  return 'covered by ' + chain.join(' < ') + '  ||  ' + tag;
 }`;
 
 const LIST = `[...${ROOT}.querySelectorAll('button,[data-sub],input,textarea,select,a[href],[role="button"]')]
@@ -174,6 +193,12 @@ async function reset() {
     const p = document.getElementById('panel');
     if (p && !p.classList.contains('hidden')) document.getElementById('panel-close')?.click();
     document.getElementById('sheet')?.classList.add('hidden');
+    /* The permission primer and the install tutorial are appended to #screen
+       on a trigger rather than being screens, and nothing here was closing
+       them — so once one opened, its full-bleed scrim covered every control on
+       every screen for the rest of the run, and 181 controls were reported
+       unreachable. Anything modal gets dismissed before the next screen. */
+    for (const ov of document.querySelectorAll('#screen > div[style*="z-index:60"]')) ov.remove();
     const t = document.getElementById('toast'); if (t) t.style.display = 'none';
   });
   await page.waitForTimeout(120);
@@ -250,7 +275,8 @@ for (const t of work) {
             const k = key(e);
             seen[k] = (seen[k] || 0) + 1;
             if (k !== sel.key || seen[k] !== sel.nth) continue;
-            if (!(${HITTABLE})(e)) return 'unreachable';
+            const why = (${BLOCKER})(e);
+            if (why) return 'blocked:' + why;
             e.click();
             return 'ok';
           }
@@ -258,7 +284,10 @@ for (const t of work) {
         `), c);
     } catch (e) { threw.push({ target: t, label: c.label, why: String(e.message).slice(0, 120) }); }
     if (clicked === 'gone') { gone++; continue; }
-    if (clicked === 'unreachable') { unreachable.push({ target: t, label: c.label, cls: c.cls }); continue; }
+    if (clicked.startsWith('blocked:')) {
+      unreachable.push({ target: t, label: c.label, cls: c.cls, why: clicked.slice(8) });
+      continue;
+    }
     if (clicked !== 'ok') { gone++; continue; }
 
     pressed++;
@@ -299,7 +328,13 @@ console.log(`     ${dead.length} moved nothing`);
 console.log(`  ${skipped} not pressed — disabled, or a text field`);
 console.log(`  ${gone} not pressed — no longer on the screen by the time its turn came`);
 console.log(`  ${unreachable.length} not pressed — still not hittable after scrolling to it`);
-for (const u of unreachable.slice(0, 20)) console.log(`      ${u.target}  "${u.label}"  ${u.cls}`);
+const whyCount = new Map();
+for (const u of unreachable) whyCount.set(u.why, (whyCount.get(u.why) || 0) + 1);
+for (const [why, n] of [...whyCount].sort((a, b) => b[1] - a[1]).slice(0, 8)) {
+  console.log(`      ${String(n).padStart(4)} × ${why}`);
+  const eg = unreachable.find((u) => u.why === why);
+  console.log(`           e.g. ${eg.target}  "${eg.label}"`);
+}
 if (threw.length) {
   console.log(`\n${threw.length} errors while pressing:`);
   for (const e of threw.slice(0, 40)) console.log(`  ${e.target}  ${e.label || ''}  — ${e.why}`);

@@ -182,7 +182,7 @@ window.TRACE_EXTRA = (api) => {
     openPanel('pair our phones', (body) => {
       body.appendChild(el('<div class="p-note">This is the real thing — no simulated Sara. Same code on two phones (over the internet) or two windows on one device, and every stroke, heartbeat and tug crosses for real.</div>'));
 
-      const nameRow = el('<input placeholder="your name" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui;outline:none">');
+      const nameRow = el('<input placeholder="your name" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui">');
       nameRow.value = NET.name === 'me' ? '' : NET.name;
       nameRow.addEventListener('input', () => { NET.name = nameRow.value.trim() || 'me'; localStorage.setItem('trace:myname', NET.name); });
       body.appendChild(nameRow);
@@ -193,7 +193,7 @@ window.TRACE_EXTRA = (api) => {
         <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:var(--ink-3)">YOUR CODE</div>
         <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--amber);padding-left:.3em">${code}</div></div>`));
 
-      const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;outline:none;text-transform:lowercase">');
+      const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;text-transform:lowercase">');
       body.appendChild(codeIn);
 
       const status = el('<div class="p-hint">not connected</div>');

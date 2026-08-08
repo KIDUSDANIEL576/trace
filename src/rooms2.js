@@ -626,7 +626,7 @@ function editDay(day, n, current, redraw) {
   const wrap = el(`<div style="display:flex;flex-direction:column;gap:11px"></div>`);
   const input = el(`<input placeholder="${esc(day)} — what's happening"
     style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
-    color:var(--ink);font:17px inherit;outline:none">`);
+    color:var(--ink);font:17px inherit">`);
   input.value = current === '—' ? '' : current;
   const prev = el(`<div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
     <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>

@@ -1,9 +1,1266 @@
 {
-  "pressed": 5,
-  "live": 5,
-  "skipped": 0,
+  "pressed": 188,
+  "live": 187,
+  "skipped": 2,
   "gone": 1,
-  "dead": [],
+  "dead": [
+    {
+      "target": "Every surface",
+      "label": "Watch",
+      "cls": "c",
+      "data": "data-tab",
+      "tag": "button"
+    }
+  ],
   "threw": [],
-  "unreachable": []
+  "unreachable": [
+    {
+      "target": "The unsaid",
+      "label": "send it",
+      "cls": "end red",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "The unsaid",
+      "label": "release",
+      "cls": "end",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "The unsaid",
+      "label": "Write one badly",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Newborn mode",
+      "label": "Newborn",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Newborn mode",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Newborn mode",
+      "label": "Log one, one tap",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Newborn mode",
+      "label": "Turn on newborn mode",
+      "cls": "btn-red",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "✓ Oat milk Maya",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "Sourdough You",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "Tomatoes, the small ones Maya",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "✓ Coffee beans You",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "Dish soap You",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "Lemons Maya",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "Something for Sunday Both",
+      "cls": "row",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:20px;font-weight:600\">She ju t left you  omethin"
+    },
+    {
+      "target": "Household:Groceries",
+      "label": "I’m at the shop",
+      "cls": "p-cta",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:What’s for dinner",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:What’s for dinner",
+      "label": "Spin it",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Fair split",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Handover baton",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Handover baton",
+      "label": "Take it",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Doses",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Doses",
+      "label": "✓ Vitamin D Morning, with food",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Doses",
+      "label": "Iron Evening · Maya’s",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Doses",
+      "label": "Allergy tab Before bed",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "Reply to the sitter 30 sec",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "Move €40 to Kyoto 20 sec",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "Book the car in 90 sec",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "Text your mum back 40 sec",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Two-minute pile",
+      "label": "Bin the expired meds 60 sec",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Decision debt",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Decision debt",
+      "label": "Decide in 2 min",
+      "cls": "who",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Decision debt",
+      "label": "Decide in 2 min",
+      "cls": "who",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Decision debt",
+      "label": "Decide in 2 min",
+      "cls": "who",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "Maya",
+      "cls": "who them",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "Maya",
+      "cls": "who them",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "Maya",
+      "cls": "who them",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "You",
+      "cls": "who ",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Mental load",
+      "label": "Maya",
+      "cls": "who them",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:The waiting room",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The waiting room",
+      "label": "Her passport number Blocks: booking Kyoto · ",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The waiting room",
+      "label": "Yes or no to Sam’s dinner Blocks: the sitter",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The waiting room",
+      "label": "Which Thursday she can swap Blocks: your den",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The waiting room",
+      "label": "Call the plumber back Blocks: her Saturday ·",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "Yes",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "No",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "Yes",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "No",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "Yes",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Yes / no board",
+      "label": "No",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "Car insurance Auto-renews at +18% · yours 11",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "Maya’s passport Expires before Kyoto · hers ",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "Three streaming things Nobody has opened two",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "Gym, since March Last used: never · yours €3",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Renewal radar",
+      "label": "Boiler service Due · nobody’s job yet —",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:Where is it",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Where is it",
+      "label": "Spare keys tap to reveal",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Where is it",
+      "label": "Passports tap to reveal",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Where is it",
+      "label": "The drill tap to reveal",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Where is it",
+      "label": "Leo’s birth certificate tap to reveal",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The brief",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The brief",
+      "label": "Got it",
+      "cls": "p-cta",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"width:44px;height:44px;border-radiu :14px;margin:0 auto;ba"
+    },
+    {
+      "target": "Household:Recurring + ask nicely",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Recurring + ask nicely",
+      "label": "Could you grab milk? she can say no with one",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Recurring + ask nicely",
+      "label": "Any chance you can call them? no follow-up, ",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Recurring + ask nicely",
+      "label": "Swap Thursday with me? offers you take hers ",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Thursday",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "✓ Bins out before 7 Recurring · Thursdays Yo",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Call the plumber Claimed 2h ago Maya",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "✓ Pick up the prescription Doctor’s note att",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Reply to the landlord Photo of the letter Yo",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "✓ Book Sunday table Someone’s coming Free",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "✓ Ten minutes, together Weekly reset Both",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Groceries 5 left ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "What’s for dinner Ramen night ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Fair split A month, not a scoreboard ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Handover baton Nobody has it ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Doses 1 of 3 today ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Two-minute pile 5 left ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Decision debt 3 open, ageing ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Mental load The work nobody counts ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "The waiting room 4 blocked ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Yes / no board 3 unanswered ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Renewal radar €94/mo you forgot ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Where is it 4 things, findable ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "The brief Leo’s pickup, Thursday ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Recurring + ask nicely Bins out · yours this",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Photo of the letter Building management · by",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Kid’s corner And the wrong-answer bin ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "The week Typed, shown in your hand ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Find us a time Windows you’re both free — an",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "New event Four fields, and what Trace notice",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "A clash Three doors, no verdict ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Meal wheel Nobody decides, so the wheel does",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Kid’s corner His patch, and the school run ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "The days a calendar for exactly two people ›",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Something to say real words, in your handwri",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Come here one button. no text. ›",
+      "cls": "row",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"width:44px;height:44px;border-radiu :14px;margin:0 auto;ba"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "Happy birthday, drawn on her banner is alrea",
+      "cls": "row",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:20px;font-weight:600\">She ju t left you  omethin"
+    },
+    {
+      "target": "Household:Photo of the letter",
+      "label": "What the calendar does eight things, for two",
+      "cls": "row",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“The dishwasher is basically fine”",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“We’ll pack the night before”",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“Leo will nap in the car”",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:The week",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Mon rent due — paid ✓",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Tue —",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Wed Maya — late shift",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Thu dentist 3pm · pick up cake",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Fri dinner at Sam’s, bring wine",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Sat —",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:The week",
+      "label": "Sun no plans — co-signed",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Find a time",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Dinner",
+      "cls": "on",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "A call",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "A whole day",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Saturday 10, evening Nothing on either side ",
+      "cls": "card line pick",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Tuesday 12, lunch 90 min window · you’re bot",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Sunday 17, all day Co-signed no-plans day — ",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Ask Maya",
+      "cls": "btn-red",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Find us a time",
+      "label": "Just book",
+      "cls": "btn-plain",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:New event",
+      "label": "Cancel",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:New event",
+      "label": "Save",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:New event",
+      "label": "shift it?",
+      "cls": "end red",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:New event",
+      "label": "Bring wine — added to Groceries ✓",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:New event",
+      "label": "Leo needs a sitter book",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:New event",
+      "label": "Day before",
+      "cls": "chipbtn",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:New event",
+      "label": "Two hours",
+      "cls": "chipbtn",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Household:New event",
+      "label": "When I leave work",
+      "cls": "chipbtn",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:New event",
+      "label": "Never",
+      "cls": "chipbtn",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:A clash",
+      "label": "Clash",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:A clash",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:A clash",
+      "label": "Split it — you take lunch, she takes the par",
+      "cls": "card pick-ink",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:A clash",
+      "label": "Move lunch to Sunday Costs your no-plans Sun",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:A clash",
+      "label": "Skip the party Trace sends the no. Nobody ha",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:A clash",
+      "label": "Decide together — 2 min",
+      "cls": "btn-ink",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Meal wheel",
+      "label": "Dinner",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Meal wheel",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Meal wheel",
+      "label": "Spin",
+      "cls": "btn-red",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Meal wheel",
+      "label": "Veto",
+      "cls": "btn-plain",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"font- ize:14px;line-height:1.5;color:var(--ink-2)\">Moment "
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“The dishwasher is basically fine”",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“We’ll pack the night before”",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Household:Kid’s corner",
+      "label": "“Leo will nap in the car”",
+      "cls": "row",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Together:Co-signed promise",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "✓ Surf at dawn, badly Maya",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "Drive the coast road, no map You",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "Learn to sail Maya",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "Kyoto in April Both",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Bucket list",
+      "label": "✓ Teach Leo chess You",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Missions",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Missions",
+      "label": "I’m in",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Money truth",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:The pocket",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:The pocket",
+      "label": "✓ Table at Nobelhart, 8 PM",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:The pocket",
+      "label": "✓ Sitter confirmed",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:The pocket",
+      "label": "Pick up the card from her mum",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:The pocket",
+      "label": "✓ Arrived at the shop yesterday",
+      "cls": "row",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Weekly ten minutes",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Weekly ten minutes",
+      "label": "Start the ten",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "Trips",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "renew",
+      "cls": "end red",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "✓ Time off booked, both",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "Someone for Leo · 9 nights",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Together:Trips",
+      "label": "Flights — prices drop in Nov",
+      "cls": "card line",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Gratitude jar",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Gratitude jar",
+      "label": "Drop one in",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Chapters",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Memory movie",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Memory movie",
+      "label": "p-ghost",
+      "cls": "p-ghost",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Memory movie",
+      "label": "p-ghost",
+      "cls": "p-ghost",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Memory movie",
+      "label": "p-ghost",
+      "cls": "p-ghost",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Journal",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Journal",
+      "label": "Add a line in your hand",
+      "cls": "p-ghost",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The wall",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Map of your day",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, as a book",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Anniversaries",
+      "label": "Dates",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Anniversaries",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:Anniversaries",
+      "label": "Open the pocket",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, in marks",
+      "label": "Memory",
+      "cls": "pill",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, in marks",
+      "label": "icob",
+      "cls": "icob",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, in marks",
+      "label": "4 · The Berlin months Open · 61 marks so far",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, in marks",
+      "label": "3 · The flat with the bad boiler Closed Jun ",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Memory:The year, in marks",
+      "label": "2 · Two cities, one canvas Closed Jan 14 · 1",
+      "cls": "card",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Couple focus",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Couple focus",
+      "label": "Start 25 minutes",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Energy match",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Energy match",
+      "label": "Early 6–9 AM",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Energy match",
+      "label": "Midday 12–2 PM",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Energy match",
+      "label": "Evening 7–10 PM",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Doctor’s note",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Doctor’s note",
+      "label": "Send to her widget",
+      "cls": "p-cta",
+      "why": "covered by div < div < div < #screen  ||  <div  tyle=\"width:44px;height:44px;border-radiu :14px;margin:0 auto;ba"
+    },
+    {
+      "target": "Wellbeing:Your rituals",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Your rituals",
+      "label": "I’ll put the kettle on",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:The tiny one",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:The tiny one",
+      "label": "Sort Saturday",
+      "cls": "p-cta",
+      "why": "covered by svg < div < div < div  ||  < vg viewBox=\"0 0 30 30\"  tyle=\"width:24px;height:24px\"><path d=\"M5 20"
+    },
+    {
+      "target": "Wellbeing:The tiny one",
+      "label": "Turn it off",
+      "cls": "p-ghost",
+      "why": "covered by div < div < #screen < #phone  ||  <div  tyle=\"width:100%;border-radiu :26px 26px 0 0;background:rgba(10,"
+    },
+    {
+      "target": "Wellbeing:Morning handoff",
+      "label": "✕",
+      "cls": "",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    },
+    {
+      "target": "Wellbeing:Morning handoff",
+      "label": "Leave her one back",
+      "cls": "p-cta",
+      "why": "covered by div < #screen < #phone < #stage  ||  <div  tyle=\"po ition:ab olute;in et:0;z-index:60;background:var(-- cri"
+    }
+  ]
 }

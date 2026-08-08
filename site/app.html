@@ -353,7 +353,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 
 .search{margin:18px 20px 0;height:44px;border-radius:var(--r14);background:var(--surface);
   border:1px solid var(--hairline);display:flex;align-items:center;gap:10px;padding:0 16px;flex:none}
-.search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font:15px inherit}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:15px inherit}
 .search input::placeholder{color:var(--ink-3)}
 
 .splitbar{margin:18px 20px 0;height:8px;border-radius:99px;background:var(--ground-alt);
@@ -679,7 +679,7 @@ button.card:active{transform:scale(.99)}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
 #onboard input{padding:15px 16px;border-radius:16px;border:1px solid var(--hairline);
-  background:var(--surface);color:var(--ink);font:15px inherit;outline:none;text-align:center}
+  background:var(--surface);color:var(--ink);font:15px inherit;text-align:center}
 #ob-their{font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.2em}
 .ob-code-l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-top:6px}
 .ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:var(--red)}
@@ -707,10 +707,10 @@ button.card:active{transform:scale(.99)}
 #colorpop .cp-chip{width:44px;height:44px;border-radius:14px;flex:none;border:1px solid var(--hairline)}
 #colorpop .cp-hex{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground);color:var(--ink);font:600 14px ui-monospace,Menlo,monospace;
-  letter-spacing:.08em;text-align:center;outline:none;text-transform:uppercase}
+  letter-spacing:.08em;text-align:center;text-transform:uppercase}
 #colorpop .cp-ok{height:40px;padding:0 18px;border-radius:999px;background:var(--red);color:var(--on-red);
   font-size:14px;font-weight:600;flex:none}
-#colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;outline:none;
+#colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;
   background:linear-gradient(90deg,hsl(0,90%,60%),hsl(60,90%,60%),hsl(120,80%,55%),hsl(180,85%,55%),
     hsl(240,90%,65%),hsl(300,90%,65%),hsl(360,90%,60%))}
 #colorpop .cp-hue::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
@@ -890,6 +890,28 @@ button.card:active{transform:scale(.99)}
   background-size:72px 15px;padding-bottom:9px}
 .btn-red{background-image:var(--mark-on-red)}
 .btn-ink{background-image:var(--mark-sign)}
+
+/* ── focus ────────────────────────────────────────────────────────────────
+ * There was no `:focus` rule anywhere in this stylesheet — not one — and four
+ * places set `outline:none`, which throws away the browser's own. So anyone
+ * driving this app from a keyboard had no idea where they were, and the New
+ * event form's entire answer to an untitled Save was to focus a field that
+ * gave no sign of being focused.
+ *
+ * `:focus-visible` rather than `:focus`, so a mouse press on a button does not
+ * leave a ring behind it. Text fields still match it when clicked, which is
+ * the case that matters here: it is what makes "give it a name first" point at
+ * somewhere the eye can actually follow.
+ *
+ * The `outline:none` declarations are simply gone rather than overridden —
+ * they existed to suppress the old always-on `:focus` ring, and `:focus-visible`
+ * is the feature that made them unnecessary.
+ *
+ * `.cal button.today` is named because it carries a permanent ink outline of
+ * its own at a specificity this would otherwise lose to.
+ */
+:focus-visible,
+.cal button.today:focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
 
 </style>
 <script>
@@ -1896,7 +1918,7 @@ window.TRACE_EXTRA = (api) => {
     openPanel('pair our phones', (body) => {
       body.appendChild(el('<div class="p-note">This is the real thing — no simulated Sara. Same code on two phones (over the internet) or two windows on one device, and every stroke, heartbeat and tug crosses for real.</div>'));
 
-      const nameRow = el('<input placeholder="your name" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui;outline:none">');
+      const nameRow = el('<input placeholder="your name" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui">');
       nameRow.value = NET.name === 'me' ? '' : NET.name;
       nameRow.addEventListener('input', () => { NET.name = nameRow.value.trim() || 'me'; localStorage.setItem('trace:myname', NET.name); });
       body.appendChild(nameRow);
@@ -1907,7 +1929,7 @@ window.TRACE_EXTRA = (api) => {
         <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:var(--ink-3)">YOUR CODE</div>
         <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--amber);padding-left:.3em">${code}</div></div>`));
 
-      const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;outline:none;text-transform:lowercase">');
+      const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;text-transform:lowercase">');
       body.appendChild(codeIn);
 
       const status = el('<div class="p-hint">not connected</div>');
@@ -3268,7 +3290,7 @@ function openSheet() {
   // 50+ features: a filter is no longer optional
   const q = document.createElement('input');
   q.type = 'search'; q.placeholder = 'search features';
-  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui;outline:none';
+  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui';
   q.addEventListener('input', () => {
     const v = q.value.trim().toLowerCase();
     let lastGroup = null, groupHas = false;
@@ -6180,7 +6202,7 @@ function editDay(day, n, current, redraw) {
   const wrap = el(`<div style="display:flex;flex-direction:column;gap:11px"></div>`);
   const input = el(`<input placeholder="${esc(day)} — what's happening"
     style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
-    color:var(--ink);font:17px inherit;outline:none">`);
+    color:var(--ink);font:17px inherit">`);
   input.value = current === '—' ? '' : current;
   const prev = el(`<div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
     <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
@@ -6828,12 +6850,19 @@ const note = (t) => el(`<div class="p-note">${t}</div>`);
 
 /* ================= 1 · permission priming — first received value ========= */
 
+/* Both sheets below used to paint their panel `rgba(10,12,26,.97)` — a
+   near-black blue left over from the pre-paper design — while filling it with
+   --ink tokens. On paper that is dark text on a dark panel, i.e. unreadable,
+   and it is off-palette on both grounds. It survived every audit because
+   neither sheet is a screen: they are appended to #screen on a trigger (first
+   received ink, then the one after), so a walk of the 72 screens never sees
+   them. --surface is the token that means "the panel a sheet is drawn on". */
 let primerUp = false;
 function showPrimer() {
   if (primerUp || db.perm !== 'unasked') return;
   primerUp = true;
   const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
+    <div style="width:100%;border-radius:26px 26px 0 0;background:var(--surface);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:12px;text-align:center">
       <div style="width:44px;height:44px;border-radius:14px;margin:0 auto;background:linear-gradient(160deg,var(--ground-alt),var(--surface));
         border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center">
@@ -6904,7 +6933,7 @@ function showWidgetTut() {
       display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600">${n}</span>
     <span style="font-size:14px;color:var(--ink-2)">${t}</span></div>`;
   const ov = el(`<div style="position:absolute;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:flex-end">
-    <div style="width:100%;border-radius:26px 26px 0 0;background:rgba(10,12,26,.97);border:1px solid var(--hairline);
+    <div style="width:100%;border-radius:26px 26px 0 0;background:var(--surface);border:1px solid var(--hairline);
       border-bottom:none;padding:22px 22px 30px;display:flex;flex-direction:column;gap:14px">
       <div style="font-size:20px;font-weight:600;text-align:center">Put her on your home screen</div>
       <div style="font-size:13px;color:var(--ink-3);text-align:center">Installed, trace runs full-screen and her things can reach you.</div>
@@ -7012,7 +7041,7 @@ R.addSub('key', 'your key', (body) => {
   body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">On the new phone</div>`));
   const field = el(`<input placeholder="paste a key" style="padding:14px;border-radius:14px;text-align:center;
     border:1px solid var(--hairline);background:var(--surface);color:var(--ink);
-    font:600 13px ui-monospace,Menlo,monospace;outline:none">`);
+    font:600 13px ui-monospace,Menlo,monospace">`);
   const go = el(`<button class="p-ghost">Restore from it</button>`);
   go.addEventListener('click', () => {
     const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());
@@ -7227,7 +7256,7 @@ function openPad() {
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
       style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);
-      background:var(--surface);color:var(--ink);font:17px inherit;outline:none">
+      background:var(--surface);color:var(--ink);font:17px inherit">
     <div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
       <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
       <div id="wp-prev" style="min-height:44px;margin-top:8px;overflow:hidden;word-break:break-word;
@@ -7961,7 +7990,7 @@ function openLegacy() {
       chapter and jar entry, forever, at no cost. You can also name someone who may be given a
       copy — a parent, a sibling, a child.</div>`));
     const inp = el(`<input placeholder="their name and email" style="padding:14px 16px;border-radius:16px;
-      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit;outline:none">`);
+      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
     inp.value = db.legacy || '';
     body.appendChild(inp);
     const b = el(`<button class="p-cta">Save</button>`);
@@ -8129,7 +8158,7 @@ function renderNew() {
         <div class="card" style="border-width:1px">
           <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">What</div>
           <input id="ev-what" placeholder="dinner at Sam’s" value="${esc(d.what)}"
-            style="width:100%;min-height:44px;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
+            style="width:100%;min-height:44px;border:0;background:none;color:var(--ink);margin-top:4px;
             font-family:Caveat,cursive;font-weight:700;font-size:30px;caret-color:var(--red)">
         </div>
       </div>
@@ -8611,7 +8640,7 @@ function renderUnsaid() {
     ui.panel('write one badly', (body) => {
       const ta = el(`<textarea rows="4" placeholder="in the wrong words, at midnight"
         style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
-        color:var(--ink);font-family:Caveat,cursive;font-weight:700;font-size:24px;outline:none;resize:none"></textarea>`);
+        color:var(--ink);font-family:Caveat,cursive;font-weight:700;font-size:24px;resize:none"></textarea>`);
       body.appendChild(ta);
       const save2 = el(`<button class="p-cta">Hold it</button>`);
       save2.addEventListener('click', () => {
@@ -9659,9 +9688,9 @@ function renderSettle() {
   $$('[data-add]', s).forEach((b) => b.addEventListener('click', () => {
     ui.panel('add one', (body) => {
       const t = el(`<input placeholder="what it was" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit;outline:none">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
       const v = el(`<input placeholder="€" inputmode="decimal" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit;outline:none">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
       body.appendChild(t); body.appendChild(v);
       const go = el(`<button class="p-cta">Add</button>`);
       go.addEventListener('click', () => {

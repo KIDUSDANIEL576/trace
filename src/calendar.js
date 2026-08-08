@@ -138,7 +138,7 @@ function renderNew() {
         <div class="card" style="border-width:1px">
           <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">What</div>
           <input id="ev-what" placeholder="dinner at Sam’s" value="${esc(d.what)}"
-            style="width:100%;min-height:44px;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
+            style="width:100%;min-height:44px;border:0;background:none;color:var(--ink);margin-top:4px;
             font-family:Caveat,cursive;font-weight:700;font-size:30px;caret-color:var(--red)">
         </div>
       </div>

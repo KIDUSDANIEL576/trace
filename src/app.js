@@ -887,7 +887,7 @@ function openSheet() {
   // 50+ features: a filter is no longer optional
   const q = document.createElement('input');
   q.type = 'search'; q.placeholder = 'search features';
-  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui;outline:none';
+  q.style.cssText = 'width:calc(100% - 24px);margin:0 12px 6px;padding:11px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:14px system-ui';
   q.addEventListener('input', () => {
     const v = q.value.trim().toLowerCase();
     let lastGroup = null, groupHas = false;

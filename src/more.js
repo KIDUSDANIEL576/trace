@@ -372,9 +372,9 @@ function renderSettle() {
   $$('[data-add]', s).forEach((b) => b.addEventListener('click', () => {
     ui.panel('add one', (body) => {
       const t = el(`<input placeholder="what it was" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit;outline:none">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
       const v = el(`<input placeholder="€" inputmode="decimal" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit;outline:none">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
       body.appendChild(t); body.appendChild(v);
       const go = el(`<button class="p-cta">Add</button>`);
       go.addEventListener('click', () => {

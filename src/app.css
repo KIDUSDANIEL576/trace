@@ -335,7 +335,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 
 .search{margin:18px 20px 0;height:44px;border-radius:var(--r14);background:var(--surface);
   border:1px solid var(--hairline);display:flex;align-items:center;gap:10px;padding:0 16px;flex:none}
-.search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font:15px inherit}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:15px inherit}
 .search input::placeholder{color:var(--ink-3)}
 
 .splitbar{margin:18px 20px 0;height:8px;border-radius:99px;background:var(--ground-alt);
@@ -661,7 +661,7 @@ button.card:active{transform:scale(.99)}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
 #onboard input{padding:15px 16px;border-radius:16px;border:1px solid var(--hairline);
-  background:var(--surface);color:var(--ink);font:15px inherit;outline:none;text-align:center}
+  background:var(--surface);color:var(--ink);font:15px inherit;text-align:center}
 #ob-their{font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.2em}
 .ob-code-l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-top:6px}
 .ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:var(--red)}
@@ -689,10 +689,10 @@ button.card:active{transform:scale(.99)}
 #colorpop .cp-chip{width:44px;height:44px;border-radius:14px;flex:none;border:1px solid var(--hairline)}
 #colorpop .cp-hex{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground);color:var(--ink);font:600 14px ui-monospace,Menlo,monospace;
-  letter-spacing:.08em;text-align:center;outline:none;text-transform:uppercase}
+  letter-spacing:.08em;text-align:center;text-transform:uppercase}
 #colorpop .cp-ok{height:40px;padding:0 18px;border-radius:999px;background:var(--red);color:var(--on-red);
   font-size:14px;font-weight:600;flex:none}
-#colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;outline:none;
+#colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;
   background:linear-gradient(90deg,hsl(0,90%,60%),hsl(60,90%,60%),hsl(120,80%,55%),hsl(180,85%,55%),
     hsl(240,90%,65%),hsl(300,90%,65%),hsl(360,90%,60%))}
 #colorpop .cp-hue::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
@@ -872,3 +872,25 @@ button.card:active{transform:scale(.99)}
   background-size:72px 15px;padding-bottom:9px}
 .btn-red{background-image:var(--mark-on-red)}
 .btn-ink{background-image:var(--mark-sign)}
+
+/* ── focus ────────────────────────────────────────────────────────────────
+ * There was no `:focus` rule anywhere in this stylesheet — not one — and four
+ * places set `outline:none`, which throws away the browser's own. So anyone
+ * driving this app from a keyboard had no idea where they were, and the New
+ * event form's entire answer to an untitled Save was to focus a field that
+ * gave no sign of being focused.
+ *
+ * `:focus-visible` rather than `:focus`, so a mouse press on a button does not
+ * leave a ring behind it. Text fields still match it when clicked, which is
+ * the case that matters here: it is what makes "give it a name first" point at
+ * somewhere the eye can actually follow.
+ *
+ * The `outline:none` declarations are simply gone rather than overridden —
+ * they existed to suppress the old always-on `:focus` ring, and `:focus-visible`
+ * is the feature that made them unnecessary.
+ *
+ * `.cal button.today` is named because it carries a permanent ink outline of
+ * its own at a specificity this would otherwise lose to.
+ */
+:focus-visible,
+.cal button.today:focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
