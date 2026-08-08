@@ -2468,7 +2468,10 @@ function sizeCanvas() {
   W = wrap.clientWidth; H = wrap.clientHeight;
   cv.width = W * DPR; cv.height = H * DPR;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  pages.hers.forEach(scaleHers);
+  /* every page, not just hers: restored marks carry the same normalised cache,
+     and the canvas changes size between boot and the app view being shown —
+     projecting once at load put them 10-35% out of place */
+  for (const k in pages) pages[k].forEach(scaleHers);
   redraw();
 }
 
@@ -2498,6 +2501,76 @@ function setPage(name) {
   return curPage;
 }
 let fadeTimers = [];
+
+/* ── today's canvas, across a reload ──────────────────────────────────────
+ *
+ * `pages` was memory only. Closing the app lost the drawing — in a drawing
+ * app, on the screen the first invariant calls home, with a settings switch
+ * shipped ON that promises "keep marks past the day". Memory's mark count and
+ * the goodnight seal both assume a canvas that is still there.
+ *
+ * Two details make this safe to reload into:
+ *
+ *   Points are stored normalised (0..1), like the ones that go over the wire,
+ *   so a canvas that comes back at a different size — rotation, a resized
+ *   window, a different phone — puts the marks back where they belong instead
+ *   of somewhere near it.
+ *
+ *   `c` is a palette slot ('red', 'ink', …), never a resolved colour, for the
+ *   same reason strokes on the wire are: a resolved colour would carry the
+ *   theme it was drawn in, and ink drawn at night would come back cream on
+ *   white. Custom colours stay literal hex and pass through.
+ *
+ * It holds one day. The canvas is "today's canvas" — it seals at goodnight and
+ * what survives past midnight is the wall of marks both people chose to keep,
+ * which is a different surface (p36). So a stamp from another day is dropped
+ * rather than restored.
+ */
+const dayStamp = () => new Date().toDateString();
+function inkOut() {
+  syncPageRef();
+  const w2 = W || 320, h2 = H || 320;
+  const out = {};
+  for (const k in pages) {
+    out[k] = pages[k].filter((s) => s.who !== 'fx' && s.brush !== 'ghost').map((s) => ({
+      id: s.id, who: s.who, type: s.type || 'ink', c: s.c, w: s.w,
+      alpha: s.alpha, taper: s.taper, brush: s.brush, mirror: s.mirror,
+      text: s.text, font: s.font, size: s.size,
+      x: s._n ? s._n.x : (s.x === undefined ? undefined : +(s.x / w2).toFixed(4)),
+      y: s._n ? s._n.y : (s.y === undefined ? undefined : +(s.y / h2).toFixed(4)),
+      pts: s._n ? s._n.pts
+        : (s.pts || []).map((pt) => [+(pt.x / w2).toFixed(4), +(pt.y / h2).toFixed(4),
+          pt.pr === undefined ? 1 : +pt.pr.toFixed(2)]),
+    }));
+  }
+  return out;
+}
+let inkT;
+function saveInk() {
+  clearTimeout(inkT);
+  inkT = setTimeout(() => store.set('ink', { day: dayStamp(), pages: inkOut() }), 400);
+}
+function loadInk() {
+  const saved = store.get('ink', null);
+  if (!saved || saved.day !== dayStamp() || !saved.pages) return 0;
+  const w2 = W || 320, h2 = H || 320;
+  let n = 0;
+  for (const k in pages) {
+    if (!Array.isArray(saved.pages[k])) continue;
+    pages[k] = saved.pages[k].map((s) => {
+      n++;
+      /* keep the normalised form on the stroke and let sizeCanvas project it,
+         the same way her page has always worked — so the marks follow a
+         rotation or a resize instead of being pinned to the size they were
+         restored at */
+      const st = Object.assign({}, s, { born: now(), _n: { pts: s.pts, x: s.x, y: s.y } });
+      scaleHers(st);
+      return st;
+    });
+  }
+  strokes = pages[curPage];
+  return n;
+}
 
 const BRUSH_DEFAULTS = {
   pen:    { size: 9,  alpha: 1,   taper: true  },
@@ -2613,7 +2686,7 @@ function addTextStroke(text, font, size, color) {
   const st = { type: 'text', text, font, size, x: W * .1 + Math.random() * W * .12,
     y: H * .25 + Math.random() * H * .4, c: color || state.color,
     pts: [], who: 'you', born: now(), id: Math.random().toString(36).slice(2, 9) };
-  strokes.push(st); syncPageRef(); redraw();
+  strokes.push(st); syncPageRef(); redraw(); saveInk();
   lastInkAt = Date.now();
   if (curPage === 'mine' && window.TRACE_BOARD) {
     TRACE_BOARD.sendPageInk({ text, font, size, x: st.x / W, y: st.y / H, c: st.c, pts: [] });
@@ -2778,6 +2851,7 @@ function onYouDrew(s) {
     toast('on her widget — one-time, yours alone');
     return;
   }
+  saveInk();
   if (curPage !== 'us') return;
   window.TRACE_NET && TRACE_NET.emit('se', { id: s.id });
   if (window.TRACE_NET && TRACE_NET.live()) return;   // a real person answers now
@@ -4103,7 +4177,7 @@ function openGuardrails() {
     const close = document.createElement('button'); close.className = 'p-ghost'; close.textContent = 'close the door';
     close.addEventListener('click', () => {
       if (confirm('End it? This archives your canvas and stops every trace. No win-back emails. (Simulation: clears local data.)')) {
-        localStorage.clear(); strokes = []; redraw(); closePanel();
+        localStorage.clear(); strokes = []; pages.us = strokes; pages.mine = []; pages.hers = []; redraw(); closePanel();
         toast('the door is closed. take care of yourself.');
         log('CLOSE THE DOOR — everything archived, nothing retained');
       }
@@ -4133,7 +4207,7 @@ if (typeof window !== 'undefined' && window.TRACE_EXTRA) {
       all: () => strokes,
       add: (s) => { strokes.push(s); redraw(); },
       set: (v) => { strokes = v; redraw(); },
-      clear: () => { strokes = []; redraw(); },
+      clear: () => { strokes = []; redraw(); saveInk(); },
     },
     canvas: () => ({ cv, ctx, W, H, DPR, wrap }),
     note: (t) => { $('#canvas-note').textContent = t || ''; },
@@ -4254,6 +4328,8 @@ paintNet();
 
 new ResizeObserver(sizeCanvas).observe(wrap);
 sizeCanvas();
+/* after sizeCanvas, because the marks are normalised and need W/H to land */
+if (loadInk()) redraw();
 
 // ghost strokes fade over time
 setInterval(() => { if (strokes.some(s => s.brush === 'ghost')) redraw(); }, 300);
