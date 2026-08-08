@@ -1,5 +1,5 @@
-/* trace sw mskc26s0 */
-const C='trace-mskc26s0';
+/* trace sw mskc53td */
+const C='trace-mskc53td';
 const CORE=['./app.html','./manifest.webmanifest','./pwa/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
