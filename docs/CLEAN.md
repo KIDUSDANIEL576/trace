@@ -135,6 +135,26 @@ cannot drift from what the board actually says:
 They re-render every 3s while visible, so a task ticked on the other phone
 changes the watch complication here without a reload.
 
+## Pages and the handwriting keys (`src/write.js`)
+
+The owner's model, verbatim: *"when I draw it appears on her, when she draws
+it appears on me, if I do us we will interact — but what I draw shall be on
+her widget without her affecting it."*
+
+- **us** — the shared canvas, both hands, live over the wire. Unchanged.
+- **mine** — my page. Strokes and typed lines ride the board channel
+  (`pageink`) to HER widget as a one-time trace. Nothing of hers touches it.
+- **hers** — her page arriving on my side. Read-only: *"it arrives, you
+  watch."* Her page-ink is stored normalized and re-projected on resize, so
+  it renders even if the app was never opened (the widget scales it itself).
+
+The handwriting keys (the `Aa` button): type a line, pick a hand — Caveat,
+Dancing Script, Sacramento, Kaushan, Yellowtail, Parisienne, all embedded —
+see it with per-glyph wobble (seeded from the stroke id, so both phones draw
+the identical wobble), and send. On *mine* it lands on her widget in your
+hand; on *us* it lands on both phones. Canvas `fillText` never triggers
+`@font-face` loading, so every hand is warmed at boot.
+
 ## Known gaps
 
 - The five logo directions (27a–f) are a brand decision, not code. They

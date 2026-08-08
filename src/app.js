@@ -37,11 +37,35 @@ function sizeCanvas() {
   W = wrap.clientWidth; H = wrap.clientHeight;
   cv.width = W * DPR; cv.height = H * DPR;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  pages.hers.forEach(scaleHers);
   redraw();
+}
+
+/* her page-ink is stored normalized; project it into the current canvas.
+   With W=0 (app never opened) fall back to the widget's own aspect so the
+   deck can still paint it. */
+function scaleHers(st) {
+  const n = st._n; if (!n) return;
+  const w2 = W || 320, h2 = H || 320;
+  st.pts = (n.pts || []).map(([nx, ny, pr]) => ({ x: nx * w2, y: ny * h2, t: st.born, pr: pr === undefined ? 1 : pr }));
+  if (st.type === 'text') { st.x = n.x * w2; st.y = n.y * h2; }
 }
 
 // stroke: {pts:[{x,y,t}], c, w, brush, who, born}
 let strokes = [];
+/* three canvases, one element: us (shared, live), mine (my board page —
+   lands on her widget, she can't touch it), hers (her page — read-only) */
+const pages = { us: strokes, mine: [], hers: [] };
+let curPage = 'us';
+function syncPageRef() { pages[curPage] = strokes; }
+function setPage(name) {
+  if (!pages[name] || name === curPage) return curPage;
+  pages[curPage] = strokes;
+  strokes = pages[name];
+  curPage = name;
+  redraw();
+  return curPage;
+}
 let fadeTimers = [];
 
 const BRUSH_DEFAULTS = {
@@ -65,6 +89,7 @@ const state = {
 };
 
 function drawStroke(s, upTo = Infinity, alpha = 1) {
+  if (s.type === 'text') return drawTextStroke(s, alpha);
   const pts = s.pts; if (pts.length < 2) return;
   const boost = state.bothHere ? 1.35 : 1;
   ctx.save();
@@ -112,6 +137,46 @@ function drawStroke(s, upTo = Infinity, alpha = 1) {
   }
   ctx.stroke();
   ctx.restore();
+}
+
+/* typed words rendered as a hand: per-glyph wobble seeded from the stroke,
+   so it never re-jitters between frames and both phones draw it identically */
+function drawTextStroke(s, alpha = 1) {
+  let seed = 0; for (const ch of (s.id || 'x')) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  ctx.save();
+  ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
+  ctx.fillStyle = s.c;
+  ctx.textBaseline = 'middle';
+  let x = s.x;
+  for (const ch of s.text) {
+    const jr = (rnd() - .5) * .09, jy = (rnd() - .5) * s.size * .14;
+    ctx.font = `700 ${s.size}px '${s.font}', cursive`;
+    const w2 = ctx.measureText(ch).width;
+    ctx.save();
+    ctx.translate(x + w2 / 2, s.y + jy);
+    ctx.rotate(jr);
+    ctx.fillText(ch, -w2 / 2, 0);
+    ctx.restore();
+    x += w2 * (0.98 + rnd() * .05);
+  }
+  ctx.restore();
+}
+
+function addTextStroke(text, font, size, color) {
+  const st = { type: 'text', text, font, size, x: W * .1 + Math.random() * W * .12,
+    y: H * .25 + Math.random() * H * .4, c: color || state.color,
+    pts: [], who: 'you', born: now(), id: Math.random().toString(36).slice(2, 9) };
+  strokes.push(st); syncPageRef(); redraw();
+  lastInkAt = Date.now();
+  if (curPage === 'mine' && window.TRACE_BOARD) {
+    TRACE_BOARD.sendPageInk({ text, font, size, x: st.x / W, y: st.y / H, c: st.c, pts: [] });
+    toast('in your hand, on her widget');
+  } else if (curPage === 'us' && window.TRACE_NET && TRACE_NET.live()) {
+    TRACE_NET.emit('note', { text });
+    toast('sent — in your hand on both phones');
+  } else toast('written — in your hand');
+  return st;
 }
 
 function redraw() {
@@ -170,6 +235,7 @@ const SMOOTH = .42;                // lower = silkier, higher = snappier
 
 wrap.addEventListener('pointerdown', (e) => {
   if (window.TRACE_SEALED) { toast('this canvas is sealed — the last chapter keeps it'); return; }
+  if (curPage === 'hers') { toast('her page — it arrives, you watch'); return; }
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
   try { wrap.setPointerCapture(e.pointerId); } catch {}
   const p = pos(e);
@@ -178,8 +244,8 @@ wrap.addEventListener('pointerdown', (e) => {
   const cfg = brushCfg[state.brush] || BRUSH_DEFAULTS.pen;
   cur = { pts: [{ ...p, t: now(), pr: pressure(e) }], c: state.color, w: cfg.size, alpha: cfg.alpha, taper: cfg.taper, brush: state.brush, who: 'you', born: now(), mirror: state.mode === 'mirror' };
   cur.id = Math.random().toString(36).slice(2, 9);
-  strokes.push(cur);
-  window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, alpha: cur.alpha, taper: cur.taper, brush: cur.brush, mirror: cur.mirror });
+  strokes.push(cur); syncPageRef();
+  if (curPage === 'us') window.TRACE_NET && TRACE_NET.emit('sb', { id: cur.id, c: cur.c, w: cur.w, alpha: cur.alpha, taper: cur.taper, brush: cur.brush, mirror: cur.mirror });
 });
 wrap.addEventListener('pointermove', (e) => {
   let p = pos(e);
@@ -193,7 +259,7 @@ wrap.addEventListener('pointermove', (e) => {
   if (Math.hypot(p.x - lp.x, p.y - lp.y) < 1.6) return;
   const pr = pressure(e);
   cur.pts.push({ ...p, t: now(), pr });
-  window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4), pr === 1 ? 1 : +pr.toFixed(2)] });
+  if (curPage === 'us') window.TRACE_NET && TRACE_NET.emit('sp', { id: cur.id, pt: [+(p.x / W).toFixed(4), +(p.y / H).toFixed(4), pr === 1 ? 1 : +pr.toFixed(2)] });
   if (state.traceGuide) scoreTrace(p);
   redraw();
 });
@@ -224,6 +290,17 @@ let featureHooks = {};
 function onYouDrew(s) {
   store.set('lastDrawn', Date.now());
   lastInkAt = Date.now();
+  if (curPage === 'mine') {
+    /* my page: the stroke rides the board channel to HER widget — one-time,
+       and nothing of hers can touch it */
+    if (window.TRACE_BOARD) TRACE_BOARD.sendPageInk({
+      pts: s.pts.map(p2 => [+(p2.x / W).toFixed(4), +(p2.y / H).toFixed(4), p2.pr === 1 || p2.pr === undefined ? 1 : p2.pr]),
+      c: s.c, w: s.w, alpha: s.alpha, taper: s.taper, brush: s.brush,
+    });
+    toast('on her widget — one-time, yours alone');
+    return;
+  }
+  if (curPage !== 'us') return;
   window.TRACE_NET && TRACE_NET.emit('se', { id: s.id });
   if (window.TRACE_NET && TRACE_NET.live()) return;   // a real person answers now
   if (state.mode === 'passpen') {
@@ -1572,14 +1649,22 @@ function paintWidget(target) {
   const wx = wInk.getContext('2d');
   wx.setTransform(DPR, 0, 0, DPR, 0, 0);
   wx.clearRect(0, 0, r.width, r.height);
-  const mine = strokes.filter(k => k.who !== 'fx');
-  if (!W || !H) return;
-  const k = Math.max(r.width / W, r.height / H) * .9;
+  const src = pages.hers.length ? pages.hers : (pages.us === strokes ? strokes : pages.us);
+  const mine = src.filter(k => k.who !== 'fx');
+  const SW2 = W || 320, SH2 = H || 320;
+  if (!mine.length) return;
+  const k = Math.max(r.width / SW2, r.height / SH2) * .9;
   wx.save();
-  wx.translate((r.width - W * k) / 2, (r.height - H * k) / 2);
+  wx.translate((r.width - SW2 * k) / 2, (r.height - SH2 * k) / 2);
   wx.scale(k, k);
   wx.lineCap = wx.lineJoin = 'round';
   for (const s of mine) {
+    if (s.type === 'text') {
+      wx.font = `700 ${s.size}px '${s.font}', cursive`;
+      wx.fillStyle = s.c; wx.textBaseline = 'middle';
+      wx.globalAlpha = 1; wx.fillText(s.text, s.x, s.y);
+      continue;
+    }
     if (s.pts.length < 2) continue;
     wx.globalCompositeOperation = s.brush === 'eraser' ? 'destination-out' : 'source-over';
     wx.globalAlpha = s.brush === 'eraser' ? 1 : (s.alpha !== undefined ? s.alpha : 1);
@@ -1743,6 +1828,9 @@ window.TRACE_APP = {
   partnerDrawing: () => drawingNow,
   paintWidgetInk: (cv) => paintWidget(cv),
   showApp, showHome, brushPop: toggleBrushPop,
+  setPage, curPage: () => curPage,
+  hersCount: () => pages.hers.length,
+  addTextStroke,
   remoteBoard(p) { window.TRACE_BOARD && TRACE_BOARD.receive(p); },
   remoteBegin(p) {
     remote[p.id] = { pts: [], c: p.c, w: p.w, alpha: p.alpha, taper: p.taper, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
@@ -1763,10 +1851,21 @@ window.TRACE_APP = {
     window.TRACE_BOARD && TRACE_BOARD.inked();
   },
   remoteHeart() { heartArrive('partner'); },
-  remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); redraw(); toast('they cleared the canvas'); },
+  remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); syncPageRef(); redraw(); toast('they cleared the canvas'); },
   remoteSky(p) { window.TRACE_SKY && TRACE_SKY(p.name, p.strength); },
   remoteTug() { stringTug('sara'); },
   remoteNote(t2) { writeOnCanvas(t2); },
+  receivePageInk(p2) {
+    /* keep the normalized original: the canvas may not be sized yet (app
+       never opened), and a resize re-derives everything from it */
+    const st = { _n: p2, c: p2.c, w: p2.w, alpha: p2.alpha, taper: p2.taper,
+      brush: p2.brush, who: 'partner', born: now(), pts: [] };
+    if (p2.text) { st.type = 'text'; st.text = p2.text; st.font = p2.font; st.size = p2.size; }
+    scaleHers(st);
+    pages.hers.push(st);
+    if (curPage === 'hers') redraw();
+    lastInkAt = Date.now(); buzz(16);
+  },
   partner(on, name) {
     const sim = $('#sim');
     if (sim) sim.style.opacity = on ? .28 : 1;

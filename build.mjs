@@ -443,12 +443,18 @@ table{display:block;overflow-x:auto}
 </style></head><body><div class="wrap">${html}</div></body></html>`;
   writeFileSync(join(at(OUT), 'prd.html'), page);
 }
+const scriptFaces = [
+  ['Dancing Script', 'Dancing-Script'], ['Sacramento', 'Sacramento'],
+  ['Kaushan Script', 'Kaushan-Script'], ['Yellowtail', 'Yellowtail'], ['Parisienne', 'Parisienne'],
+].map(([fam, file]) =>
+  `@font-face{font-family:'${fam}';font-display:swap;src:url(data:font/woff2;base64,${b64('src/fonts/script/' + file + '.woff2')}) format('woff2')}`
+).join('');
 writeFileSync(join(at(OUT), 'app.html'),
   read('src/app.html')
-    .replace('<!--FONT-->', () => `<style>${caveatCss}</style>`)
+    .replace('<!--FONT-->', () => `<style>${caveatCss}${scriptFaces}</style>`)
     .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
     .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
-    .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>\n<script>\n${read('src/surfaces.js')}\n</script>\n<script>\n${read('src/flows.js')}\n</script>`));
+    .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>\n<script>\n${read('src/surfaces.js')}\n</script>\n<script>\n${read('src/flows.js')}\n</script>\n<script>\n${read('src/write.js')}\n</script>`));
 writeFileSync(join(at(OUT), 'index.html'), html);
 
 /* ------------------------------------------------- manifest + change log */

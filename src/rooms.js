@@ -773,7 +773,8 @@ function deck() {
     add(1, { kind: 'leave', tint: '#4ADE80', head: db.leaving.mins + ' min',
       foot: 'leaving now', render: leaveCard });
 
-  if (db.pub.trace && (partnerLive || (strokeN && !db.traceSeen)))
+  const hersN = (APP.hersCount && APP.hersCount()) || 0;
+  if (db.pub.trace && (partnerLive || ((strokeN + hersN) && !db.traceSeen)))
     add(2, { kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
       foot: 'trace · one-time', spark: sparkline('#FFB020'), render: traceCard });
 
@@ -981,6 +982,7 @@ window.TRACE_BOARD = {
     else if (kind === 'notice') db.notices = [{ id: 'say', t: payload.t, when: 'just now' }]
       .concat(db.notices.filter((n) => n.id !== 'say'));
     else if (kind === 'flare') db.flare = { ts: Date.now() };
+    else if (kind === 'pageink') { window.TRACE_APP && TRACE_APP.receivePageInk(payload); db.traceSeen = false; }
     else if (kind === 'guest') db.guest = payload.on;
     else if (kind === 'car') db.carMode = payload.on;
     else if (kind === 'unblock') db.unblocked[payload.id] = true;
@@ -1001,6 +1003,7 @@ window.TRACE_BOARD = {
     save(); paintWidget();
     if (current === 'room' && roomKey) openRoom(roomKey);
   },
+  sendPageInk(payload) { push('pageink', payload); },
   /* the engine tells us a stroke landed, so the one-time trace re-arms */
   inked() { db.traceSeen = false; resetDeck(); save(); paintWidget(); },
   paint: paintWidget,
