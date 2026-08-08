@@ -1,89 +1,166 @@
-# trace — social kit
+# trace — design builds
 
-Implementation of the **Trace Social** designs from the Claude Design handoff in
-`project/` — the in-app screens, the full marketing post set, wordmark lockups
-and reel storyboards, rebuilt as a single self-contained page with real PNG
-export at platform sizes.
+Two deliverables from the Claude Design handoffs in `project/`, both built by
+`node build.mjs` into `site/`:
 
-## Run it
+| build | what it is |
+|---|---|
+| **`site/app.html`** | **the app** — all 61 screens of the Trace Paper design, running |
+| `site/clean.html` | the design gallery — 82 frames from the earlier Social/Clean turns, with PNG export |
 
-Open **`site/index.html`** in a browser. That's it — everything (CSS, JS, the
-Caveat font) is inlined, no network, works from `file://`.
+Everything is inlined (CSS, JS, the Caveat subsets), no network, works from
+`file://`. `node build.mjs` produces both.
 
-## What it does
+> **This repo is not the shipping app.** The product ships from
+> `KIDUSDANIEL576/trace`, a React Native codebase — see *Where this goes*.
 
-- **All 58 frames** from the five design turns, pixel-matched to the prototype:
-  in-app screens (⋯ sheet, post composer, replay post, gesture card, six
-  interactions), 24 posts across 1:1 / 9:16 / 16:9 / App Store, three wordmark
-  lockups, and the three reel storyboards + production sheet.
-- **PNG export** on every frame (hover → `PNG`), at true platform resolution:
-  1:1 → 1080×1080, 9:16 → 1080×1920, 16:9 → 1920×1080, App Store → 1290×2792,
-  storyboard beats → 1080×1918, phones → 990×2142, lockups → 1040×600.
-  Frames are live DOM (gradients + inline SVG), so exports are crisp at any
-  scale. `export turn` / `export all` bundle PNGs into a ZIP — no dependencies,
-  the ZIP writer is ~40 lines of vanilla JS.
-- **Photo slots** — the frames that call for real footage (2b, 2c, 5a, 5c) take
-  a click or drag-and-drop photo, persisted in `localStorage`, and the app layer
-  composites on top exactly as designed. Filled photos are included in exports.
-- **Filters + search** across formats and frame copy; per-turn export buttons.
-- **Finish restored** — the chat log's last open item: the perf passes had
-  stripped 23 film-grain layers and 34 glass blurs and made animation
-  hover-only (a misdiagnosis — the design tool's preview harness was at fault,
-  not the file). This build restores grain as one shared static texture,
-  backdrop blur on the 35 glass surfaces, and always-on stroke animation. The
-  `motion` toggle brings back hover-gated animation, and
-  `prefers-reduced-motion` is honoured automatically. Also fixed: 1h's
-  invisible-ink hover reveal (the prototype used a non-standard `style-hover`
-  attribute that never worked).
+---
 
-## Taking a design update
+## The app — `site/app.html`
 
-When Claude Design produces a new export, drop it over
-`project/Trace Social.dc.html` and run:
+The current design bundle is `project/paper/`, and it is the source of truth:
+
+| file | contents |
+|---|---|
+| `project/paper/SCREENS.md` | **start here** — all 61 screens, what each is for, its elements, its build plan |
+| `project/paper/README.md` | tokens, the three invariants, typography, spacing, brand |
+| `project/paper/Trace Paper.dc.html` | the live design file, 61 frames `p1`–`p61` |
+| `project/paper/Trace Logo.dc.html` | the mark, colourways, app icon, loading animation |
+
+**Read one frame** — the fastest way to compare built against designed:
 
 ```
-node build.mjs                          # or: node build.mjs <export.dc.html> <outDir>
+node frame.mjs p46          # prints frame p46's structure, colours, sizes, copy
+node coverage.mjs           # which frames have a surface, by copy overlap
+node coverage.mjs p46       # what copy p46 is still missing
 ```
 
-That's the whole update path — the build absorbs new work without edits here:
+### Three invariants
 
-- **New turns and frames** are picked up automatically and diffed against the
-  last build (`+ new / - removed / ~ resized` is printed).
-- **New frame sizes** are classified by aspect ratio and exported at the right
-  platform size — 4:5 → 1080×1350, 1.91:1 → 1200×627, and so on. Anything the
-  build had to infer is listed at the end of the run so you can check it.
-- **New formats** generate their own filter chip; the chip row is built from
-  what's actually in the file.
-- **New `@keyframes` and frame classes** come along, because the prototype's
-  own `<style>` block is lifted wholesale rather than hand-copied.
-- **Photo slots** are parsed attribute-order independently.
+Product law. If an implementation decision conflicts with one, the invariant
+wins.
 
-The build fails loudly rather than silently dropping content: an unconvertible
-`image-slot`, a missing prototype stylesheet, or unbalanced markup all stop it.
+1. **Home is always the canvas.** Not a feed, not a dashboard.
+2. **No room notifies about itself.** Only four things may ever push: the flare,
+   "leaving now", a reminder *both* people agreed to, and goodnight (off by
+   default).
+3. **Nothing that reads a drawing leaves the device.**
 
-The prototype is the source of truth for frame markup — edit frames there;
-gallery chrome and behaviour live in `src/`.
+### The theme layer
+
+Paper is the design. Dark is a preference, and deliberately *not* an inversion
+of paper — it is the same structure with its own warm near-black values, so the
+ink card stays an emphasis step instead of dissolving into the ground.
+
+- `src/app.css` holds both token blocks. Paper is bare `:root`; dark is
+  `:root[data-theme="dark"]`, repeated under `prefers-color-scheme` for the
+  "match phone" case.
+- An explicit choice wins in both directions. It is stamped before first paint
+  by an inline script in `src/app.html`, because setting it afterwards is a
+  flash.
+- Red `#E23343` is the **only** accent. No greens for success, no blues for
+  info — red has to keep meaning "this matters".
+
+Two consequences worth knowing before editing:
+
+- **Canvas 2D has no cascade**, so `var()` never resolves against a context.
+  `TOK('--ink')` reads the value off the document and drops its cache on theme
+  change.
+- **A stroke's colour is a palette slot, not a value** (`'red'`, `'ink'`,
+  `'amber'`, `'violet'`). Strokes sync, so a resolved colour would send the
+  author's theme with them — ink drawn in the dark would arrive on a paper
+  phone as cream on white. Custom colours from the cascade stay literal hex and
+  pass straight through.
+
+### Source layout
 
 | path | role |
 |---|---|
-| `src/shell.html` | gallery chrome (header, filters, footer) |
-| `src/trace.css` | restored finish + photo slots + gallery styles (prototype CSS is lifted from the source at build time, not duplicated here) |
-| `src/trace.js` | filters, photo slots, PNG/ZIP export pipeline |
-| `src/fonts/` | Caveat woff2 subsets, extracted from the handoff's standalone export |
-| `build.mjs` | transforms prototype → site (slots, glass, export wrappers) |
-| `site/index.html` | **the deliverable** — single file, fully self-contained |
-| `site/manifest.json` | frame inventory (id, format, size), used to diff builds |
+| `src/app.html` | the shell, the canvas screen, the theme boot script |
+| `src/app.css` | the token layer and every shared block primitive |
+| `src/app.js` | the canvas engine — strokes, brushes, pressure, the widget |
+| `src/rooms.js`, `src/rooms2.js` | the five rooms, the board, the widget deck |
+| `src/rituals.js` | goodnight (p3), the prompt deck (p4) |
+| `src/hard.js` | repair, cover me, interruptions, the end — and the quiet switch |
+| `src/calendar.js` | find a time, new event, the clash, trips, dates, two clocks |
+| `src/life.js` | the unsaid, newborn, grief, moving, money shock |
+| `src/longrun.js` | drift, the friend, solo nights, parents, the visitor |
+| `src/more.js` | meal wheel, memory, the loop, kid's corner, people, settle up |
+| `src/write.js` | the typed → handwritten composer (p14) |
+| `src/flows.js`, `src/surfaces.js` | the daily loop, and watch/lock/tablet/car |
 
-Export detail worth knowing: rasterisation goes DOM clone → SVG
-`foreignObject` → canvas → PNG. The clone gets an `.ts-export` class that kills
-animations so `tdraw` strokes render fully drawn instead of invisible, and the
-SVG is loaded via `data:` URI — a `blob:` URL taints the canvas.
+Adding a screen means: create the section, `R.addScreen(name, render)`, and
+register it with `R.addRow(room, ...)` for a room or `R.addBeyond(...)` for the
+directory tail. A room row's `sub` is a **thunk**, so its subtitle can track
+live data.
 
-## Design source
+`R.quiet()` is the single "quiet the machinery" predicate. Repair, cover,
+newborn and grief all want the same silence, so anything that counts,
+congratulates, nags or scores asks it once rather than carrying a flag each.
 
-`project/` is the untouched Claude Design handoff bundle (prototypes, chat
-transcripts in `chats/`, App Store placeholder shots in `project/store/`).
-`project/github.md` maps each screen back to the Trace app sources
-(`KIDUSDANIEL576/trace`) it was recreated from. The in-app screens here are
-mockups of that app's chrome; wiring them into the React Native codebase is a
-separate task against that repo.
+### QA
+
+```
+node qa/drive.mjs list                          every reachable screen, grouped
+node qa/drive.mjs probe "Repair"                text, tappables + sizes, colours, overflow, type sizes
+node qa/drive.mjs probe "Repair" dark           the same, in dark
+node qa/drive.mjs shot "Repair" out.png         screenshot it
+node qa/drive.mjs click "Repair" "[data-toggle]"  click, and report what changed
+```
+
+Screens are named the way a person reaches them — a directory row, or
+`room:row` — so a repro reads as the path the user took. `probe` returns enough
+to check touch targets, palette discipline and the type floor mechanically
+rather than by eye.
+
+### App icon
+
+```
+node appicon.mjs      # re-render src/pwa/*.png from the mark, then build.mjs
+```
+
+Generated from the README's own path and geometry so it cannot drift from the
+brand sheet. The ink dot is not optional — it is the wet tip of the other
+person's stroke, and the same shape the app uses as its presence indicator.
+
+---
+
+## The gallery — `site/clean.html`
+
+The earlier Social/Clean design turns as a browsable gallery with real PNG
+export at platform sizes (1:1 → 1080×1080, 9:16 → 1080×1920, App Store →
+1290×2792, and so on). Frames are live DOM, so exports stay crisp at any scale;
+`export turn` / `export all` bundle them into a ZIP with a ~40-line vanilla
+writer.
+
+Taking a design update is one command — drop the new export over
+`project/Trace Social.dc.html` and run `node build.mjs`. New turns, frames,
+sizes, formats and `@keyframes` are all picked up without edits here, and the
+run prints what it had to infer. It fails loudly rather than dropping content.
+
+Rasterisation goes DOM clone → SVG `foreignObject` → canvas → PNG. The clone
+gets `.ts-export` to kill animations, so `tdraw` strokes render fully drawn
+instead of invisible, and the SVG loads via `data:` URI — a `blob:` URL taints
+the canvas.
+
+| path | role |
+|---|---|
+| `src/shell.html`, `src/trace.css`, `src/trace.js` | gallery chrome, finish, export pipeline |
+| `clean.mjs`, `design6.mjs` | parse the untouched design sources |
+| `site/manifest.json` | frame inventory, used to diff builds |
+
+`clean.mjs` and `design6.mjs` read `project/*.dc.html` unmodified, which is why
+`repaint.mjs` skips them — rewriting their colour literals stops them matching.
+
+---
+
+## Where this goes
+
+`project/` is the untouched handoff bundle: prototypes, the chat transcripts in
+`chats/`, store shots in `project/store/`.
+
+`project/github.md` maps each design screen back to the source it was recreated
+from in **`KIDUSDANIEL576/trace`** — a React Native app, and the thing that
+actually ships. This repo builds the designs so they can be reviewed running;
+porting them into that codebase is a separate task against that repo, and the
+two histories are unrelated.
