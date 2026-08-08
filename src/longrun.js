@@ -351,11 +351,11 @@ R.addScreen('solo', renderSolo);
 R.addScreen('care', renderCare);
 R.addScreen('visitor', renderVisitor);
 
-R.addBeyond('The drift', 'Six weeks of hours together, no verdict', 'drift');
-R.addBeyond('Let one person in', 'A third pair of eyes, read-only, expiring', 'friend');
-R.addBeyond('Solo nights', 'One protected night each, on purpose', 'solo');
-R.addBeyond('Ageing parents', 'The care one of you is carrying', 'care');
-R.addBeyond('A visitor', 'The pact, while it still matters', 'visitor');
+R.addBeyond('The drift', 'Six weeks of hours together, no verdict', 'drift', 'The long run');
+R.addBeyond('Let one person in', 'A third pair of eyes, read-only, expiring', 'friend', 'The long run');
+R.addBeyond('Solo nights', 'One protected night each, on purpose', 'solo', 'The long run');
+R.addBeyond('Ageing parents', 'The care one of you is carrying', 'care', 'The long run');
+R.addBeyond('A visitor', 'The pact, while it still matters', 'visitor', 'The long run');
 
 renderDrift(); renderFriend(); renderSolo(); renderCare(); renderVisitor();
 })();

@@ -338,10 +338,10 @@ R.addScreen('interrupt', renderInterrupt);
 R.addScreen('theend', renderEnd);
 window.addEventListener('quietchange', renderRepair);
 
-R.addBeyond('Repair', 'When you’re not okay — the app goes quiet', 'repair');
-R.addBeyond('Cover me', 'Hand your whole day over, briefs attached', 'cover');
-R.addBeyond('Every interruption', 'The four things that can ping you', 'interrupt');
-R.addBeyond('If it ends', 'Pause, close the book, or outlive it', 'theend');
+R.addBeyond('Repair', 'When you’re not okay — the app goes quiet', 'repair', 'The hard parts');
+R.addBeyond('Cover me', 'Hand your whole day over, briefs attached', 'cover', 'The hard parts');
+R.addBeyond('Every interruption', 'The four things that can ping you', 'interrupt', 'The hard parts');
+R.addBeyond('If it ends', 'Pause, close the book, or outlive it', 'theend', 'The hard parts');
 
 renderRepair(); renderCover(); renderInterrupt(); renderEnd();
 })();

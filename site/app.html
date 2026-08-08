@@ -4261,17 +4261,28 @@ function renderRooms(query) {
       row.addEventListener('click', () => openRoom(r.name));
       list.appendChild(row);
     }
-    list.appendChild(el(`<div class="eyebrow" style="padding:16px 4px 2px">Beyond the rooms</div>`));
-    for (const [label, sub, go] of [
+    /* Twenty-odd screens belong to no room. Grouped the way SCREENS.md groups
+       them, because one flat list of that length is a wall, not a directory. */
+    const groups = [['Beyond the rooms', [
       ['Your board', 'What her widget shows — you decide', () => show('board')],
       ['Every widget state', 'And who wins when they compete', () => show('states')],
       ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
       ['Every surface', 'Watch, lock screen, Android, tablet', () => show('surfaces')],
-      ...BEYOND,
-    ]) {
-      const row = el(navRow(label, sub));
-      row.addEventListener('click', go);
-      list.appendChild(row);
+    ]]];
+    for (const [label, sub, go, group] of BEYOND) {
+      const name = group || 'Beyond the rooms';
+      let g = groups.find((x) => x[0] === name);
+      if (!g) groups.push(g = [name, []]);
+      g[1].push([label, sub, go]);
+    }
+    for (const [name, rows] of groups) {
+      if (!rows.length) continue;
+      list.appendChild(el(`<div class="eyebrow" style="padding:16px 4px 2px">${esc(name)}</div>`));
+      for (const [label, sub, go] of rows) {
+        const row = el(navRow(label, sub));
+        row.addEventListener('click', go);
+        list.appendChild(row);
+      }
     }
     return;
   }
@@ -5085,7 +5096,7 @@ window.TRACE_BOARD = {
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
   subRows,
-  addBeyond(label, sub, screen) { BEYOND.push([label, sub, () => show(screen)]); },
+  addBeyond(label, sub, screen, group) { BEYOND.push([label, sub, () => show(screen), group]); },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,
@@ -7422,10 +7433,10 @@ R.addScreen('interrupt', renderInterrupt);
 R.addScreen('theend', renderEnd);
 window.addEventListener('quietchange', renderRepair);
 
-R.addBeyond('Repair', 'When you’re not okay — the app goes quiet', 'repair');
-R.addBeyond('Cover me', 'Hand your whole day over, briefs attached', 'cover');
-R.addBeyond('Every interruption', 'The four things that can ping you', 'interrupt');
-R.addBeyond('If it ends', 'Pause, close the book, or outlive it', 'theend');
+R.addBeyond('Repair', 'When you’re not okay — the app goes quiet', 'repair', 'The hard parts');
+R.addBeyond('Cover me', 'Hand your whole day over, briefs attached', 'cover', 'The hard parts');
+R.addBeyond('Every interruption', 'The four things that can ping you', 'interrupt', 'The hard parts');
+R.addBeyond('If it ends', 'Pause, close the book, or outlive it', 'theend', 'The hard parts');
 
 renderRepair(); renderCover(); renderInterrupt(); renderEnd();
 })();
@@ -8296,11 +8307,11 @@ R.addScreen('grieving', renderGrief);
 R.addScreen('moving', renderMoving);
 R.addScreen('money', renderMoney);
 
-R.addBeyond('The unsaid', 'Held here, private, until you mean it', 'unsaid');
-R.addBeyond('Newborn mode', 'Whose turn to sleep — the only nag', 'newborn');
-R.addBeyond('A hard anniversary', 'The date it remembers so you don’t have to', 'grieving');
-R.addBeyond('Moving', 'One project, two people', 'moving');
-R.addBeyond('Money changed', 'Recalculated, without the warnings', 'money');
+R.addBeyond('The unsaid', 'Held here, private, until you mean it', 'unsaid', 'Life happens');
+R.addBeyond('Newborn mode', 'Whose turn to sleep — the only nag', 'newborn', 'Life happens');
+R.addBeyond('A hard anniversary', 'The date it remembers so you don’t have to', 'grieving', 'Life happens');
+R.addBeyond('Moving', 'One project, two people', 'moving', 'Life happens');
+R.addBeyond('Money changed', 'Recalculated, without the warnings', 'money', 'Life happens');
 
 renderUnsaid(); renderNewborn(); renderGrief(); renderMoving(); renderMoney();
 
@@ -8664,11 +8675,11 @@ R.addScreen('solo', renderSolo);
 R.addScreen('care', renderCare);
 R.addScreen('visitor', renderVisitor);
 
-R.addBeyond('The drift', 'Six weeks of hours together, no verdict', 'drift');
-R.addBeyond('Let one person in', 'A third pair of eyes, read-only, expiring', 'friend');
-R.addBeyond('Solo nights', 'One protected night each, on purpose', 'solo');
-R.addBeyond('Ageing parents', 'The care one of you is carrying', 'care');
-R.addBeyond('A visitor', 'The pact, while it still matters', 'visitor');
+R.addBeyond('The drift', 'Six weeks of hours together, no verdict', 'drift', 'The long run');
+R.addBeyond('Let one person in', 'A third pair of eyes, read-only, expiring', 'friend', 'The long run');
+R.addBeyond('Solo nights', 'One protected night each, on purpose', 'solo', 'The long run');
+R.addBeyond('Ageing parents', 'The care one of you is carrying', 'care', 'The long run');
+R.addBeyond('A visitor', 'The pact, while it still matters', 'visitor', 'The long run');
 
 renderDrift(); renderFriend(); renderSolo(); renderCare(); renderVisitor();
 })();
@@ -9061,7 +9072,7 @@ R.addNav('memoryyear', () => show('memory'));
 
 R.addBeyond('The daily loop', 'Four moments, ninety seconds, three rules', 'loop');
 R.addBeyond('Your people', 'Who to call, and who calls them', 'people');
-R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle');
+R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle', 'The hard parts');
 
 renderWheel(); renderMemory(); renderLoop(); renderKid(); renderPeople(); renderSettle();
 })();

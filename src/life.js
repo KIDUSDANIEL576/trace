@@ -362,11 +362,11 @@ R.addScreen('grieving', renderGrief);
 R.addScreen('moving', renderMoving);
 R.addScreen('money', renderMoney);
 
-R.addBeyond('The unsaid', 'Held here, private, until you mean it', 'unsaid');
-R.addBeyond('Newborn mode', 'Whose turn to sleep — the only nag', 'newborn');
-R.addBeyond('A hard anniversary', 'The date it remembers so you don’t have to', 'grieving');
-R.addBeyond('Moving', 'One project, two people', 'moving');
-R.addBeyond('Money changed', 'Recalculated, without the warnings', 'money');
+R.addBeyond('The unsaid', 'Held here, private, until you mean it', 'unsaid', 'Life happens');
+R.addBeyond('Newborn mode', 'Whose turn to sleep — the only nag', 'newborn', 'Life happens');
+R.addBeyond('A hard anniversary', 'The date it remembers so you don’t have to', 'grieving', 'Life happens');
+R.addBeyond('Moving', 'One project, two people', 'moving', 'Life happens');
+R.addBeyond('Money changed', 'Recalculated, without the warnings', 'money', 'Life happens');
 
 renderUnsaid(); renderNewborn(); renderGrief(); renderMoving(); renderMoney();
 

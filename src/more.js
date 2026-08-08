@@ -384,7 +384,7 @@ R.addNav('memoryyear', () => show('memory'));
 
 R.addBeyond('The daily loop', 'Four moments, ninety seconds, three rules', 'loop');
 R.addBeyond('Your people', 'Who to call, and who calls them', 'people');
-R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle');
+R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle', 'The hard parts');
 
 renderWheel(); renderMemory(); renderLoop(); renderKid(); renderPeople(); renderSettle();
 })();

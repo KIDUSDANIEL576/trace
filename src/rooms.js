@@ -229,17 +229,28 @@ function renderRooms(query) {
       row.addEventListener('click', () => openRoom(r.name));
       list.appendChild(row);
     }
-    list.appendChild(el(`<div class="eyebrow" style="padding:16px 4px 2px">Beyond the rooms</div>`));
-    for (const [label, sub, go] of [
+    /* Twenty-odd screens belong to no room. Grouped the way SCREENS.md groups
+       them, because one flat list of that length is a wall, not a directory. */
+    const groups = [['Beyond the rooms', [
       ['Your board', 'What her widget shows — you decide', () => show('board')],
       ['Every widget state', 'And who wins when they compete', () => show('states')],
       ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
       ['Every surface', 'Watch, lock screen, Android, tablet', () => show('surfaces')],
-      ...BEYOND,
-    ]) {
-      const row = el(navRow(label, sub));
-      row.addEventListener('click', go);
-      list.appendChild(row);
+    ]]];
+    for (const [label, sub, go, group] of BEYOND) {
+      const name = group || 'Beyond the rooms';
+      let g = groups.find((x) => x[0] === name);
+      if (!g) groups.push(g = [name, []]);
+      g[1].push([label, sub, go]);
+    }
+    for (const [name, rows] of groups) {
+      if (!rows.length) continue;
+      list.appendChild(el(`<div class="eyebrow" style="padding:16px 4px 2px">${esc(name)}</div>`));
+      for (const [label, sub, go] of rows) {
+        const row = el(navRow(label, sub));
+        row.addEventListener('click', go);
+        list.appendChild(row);
+      }
     }
     return;
   }
@@ -1053,7 +1064,7 @@ window.TRACE_BOARD = {
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
   subRows,
-  addBeyond(label, sub, screen) { BEYOND.push([label, sub, () => show(screen)]); },
+  addBeyond(label, sub, screen, group) { BEYOND.push([label, sub, () => show(screen), group]); },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,
