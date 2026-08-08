@@ -92,22 +92,64 @@ const SNAP = `(() => {
   };
 })()`;
 
-/* Identify a control by what it is, not by index — indices shift the moment a
-   list re-renders, and then the report blames the wrong button. */
+/* Identify a control by what it is, not by where it sits.
+ *
+ * The first version of this addressed controls by their index in the query
+ * result and re-indexed at press time. That is wrong for the same reason the
+ * screen walk was once wrong: the moment a press re-renders a list or unfolds
+ * a dock, the index points at a different element, and the report blames the
+ * wrong button — or worse, reports a working one as dead because the press
+ * landed somewhere else entirely. That is exactly what happened to the canvas
+ * brush buttons.
+ *
+ * So each control gets a key made of what it is — tag, classes, data
+ * attributes, label — plus an occurrence number to separate identical
+ * siblings. At press time the key is looked up again; if it is gone, the sweep
+ * says so instead of pressing whatever took its place.
+ *
+ * Visibility is a hit test, not a size test. `max-height:0` with
+ * `overflow:hidden` leaves children with a perfectly good bounding box while
+ * clipping them out of sight, and an `opacity:0` parent still hit-tests — the
+ * canvas tool dock is both, and got enumerated while invisible. */
+const KEYFN = `(e) => e.tagName.toLowerCase() + '|' + (e.className || '') + '|' +
+  [...e.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join(',') +
+  '|' + (e.innerText || e.placeholder || e.getAttribute('aria-label') ||
+         e.getAttribute('title') || '').replace(/\\s+/g, ' ').trim().slice(0, 44)`;
+
+const SHOWN = `(e) => {
+  for (let n = e; n && n.nodeType === 1; n = n.parentElement) {
+    const cs = getComputedStyle(n);
+    if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity < 0.05) return false;
+  }
+  const r = e.getBoundingClientRect();
+  if (r.width < 1 || r.height < 1) return false;
+  if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
+  /* clipped by an ancestor's overflow, or covered by an overlay */
+  const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  return !!hit && (e === hit || e.contains(hit) || hit.contains(e));
+}`;
+
+const LIST = `[...${ROOT}.querySelectorAll('button,[data-sub],input,textarea,select,a[href],[role="button"]')]
+  .filter(${SHOWN})`;
+
 const TAPPABLES = `(() => {
   const root = ${ROOT};
   if (!root) return [];
-  return [...root.querySelectorAll('button,[data-sub],input,textarea,select,a[href],[role="button"]')]
-    .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
-    .map((e, i) => ({
-      i,
+  const key = ${KEYFN};
+  const seen = {};
+  return ${LIST}.map((e) => {
+    const k = key(e);
+    seen[k] = (seen[k] || 0) + 1;
+    return {
+      key: k, nth: seen[k],
       tag: e.tagName.toLowerCase(),
       label: (e.innerText || e.placeholder || e.getAttribute('aria-label') ||
               e.getAttribute('title') || e.className || '').replace(/\\s+/g, ' ').trim().slice(0, 44),
       cls: e.className || '',
       data: [...e.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name).join(','),
       disabled: e.disabled === true || e.getAttribute('aria-disabled') === 'true',
-    }));
+    };
+  });
 })()`;
 
 async function reset() {
@@ -165,20 +207,19 @@ for (const t of work) {
     const errAt = errors.length;
     let clicked = false;
     try {
-      clicked = await page.evaluate((sel) => {
-        const root = (() => {
-          const p = document.getElementById('panel');
-          if (p && !p.classList.contains('hidden')) return p;
-          return document.querySelector('.scr:not(.hidden)');
-        })();
-        if (!root) return false;
-        const all = [...root.querySelectorAll('button,[data-sub],input,textarea,select,a[href],[role="button"]')]
-          .filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
-        const e = all[sel.i];
-        if (!e) return false;
-        e.click();
-        return true;
-      }, c);
+      clicked = await page.evaluate(
+        new Function('sel', `
+          const root = ${ROOT};
+          if (!root) return false;
+          const key = ${KEYFN};
+          const seen = {};
+          for (const e of ${LIST}) {
+            const k = key(e);
+            seen[k] = (seen[k] || 0) + 1;
+            if (k === sel.key && seen[k] === sel.nth) { e.click(); return true; }
+          }
+          return false;   /* it is no longer there — say so, do not press a stand-in */
+        `), c);
     } catch (e) { threw.push({ target: t, label: c.label, why: String(e.message).slice(0, 120) }); }
     if (!clicked) { skipped++; continue; }
 

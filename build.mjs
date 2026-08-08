@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SPRITE, EMOJI_ICONS, APP_ICONS, drawnEdge, drawnDisc, drawnMark } from './src/icons.mjs';
+import { SPRITE, EMOJI_ICONS, APP_ICONS, drawnEdge, drawnDisc, drawnMark, drawnRule } from './src/icons.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const at = (p) => (isAbsolute(p) ? p : join(ROOT, p));
@@ -557,6 +557,8 @@ const edgeSet = (ink, red) => [
   `--edge-on:${cssUrl(drawnEdge('edge-on', { size: 64, inset: 3, radius: 18, width: 1.05, colour: red }))}`,
   /* a note is not a card, and it said so with a dashed border */
   `--edge-note:${cssUrl(drawnEdge('edge-note', { size: 64, inset: 3, radius: 18, colour: ink, dash: 3.4 }))}`,
+  /* the last two 1px hairlines in the app: the rules between rows */
+  `--rule:${cssUrl(drawnRule('rule', { colour: ink }))}`,
 ].join(';');
 
 const PAPER = `${edgeSet('rgba(26,26,26,.3)', 'rgba(226,51,67,.55)')};` +

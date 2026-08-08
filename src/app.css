@@ -511,7 +511,8 @@ button.card:active{transform:scale(.99)}
 /* a grouped table of label/value rows sharing one card — p51, p35, p26 */
 .sheet{border-radius:var(--r20);background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
 .sheet .r{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px}
-.sheet .r + .r{border-top:1px solid var(--divider)}
+.sheet .r + .r{border-top:0;background-image:var(--rule);background-repeat:no-repeat;
+  background-position:top;background-size:100% 3px}
 .sheet .r .k{font-size:15px;color:var(--ink-70)}
 .sheet .r .v{font-size:14px;font-weight:700;flex:none}
 .sheet .r .v.red{color:var(--red-text)}
@@ -591,7 +592,8 @@ button.card:active{transform:scale(.99)}
 .cal button.marked::after{content:'';position:absolute;inset:22%;border-radius:99px;
   border:2.5px solid var(--red);border-top-color:transparent;transform:rotate(-30deg)}
 .cal button.today{outline:1.5px solid var(--ink)}
-.dict-row{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--divider)}
+.dict-row{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:0;
+  background-image:var(--rule);background-repeat:no-repeat;background-position:bottom;background-size:100% 3px}
 .dict-row canvas{width:54px;height:36px;flex:none}
 .dict-row b{font-size:16px;font-weight:600;line-height:1.2;display:block}
 .dict-row i{font-style:normal;font-size:12px;color:var(--ink-3)}

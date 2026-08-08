@@ -512,6 +512,17 @@ export function drawnDisc(id, { size = 64, inset = 3, width = 0.8, colour = '#1A
     `<g fill="${colour}">${parts}</g></svg>`;
 }
 
+/* A divider. The last 1px hairlines in the app were the rules between rows in
+ * a sheet and in the dictionary, and a rule is the most obviously drawn thing
+ * on a page — the one line a person actually rules by hand. Stretched
+ * horizontally by `background-size`, which is safe: a drawn line scaled along
+ * its own length is still a drawn line, and its thickness is vertical. */
+export function drawnRule(id, { w = 200, h = 6, width = 0.7, colour = '#1A1A1A' } = {}) {
+  const sub = { pts: [[2, h / 2], [w - 2, h / 2]], closed: false, soft: [false, false] };
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">` +
+    `<g fill="${colour}">${ribbon(id, 0, sub, width)}</g></svg>`;
+}
+
 /* The mark itself, shortened to sign a button. This is the logo's own curve —
  * `M18 82 C42 26,66 96,102 34` flattened to a wider, shallower box so it reads
  * as an underline rather than a squiggle, and without the ink dot, because the
