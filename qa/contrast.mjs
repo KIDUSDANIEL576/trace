@@ -81,7 +81,10 @@ const CHECK = `(() => {
     const size = parseFloat(cs.fontSize), bold = +cs.fontWeight >= 700;
     const large = size >= 24 || (size >= 18.66 && bold);
     const need = large ? 3 : 4.5;
-    if (ratio < need) out.push({ txt: txt.slice(0,40), ratio: +ratio.toFixed(2), need, size });
+    if (ratio < need) out.push({ txt: txt.slice(0,40), ratio: +ratio.toFixed(2), need, size,
+      /* which way round it is matters: white-on-red is a brand decision, red-on-white
+         is just the wrong token — and the ratio alone cannot tell them apart */
+      fg: 'rgb(' + fg.map(Math.round).join(',') + ')', bg: 'rgb(' + bg.map(Math.round).join(',') + ')' });
   });
   return out;
 })()`;
@@ -94,7 +97,7 @@ for (const t of targets) {
       await page.evaluate((k) => window.TRACE_ROOMS.openSub(k), b);
       await page.waitForTimeout(650);
       const hits = await page.evaluate(CHECK);
-      if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1 (needs ${h.need})  ${h.size}px  "${h.txt}"`); }
+      if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1  ${h.size}px  ${h.fg} on ${h.bg}  "${h.txt}"`); }
       await page.evaluate(() => window.TRACE_APP.closePanel && window.TRACE_APP.closePanel());
       await page.waitForTimeout(200);
       continue;
@@ -115,7 +118,7 @@ for (const t of targets) {
     await page.waitForTimeout(420);
     if (b) { await page.evaluate((l) => { [...document.querySelectorAll('#sc-room .row')].find(x => x.textContent.includes(l))?.click(); }, b); await page.waitForTimeout(450); }
     const hits = await page.evaluate(CHECK);
-    if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1 (needs ${h.need})  ${h.size}px  "${h.txt}"`); }
+    if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1  ${h.size}px  ${h.fg} on ${h.bg}  "${h.txt}"`); }
   } catch (e) {}
 }
 console.log(bad ? `\n${bad} screens with unreadable text` : '\nevery text/ground pair meets AA');

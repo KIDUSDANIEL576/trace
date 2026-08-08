@@ -137,11 +137,18 @@ R.defaults({
 
 /* ---------------------------------------------------------------- pieces */
 
+/* The value slot is 14px, which is below the size at which AA lets a colour
+   through on 3:1 — and the flat brand red on a white card measures 4.39:1. The
+   token table already names the answer: red-deep is "red text on paper,
+   contrast-safe". Callers pass the brand red because that is what they mean;
+   this is where "red, as text" gets resolved to the token that can be read. */
+const redText = (tint) => (tint === 'var(--red)' ? 'var(--red-text)' : (tint || 'var(--ink)'));
+
 const kv = (k, v, tint) =>
   `<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;
     background:var(--surface);border:1px solid var(--surface)">
     <span style="font-size:13px;color:var(--ink-3)">${esc(k)}</span>
-    <span style="font-size:14px;font-weight:600;color:${tint || 'var(--ink)'}">${esc(v)}</span></div>`;
+    <span style="font-size:14px;font-weight:600;color:${redText(tint)}">${esc(v)}</span></div>`;
 
 const bigNum = (v, k) =>
   `<div style="text-align:center;padding:8px 0 2px">
@@ -552,7 +559,7 @@ R.addSub('stack', 'widget stack', (body) => {
     body.innerHTML = '';
     body.appendChild(el(`<div class="p-hint">The order she sees — tap a row to move it up</div>`));
     db.stack.forEach((name, n) => {
-      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--ink)', 'var(--red-text)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
+      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red-text)', 'var(--ink)', 'var(--red-text)', 'var(--ink)', 'var(--red-text)'][n % 5]};width:22px">${n + 1}</span>
         <span class="grow"><span class="n light">${esc(name)}</span></span>
         <span class="chev">↑↓</span></button>`);
       r.addEventListener('click', () => {
@@ -606,7 +613,7 @@ R.addSub('week7', 'week 32', (body) => {
   const draw = () => {
     body.innerHTML = '';
     db.week7.forEach(([d, t], n) => {
-      const r = el(`<button class="row"><span class="cnt" style="width:38px;color:${t === '—' ? 'var(--ink-5)' : 'var(--red)'}">${d}</span>
+      const r = el(`<button class="row"><span class="cnt" style="width:38px;color:${t === '—' ? 'var(--ink-5)' : 'var(--red-text)'}">${d}</span>
         <span class="grow"><span class="n light ${t === '—' ? '' : 'hand'}" style="font-size:${t === '—' ? 16 : 23}px;
           color:${t === '—' ? 'var(--ink-5)' : 'var(--ink)'}">${esc(t)}</span></span></button>`);
       r.addEventListener('click', () => editDay(d, n, t, draw));
