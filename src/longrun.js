@@ -112,7 +112,11 @@ function renderDrift() {
     buzz(8);
     const k = b.dataset.d;
     if (k === 'time') return show('findtime');
-    if (k === 'reset') return show('solo');
+    /* "Clear what can be cleared, together, in ten minutes" is the weekly ten,
+       not the solo-nights schedule — this sent the drift screen's primary
+       response to a screen about time apart, which is close to the opposite of
+       what the card offers. */
+    if (k === 'reset') return R.openSub('weekly10');
     /* "that's fine" has to actually be an answer, or the screen is a nag */
     db.driftSeen = true; save();
     toast('closed. it won’t come up again for months.');

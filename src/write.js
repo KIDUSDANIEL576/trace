@@ -111,15 +111,16 @@ function openPad() {
         font:700 ${size}px '${font}',cursive;color:var(--ink);line-height:1.15"></div>
     </div>
     <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none" id="wp-fonts">
-      ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;padding:7px 14px;
+      ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;min-height:44px;padding:0 14px;
         border-radius:999px;font:600 16px '${f}',cursive;color:var(--ink);border:1px solid var(--hairline);
-        background:var(--surface)">${f === 'Caveat' ? 'trace' : 'trace'}</button>`).join('')}
+        background:var(--surface)">trace</button>`).join('')}
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
-      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:var(--red);min-width:0">
-      <button id="wp-send" style="padding:12px 24px;border-radius:999px;background:var(--red);color:var(--on-red);
-        font-size:15px;font-weight:600">Send</button>
+      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}"
+        style="flex:1;accent-color:var(--red);min-width:0;height:44px">
+      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;background:var(--red);
+        color:var(--on-red);font-size:15px;font-weight:600">Send</button>
     </div>
   </div>`);
   const dock = $('#dock');

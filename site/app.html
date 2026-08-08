@@ -646,10 +646,14 @@ button.card:active{transform:scale(.99)}
   display:flex;flex-direction:column;gap:11px;flex:none}
 #brushpop .bp-row{display:flex;align-items:center;gap:10px}
 #brushpop .bp-row span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:34px;flex:none}
-#brushpop input[type=range]{flex:1;accent-color:var(--red);min-width:0}
+/* A range input's track is 16px tall and that was the whole hit area — the
+   two most-used controls in the drawing tools were a third of the 44px floor.
+   Height on the element grows the box the finger has to land in; the track
+   stays centred inside it and looks unchanged. */
+#brushpop input[type=range]{flex:1;accent-color:var(--red);min-width:0;height:44px}
 #brushpop b{font-size:12px;font-weight:600;color:var(--red-text);width:36px;text-align:right;flex:none}
 #brushpop .bp-prev{width:120px;height:40px;margin:0 auto;border-radius:10px;background:var(--ground-alt)}
-#brushpop .bp-taper{padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
+#brushpop .bp-taper{min-height:44px;padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:13px;color:var(--ink)}
 #brushpop .bp-taper.on{border-color:var(--red);background:var(--red-wash);color:var(--red-text)}
 #brushpop .bp-quick{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--hairline);
@@ -674,7 +678,12 @@ button.card:active{transform:scale(.99)}
   gap:12px;text-align:center;align-items:center}
 #ob-launch{flex:1;justify-content:center;padding-bottom:0}
 .ob-actions{width:100%;display:flex;flex-direction:column;gap:16px;padding:0 0 54px;margin-top:auto}
-.ob-link{font-size:15px;color:var(--ink-70);background:none;border:0}
+/* p1's two secondary actions were 18px tall — and "I have a code" is the only
+   route to pairing, so the single most important target in the app was less
+   than half the 44px floor. They read as links, so they had no padding; the
+   floor is met with min-height and padding rather than by making them louder. */
+.ob-link{font-size:15px;color:var(--ink-70);background:none;border:0;
+  min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center}
 .ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:68px;line-height:1;letter-spacing:0}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
@@ -686,7 +695,8 @@ button.card:active{transform:scale(.99)}
 .ob-share{min-height:58px;border-radius:999px;background:var(--red);color:var(--on-red);font-size:17px;font-weight:600}
 .ob-go{min-height:56px;border-radius:999px;background:var(--surface);
   border:1px solid var(--hairline);color:var(--ink);font-size:17px;font-weight:500}
-.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70)}
+.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70);
+  min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center}
 
 /* the mark — one stroke, wet tip. p1 and every loading state. */
 @keyframes traceDraw{
@@ -4739,11 +4749,20 @@ const ROOM_VIEWS = {
       </div>
       <div class="splitbar"><div class="a" style="width:${db.split}%"></div><div class="b"></div></div>
       <div class="body">
-        ${db.tasks.map((t) => `<button class="row" data-task="${t.id}">
+        ${db.tasks.map((t) => {
+          /* "Cover me" recorded which chores it handed over in db.covered and
+             nothing read it, so the screen said "she has the briefs" and this
+             list carried on showing them as yours. The owner shown here is the
+             owner the app actually believes in. */
+          const covered = (db.covered || []).includes(t.id);
+          const who = covered ? 'Maya' : t.who;
+          const meta = covered ? 'Covered — she has the brief' : t.meta;
+          return `<button class="row" data-task="${t.id}">
             <span class="tick${db.done[t.id] ? ' on' : ''}">${db.done[t.id] ? '✓' : ''}</span>
             <span class="grow"><span class="n light" style="opacity:${db.done[t.id] ? .45 : 1};display:block">${esc(t.title)}</span>
-              <span class="s">${esc(t.meta)}</span></span>
-            <span class="who ${t.who === 'Free' ? 'free' : t.who === 'You' || t.who === 'Both' ? '' : 'them'}">${t.who}</span></button>`).join('')}
+              <span class="s">${esc(meta)}</span></span>
+            <span class="who ${who === 'Free' ? 'free' : who === 'You' || who === 'Both' ? '' : 'them'}">${who}</span></button>`;
+        }).join('')}
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Household</div>
         ${[['list', 'Groceries', `${db.items.length - count(db.got)} left`],
            ['meal', 'What’s for dinner', db.meals[db.mealIdx]],
@@ -6981,6 +7000,14 @@ window.TRACE_PUSH = {
   ring(kind, body2) {
     const token = window.TRACE_NET && TRACE_NET.token;
     if (!token) return;
+    /* "Quiet hours — nothing buzzes 10pm–7am" was a switch that remembered its
+       own position and gated nothing. It is an interruption promise in an app
+       whose whole argument is about interruption, so it is the one of the six
+       that had to be wired first.
+       The flare is exempt by design: it is the single thing p50 says always
+       breaks through, three times a year. */
+    const h = new Date().getHours();
+    if (kind !== 'flare' && (db.sw || {}).quiet && (h >= 22 || h < 7)) return;
     fetch(PUSH_URL, { method: 'POST',
       headers: { 'content-type': 'application/json', apikey: PUSH_KEY },
       body: JSON.stringify({ op: 'ring', token, kind, body: body2, self: db.pushEndpoint }) }).catch(() => {});
@@ -7329,15 +7356,16 @@ function openPad() {
         font:700 ${size}px '${font}',cursive;color:var(--ink);line-height:1.15"></div>
     </div>
     <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none" id="wp-fonts">
-      ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;padding:7px 14px;
+      ${FONTS.map(([f, d]) => `<button data-font="${f}" title="${d}" style="flex:none;min-height:44px;padding:0 14px;
         border-radius:999px;font:600 16px '${f}',cursive;color:var(--ink);border:1px solid var(--hairline);
-        background:var(--surface)">${f === 'Caveat' ? 'trace' : 'trace'}</button>`).join('')}
+        background:var(--surface)">trace</button>`).join('')}
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
-      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:var(--red);min-width:0">
-      <button id="wp-send" style="padding:12px 24px;border-radius:999px;background:var(--red);color:var(--on-red);
-        font-size:15px;font-weight:600">Send</button>
+      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}"
+        style="flex:1;accent-color:var(--red);min-width:0;height:44px">
+      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;background:var(--red);
+        color:var(--on-red);font-size:15px;font-weight:600">Send</button>
     </div>
   </div>`);
   const dock = $('#dock');
@@ -7748,8 +7776,14 @@ const setLoud = (k, on) => {
  * five features — it should mean adding a name to this list. */
 
 const QUIET_MODES = ['repair', 'cover', 'newborn', 'grief'];
-function quiet() { return QUIET_MODES.some((m) => db.modes[m]); }
-function quietReason() { return QUIET_MODES.find((m) => db.modes[m]) || null; }
+/* p51's Pause says "everything freezes" and wrote db.ended, which nothing read
+   — so nothing froze. Quiet is the app's own word for that: no streak, no
+   missions, no prompts, no split counting. A pause is a quiet mode that
+   outlives a session. */
+function quiet() { return QUIET_MODES.some((m) => db.modes[m]) || db.ended === 'pause'; }
+function quietReason() {
+  return QUIET_MODES.find((m) => db.modes[m]) || (db.ended === 'pause' ? 'paused' : null);
+}
 window.TRACE_QUIET = quiet;
 
 function setMode(name, on) {
@@ -8827,17 +8861,32 @@ function renderGrief() {
   $$('[data-g]', s).forEach((b) => b.addEventListener('click', () => {
     const k = b.dataset.g; buzz(10);
     if (k === 'canvas') { R.openRoom('Memory'); return; }
-    if (k === 'empty') { toast('the day is blocked. nobody is told why.'); show('rooms'); return; }
-    /* "doesn't mention it again this year" has to be literal */
-    g.dismissedYear = new Date().getFullYear(); save();
+    if (k === 'empty') { R.setMode('grief', true); toast('the day is blocked. nobody is told why.'); show('rooms'); return; }
+    /* "doesn't mention it again this year" has to be literal — and it ends the
+       quiet mode too, or "nothing, thanks" would leave the app silenced */
+    g.dismissedYear = new Date().getFullYear(); R.setMode('grief', false); save();
     toast('closed. not again this year.');
     show('canvas');
   }));
 }
-/* the grief mode quiets the machinery for the day, like the others */
+/* The grief mode quiets the machinery for the day, like the others — except
+ * it never did. Nothing ever called setMode('grief'), so grief sat in
+ * QUIET_MODES as a name with no way in, and the one flag that was set
+ * (R.griefPending) was read nowhere.
+ *
+ * This also only ever asked whether the year had been dismissed, never whether
+ * today is the date — which is true for most of the year, so arming a quiet
+ * mode from it would have silenced the app from January. It reads the date the
+ * store actually holds now. */
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december'];
 function griefToday() {
   const g = db.grief;
-  return g.dismissedYear !== new Date().getFullYear();
+  const now = new Date();
+  if (g.dismissedYear === now.getFullYear()) return false;
+  const m = String(g.date || '').toLowerCase().match(/(\d+)\D+([a-z]+)/);
+  if (!m) return false;
+  return +m[1] === now.getDate() && MONTHS.indexOf(m[2]) === now.getMonth();
 }
 
 /* ================================================================= p55 moving
@@ -8980,7 +9029,10 @@ renderUnsaid(); renderNewborn(); renderGrief(); renderMoving(); renderMoney();
 
 /* the grief date lands on the canvas as a quiet offer, once, and only if it
    was not dismissed this year — never as a notification */
-if (griefToday()) R.griefPending = true;
+/* arm the shared quiet switch, so the day actually silences streaks, missions,
+   prompts and split counting the way the other three modes do */
+if (griefToday()) R.setMode('grief', true);
+else if (db.modes && db.modes.grief) R.setMode('grief', false);
 })();
 
 </script>
@@ -9099,7 +9151,11 @@ function renderDrift() {
     buzz(8);
     const k = b.dataset.d;
     if (k === 'time') return show('findtime');
-    if (k === 'reset') return show('solo');
+    /* "Clear what can be cleared, together, in ten minutes" is the weekly ten,
+       not the solo-nights schedule — this sent the drift screen's primary
+       response to a screen about time apart, which is close to the opposite of
+       what the card offers. */
+    if (k === 'reset') return R.openSub('weekly10');
     /* "that's fine" has to actually be an answer, or the screen is a nag */
     db.driftSeen = true; save();
     toast('closed. it won’t come up again for months.');
@@ -9709,7 +9765,10 @@ function renderSettle() {
   const mine = db.ledger.filter((l) => l.who === 'You').reduce((a, l) => a + l.v, 0);
   const theirs = db.ledger.filter((l) => l.who !== 'You').reduce((a, l) => a + l.v, 0);
   const gap = Math.abs(theirs - mine);
-  const ahead = theirs > mine ? 'She’s' : 'You’re';
+  /* Both CTAs empty the ledger, so the common case after using this screen is
+     gap 0 — and with no zero branch it read "€0 · You're ahead", which is both
+     wrong and the one thing p49 says it will never do. */
+  const ahead = gap === 0 ? null : (theirs > mine ? 'She’s' : 'You’re');
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Settle up</button>
       <button class="icob" data-close><svg class="ts-i"><use href="#i-close"/></svg></button></div>
@@ -9717,7 +9776,9 @@ function renderSettle() {
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
         <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
-        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead} ahead. That’s all it says.</div>
+        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead
+          ? ahead + ' ahead. That’s all it says.'
+          : 'Even. That’s all it says.'}</div>
       </div>
       <div style="padding:22px 20px 0;flex:none">
         <div class="sheet">

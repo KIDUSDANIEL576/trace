@@ -628,10 +628,14 @@ button.card:active{transform:scale(.99)}
   display:flex;flex-direction:column;gap:11px;flex:none}
 #brushpop .bp-row{display:flex;align-items:center;gap:10px}
 #brushpop .bp-row span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:34px;flex:none}
-#brushpop input[type=range]{flex:1;accent-color:var(--red);min-width:0}
+/* A range input's track is 16px tall and that was the whole hit area — the
+   two most-used controls in the drawing tools were a third of the 44px floor.
+   Height on the element grows the box the finger has to land in; the track
+   stays centred inside it and looks unchanged. */
+#brushpop input[type=range]{flex:1;accent-color:var(--red);min-width:0;height:44px}
 #brushpop b{font-size:12px;font-weight:600;color:var(--red-text);width:36px;text-align:right;flex:none}
 #brushpop .bp-prev{width:120px;height:40px;margin:0 auto;border-radius:10px;background:var(--ground-alt)}
-#brushpop .bp-taper{padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
+#brushpop .bp-taper{min-height:44px;padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:13px;color:var(--ink)}
 #brushpop .bp-taper.on{border-color:var(--red);background:var(--red-wash);color:var(--red-text)}
 #brushpop .bp-quick{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--hairline);
@@ -656,7 +660,12 @@ button.card:active{transform:scale(.99)}
   gap:12px;text-align:center;align-items:center}
 #ob-launch{flex:1;justify-content:center;padding-bottom:0}
 .ob-actions{width:100%;display:flex;flex-direction:column;gap:16px;padding:0 0 54px;margin-top:auto}
-.ob-link{font-size:15px;color:var(--ink-70);background:none;border:0}
+/* p1's two secondary actions were 18px tall — and "I have a code" is the only
+   route to pairing, so the single most important target in the app was less
+   than half the 44px floor. They read as links, so they had no padding; the
+   floor is met with min-height and padding rather than by making them louder. */
+.ob-link{font-size:15px;color:var(--ink-70);background:none;border:0;
+  min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center}
 .ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:68px;line-height:1;letter-spacing:0}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
@@ -668,7 +677,8 @@ button.card:active{transform:scale(.99)}
 .ob-share{min-height:58px;border-radius:999px;background:var(--red);color:var(--on-red);font-size:17px;font-weight:600}
 .ob-go{min-height:56px;border-radius:999px;background:var(--surface);
   border:1px solid var(--hairline);color:var(--ink);font-size:17px;font-weight:500}
-.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70)}
+.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70);
+  min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center}
 
 /* the mark — one stroke, wet tip. p1 and every loading state. */
 @keyframes traceDraw{

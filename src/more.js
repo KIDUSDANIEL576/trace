@@ -327,7 +327,10 @@ function renderSettle() {
   const mine = db.ledger.filter((l) => l.who === 'You').reduce((a, l) => a + l.v, 0);
   const theirs = db.ledger.filter((l) => l.who !== 'You').reduce((a, l) => a + l.v, 0);
   const gap = Math.abs(theirs - mine);
-  const ahead = theirs > mine ? 'She’s' : 'You’re';
+  /* Both CTAs empty the ledger, so the common case after using this screen is
+     gap 0 — and with no zero branch it read "€0 · You're ahead", which is both
+     wrong and the one thing p49 says it will never do. */
+  const ahead = gap === 0 ? null : (theirs > mine ? 'She’s' : 'You’re');
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Settle up</button>
       <button class="icob" data-close>✕</button></div>
@@ -335,7 +338,9 @@ function renderSettle() {
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
         <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
-        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead} ahead. That’s all it says.</div>
+        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead
+          ? ahead + ' ahead. That’s all it says.'
+          : 'Even. That’s all it says.'}</div>
       </div>
       <div style="padding:22px 20px 0;flex:none">
         <div class="sheet">

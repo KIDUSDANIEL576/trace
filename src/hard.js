@@ -44,8 +44,14 @@ const setLoud = (k, on) => {
  * five features — it should mean adding a name to this list. */
 
 const QUIET_MODES = ['repair', 'cover', 'newborn', 'grief'];
-function quiet() { return QUIET_MODES.some((m) => db.modes[m]); }
-function quietReason() { return QUIET_MODES.find((m) => db.modes[m]) || null; }
+/* p51's Pause says "everything freezes" and wrote db.ended, which nothing read
+   — so nothing froze. Quiet is the app's own word for that: no streak, no
+   missions, no prompts, no split counting. A pause is a quiet mode that
+   outlives a session. */
+function quiet() { return QUIET_MODES.some((m) => db.modes[m]) || db.ended === 'pause'; }
+function quietReason() {
+  return QUIET_MODES.find((m) => db.modes[m]) || (db.ended === 'pause' ? 'paused' : null);
+}
 window.TRACE_QUIET = quiet;
 
 function setMode(name, on) {

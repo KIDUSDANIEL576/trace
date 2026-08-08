@@ -117,6 +117,14 @@ window.TRACE_PUSH = {
   ring(kind, body2) {
     const token = window.TRACE_NET && TRACE_NET.token;
     if (!token) return;
+    /* "Quiet hours — nothing buzzes 10pm–7am" was a switch that remembered its
+       own position and gated nothing. It is an interruption promise in an app
+       whose whole argument is about interruption, so it is the one of the six
+       that had to be wired first.
+       The flare is exempt by design: it is the single thing p50 says always
+       breaks through, three times a year. */
+    const h = new Date().getHours();
+    if (kind !== 'flare' && (db.sw || {}).quiet && (h >= 22 || h < 7)) return;
     fetch(PUSH_URL, { method: 'POST',
       headers: { 'content-type': 'application/json', apikey: PUSH_KEY },
       body: JSON.stringify({ op: 'ring', token, kind, body: body2, self: db.pushEndpoint }) }).catch(() => {});

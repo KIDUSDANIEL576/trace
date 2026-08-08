@@ -305,11 +305,20 @@ const ROOM_VIEWS = {
       </div>
       <div class="splitbar"><div class="a" style="width:${db.split}%"></div><div class="b"></div></div>
       <div class="body">
-        ${db.tasks.map((t) => `<button class="row" data-task="${t.id}">
+        ${db.tasks.map((t) => {
+          /* "Cover me" recorded which chores it handed over in db.covered and
+             nothing read it, so the screen said "she has the briefs" and this
+             list carried on showing them as yours. The owner shown here is the
+             owner the app actually believes in. */
+          const covered = (db.covered || []).includes(t.id);
+          const who = covered ? 'Maya' : t.who;
+          const meta = covered ? 'Covered — she has the brief' : t.meta;
+          return `<button class="row" data-task="${t.id}">
             <span class="tick${db.done[t.id] ? ' on' : ''}">${db.done[t.id] ? '✓' : ''}</span>
             <span class="grow"><span class="n light" style="opacity:${db.done[t.id] ? .45 : 1};display:block">${esc(t.title)}</span>
-              <span class="s">${esc(t.meta)}</span></span>
-            <span class="who ${t.who === 'Free' ? 'free' : t.who === 'You' || t.who === 'Both' ? '' : 'them'}">${t.who}</span></button>`).join('')}
+              <span class="s">${esc(meta)}</span></span>
+            <span class="who ${who === 'Free' ? 'free' : who === 'You' || who === 'Both' ? '' : 'them'}">${who}</span></button>`;
+        }).join('')}
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Household</div>
         ${[['list', 'Groceries', `${db.items.length - count(db.got)} left`],
            ['meal', 'What’s for dinner', db.meals[db.mealIdx]],

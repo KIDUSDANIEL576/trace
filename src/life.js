@@ -233,17 +233,32 @@ function renderGrief() {
   $$('[data-g]', s).forEach((b) => b.addEventListener('click', () => {
     const k = b.dataset.g; buzz(10);
     if (k === 'canvas') { R.openRoom('Memory'); return; }
-    if (k === 'empty') { toast('the day is blocked. nobody is told why.'); show('rooms'); return; }
-    /* "doesn't mention it again this year" has to be literal */
-    g.dismissedYear = new Date().getFullYear(); save();
+    if (k === 'empty') { R.setMode('grief', true); toast('the day is blocked. nobody is told why.'); show('rooms'); return; }
+    /* "doesn't mention it again this year" has to be literal — and it ends the
+       quiet mode too, or "nothing, thanks" would leave the app silenced */
+    g.dismissedYear = new Date().getFullYear(); R.setMode('grief', false); save();
     toast('closed. not again this year.');
     show('canvas');
   }));
 }
-/* the grief mode quiets the machinery for the day, like the others */
+/* The grief mode quiets the machinery for the day, like the others — except
+ * it never did. Nothing ever called setMode('grief'), so grief sat in
+ * QUIET_MODES as a name with no way in, and the one flag that was set
+ * (R.griefPending) was read nowhere.
+ *
+ * This also only ever asked whether the year had been dismissed, never whether
+ * today is the date — which is true for most of the year, so arming a quiet
+ * mode from it would have silenced the app from January. It reads the date the
+ * store actually holds now. */
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december'];
 function griefToday() {
   const g = db.grief;
-  return g.dismissedYear !== new Date().getFullYear();
+  const now = new Date();
+  if (g.dismissedYear === now.getFullYear()) return false;
+  const m = String(g.date || '').toLowerCase().match(/(\d+)\D+([a-z]+)/);
+  if (!m) return false;
+  return +m[1] === now.getDate() && MONTHS.indexOf(m[2]) === now.getMonth();
 }
 
 /* ================================================================= p55 moving
@@ -386,5 +401,8 @@ renderUnsaid(); renderNewborn(); renderGrief(); renderMoving(); renderMoney();
 
 /* the grief date lands on the canvas as a quiet offer, once, and only if it
    was not dismissed this year — never as a notification */
-if (griefToday()) R.griefPending = true;
+/* arm the shared quiet switch, so the day actually silences streaks, missions,
+   prompts and split counting the way the other three modes do */
+if (griefToday()) R.setMode('grief', true);
+else if (db.modes && db.modes.grief) R.setMode('grief', false);
 })();
