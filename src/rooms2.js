@@ -609,20 +609,53 @@ R.addSub('week7', 'week 32', (body) => {
       const r = el(`<button class="row"><span class="cnt" style="width:38px;color:${t === '—' ? 'var(--ink-5)' : 'var(--red)'}">${d}</span>
         <span class="grow"><span class="n light ${t === '—' ? '' : 'hand'}" style="font-size:${t === '—' ? 16 : 23}px;
           color:${t === '—' ? 'var(--ink-5)' : 'var(--ink)'}">${esc(t)}</span></span></button>`);
-      r.addEventListener('click', () => {
-        const v = prompt('Add to ' + d + ' — typed, shown in your hand', t === '—' ? '' : t);
-        if (v === null) return;
-        db.week7[n][1] = v.trim() || '—';
-        if (d === 'Thu') db.week.items = db.week7[n][1].split('·').map((x, i) =>
-          ({ t: x.trim(), c: i ? 'var(--red-text)' : 'var(--ink)' })).filter((x) => x.t && x.t !== '—');
-        save(); push('week', { n, t: db.week7[n][1] }); draw(); paint(); buzz(10);
-      });
+      r.addEventListener('click', () => editDay(d, n, t, draw));
       body.appendChild(r);
     });
     body.appendChild(note('Type it, she sees it in your handwriting. Whatever’s next also rides her widget.'));
   };
   draw();
 });
+
+/* The signature interaction is typed → handwritten: you type on a normal
+   keyboard and watch it become your hand before you send it. A native
+   window.prompt is the exact opposite — a system dialog in a system font,
+   with no preview and no way to see what lands on her widget. p14's composer
+   is the pattern, so the week uses it too. */
+function editDay(day, n, current, redraw) {
+  const wrap = el(`<div style="display:flex;flex-direction:column;gap:11px"></div>`);
+  const input = el(`<input placeholder="${esc(day)} — what's happening"
+    style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
+    color:var(--ink);font:17px inherit;outline:none">`);
+  input.value = current === '—' ? '' : current;
+  const prev = el(`<div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
+    <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
+    <div class="hand" style="font-size:28px;line-height:1.2;margin-top:8px;min-height:34px;color:var(--ink)"></div></div>`);
+  const paintPrev = () => { prev.lastElementChild.textContent = input.value.trim() || 'nothing yet'; };
+  input.addEventListener('input', paintPrev); paintPrev();
+
+  const commit = (v) => {
+    db.week7[n][1] = v.trim() || '—';
+    if (day === 'Thu') db.week.items = db.week7[n][1].split('·').map((x, i) =>
+      ({ t: x.trim(), c: i ? 'red' : 'ink' })).filter((x) => x.t && x.t !== '—');
+    save(); push('week', { n, t: db.week7[n][1] }); redraw(); paint(); buzz(10);
+    window.TRACE_APP && TRACE_APP.closePanel && TRACE_APP.closePanel();
+  };
+  const send = el(`<button class="p-cta">Put it on her week</button>`);
+  send.addEventListener('click', () => commit(input.value));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') commit(input.value); });
+  const clear = el(`<button class="p-ghost">Clear ${esc(day)}</button>`);
+  clear.addEventListener('click', () => commit(''));
+
+  wrap.appendChild(input); wrap.appendChild(prev); wrap.appendChild(send);
+  if (current !== '—') wrap.appendChild(clear);
+
+  ui.panel(day.toLowerCase() + ' — in your hand', (b2) => {
+    b2.appendChild(wrap);
+    b2.appendChild(el(`<div class="p-hint">She sees this in your handwriting, on her widget.</div>`));
+    setTimeout(() => input.focus(), 60);
+  });
+}
 
 R.addSub('kids', 'kid’s corner', (body) => {
   /* The bin holds things a child said, so they are in a hand — and restoring
