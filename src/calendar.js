@@ -481,7 +481,7 @@ function renderExtras() {
         <div class="card ink"><div class="t">Nothing today</div>
           <div class="d" style="line-height:1.5">That’s allowed. The canvas stays open, nobody is
             asked for anything, and quiet days don’t break a thing.
-            ${db.streak || 41} days — still yours.</div></div>
+            ${R.counts && !R.counts() ? 'Still yours.' : (db.streak || 41) + ' days — still yours.'}</div></div>
       </div>
       <div class="eyebrow">Also on the canvas</div>
       <div class="stackcol" style="padding-top:0">${R.subRows('Canvas')}</div>

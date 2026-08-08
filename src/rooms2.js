@@ -541,7 +541,10 @@ R.addSub('car', 'car mode', (body) => {
       <span class="sw${db.carMode ? ' on' : ''}"><i></i></span></button>`);
     sw.addEventListener('click', () => {
       db.carMode = !db.carMode;
-      if (db.carMode) { db.leaving = { mins: 24 }; push('leaving', { mins: 24 }); }
+      /* through R.leaving(), not around it — writing db.leaving and pushing
+         inline bypassed the solo-night guard entirely, so car mode broadcast a
+         departure on exactly the evening p59 promises it will not */
+      if (db.carMode) R.leaving(24);
       buzz(10); resetDeck(); push('car', { on: db.carMode }); draw(); paint();
       toast(db.carMode ? '“Home in 24 min” is on her widget — it updates itself' : 'car mode off');
     });

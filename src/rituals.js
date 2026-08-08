@@ -80,7 +80,7 @@ function renderGoodnight() {
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 20px 20px;flex:none">
       ${sealed
         ? `<div style="font-size:13px;color:var(--ink-3)">Sealed. It lives in Memory now.</div>
-           <div class="btn-plain" data-memory>${db.streak} days of you two</div>`
+           <div class="btn-plain" data-memory>${R.counts && !R.counts() ? 'It lives in Memory' : (db.streak || 41) + ' days of you two'}</div>`
         : `<div style="font-size:13px;color:var(--ink-3)">Maya already said hers</div>
            <button class="btn-red" data-seal>Say goodnight</button>`}
       <button data-time style="font-size:13px;color:var(--ink-3);text-decoration:underline;

@@ -963,8 +963,14 @@ function thinkCard(b) {
   return {};
 }
 function quietCard(b) {
-  b.innerHTML = `<div class="w-mid"><b>Nothing today.</b>
-    <i><span style="color:var(--ink)">41 days</span> still yours.</i></div>`;
+  /* Two bugs in one line: the streak was hardcoded at 41 and never read
+     db.streak, and it was shown during the quiet modes, which are defined by
+     not counting anything. R.counts() is the shared predicate for exactly
+     that question and had no callers at all. */
+  const counts = !window.TRACE_ROOMS || !TRACE_ROOMS.counts || TRACE_ROOMS.counts();
+  b.innerHTML = `<div class="w-mid"><b>Nothing today.</b>` +
+    (counts ? `<i><span style="color:var(--ink)">${db.streak || 41} days</span> still yours.</i>` : '') +
+    `</div>`;
   return {};
 }
 
@@ -1030,8 +1036,10 @@ $('#presence').addEventListener('click', () => {
     });
     const leave = el(`<button class="p-ghost">Leaving now — 32 min away</button>`);
     leave.addEventListener('click', () => {
-      TRACE_BOARD.leaving(32); buzz(14);
-      toast('on her widget now — it breaks through armour');
+      /* leaving() toasts its own refusal on a protected night; only claim it
+         reached her when it actually did */
+      const sent = TRACE_BOARD.leaving(32); buzz(14);
+      if (sent) toast('on her widget now — it breaks through armour');
     });
     body.append(el(`<div class="p-note">Two things that don’t need a sentence. Both land on her widget and neither one asks for an answer.</div>`), tap, leave,
       el(`<div class="eyebrow" style="padding:14px 0 2px">Say it, roughly</div>`));
@@ -1096,7 +1104,15 @@ window.TRACE_BOARD = {
       .concat(db.notices.filter((n) => n.id !== 'say'));
     else if (kind === 'flare') db.flare = { ts: Date.now() };
     else if (kind === 'pageink') { window.TRACE_APP && TRACE_APP.receivePageInk(payload); db.traceSeen = false; }
-    else if (kind === 'guest') db.guest = payload.on;
+    else if (kind === 'guest') {
+      /* guestDay is what keeps guest mode to a single evening — guestExpired()
+         clears anything without today's date on it. Receiving the flag without
+         it meant the very next paint reverted it and pushed {on:false} back
+         down the wire, so turning guest mode on from her side never survived
+         one tick. */
+      db.guest = payload.on;
+      db.guestDay = payload.on ? new Date().toDateString() : null;
+    }
     else if (kind === 'car') db.carMode = payload.on;
     else if (kind === 'unblock') db.unblocked[payload.id] = true;
     else if (kind === 'decided') db.decided[payload.id] = !db.decided[payload.id];
@@ -1140,15 +1156,29 @@ window.TRACE_BOARD = {
   el, esc, count, tickRow, navRow, swRow,
   ui: { toast, buzz, panel: (t, b) => APP.openPanel && APP.openPanel(t, b) },
   /* "leaving now" and "thinking of you" are pushed, not polled */
+  /* p59 protects a named evening each week. Two things were wrong here.
+     `db.modes` is the quiet-modes store — repair, cover, newborn, grief — and
+     nothing has ever written `modes.solo`, so `modes.solo && solo.on` was an
+     AND with a flag that is permanently false: the screen said it was
+     protecting the night while every departure still broadcast. And there was
+     no day check at all, so once armed it would have suppressed every night of
+     the week, where the screen names one. */
+  soloNight() {
+    if (!db.solo || !db.solo.on || !db.solo.yours) return false;
+    const today = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'][new Date().getDay()];
+    return db.solo.yours === today;
+  },
+  /* Returns whether it actually went out, because the caller used to toast
+     "on her widget now" unconditionally — straight over the top of "your night
+     — nothing was sent". The false one won, and it was the reassuring one. */
   leaving(mins) {
-    /* p59: on a protected night the app tells the other person less, not more.
-       The departure still records; it just does not broadcast. */
-    const solo = (db.modes || {}).solo && db.solo && db.solo.on;
+    /* the departure still records locally; it just does not broadcast */
     db.leaving = { mins }; resetDeck(); paintWidget();
-    if (solo) { save(); toast('your night — nothing was sent'); return; }
+    if (this.soloNight()) { save(); toast('your night — nothing was sent'); return false; }
     push('leaving', { mins });
     if ((db.loud || {}).leave !== 'off' && (db.loud || {}).leave !== 'widget' && window.TRACE_PUSH)
-      TRACE_PUSH.ring('leave', 'Leaving now — home in ' + mins + ' min'); },
+      TRACE_PUSH.ring('leave', 'Leaving now — home in ' + mins + ' min');
+    return true; },
   thinking() { db.thinking = { ts: Date.now() }; resetDeck(); push('thinking', {}); paintWidget(); },
   db,
 };
