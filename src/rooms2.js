@@ -21,8 +21,8 @@ R.defaults({
   /* 25a decision debt */
   debts: [
     { id: 'k1', t: 'The car — repair or replace', n: 14, w: '6 weeks', tint: 'var(--red)' },
-    { id: 'k2', t: 'Whether to visit your mum at Christmas', n: 9, w: '3 weeks', tint: 'var(--amber)' },
-    { id: 'k3', t: 'Leo’s school for next year', n: 6, w: '2 weeks', tint: 'var(--violet)' },
+    { id: 'k2', t: 'Whether to visit your mum at Christmas', n: 9, w: '3 weeks', tint: 'var(--ink)' },
+    { id: 'k3', t: 'Leo’s school for next year', n: 6, w: '2 weeks', tint: 'var(--ink)' },
   ],
   decided: {},
   /* 25b mental load */
@@ -189,10 +189,10 @@ R.addSub('load', 'mental load', (body) => {
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
       <div style="font-size:15px;color:var(--ink-2)">Who is <span style="color:var(--red)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
-    body.appendChild(el(bar(pct, 'var(--red)', 'var(--violet)')));
+    body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
       const r = el(`<div class="row"><span style="width:8px;height:8px;border-radius:50%;flex:none;
-        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--violet)'}"></span>
+        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--ink)'}"></span>
         <span class="grow"><span class="n light">${esc(l.t)}</span></span>
         <button class="who ${l.who === 'Maya' ? 'them' : ''}">${l.who}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
@@ -237,7 +237,7 @@ R.addSub('money', 'money truth', (body) => {
   body.appendChild(note('After rent, bills, the standing orders, and what you both said you’d save.'));
   body.appendChild(el(kv('In', '€' + m.in.toLocaleString('en-US'), 'var(--ink)')));
   body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--red)')));
-  body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--violet)')));
+  body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--ink)')));
   body.appendChild(note('One number, both phones, updated nightly. No categories, no budgets to break, no lecture — just the truth you’d otherwise argue about at 11 PM.'));
   body.appendChild(note('Read-only from your banks. Trace never moves money.'));
 });
@@ -249,9 +249,9 @@ R.addSub('brief', 'the brief', (body) => {
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
   b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--amber)'))));
-  body.appendChild(el(`<div class="row" style="background:rgba(255,123,197,.08);border-color:rgba(255,123,197,.25)">
+  body.appendChild(el(`<div class="row" style="background:var(--red-wash);border-color:var(--red-line)">
     <span class="grow"><span class="s">Maya’s note</span>
-    <span class="n light" style="font-style:italic;margin-top:4px">${esc(b.note)}</span></span></div>`));
+    <span class="n light hand" style="font-size:23px;line-height:1.25;margin-top:4px">${esc(b.note)}</span></span></div>`));
   const got = el(`<button class="${b.got ? 'p-ghost' : 'p-cta'}">${b.got ? 'Got it ✓' : 'Got it'}</button>`);
   got.addEventListener('click', () => {
     b.got = true; save(); buzz(14); got.textContent = 'Got it ✓'; got.className = 'p-ghost';
@@ -281,7 +281,7 @@ R.addSub('energy', 'energy match', (body) => {
         background:${on ? 'var(--hairline)' : 'rgba(255,255,255,.045)'};
         border:1px solid ${on ? 'var(--ink-5)' : 'var(--surface)'};color:var(--ink)">
         <div style="display:flex;gap:6px;align-items:flex-end;justify-content:center;height:90px">
-          <span style="width:14px;border-radius:99px;background:var(--violet);height:${b.you}%"></span>
+          <span style="width:14px;border-radius:99px;background:var(--ink);height:${b.you}%"></span>
           <span style="width:14px;border-radius:99px;background:var(--red);height:${b.her}%"></span></div>
         <div style="font-size:14px;font-weight:600;margin-top:8px">${b.t}</div>
         <div style="font-size:11px;color:var(--ink-3)">${b.s}</div></button>`);
@@ -289,7 +289,7 @@ R.addSub('energy', 'energy match', (body) => {
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--violet)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
   };
   draw();
 });
@@ -320,10 +320,12 @@ R.addSub('rsvp', 'yes / no board', (body) => {
       const row = el(`<div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
         <div><div class="n">${esc(i.t)}</div><div class="s">${esc(i.w)}</div></div>
         <div style="display:flex;gap:8px">
-          <button data-v="y" style="flex:1;padding:11px;border-radius:14px;font-size:14px;font-weight:600;
-            background:${v === 'y' ? 'var(--ink)' : 'var(--surface)'};color:${v === 'y' ? '#06140C' : 'var(--ink)'}">Yes</button>
-          <button data-v="n" style="flex:1;padding:11px;border-radius:14px;font-size:14px;font-weight:600;
-            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? '#2A0A1C' : 'var(--ink)'}">No</button>
+          <button data-v="y" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
+            border:1px solid ${v === 'y' ? 'transparent' : 'var(--hairline)'};
+            background:${v === 'y' ? 'var(--emph)' : 'var(--surface)'};color:${v === 'y' ? 'var(--emph-ink)' : 'var(--ink)'}">Yes</button>
+          <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
+            border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
+            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
         </div>
         <div class="s">${v === 'y' ? 'Both in — added to the week' : v === 'n' ? 'Declined — nobody has to explain' : 'Waiting on you both'}</div>
       </div>`);
@@ -390,7 +392,8 @@ R.addSub('doctor', 'doctor’s note', (body) => {
   const d = db.doctor;
   body.appendChild(el(`<div class="p-hint">Maya’s appointment · ${esc(d.when)}</div>`));
   body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">What to ask · written together, last night</div>`));
-  d.qs.forEach((q) => body.appendChild(el(`<div class="chip" style="font-style:italic">${esc(q)}</div>`)));
+  d.qs.forEach((q) => body.appendChild(el(
+    `<div class="chip hand" style="font-size:23px;line-height:1.25">${esc(q)}</div>`)));
   body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--amber)')));
   body.appendChild(el(kv('Details', 'hers to share', 'var(--red)')));
   body.appendChild(note('Health is the one room Trace never summarizes, never trends, never guesses. It just holds the questions you’d forget in the chair.'));
@@ -407,14 +410,14 @@ R.addSub('doctor', 'doctor’s note', (body) => {
 R.addSub('ask', 'recurring + ask nicely', (body) => {
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(kv('Bins out', 'yours this week', 'var(--violet)')));
+    body.appendChild(el(kv('Bins out', 'yours this week', 'var(--ink)')));
     body.appendChild(el(`<div class="s" style="padding:0 2px 4px;color:var(--ink-3);font-size:12px">Alternates between you</div>`));
     body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Ask nicely — never a reminder she didn’t choose</div>`));
     db.asks.forEach((a) => {
       const on = db.asked === a.n;
-      const r = el(`<button class="row" style="${on ? 'background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.4)' : ''}">
+      const r = el(`<button class="row" style="${on ? 'background:var(--red-wash);border-color:var(--red-line)' : ''}">
         <span class="grow"><span class="n light">${esc(a.t)}</span><span class="s">${esc(a.sub)}</span></span>
-        <span class="cnt" style="color:var(--ink)">${on ? '✓ asked' : ''}</span></button>`);
+        <span class="cnt" style="color:var(--red-text)">${on ? '✓ asked' : ''}</span></button>`);
       r.addEventListener('click', () => {
         db.asked = a.n; buzz(10); push('ask', { t: a.t }); draw();
         toast('arrives as ink, in your hand — one tap: yes, not now, or nothing');
@@ -510,11 +513,11 @@ R.addSub('sleep', 'her state', (body) => {
     const a = db.awake;
     body.appendChild(el(`<div style="text-align:center;padding:8px 0">
       <div style="width:72px;height:72px;border-radius:50%;margin:0 auto;
-        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--violet),#26356F)'}"></div>
+        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--ink),#26356F)'}"></div>
       <div style="font-size:24px;font-weight:600;margin-top:14px">${a ? 'She just woke up' : 'Maya is asleep'}</div>
       <div style="font-size:14px;color:var(--ink-3);margin-top:4px">${a ? 'Berlin, 7:02 AM · your marks are waiting for her' : 'Berlin, 2:41 AM · nothing will buzz on her side'}</div></div>`));
     [['Your marks', 'wait quietly'], ['Her widget', 'dims, doesn’t update'], ['The flare', 'still gets through']]
-      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--violet)'))));
+      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--ink)'))));
     const b = el(`<button class="p-ghost">${a ? 'Show her asleep' : 'Show her awake'}</button>`);
     b.addEventListener('click', () => { db.awake = !db.awake; save(); buzz(8); draw(); paint(); });
     body.append(b, note('Sleep is a state, not a status. No times, no tracking — just awake or not.'));
@@ -549,7 +552,7 @@ R.addSub('stack', 'widget stack', (body) => {
     body.innerHTML = '';
     body.appendChild(el(`<div class="p-hint">The order she sees — tap a row to move it up</div>`));
     db.stack.forEach((name, n) => {
-      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--violet)', 'var(--amber)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
+      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--ink)', 'var(--amber)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
         <span class="grow"><span class="n light">${esc(name)}</span></span>
         <span class="chev">↑↓</span></button>`);
       r.addEventListener('click', () => {
@@ -574,18 +577,18 @@ R.addSub('daymap', 'map of your day', (body) => {
     <svg viewBox="0 0 300 200" style="width:100%;height:100%">
       <path d="M40 160 C90 120,80 60,140 50 S250 80,262 140" stroke="var(--amber)" stroke-width="4" fill="none"
         stroke-linecap="round" opacity=".9"/>
-      <circle cx="40" cy="160" r="6" fill="var(--violet)"/><circle cx="140" cy="50" r="6" fill="var(--red)"/>
+      <circle cx="40" cy="160" r="6" fill="var(--ink)"/><circle cx="140" cy="50" r="6" fill="var(--red)"/>
       <circle cx="262" cy="140" r="6" fill="var(--ink)"/>
     </svg></div>`));
   db.dayNotes.forEach((n) => body.appendChild(el(`<div class="chip" style="font-style:italic">${esc(n)}</div>`)));
-  db.places.forEach(([p, t]) => body.appendChild(el(kv(p, t, 'var(--violet)'))));
+  db.places.forEach(([p, t]) => body.appendChild(el(kv(p, t, 'var(--ink)'))));
   body.appendChild(note('Drawn from your steps. Never uploaded, shared as a shape only.'));
 });
 
 R.addSub('wall', 'the wall', (body) => {
   body.appendChild(el(bigNum(db.wallKept + ' kept forever', 'Permanent ink')));
   const grid = el(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>`);
-  const COLS = ['var(--amber)', 'var(--red)', 'var(--violet)', 'var(--ink)', 'var(--ink)'];
+  const COLS = ['var(--amber)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
   for (let i = 0; i < db.wallKept; i++) {
     grid.appendChild(el(`<div style="aspect-ratio:1;border-radius:14px;background:var(--surface);
       border:1px solid ${i === db.wallKept - 1 ? 'rgba(233,161,59,.4)' : 'var(--surface)'};
@@ -653,7 +656,7 @@ R.addSub('letter', 'photo of the letter', (body) => {
   const l = db.letter;
   body.appendChild(el(`<div class="p-canvas" style="height:200px;background:var(--surface);
     display:flex;align-items:center;justify-content:center;color:rgba(243,240,244,.35);font-size:13px">letter, read on device</div>`));
-  body.appendChild(el(kv('From', l.from, 'var(--violet)')));
+  body.appendChild(el(kv('From', l.from, 'var(--ink)')));
   body.appendChild(el(kv('Reply by', l.by, 'var(--amber)')));
   body.appendChild(el(kv('Read on device', 'photo never uploaded', 'var(--ink)')));
   const b = el(`<button class="${l.added ? 'p-ghost' : 'p-cta'}">${l.added ? 'In Household ✓' : 'Add to Household'}</button>`);
@@ -700,7 +703,7 @@ R.addSub('chapters', 'chapters', (body) => {
 
 R.addSub('journal', 'journal', (body) => {
   [['Marks today', '6'], ['Lists finished', '2'], ['Overlap awake', '4h 10m'], ['Goodnight sealed', '11:32']]
-    .forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--violet)'))));
+    .forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--ink)'))));
   body.appendChild(el(`<div class="eyebrow" style="padding:10px 0 2px">Noticed, not judged</div>`));
   body.appendChild(el(`<div class="chip" style="font-style:italic">Fridays are your quietest day. Thursdays, Maya draws first.</div>`));
   body.appendChild(note('Counts only. It never reads a word or a drawing’s meaning.'));
@@ -817,7 +820,7 @@ R.addCard((d) => {
 R.addCard((d) => {
   const n = d.blocked.filter((b) => b.on === 'Maya' && !d.unblocked[b.id]).length;
   if (!n || !d.pub.list) return null;
-  return { pri: 6, kind: 'waiting', tint: 'var(--amber)', head: n + ' waiting', foot: 'blocked on her',
+  return { pri: 6, kind: 'waiting', tint: 'var(--ink)', head: n + ' waiting', foot: 'blocked on her',
     render(b) {
       b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">Waiting on you</div>
         <div class="w-big">${n} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">things can’t move</span></div>`;
@@ -849,7 +852,7 @@ R.addCard((d) => {
   if (d.handoffSeen) return null;
   const h = new Date().getHours();
   if (h < 5 || h > 11) return null;
-  return { pri: 3.5, kind: 'handoff', tint: 'var(--amber)', head: 'three things', foot: 'while you slept',
+  return { pri: 3.5, kind: 'handoff', tint: 'var(--ink)', head: 'three things', foot: 'while you slept',
     render(b) {
       b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">While you slept</div>
         <div class="w-note">Maya left you three things</div>`;

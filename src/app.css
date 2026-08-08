@@ -19,8 +19,9 @@
   --divider:rgba(26,26,26,.08);
   --dashed:rgba(26,26,26,.2);
 
-  /* ink */
+  /* ink — four levels, as the token table lists them */
   --ink:#1A1A1A;
+  --ink-70:rgba(26,26,26,.7);      /* secondary text: sentences, not captions */
   --ink-2:rgba(26,26,26,.55);
   --ink-3:rgba(26,26,26,.45);
   --ink-4:rgba(26,26,26,.4);
@@ -67,6 +68,7 @@
   --dashed:rgba(245,239,228,.22);
 
   --ink:#F5EFE4;
+  --ink-70:rgba(245,239,228,.78);
   --ink-2:rgba(245,239,228,.6);
   --ink-3:rgba(245,239,228,.5);
   --ink-4:rgba(245,239,228,.42);
@@ -101,7 +103,7 @@
     --ground:#15120E;--ground-alt:#1B1713;--ground-deep:#100E0B;--stage:#0E0C0A;
     --surface:#211C17;--surface-2:#292219;
     --hairline:rgba(245,239,228,.12);--divider:rgba(245,239,228,.09);--dashed:rgba(245,239,228,.22);
-    --ink:#F5EFE4;--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.5);
+    --ink:#F5EFE4;--ink-70:rgba(245,239,228,.78);--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.5);
     --ink-4:rgba(245,239,228,.42);--ink-5:rgba(245,239,228,.3);
     --red:#F04A58;--red-text:#FF8A92;--red-wash:rgba(240,74,88,.14);
     --red-line:rgba(240,74,88,.4);--on-red:#15120E;
@@ -239,7 +241,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 26px);
   mask-image:linear-gradient(180deg,transparent 0,#000 26px)}
 .body::-webkit-scrollbar{display:none}
-.foot{padding:14px 24px 20px;font-size:13px;color:var(--ink-4);text-align:center;flex:none}
+.foot{padding:14px 24px 20px;font-size:13px;color:var(--ink-70);text-align:center;flex:none}
 
 /* the row — one shape for tasks, items, rooms, switches */
 .row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;
@@ -399,7 +401,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .head .k{font-size:14px;color:var(--ink-3)}
 .head .h{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:2px;line-height:1.1}
 .head .h.sm{font-size:30px}
-.head .l{font-size:14px;line-height:1.55;color:var(--ink-2);margin-top:10px}
+.head .l{font-size:14px;line-height:1.55;color:var(--ink-70);margin-top:10px}
 
 /* a padded block card, and its inverted twin */
 .card{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);
@@ -445,7 +447,7 @@ button.card:active{transform:scale(.99)}
 
 /* the dashed aside — always the rule, never the content */
 .note{border-radius:18px;background:var(--ground-alt);border:1px dashed var(--dashed);
-  padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-70)}
 
 /* a grouped table of label/value rows sharing one card — p51, p35, p26 */
 .sheet{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
@@ -504,7 +506,7 @@ button.card:active{transform:scale(.99)}
 .p-canvas{position:relative;flex:none;height:320px;border-radius:24px;overflow:hidden;
   border:1px solid var(--hairline);background:var(--surface);touch-action:none}
 .p-canvas canvas{position:absolute;inset:0;width:100%;height:100%}
-.p-note{font-size:13px;line-height:1.55;color:var(--ink-2)}
+.p-note{font-size:13px;line-height:1.55;color:var(--ink-70)}
 .p-cta{min-height:52px;border-radius:999px;background:var(--red);color:var(--on-red);display:flex;align-items:center;
   justify-content:center;font-size:16px;font-weight:600;width:100%}
 .p-ghost{min-height:50px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
@@ -654,3 +656,36 @@ button.card:active{transform:scale(.99)}
 .search input{min-height:44px}
 .chipbtn{min-height:44px;display:inline-flex;align-items:center}
 .callbtn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:17px}
+
+/* -------------------------------------------------- surfaces on real devices
+   A watch face and a phone lock screen are dark *objects*, not a dark theme —
+   they stay dark in both themes because the hardware does. Painting them with
+   the paper tokens made every child that says var(--ink-2) mean "near-black on
+   near-black", so the tokens are re-pointed inside the device instead. Every
+   nested rule then keeps its intent without being rewritten. */
+.on-dark{
+  --ink:#F5EFE4;
+  --ink-70:rgba(245,239,228,.85);
+  --ink-2:rgba(245,239,228,.72);
+  --ink-3:rgba(245,239,228,.58);
+  --ink-4:rgba(245,239,228,.45);
+  --ink-5:rgba(245,239,228,.3);
+  --surface:rgba(245,239,228,.10);
+  --surface-2:rgba(245,239,228,.14);
+  --hairline:rgba(245,239,228,.16);
+  --divider:rgba(245,239,228,.12);
+  --ground:#141210;
+  --ground-alt:rgba(245,239,228,.08);
+  --emph:rgba(245,239,228,.12);
+  --emph-ink:#F5EFE4;
+  --emph-ink-2:rgba(245,239,228,.75);
+  --emph-ink-3:rgba(245,239,228,.6);
+  --emph-ink-4:rgba(245,239,228,.45);
+  /* red has to lift off a dark ground; red-deep is a paper-only value */
+  --red:#F04A58;
+  --red-text:#FF8A92;
+  --red-wash:rgba(240,74,88,.18);
+  --red-line:rgba(240,74,88,.4);
+  --on-red:#141210;
+  color:#F5EFE4;
+}

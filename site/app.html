@@ -34,8 +34,9 @@
   --divider:rgba(26,26,26,.08);
   --dashed:rgba(26,26,26,.2);
 
-  /* ink */
+  /* ink — four levels, as the token table lists them */
   --ink:#1A1A1A;
+  --ink-70:rgba(26,26,26,.7);      /* secondary text: sentences, not captions */
   --ink-2:rgba(26,26,26,.55);
   --ink-3:rgba(26,26,26,.45);
   --ink-4:rgba(26,26,26,.4);
@@ -82,6 +83,7 @@
   --dashed:rgba(245,239,228,.22);
 
   --ink:#F5EFE4;
+  --ink-70:rgba(245,239,228,.78);
   --ink-2:rgba(245,239,228,.6);
   --ink-3:rgba(245,239,228,.5);
   --ink-4:rgba(245,239,228,.42);
@@ -116,7 +118,7 @@
     --ground:#15120E;--ground-alt:#1B1713;--ground-deep:#100E0B;--stage:#0E0C0A;
     --surface:#211C17;--surface-2:#292219;
     --hairline:rgba(245,239,228,.12);--divider:rgba(245,239,228,.09);--dashed:rgba(245,239,228,.22);
-    --ink:#F5EFE4;--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.5);
+    --ink:#F5EFE4;--ink-70:rgba(245,239,228,.78);--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.5);
     --ink-4:rgba(245,239,228,.42);--ink-5:rgba(245,239,228,.3);
     --red:#F04A58;--red-text:#FF8A92;--red-wash:rgba(240,74,88,.14);
     --red-line:rgba(240,74,88,.4);--on-red:#15120E;
@@ -254,7 +256,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 26px);
   mask-image:linear-gradient(180deg,transparent 0,#000 26px)}
 .body::-webkit-scrollbar{display:none}
-.foot{padding:14px 24px 20px;font-size:13px;color:var(--ink-4);text-align:center;flex:none}
+.foot{padding:14px 24px 20px;font-size:13px;color:var(--ink-70);text-align:center;flex:none}
 
 /* the row — one shape for tasks, items, rooms, switches */
 .row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;
@@ -414,7 +416,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .head .k{font-size:14px;color:var(--ink-3)}
 .head .h{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:2px;line-height:1.1}
 .head .h.sm{font-size:30px}
-.head .l{font-size:14px;line-height:1.55;color:var(--ink-2);margin-top:10px}
+.head .l{font-size:14px;line-height:1.55;color:var(--ink-70);margin-top:10px}
 
 /* a padded block card, and its inverted twin */
 .card{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);
@@ -460,7 +462,7 @@ button.card:active{transform:scale(.99)}
 
 /* the dashed aside — always the rule, never the content */
 .note{border-radius:18px;background:var(--ground-alt);border:1px dashed var(--dashed);
-  padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-70)}
 
 /* a grouped table of label/value rows sharing one card — p51, p35, p26 */
 .sheet{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
@@ -519,7 +521,7 @@ button.card:active{transform:scale(.99)}
 .p-canvas{position:relative;flex:none;height:320px;border-radius:24px;overflow:hidden;
   border:1px solid var(--hairline);background:var(--surface);touch-action:none}
 .p-canvas canvas{position:absolute;inset:0;width:100%;height:100%}
-.p-note{font-size:13px;line-height:1.55;color:var(--ink-2)}
+.p-note{font-size:13px;line-height:1.55;color:var(--ink-70)}
 .p-cta{min-height:52px;border-radius:999px;background:var(--red);color:var(--on-red);display:flex;align-items:center;
   justify-content:center;font-size:16px;font-weight:600;width:100%}
 .p-ghost{min-height:50px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
@@ -669,6 +671,39 @@ button.card:active{transform:scale(.99)}
 .search input{min-height:44px}
 .chipbtn{min-height:44px;display:inline-flex;align-items:center}
 .callbtn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:17px}
+
+/* -------------------------------------------------- surfaces on real devices
+   A watch face and a phone lock screen are dark *objects*, not a dark theme —
+   they stay dark in both themes because the hardware does. Painting them with
+   the paper tokens made every child that says var(--ink-2) mean "near-black on
+   near-black", so the tokens are re-pointed inside the device instead. Every
+   nested rule then keeps its intent without being rewritten. */
+.on-dark{
+  --ink:#F5EFE4;
+  --ink-70:rgba(245,239,228,.85);
+  --ink-2:rgba(245,239,228,.72);
+  --ink-3:rgba(245,239,228,.58);
+  --ink-4:rgba(245,239,228,.45);
+  --ink-5:rgba(245,239,228,.3);
+  --surface:rgba(245,239,228,.10);
+  --surface-2:rgba(245,239,228,.14);
+  --hairline:rgba(245,239,228,.16);
+  --divider:rgba(245,239,228,.12);
+  --ground:#141210;
+  --ground-alt:rgba(245,239,228,.08);
+  --emph:rgba(245,239,228,.12);
+  --emph-ink:#F5EFE4;
+  --emph-ink-2:rgba(245,239,228,.75);
+  --emph-ink-3:rgba(245,239,228,.6);
+  --emph-ink-4:rgba(245,239,228,.45);
+  /* red has to lift off a dark ground; red-deep is a paper-only value */
+  --red:#F04A58;
+  --red-text:#FF8A92;
+  --red-wash:rgba(240,74,88,.18);
+  --red-line:rgba(240,74,88,.4);
+  --on-red:#141210;
+  color:#F5EFE4;
+}
 
 </style>
 <script>
@@ -1943,7 +1978,7 @@ function theDay() {
 const MARKS = [
   ['sunny here', 'sun', 'var(--amber)'], ['raining', 'squiggle', 'var(--violet)'], ['coffee?', 'come', 'var(--ink)'],
   ['the cat', 'xo', 'var(--red)'], ['come here', 'come', 'var(--red)'], ['6:40 wake me', 'squiggle', 'var(--amber)'],
-  ['happy bday', 'sun', '#fff'], ['meet here', 'come', 'var(--violet)'], ['xoxo', 'xo', 'var(--red)'],
+  ['happy bday', 'sun', 'amber'], ['meet here', 'come', 'var(--violet)'], ['xoxo', 'xo', 'var(--red)'],
   ['your turn', 'squiggle', '#fff'], ['i’m sorry', 'heartL', 'var(--ink)'], ['a flower', 'sun', 'var(--red)'],
   ['just a squiggle', 'squiggle', '#fff'], ['ok, one heart', 'heart', 'var(--red)'],
 ];
@@ -4540,11 +4575,11 @@ const ROOM_VIEWS = {
       <div style="display:flex;gap:12px;padding:20px 20px 0;flex:none">
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
           <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${mine ? mine.g : 'var(--surface)'}"></div>
-          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
+          <div style="font-size:13px;color:var(--ink-70);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
         </div>
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
           <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${hers.g}"></div>
-          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">Maya · ${hers.name.toLowerCase()}</div>
+          <div style="font-size:13px;color:var(--ink-70);margin-top:10px">Maya · ${hers.name.toLowerCase()}</div>
         </div>
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
@@ -4841,7 +4876,7 @@ function renderStates() {
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
         `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">
-        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Priority when states compete: leaving now → live drawing →
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-70)">Priority when states compete: leaving now → live drawing →
           must-dos → notices → week → quiet. One-time things show once, then burn. Nothing repeats, nothing nags.</span>
       </div>
     </div>
@@ -4871,7 +4906,7 @@ function renderRules() {
       <button class="icob" data-back>✕</button></div>
     <div style="padding:18px 20px 0;flex:none">
       <div class="row" style="background:var(--surface);border-style:dashed">
-        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Three rules the app can’t break: home is always the canvas,
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-70)">Three rules the app can’t break: home is always the canvas,
           no room notifies about itself, and nothing that reads a drawing leaves this phone.</span></div>
     </div>
     <div class="body" style="padding-top:12px">
@@ -4893,7 +4928,7 @@ function renderRules() {
         <span class="s">What rings, what banners, what stays on the widget</span></span><span class="chev">›</span></button>
       <button class="row" data-sub="key"><span class="grow"><span class="n">Your key</span>
         <span class="s">Restore everything on a new phone</span></span><span class="chev">›</span></button>
-      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:var(--red)">Unpair</span>
+      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:var(--red-text)">Unpair</span>
         <span class="s">The canvas seals. Nothing is deleted for her.</span></span><span class="chev">›</span></button>
     </div>
     <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
@@ -4901,7 +4936,7 @@ function renderRules() {
       <button class="p-ghost" data-export>Export data</button>
     </div>
     <button data-wipe style="margin:0 20px 18px;min-height:44px;padding:12px;border-radius:999px;font-size:13px;
-      color:var(--red);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
+      color:var(--red-text);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
@@ -5310,8 +5345,8 @@ R.defaults({
   /* 25a decision debt */
   debts: [
     { id: 'k1', t: 'The car — repair or replace', n: 14, w: '6 weeks', tint: 'var(--red)' },
-    { id: 'k2', t: 'Whether to visit your mum at Christmas', n: 9, w: '3 weeks', tint: 'var(--amber)' },
-    { id: 'k3', t: 'Leo’s school for next year', n: 6, w: '2 weeks', tint: 'var(--violet)' },
+    { id: 'k2', t: 'Whether to visit your mum at Christmas', n: 9, w: '3 weeks', tint: 'var(--ink)' },
+    { id: 'k3', t: 'Leo’s school for next year', n: 6, w: '2 weeks', tint: 'var(--ink)' },
   ],
   decided: {},
   /* 25b mental load */
@@ -5478,10 +5513,10 @@ R.addSub('load', 'mental load', (body) => {
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
       <div style="font-size:15px;color:var(--ink-2)">Who is <span style="color:var(--red)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
-    body.appendChild(el(bar(pct, 'var(--red)', 'var(--violet)')));
+    body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
       const r = el(`<div class="row"><span style="width:8px;height:8px;border-radius:50%;flex:none;
-        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--violet)'}"></span>
+        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--ink)'}"></span>
         <span class="grow"><span class="n light">${esc(l.t)}</span></span>
         <button class="who ${l.who === 'Maya' ? 'them' : ''}">${l.who}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
@@ -5526,7 +5561,7 @@ R.addSub('money', 'money truth', (body) => {
   body.appendChild(note('After rent, bills, the standing orders, and what you both said you’d save.'));
   body.appendChild(el(kv('In', '€' + m.in.toLocaleString('en-US'), 'var(--ink)')));
   body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--red)')));
-  body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--violet)')));
+  body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--ink)')));
   body.appendChild(note('One number, both phones, updated nightly. No categories, no budgets to break, no lecture — just the truth you’d otherwise argue about at 11 PM.'));
   body.appendChild(note('Read-only from your banks. Trace never moves money.'));
 });
@@ -5538,9 +5573,9 @@ R.addSub('brief', 'the brief', (body) => {
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
   b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--amber)'))));
-  body.appendChild(el(`<div class="row" style="background:rgba(255,123,197,.08);border-color:rgba(255,123,197,.25)">
+  body.appendChild(el(`<div class="row" style="background:var(--red-wash);border-color:var(--red-line)">
     <span class="grow"><span class="s">Maya’s note</span>
-    <span class="n light" style="font-style:italic;margin-top:4px">${esc(b.note)}</span></span></div>`));
+    <span class="n light hand" style="font-size:23px;line-height:1.25;margin-top:4px">${esc(b.note)}</span></span></div>`));
   const got = el(`<button class="${b.got ? 'p-ghost' : 'p-cta'}">${b.got ? 'Got it ✓' : 'Got it'}</button>`);
   got.addEventListener('click', () => {
     b.got = true; save(); buzz(14); got.textContent = 'Got it ✓'; got.className = 'p-ghost';
@@ -5570,7 +5605,7 @@ R.addSub('energy', 'energy match', (body) => {
         background:${on ? 'var(--hairline)' : 'rgba(255,255,255,.045)'};
         border:1px solid ${on ? 'var(--ink-5)' : 'var(--surface)'};color:var(--ink)">
         <div style="display:flex;gap:6px;align-items:flex-end;justify-content:center;height:90px">
-          <span style="width:14px;border-radius:99px;background:var(--violet);height:${b.you}%"></span>
+          <span style="width:14px;border-radius:99px;background:var(--ink);height:${b.you}%"></span>
           <span style="width:14px;border-radius:99px;background:var(--red);height:${b.her}%"></span></div>
         <div style="font-size:14px;font-weight:600;margin-top:8px">${b.t}</div>
         <div style="font-size:11px;color:var(--ink-3)">${b.s}</div></button>`);
@@ -5578,7 +5613,7 @@ R.addSub('energy', 'energy match', (body) => {
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--violet)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
   };
   draw();
 });
@@ -5609,10 +5644,12 @@ R.addSub('rsvp', 'yes / no board', (body) => {
       const row = el(`<div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
         <div><div class="n">${esc(i.t)}</div><div class="s">${esc(i.w)}</div></div>
         <div style="display:flex;gap:8px">
-          <button data-v="y" style="flex:1;padding:11px;border-radius:14px;font-size:14px;font-weight:600;
-            background:${v === 'y' ? 'var(--ink)' : 'var(--surface)'};color:${v === 'y' ? '#06140C' : 'var(--ink)'}">Yes</button>
-          <button data-v="n" style="flex:1;padding:11px;border-radius:14px;font-size:14px;font-weight:600;
-            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? '#2A0A1C' : 'var(--ink)'}">No</button>
+          <button data-v="y" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
+            border:1px solid ${v === 'y' ? 'transparent' : 'var(--hairline)'};
+            background:${v === 'y' ? 'var(--emph)' : 'var(--surface)'};color:${v === 'y' ? 'var(--emph-ink)' : 'var(--ink)'}">Yes</button>
+          <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
+            border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
+            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
         </div>
         <div class="s">${v === 'y' ? 'Both in — added to the week' : v === 'n' ? 'Declined — nobody has to explain' : 'Waiting on you both'}</div>
       </div>`);
@@ -5679,7 +5716,8 @@ R.addSub('doctor', 'doctor’s note', (body) => {
   const d = db.doctor;
   body.appendChild(el(`<div class="p-hint">Maya’s appointment · ${esc(d.when)}</div>`));
   body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">What to ask · written together, last night</div>`));
-  d.qs.forEach((q) => body.appendChild(el(`<div class="chip" style="font-style:italic">${esc(q)}</div>`)));
+  d.qs.forEach((q) => body.appendChild(el(
+    `<div class="chip hand" style="font-size:23px;line-height:1.25">${esc(q)}</div>`)));
   body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--amber)')));
   body.appendChild(el(kv('Details', 'hers to share', 'var(--red)')));
   body.appendChild(note('Health is the one room Trace never summarizes, never trends, never guesses. It just holds the questions you’d forget in the chair.'));
@@ -5696,14 +5734,14 @@ R.addSub('doctor', 'doctor’s note', (body) => {
 R.addSub('ask', 'recurring + ask nicely', (body) => {
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(kv('Bins out', 'yours this week', 'var(--violet)')));
+    body.appendChild(el(kv('Bins out', 'yours this week', 'var(--ink)')));
     body.appendChild(el(`<div class="s" style="padding:0 2px 4px;color:var(--ink-3);font-size:12px">Alternates between you</div>`));
     body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Ask nicely — never a reminder she didn’t choose</div>`));
     db.asks.forEach((a) => {
       const on = db.asked === a.n;
-      const r = el(`<button class="row" style="${on ? 'background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.4)' : ''}">
+      const r = el(`<button class="row" style="${on ? 'background:var(--red-wash);border-color:var(--red-line)' : ''}">
         <span class="grow"><span class="n light">${esc(a.t)}</span><span class="s">${esc(a.sub)}</span></span>
-        <span class="cnt" style="color:var(--ink)">${on ? '✓ asked' : ''}</span></button>`);
+        <span class="cnt" style="color:var(--red-text)">${on ? '✓ asked' : ''}</span></button>`);
       r.addEventListener('click', () => {
         db.asked = a.n; buzz(10); push('ask', { t: a.t }); draw();
         toast('arrives as ink, in your hand — one tap: yes, not now, or nothing');
@@ -5799,11 +5837,11 @@ R.addSub('sleep', 'her state', (body) => {
     const a = db.awake;
     body.appendChild(el(`<div style="text-align:center;padding:8px 0">
       <div style="width:72px;height:72px;border-radius:50%;margin:0 auto;
-        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--violet),#26356F)'}"></div>
+        background:${a ? 'radial-gradient(circle at 40% 35%,var(--amber),var(--amber))' : 'radial-gradient(circle at 40% 35%,var(--ink),#26356F)'}"></div>
       <div style="font-size:24px;font-weight:600;margin-top:14px">${a ? 'She just woke up' : 'Maya is asleep'}</div>
       <div style="font-size:14px;color:var(--ink-3);margin-top:4px">${a ? 'Berlin, 7:02 AM · your marks are waiting for her' : 'Berlin, 2:41 AM · nothing will buzz on her side'}</div></div>`));
     [['Your marks', 'wait quietly'], ['Her widget', 'dims, doesn’t update'], ['The flare', 'still gets through']]
-      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--violet)'))));
+      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--ink)'))));
     const b = el(`<button class="p-ghost">${a ? 'Show her asleep' : 'Show her awake'}</button>`);
     b.addEventListener('click', () => { db.awake = !db.awake; save(); buzz(8); draw(); paint(); });
     body.append(b, note('Sleep is a state, not a status. No times, no tracking — just awake or not.'));
@@ -5838,7 +5876,7 @@ R.addSub('stack', 'widget stack', (body) => {
     body.innerHTML = '';
     body.appendChild(el(`<div class="p-hint">The order she sees — tap a row to move it up</div>`));
     db.stack.forEach((name, n) => {
-      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--violet)', 'var(--amber)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
+      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--ink)', 'var(--amber)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
         <span class="grow"><span class="n light">${esc(name)}</span></span>
         <span class="chev">↑↓</span></button>`);
       r.addEventListener('click', () => {
@@ -5863,18 +5901,18 @@ R.addSub('daymap', 'map of your day', (body) => {
     <svg viewBox="0 0 300 200" style="width:100%;height:100%">
       <path d="M40 160 C90 120,80 60,140 50 S250 80,262 140" stroke="var(--amber)" stroke-width="4" fill="none"
         stroke-linecap="round" opacity=".9"/>
-      <circle cx="40" cy="160" r="6" fill="var(--violet)"/><circle cx="140" cy="50" r="6" fill="var(--red)"/>
+      <circle cx="40" cy="160" r="6" fill="var(--ink)"/><circle cx="140" cy="50" r="6" fill="var(--red)"/>
       <circle cx="262" cy="140" r="6" fill="var(--ink)"/>
     </svg></div>`));
   db.dayNotes.forEach((n) => body.appendChild(el(`<div class="chip" style="font-style:italic">${esc(n)}</div>`)));
-  db.places.forEach(([p, t]) => body.appendChild(el(kv(p, t, 'var(--violet)'))));
+  db.places.forEach(([p, t]) => body.appendChild(el(kv(p, t, 'var(--ink)'))));
   body.appendChild(note('Drawn from your steps. Never uploaded, shared as a shape only.'));
 });
 
 R.addSub('wall', 'the wall', (body) => {
   body.appendChild(el(bigNum(db.wallKept + ' kept forever', 'Permanent ink')));
   const grid = el(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>`);
-  const COLS = ['var(--amber)', 'var(--red)', 'var(--violet)', 'var(--ink)', 'var(--ink)'];
+  const COLS = ['var(--amber)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
   for (let i = 0; i < db.wallKept; i++) {
     grid.appendChild(el(`<div style="aspect-ratio:1;border-radius:14px;background:var(--surface);
       border:1px solid ${i === db.wallKept - 1 ? 'rgba(233,161,59,.4)' : 'var(--surface)'};
@@ -5942,7 +5980,7 @@ R.addSub('letter', 'photo of the letter', (body) => {
   const l = db.letter;
   body.appendChild(el(`<div class="p-canvas" style="height:200px;background:var(--surface);
     display:flex;align-items:center;justify-content:center;color:rgba(243,240,244,.35);font-size:13px">letter, read on device</div>`));
-  body.appendChild(el(kv('From', l.from, 'var(--violet)')));
+  body.appendChild(el(kv('From', l.from, 'var(--ink)')));
   body.appendChild(el(kv('Reply by', l.by, 'var(--amber)')));
   body.appendChild(el(kv('Read on device', 'photo never uploaded', 'var(--ink)')));
   const b = el(`<button class="${l.added ? 'p-ghost' : 'p-cta'}">${l.added ? 'In Household ✓' : 'Add to Household'}</button>`);
@@ -5989,7 +6027,7 @@ R.addSub('chapters', 'chapters', (body) => {
 
 R.addSub('journal', 'journal', (body) => {
   [['Marks today', '6'], ['Lists finished', '2'], ['Overlap awake', '4h 10m'], ['Goodnight sealed', '11:32']]
-    .forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--violet)'))));
+    .forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--ink)'))));
   body.appendChild(el(`<div class="eyebrow" style="padding:10px 0 2px">Noticed, not judged</div>`));
   body.appendChild(el(`<div class="chip" style="font-style:italic">Fridays are your quietest day. Thursdays, Maya draws first.</div>`));
   body.appendChild(note('Counts only. It never reads a word or a drawing’s meaning.'));
@@ -6106,7 +6144,7 @@ R.addCard((d) => {
 R.addCard((d) => {
   const n = d.blocked.filter((b) => b.on === 'Maya' && !d.unblocked[b.id]).length;
   if (!n || !d.pub.list) return null;
-  return { pri: 6, kind: 'waiting', tint: 'var(--amber)', head: n + ' waiting', foot: 'blocked on her',
+  return { pri: 6, kind: 'waiting', tint: 'var(--ink)', head: n + ' waiting', foot: 'blocked on her',
     render(b) {
       b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">Waiting on you</div>
         <div class="w-big">${n} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">things can’t move</span></div>`;
@@ -6138,7 +6176,7 @@ R.addCard((d) => {
   if (d.handoffSeen) return null;
   const h = new Date().getHours();
   if (h < 5 || h > 11) return null;
-  return { pri: 3.5, kind: 'handoff', tint: 'var(--amber)', head: 'three things', foot: 'while you slept',
+  return { pri: 3.5, kind: 'handoff', tint: 'var(--ink)', head: 'three things', foot: 'while you slept',
     render(b) {
       b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">While you slept</div>
         <div class="w-note">Maya left you three things</div>`;
@@ -6196,27 +6234,27 @@ function watchFaces() {
     <div style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:6px 0 2px">
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:168px;height:200px;border-radius:48px;background:var(--emph);border:3px solid var(--emph);
+        <div class="on-dark" style="width:168px;height:200px;border-radius:48px;background:#141210;border:3px solid #141210;
           box-shadow:0 18px 40px var(--scrim);padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--red);font-weight:600">Maya</span>
+            <span style="font-size:11px;color:var(--red-text);font-weight:600">Maya</span>
             <span style="font-size:13px;font-weight:600" data-clock>9:41</span>
           </div>
           ${trace(drawing() ? 'var(--red)' : 'var(--amber)')}
           <div style="display:flex;gap:6px">
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:9px;color:var(--ink-3)">LEFT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--violet)">${left}</div></div>
+              <div style="font-size:15px;font-weight:600">${left}</div></div>
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:9px;color:var(--ink-3)">NIGHT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--red)">27m</div></div>
+              <div style="font-size:15px;font-weight:600;color:var(--red-text)">27m</div></div>
           </div>
         </div>
         <span style="font-size:12px;color:var(--ink-3)">Apple Watch · complication + trace</span>
       </div>
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:180px;height:180px;border-radius:50%;background:var(--emph);border:3px solid var(--emph);
+        <div class="on-dark" style="width:180px;height:180px;border-radius:50%;background:#141210;border:3px solid #141210;
           box-shadow:0 18px 40px var(--scrim);position:relative;display:flex;flex-direction:column;
           align-items:center;justify-content:center;gap:3px">
           <div style="position:absolute;inset:10px;border-radius:50%;border:2px solid var(--hairline)"></div>
@@ -6249,16 +6287,16 @@ function lockScreens() {
         <div style="display:flex;justify-content:center;padding-top:38px">
           <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:12px">
             <span style="width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulseDot 2s ease-in-out infinite"></span>
-            ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--ink-4)">· live</span></div>
+            ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--emph-ink-3)">· live</span></div>
         </div>
         <div style="text-align:center;margin-top:18px">
-          <div style="font-size:14px;font-weight:500;color:rgba(243,240,244,.7)" data-date>Thursday, August 7</div>
+          <div style="font-size:14px;font-weight:500;color:var(--ink-2)" data-date>Thursday, August 7</div>
           <div style="font-size:58px;font-weight:600;letter-spacing:-.03em;line-height:1" data-clock>9:41</div>
         </div>
         <div style="display:flex;justify-content:center;gap:10px;margin-top:14px;padding-bottom:16px">
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
             <div style="font-size:10px;color:var(--ink-2)">TRACE · GOODNIGHT</div>
-            <div style="font-size:20px;font-weight:600;color:var(--red);margin-top:2px">27:14</div></div>
+            <div style="font-size:20px;font-weight:600;color:var(--red-text);margin-top:2px">27:14</div></div>
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
             <div style="font-size:10px;color:var(--ink-2)">TRACE · MUST DO</div>
             <div style="font-size:13px;font-weight:600;margin-top:4px">${esc((t[0] || {}).title || 'nothing left')}
@@ -6268,7 +6306,7 @@ function lockScreens() {
 
       <div style="height:2px;background:var(--hairline)"></div>
 
-      <div style="flex:1;background:linear-gradient(180deg,#0B0F2C 0%,#07091C 100%);position:relative;overflow:hidden">
+      <div class="on-dark" style="flex:1;background:#141210;position:relative;overflow:hidden">
         <div style="position:absolute;top:12px;right:14px;padding:4px 10px;border-radius:999px;
           background:var(--hairline);font-size:10px;letter-spacing:.12em;color:var(--ink-2)">ANDROID LOCK</div>
         <div style="padding:34px 26px 0">
@@ -6299,12 +6337,12 @@ function androidHome() {
   return `
     <div style="min-height:520px;display:flex;flex-direction:column;margin:4px 16px 0;border-radius:26px;overflow:hidden;
       border:1px solid var(--hairline);
-      background:radial-gradient(130% 80% at 80% 0%,#16246B 0%,var(--ground-alt) 40%,var(--ground) 78%,var(--ground) 100%)">
+      background:var(--ground-alt)">
 
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 22px 0;font-size:13px;font-weight:500">
         <span data-clock>9:41</span><span style="font-size:10px;opacity:.85;letter-spacing:2px">▍ ◗ ▬</span></div>
 
-      <div style="margin:16px 16px 0;border-radius:30px;background:linear-gradient(160deg,#1E2C63,var(--ground));
+      <div style="margin:16px 16px 0;border-radius:30px;background:var(--surface);
         border:1px solid var(--hairline);padding:16px 18px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="font-size:12px;font-weight:600;color:var(--ink-2)">Trace · her board</div>
@@ -6320,12 +6358,12 @@ function androidHome() {
       </div>
 
       <div style="display:flex;gap:12px;margin:12px 16px 0">
-        <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,#2A1E5C,#170F33);
+        <div style="flex:1;aspect-ratio:1;border-radius:30px;background:var(--surface);
           border:1px solid var(--hairline);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${lm ? 'LEAVING NOW' : 'GOODNIGHT'}</div>
           <div style="font-size:24px;font-weight:600;color:var(--red)">${lm ? lm + ' min' : '27:14'}</div></div>
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
-          border:1px solid rgba(74,222,128,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+          border:1px solid var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${db.mission ? 'MISSION' : 'GROCERIES'}</div>
           <div style="font-size:14px;font-weight:600;color:var(--ink);text-align:center;padding:0 10px">
             ${db.mission ? 'Both in · Sun 6 PM' : groceriesLeft() + ' left'}</div></div>
@@ -6369,7 +6407,7 @@ function tabletBoard() {
           display:flex;flex-direction:column;gap:6px">
           <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;padding:0 10px 16px">Trace</div>
           ${room('✎', 'Canvas', '', '', true)}
-          ${room('⌂', 'Household', t.length, 'var(--violet)')}
+          ${room('⌂', 'Household', t.length, 'var(--ink)')}
           ${room('❑', 'Together', db.buckets.length - count(db.bucket), 'var(--ink)')}
           ${room('◔', 'Memory', '', '')}
           ${room('◍', 'Wellbeing', '', '')}
@@ -6389,7 +6427,7 @@ function tabletBoard() {
               <path d="M90 410 C170 360,230 460,340 390" stroke="var(--violet)" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/>
             </svg>
             <div style="position:absolute;left:18px;bottom:16px;padding:8px 14px;border-radius:999px;
-              background:var(--emph);border:1px solid var(--hairline);font-size:13px" data-canvascap>Today’s canvas</div>
+              background:var(--emph);color:var(--emph-ink);border:0;font-size:13px" data-canvascap>Today’s canvas</div>
           </div>
           <div style="width:250px;display:flex;flex-direction:column;gap:12px">
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
@@ -6397,7 +6435,7 @@ function tabletBoard() {
               <div style="font-size:26px;font-weight:600;color:var(--red);margin-top:2px">2h 14m</div></div>
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Left to do</div>
-              <div style="font-size:26px;font-weight:600;color:var(--violet);margin-top:2px">${t.length} things</div></div>
+              <div style="font-size:26px;font-weight:600;margin-top:2px">${t.length} things</div></div>
             <div style="border-radius:20px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
               border:1px solid var(--hairline);padding:16px">
               <div style="font-size:12px;color:var(--ink)">Week 32 mission</div>
@@ -6429,7 +6467,7 @@ function render() {
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Every surface</button>
       <button class="icob" data-close>✕</button></div>
-    <div class="title"><div class="k">${esc(cur[2])} · <span style="color:var(--amber)">coming with the store build</span></div><div class="v">${esc(cur[3])}</div></div>
+    <div class="title"><div class="k">${esc(cur[2])} · <span style="color:var(--red-text)">coming with the store build</span></div><div class="v">${esc(cur[3])}</div></div>
     <div class="deck" style="padding:16px 20px 0">
       ${TABS.map(([k, label]) => `<button class="c" data-tab="${k}" style="min-width:0;height:38px;padding:0 16px;
         display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:600;
@@ -6745,7 +6783,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
-  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--violet)')));
+  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
   const hold = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
@@ -8152,7 +8190,7 @@ function renderExtras() {
                 stroke-width="3" fill="none" stroke-linecap="round"></path>
               <circle cx="8" cy="46" r="5" fill="var(--ink)"></circle>
               <circle cx="142" cy="14" r="5" fill="var(--red)"></circle></svg>
-            <span class="hand" style="font-size:20px;color:var(--ink-2);line-height:1.15;font-weight:600">long way home,<br>on purpose</span>
+            <span class="hand" style="font-size:22px;color:var(--ink-70);line-height:1.15;font-weight:700">long way home,<br>on purpose</span>
           </div>
           <div class="d">Drawn from your steps. Shared as a shape only.</div></button>
 

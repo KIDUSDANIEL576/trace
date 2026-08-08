@@ -43,27 +43,27 @@ function watchFaces() {
     <div style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:6px 0 2px">
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:168px;height:200px;border-radius:48px;background:var(--emph);border:3px solid var(--emph);
+        <div class="on-dark" style="width:168px;height:200px;border-radius:48px;background:#141210;border:3px solid #141210;
           box-shadow:0 18px 40px var(--scrim);padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--red);font-weight:600">Maya</span>
+            <span style="font-size:11px;color:var(--red-text);font-weight:600">Maya</span>
             <span style="font-size:13px;font-weight:600" data-clock>9:41</span>
           </div>
           ${trace(drawing() ? 'var(--red)' : 'var(--amber)')}
           <div style="display:flex;gap:6px">
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:9px;color:var(--ink-3)">LEFT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--violet)">${left}</div></div>
+              <div style="font-size:15px;font-weight:600">${left}</div></div>
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:9px;color:var(--ink-3)">NIGHT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--red)">27m</div></div>
+              <div style="font-size:15px;font-weight:600;color:var(--red-text)">27m</div></div>
           </div>
         </div>
         <span style="font-size:12px;color:var(--ink-3)">Apple Watch · complication + trace</span>
       </div>
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:180px;height:180px;border-radius:50%;background:var(--emph);border:3px solid var(--emph);
+        <div class="on-dark" style="width:180px;height:180px;border-radius:50%;background:#141210;border:3px solid #141210;
           box-shadow:0 18px 40px var(--scrim);position:relative;display:flex;flex-direction:column;
           align-items:center;justify-content:center;gap:3px">
           <div style="position:absolute;inset:10px;border-radius:50%;border:2px solid var(--hairline)"></div>
@@ -96,16 +96,16 @@ function lockScreens() {
         <div style="display:flex;justify-content:center;padding-top:38px">
           <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:12px">
             <span style="width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulseDot 2s ease-in-out infinite"></span>
-            ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--ink-4)">· live</span></div>
+            ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--emph-ink-3)">· live</span></div>
         </div>
         <div style="text-align:center;margin-top:18px">
-          <div style="font-size:14px;font-weight:500;color:rgba(243,240,244,.7)" data-date>Thursday, August 7</div>
+          <div style="font-size:14px;font-weight:500;color:var(--ink-2)" data-date>Thursday, August 7</div>
           <div style="font-size:58px;font-weight:600;letter-spacing:-.03em;line-height:1" data-clock>9:41</div>
         </div>
         <div style="display:flex;justify-content:center;gap:10px;margin-top:14px;padding-bottom:16px">
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
             <div style="font-size:10px;color:var(--ink-2)">TRACE · GOODNIGHT</div>
-            <div style="font-size:20px;font-weight:600;color:var(--red);margin-top:2px">27:14</div></div>
+            <div style="font-size:20px;font-weight:600;color:var(--red-text);margin-top:2px">27:14</div></div>
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
             <div style="font-size:10px;color:var(--ink-2)">TRACE · MUST DO</div>
             <div style="font-size:13px;font-weight:600;margin-top:4px">${esc((t[0] || {}).title || 'nothing left')}
@@ -115,7 +115,7 @@ function lockScreens() {
 
       <div style="height:2px;background:var(--hairline)"></div>
 
-      <div style="flex:1;background:linear-gradient(180deg,#0B0F2C 0%,#07091C 100%);position:relative;overflow:hidden">
+      <div class="on-dark" style="flex:1;background:#141210;position:relative;overflow:hidden">
         <div style="position:absolute;top:12px;right:14px;padding:4px 10px;border-radius:999px;
           background:var(--hairline);font-size:10px;letter-spacing:.12em;color:var(--ink-2)">ANDROID LOCK</div>
         <div style="padding:34px 26px 0">
@@ -146,12 +146,12 @@ function androidHome() {
   return `
     <div style="min-height:520px;display:flex;flex-direction:column;margin:4px 16px 0;border-radius:26px;overflow:hidden;
       border:1px solid var(--hairline);
-      background:radial-gradient(130% 80% at 80% 0%,#16246B 0%,var(--ground-alt) 40%,var(--ground) 78%,var(--ground) 100%)">
+      background:var(--ground-alt)">
 
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 22px 0;font-size:13px;font-weight:500">
         <span data-clock>9:41</span><span style="font-size:10px;opacity:.85;letter-spacing:2px">▍ ◗ ▬</span></div>
 
-      <div style="margin:16px 16px 0;border-radius:30px;background:linear-gradient(160deg,#1E2C63,var(--ground));
+      <div style="margin:16px 16px 0;border-radius:30px;background:var(--surface);
         border:1px solid var(--hairline);padding:16px 18px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="font-size:12px;font-weight:600;color:var(--ink-2)">Trace · her board</div>
@@ -167,12 +167,12 @@ function androidHome() {
       </div>
 
       <div style="display:flex;gap:12px;margin:12px 16px 0">
-        <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,#2A1E5C,#170F33);
+        <div style="flex:1;aspect-ratio:1;border-radius:30px;background:var(--surface);
           border:1px solid var(--hairline);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${lm ? 'LEAVING NOW' : 'GOODNIGHT'}</div>
           <div style="font-size:24px;font-weight:600;color:var(--red)">${lm ? lm + ' min' : '27:14'}</div></div>
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
-          border:1px solid rgba(74,222,128,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+          border:1px solid var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${db.mission ? 'MISSION' : 'GROCERIES'}</div>
           <div style="font-size:14px;font-weight:600;color:var(--ink);text-align:center;padding:0 10px">
             ${db.mission ? 'Both in · Sun 6 PM' : groceriesLeft() + ' left'}</div></div>
@@ -216,7 +216,7 @@ function tabletBoard() {
           display:flex;flex-direction:column;gap:6px">
           <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;padding:0 10px 16px">Trace</div>
           ${room('✎', 'Canvas', '', '', true)}
-          ${room('⌂', 'Household', t.length, 'var(--violet)')}
+          ${room('⌂', 'Household', t.length, 'var(--ink)')}
           ${room('❑', 'Together', db.buckets.length - count(db.bucket), 'var(--ink)')}
           ${room('◔', 'Memory', '', '')}
           ${room('◍', 'Wellbeing', '', '')}
@@ -236,7 +236,7 @@ function tabletBoard() {
               <path d="M90 410 C170 360,230 460,340 390" stroke="var(--violet)" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/>
             </svg>
             <div style="position:absolute;left:18px;bottom:16px;padding:8px 14px;border-radius:999px;
-              background:var(--emph);border:1px solid var(--hairline);font-size:13px" data-canvascap>Today’s canvas</div>
+              background:var(--emph);color:var(--emph-ink);border:0;font-size:13px" data-canvascap>Today’s canvas</div>
           </div>
           <div style="width:250px;display:flex;flex-direction:column;gap:12px">
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
@@ -244,7 +244,7 @@ function tabletBoard() {
               <div style="font-size:26px;font-weight:600;color:var(--red);margin-top:2px">2h 14m</div></div>
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Left to do</div>
-              <div style="font-size:26px;font-weight:600;color:var(--violet);margin-top:2px">${t.length} things</div></div>
+              <div style="font-size:26px;font-weight:600;margin-top:2px">${t.length} things</div></div>
             <div style="border-radius:20px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
               border:1px solid var(--hairline);padding:16px">
               <div style="font-size:12px;color:var(--ink)">Week 32 mission</div>
@@ -276,7 +276,7 @@ function render() {
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Every surface</button>
       <button class="icob" data-close>✕</button></div>
-    <div class="title"><div class="k">${esc(cur[2])} · <span style="color:var(--amber)">coming with the store build</span></div><div class="v">${esc(cur[3])}</div></div>
+    <div class="title"><div class="k">${esc(cur[2])} · <span style="color:var(--red-text)">coming with the store build</span></div><div class="v">${esc(cur[3])}</div></div>
     <div class="deck" style="padding:16px 20px 0">
       ${TABS.map(([k, label]) => `<button class="c" data-tab="${k}" style="min-width:0;height:38px;padding:0 16px;
         display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:600;

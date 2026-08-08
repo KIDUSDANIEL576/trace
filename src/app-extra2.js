@@ -222,7 +222,7 @@ function theDay() {
 const MARKS = [
   ['sunny here', 'sun', 'var(--amber)'], ['raining', 'squiggle', 'var(--violet)'], ['coffee?', 'come', 'var(--ink)'],
   ['the cat', 'xo', 'var(--red)'], ['come here', 'come', 'var(--red)'], ['6:40 wake me', 'squiggle', 'var(--amber)'],
-  ['happy bday', 'sun', '#fff'], ['meet here', 'come', 'var(--violet)'], ['xoxo', 'xo', 'var(--red)'],
+  ['happy bday', 'sun', 'amber'], ['meet here', 'come', 'var(--violet)'], ['xoxo', 'xo', 'var(--red)'],
   ['your turn', 'squiggle', '#fff'], ['i’m sorry', 'heartL', 'var(--ink)'], ['a flower', 'sun', 'var(--red)'],
   ['just a squiggle', 'squiggle', '#fff'], ['ok, one heart', 'heart', 'var(--red)'],
 ];

@@ -466,7 +466,7 @@ function renderExtras() {
                 stroke-width="3" fill="none" stroke-linecap="round"></path>
               <circle cx="8" cy="46" r="5" fill="var(--ink)"></circle>
               <circle cx="142" cy="14" r="5" fill="var(--red)"></circle></svg>
-            <span class="hand" style="font-size:20px;color:var(--ink-2);line-height:1.15;font-weight:600">long way home,<br>on purpose</span>
+            <span class="hand" style="font-size:22px;color:var(--ink-70);line-height:1.15;font-weight:700">long way home,<br>on purpose</span>
           </div>
           <div class="d">Drawn from your steps. Shared as a shape only.</div></button>
 

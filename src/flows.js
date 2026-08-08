@@ -264,7 +264,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
-  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--violet)')));
+  body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
   const hold = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {

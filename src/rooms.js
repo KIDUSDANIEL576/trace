@@ -404,11 +404,11 @@ const ROOM_VIEWS = {
       <div style="display:flex;gap:12px;padding:20px 20px 0;flex:none">
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
           <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${mine ? mine.g : 'var(--surface)'}"></div>
-          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
+          <div style="font-size:13px;color:var(--ink-70);margin-top:10px">You · ${mine ? mine.name.toLowerCase() : 'not said'}</div>
         </div>
         <div style="flex:1;padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--card-bd);text-align:center">
           <div style="width:54px;height:54px;border-radius:50%;margin:0 auto;background:${hers.g}"></div>
-          <div style="font-size:13px;color:var(--ink-2);margin-top:10px">Maya · ${hers.name.toLowerCase()}</div>
+          <div style="font-size:13px;color:var(--ink-70);margin-top:10px">Maya · ${hers.name.toLowerCase()}</div>
         </div>
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
@@ -705,7 +705,7 @@ function renderStates() {
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
         `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">
-        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Priority when states compete: leaving now → live drawing →
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-70)">Priority when states compete: leaving now → live drawing →
           must-dos → notices → week → quiet. One-time things show once, then burn. Nothing repeats, nothing nags.</span>
       </div>
     </div>
@@ -735,7 +735,7 @@ function renderRules() {
       <button class="icob" data-back>✕</button></div>
     <div style="padding:18px 20px 0;flex:none">
       <div class="row" style="background:var(--surface);border-style:dashed">
-        <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Three rules the app can’t break: home is always the canvas,
+        <span style="font-size:13px;line-height:1.55;color:var(--ink-70)">Three rules the app can’t break: home is always the canvas,
           no room notifies about itself, and nothing that reads a drawing leaves this phone.</span></div>
     </div>
     <div class="body" style="padding-top:12px">
@@ -757,7 +757,7 @@ function renderRules() {
         <span class="s">What rings, what banners, what stays on the widget</span></span><span class="chev">›</span></button>
       <button class="row" data-sub="key"><span class="grow"><span class="n">Your key</span>
         <span class="s">Restore everything on a new phone</span></span><span class="chev">›</span></button>
-      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:var(--red)">Unpair</span>
+      <button class="row" data-sub="unpair"><span class="grow"><span class="n" style="color:var(--red-text)">Unpair</span>
         <span class="s">The canvas seals. Nothing is deleted for her.</span></span><span class="chev">›</span></button>
     </div>
     <div style="display:flex;gap:10px;padding:10px 20px 6px;flex:none">
@@ -765,7 +765,7 @@ function renderRules() {
       <button class="p-ghost" data-export>Export data</button>
     </div>
     <button data-wipe style="margin:0 20px 18px;min-height:44px;padding:12px;border-radius:999px;font-size:13px;
-      color:var(--red);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
+      color:var(--red-text);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
   $$('[data-sw]', s).forEach((b) => b.addEventListener('click', () => {
