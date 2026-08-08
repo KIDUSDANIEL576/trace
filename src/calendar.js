@@ -128,17 +128,17 @@ function renderNew() {
   const s = screens.newevent;
   const d = db.draft || { what: '', when: 'Fri 8, 7 PM', who: 'Both of us', remind: 'Day before' };
   s.innerHTML = `
-    <div class="hd" style="padding:18px 24px 0">
-      <button style="font-size:15px;color:var(--ink-3)" data-close>Cancel</button>
+    <div class="hd" style="padding:12px 12px 0">
+      <button style="font-size:15px;color:var(--ink-3);min-height:44px;padding:0 12px" data-close>Cancel</button>
       <div style="font-size:17px;font-weight:600">New event</div>
-      <button style="font-size:15px;font-weight:700;color:var(--red-text)" data-save>Save</button>
+      <button style="font-size:15px;font-weight:700;color:var(--red-text);min-height:44px;padding:0 12px" data-save>Save</button>
     </div>
     <div class="page">
       <div style="padding:18px 20px 0;flex:none">
         <div class="card" style="border-width:1px">
           <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">What</div>
           <input id="ev-what" placeholder="dinner at Sam’s" value="${esc(d.what)}"
-            style="width:100%;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
+            style="width:100%;min-height:44px;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
             font-family:Caveat,cursive;font-weight:700;font-size:30px;caret-color:var(--red)">
         </div>
       </div>
@@ -165,7 +165,7 @@ function renderNew() {
       <div class="eyebrow">Remind us</div>
       <div style="display:flex;gap:8px;padding:0 20px;flex-wrap:wrap;flex:none">
         ${['Day before', 'Two hours', 'When I leave work', 'Never'].map((t) =>
-          `<button data-remind="${t}" style="padding:9px 15px;border-radius:999px;font-size:13px;
+          `<button data-remind="${t}" class="chipbtn" style="padding:0 15px;border-radius:999px;font-size:13px;
             font-weight:${t === d.remind ? 600 : 400};
             background:${t === d.remind ? 'var(--emph)' : 'var(--surface)'};
             color:${t === d.remind ? 'var(--emph-ink)' : 'var(--ink)'};

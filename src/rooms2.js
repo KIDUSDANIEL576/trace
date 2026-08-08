@@ -595,7 +595,7 @@ R.addSub('week7', 'week 32', (body) => {
     body.innerHTML = '';
     db.week7.forEach(([d, t], n) => {
       const r = el(`<button class="row"><span class="cnt" style="width:38px;color:${t === '—' ? 'var(--ink-5)' : 'var(--red)'}">${d}</span>
-        <span class="grow"><span class="n light" style="font-style:${t === '—' ? 'normal' : 'italic'};
+        <span class="grow"><span class="n light ${t === '—' ? '' : 'hand'}" style="font-size:${t === '—' ? 16 : 23}px;
           color:${t === '—' ? 'var(--ink-5)' : 'var(--ink)'}">${esc(t)}</span></span></button>`);
       r.addEventListener('click', () => {
         const v = prompt('Add to ' + d + ' — typed, shown in your hand', t === '—' ? '' : t);

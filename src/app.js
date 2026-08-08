@@ -481,7 +481,9 @@ function toggleBrushPop() {
     <div class="bp-row"${isEraser ? ' hidden' : ''}><span>ink</span>
       <input class="bp-alpha" type="range" min="20" max="100" step="5" value="${Math.round(cfg.alpha * 100)}">
       <b class="bp-alphan">${Math.round(cfg.alpha * 100)}%</b></div>
-    <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>`;
+    <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>
+    <button ${isEraser ? 'hidden ' : ''}class="bp-any" id="swatch-any" title="any colour">
+      <span class="bp-any-dot"></span>any colour</button>`;
   $('#dock').before(popEl);
   const prev = popEl.querySelector('.bp-prev').getContext('2d');
   const paintPrev = () => {
@@ -540,7 +542,7 @@ $$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListen
 /* The swatches show the slot in the current theme; the stroke stores the slot
    name, so a repaint is all a theme flip needs. */
 function retintPens() {
-  $$('.swatch[data-c]').forEach(b => { b.style.background = penColor(b.dataset.c); });
+  $$('.swatch[data-c]').forEach(b => { b.style.setProperty('--sw', penColor(b.dataset.c)); });
 }
 window.addEventListener('themechange', () => { retintPens(); redraw(); });
 retintPens();
@@ -554,7 +556,9 @@ const hsl2hex = (h, sN, l) => {
   };
   return ('#' + f(0) + f(8) + f(4)).toUpperCase();
 };
-const anyBtn = $('#swatch-any');
+/* the cascade trigger lives in the brush pop now, which is rebuilt on every
+   open — so it is looked up when needed rather than captured at boot */
+const anyBtn = () => $('#swatch-any');
 let colorPop = null, cpHue = store.get('cpHue', 24);
 const recentColors = store.get('recentColors', []);
 function rememberColor(c) {
@@ -566,8 +570,9 @@ function rememberColor(c) {
 }
 function pickCustom(c) {
   state.color = c;
-  anyBtn.style.setProperty('--picked', c);
-  $$('.swatch').forEach(x => x.classList.toggle('is-on', x === anyBtn));
+  const b = anyBtn();
+  if (b) b.style.setProperty('--picked', c);
+  $$('.swatch').forEach(x => x.classList.remove('is-on'));
   rememberColor(c);
 }
 function closeColorPop() { if (colorPop) { colorPop.remove(); colorPop = null; } }
@@ -639,7 +644,9 @@ function openColorPop() {
     pickCustom(sel); closeColorPop(); buzz(10);
   });
 }
-anyBtn.addEventListener('click', () => (colorPop ? closeColorPop() : openColorPop()));
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#swatch-any')) { colorPop ? closeColorPop() : openColorPop(); }
+});
 wrap.addEventListener('pointerdown', closeColorPop);
 /* fixed swatches remember themselves too — the cascade's recent row is universal */
 $$('.swatch').forEach(b => { if (b.dataset.c) b.addEventListener('click', () => rememberColor(b.dataset.c)); });
@@ -1787,29 +1794,58 @@ function firstRun() {
   store.set('pairCode', code);
   const ob = document.createElement('div');
   ob.id = 'onboard';
-  /* 19a: Meet Trace — one surface, both of you, all day. Pairing is the
-     front door, so the code and the join field are the whole screen. */
+  /* p1: the brand IS the splash. The mark, the wordmark, the slogan and one
+     button — SCREENS.md is explicit that nothing else may be here ("do not add
+     a carousel, a value-prop, or permission prompts; the next tap must be a
+     canvas"). Pairing is real, but it is the second step, behind "I have a
+     code", because most people are starting rather than joining. */
   ob.innerHTML = `
-    <div class="ob-card">
-      <div style="font-size:15px;color:var(--ink-2)">Meet</div>
-      <div class="ob-wm">Trace</div>
-      <div class="ob-h">One surface, both of you, all day.</div>
-      <input id="ob-name" placeholder="your name" maxlength="14">
+    <div class="ob-card" id="ob-launch">
+      <svg viewBox="0 0 120 120" style="width:150px;height:150px;margin:0 auto" aria-label="trace">
+        <path d="M18 82 C42 26,66 96,102 34" stroke="var(--red)" stroke-width="13" fill="none"
+          stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite"></path>
+        <circle cx="102" cy="34" r="8" fill="var(--ink)" style="animation:traceDot 4.4s linear infinite"></circle>
+        <path d="M18 82 C42 26,66 96,102 34" stroke="var(--ink)" stroke-width="13" fill="none"
+          stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite;animation-delay:2.2s;opacity:0"></path>
+        <circle cx="102" cy="34" r="8" fill="var(--red)" style="animation:traceDot 4.4s linear infinite;animation-delay:2.2s;opacity:0"></circle>
+      </svg>
+      <div class="ob-wm">tra<em>ce</em></div>
+      <div class="ob-h">Leave me a trace.</div>
+      <div class="ob-actions">
+        <button class="ob-share" id="ob-start">Start a canvas</button>
+        <button class="ob-link" id="ob-havecode">I have a code</button>
+      </div>
+    </div>
+    <div class="ob-card hidden" id="ob-pair">
       <div class="ob-code-l">Your code</div>
       <div class="ob-code">${code}</div>
-      <button class="ob-share">Share it with your person</button>
+      <input id="ob-name" placeholder="your name" maxlength="14">
       <input id="ob-their" placeholder="or type theirs" maxlength="5">
-      <button class="ob-go">Start a canvas</button>
-      <button class="ob-skip">Try it alone first — Maya will draw back</button>
+      <div class="ob-actions">
+        <button class="ob-share" id="ob-join">Join them</button>
+        <button class="ob-go" id="ob-sharecode">Share my code instead</button>
+        <button class="ob-skip">Try it alone first — Maya will draw back</button>
+      </div>
     </div>`;
   document.getElementById('screen').appendChild(ob);
   const done = () => { store.set('onboarded', true); ob.remove(); };
-  ob.querySelector('.ob-share').addEventListener('click', async () => {
+  const $ob = (sel) => ob.querySelector(sel);
+
+  /* "Start a canvas" is the whole of p1's job: it opens the canvas. The code
+     still exists and is still shareable, but nobody is made to deal with it
+     before they have drawn anything. */
+  $ob('#ob-start').addEventListener('click', () => { done(); showApp(); });
+  $ob('#ob-havecode').addEventListener('click', () => {
+    $ob('#ob-launch').classList.add('hidden');
+    $ob('#ob-pair').classList.remove('hidden');
+    $ob('#ob-their').focus();
+  });
+  $ob('#ob-sharecode').addEventListener('click', async () => {
     const text = 'draw with me on trace — my code is ' + code;
     try { if (navigator.share) { await navigator.share({ text }); return; } } catch {}
     try { await navigator.clipboard.writeText(text); toast('copied — send it to them'); } catch { toast('your code: ' + code); }
   });
-  ob.querySelector('.ob-go').addEventListener('click', () => {
+  $ob('#ob-join').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
     const field = ob.querySelector('#ob-their');
@@ -1836,7 +1872,7 @@ function firstRun() {
     }
     done(); showApp();
   });
-  ob.querySelector('.ob-skip').addEventListener('click', () => {
+  $ob('.ob-skip').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
     done();

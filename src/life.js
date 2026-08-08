@@ -72,7 +72,7 @@ function renderUnsaid() {
             <div class="hand" style="font-size:26px;line-height:1.2">${esc(u.t)}</div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
               <span style="font-size:12px;color:var(--ink-4)">held ${u.days} days${u.edits ? ` · edited ${u.edits} times` : ''}</span>
-              <button style="font-size:13px;font-weight:700;color:var(--red-text)" data-send="${u.id}">send it</button>
+              <button class="end red" data-send="${u.id}">send it</button>
             </div>
           </div>`).join('')}
         ${gone.map((u) => `
@@ -80,7 +80,7 @@ function renderUnsaid() {
             <div class="hand" style="font-size:24px;line-height:1.2;color:var(--ink-3)">${esc(u.t)}</div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
               <span style="font-size:12px;color:var(--ink-4)">held ${Math.round(u.days / 7)} weeks · you let this one go</span>
-              <button style="font-size:13px;color:var(--ink-4)" data-release="${u.id}">release</button>
+              <button class="end" style="color:var(--ink-4)" data-release="${u.id}">release</button>
             </div>
           </div>`).join('')}
         <button class="card" data-new style="border-style:dashed;text-align:center;color:var(--ink-3)">

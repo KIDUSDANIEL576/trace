@@ -29,7 +29,7 @@ const PAGES = [
 
 const title = $('#sc-canvas .title');
 const pills = el(`<div style="display:flex;gap:6px;padding:12px 24px 0;flex:none">
-  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="padding:8px 18px;border-radius:999px;
+  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
     font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('')}
 </div>`);
 title.after(pills);

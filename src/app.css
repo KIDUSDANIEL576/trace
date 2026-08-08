@@ -214,11 +214,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* the one header shape every room shares — p2/p6/p7 */
 .hd{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0;flex:none}
-.pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+.pill{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;
   background:var(--surface-2);border:1px solid var(--hairline);font-size:13px;font-weight:500;color:var(--ink)}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulseDot 2.4s ease-in-out infinite}
-.icob{width:36px;height:36px;border-radius:50%;background:var(--surface-2);border:1px solid var(--hairline);
-  display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;color:var(--ink)}
+/* The frames draw this circle at 36 and the spec sets a 44px floor for
+   targets. Both are satisfiable: the button is 44 and the circle it paints is
+   36, so what a finger gets and what an eye sees are allowed to differ. */
+.icob{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex:none;color:var(--ink);position:relative;background:none;border:0}
+.icob::before{content:'';position:absolute;inset:4px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--hairline)}
+.icob > *,.icob{z-index:0}
+.icob::before{z-index:-1}
 .icob:active{transform:scale(.93)}
 .title{padding:24px 26px 0;flex:none;text-align:center}
 .title .k{font-size:14px;color:var(--ink-3)}
@@ -284,10 +291,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 .deck{display:flex;gap:8px;padding:0 20px;overflow-x:auto;flex:none;scrollbar-width:none}
 .deck::-webkit-scrollbar{display:none}
-.deck .c{min-width:110px;height:64px;border-radius:14px;background:var(--surface);
+.deck .c{min-width:116px;min-height:68px;border-radius:14px;background:var(--surface);
   border:1px solid var(--hairline);padding:9px 11px;flex:none}
 .deck .c b{font-size:13px;font-weight:600;display:block}
-.deck .c i{font-style:normal;font-size:10px;color:var(--ink-3);margin-top:6px;display:block}
+.deck .c i{font-style:normal;font-size:12px;color:var(--ink-3);margin-top:5px;display:block}
 
 /* ------------------------------------------------- the canvas room — p2, p36 */
 /* the composer and the brush pop both push up from the dock; the canvas may
@@ -312,8 +319,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   padding:7px 14px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
   font-size:12px;pointer-events:none;opacity:0;transition:opacity .3s}
 #canvas-note:not(:empty){opacity:1}
+/* The whisper is the app talking, so it is system sans. A prompt pinned from
+   the deck is also the app's words, not a partner's — the handwriting rule
+   cuts both ways or it stops meaning anything. */
 #whisper{position:absolute;z-index:7;left:12px;right:12px;top:44%;text-align:center;
-  font-family:Caveat,cursive;font-weight:600;font-size:24px;color:var(--ink-3);
+  font-size:15px;line-height:1.5;color:var(--ink-3);
   pointer-events:none;opacity:0;transition:opacity .6s}
 #whisper.on{opacity:1}
 #mirror-line{position:absolute;z-index:6;left:50%;top:16px;bottom:16px;width:1px;opacity:0;
@@ -334,17 +344,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* 390 minus 40 of rail leaves 350: three 46px rounds and three 8px gaps take
    162, so the palette gets 188 and the row never overflows the device. */
 .dock-row{display:flex;align-items:center;gap:8px}
-#brushes{height:54px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
-  padding:0 8px;justify-content:space-between}
-.tool{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5}
+#brushes{height:56px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+  padding:0 6px;justify-content:space-between}
+.tool{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5;flex:none}
 .tool.is-on{background:var(--red-wash);border-color:var(--red-line);opacity:1}
 .tool.is-on .ts-i{color:var(--red)}
 .tool:active{transform:scale(.92)}
-#colors{flex:1;min-width:0;height:54px;border-radius:999px;background:var(--surface);
-  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center;gap:12px}
-.swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline) inset}
-.swatch.is-on{border-color:var(--ink)}
+#colors{flex:1;min-width:0;height:56px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-around;gap:0}
+/* Four pens in 188px of rail gives each 47px, so the swatch presents a full
+   44px target while the ink circle stays 26px. Five never fit — which is the
+   other reason the cascade moved into the brush pop. */
+.swatch{width:44px;height:44px;border-radius:50%;border:0;padding:0;flex:none;
+  display:flex;align-items:center;justify-content:center;background:none!important}
+.swatch::after{content:'';width:26px;height:26px;border-radius:50%;background:var(--sw);
+  border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline) inset;transition:border-color .15s}
+.swatch.is-on::after{border-color:var(--ink)}
 .rbtn{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;color:var(--ink)}
 .rbtn:active{transform:scale(.92)}
@@ -548,13 +564,29 @@ button.card:active{transform:scale(.99)}
 #brushpop .bp-taper{padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:13px;color:var(--ink)}
 #brushpop .bp-taper.on{border-color:var(--red);background:var(--red-wash);color:var(--red-text)}
-#brushpop .bp-quick{flex:1;padding:9px 0;border-radius:12px;border:1px solid var(--hairline);
+#brushpop .bp-quick{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:12.5px;color:var(--ink)}
+/* the colour cascade — an invention, so it sits with the other invention
+   (thickness) rather than in the four-pen row the frames actually draw */
+#brushpop .bp-any{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;
+  border-radius:14px;border:1px solid var(--hairline);background:var(--ground-alt);
+  font-size:13px;color:var(--ink)}
+#brushpop .bp-any-dot{width:22px;height:22px;border-radius:50%;flex:none;
+  background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66);position:relative}
+#brushpop .bp-any-dot::after{content:'';position:absolute;inset:5px;border-radius:50%;
+  background:var(--picked,var(--ink));border:1.5px solid var(--hairline)}
 #brushpop .bp-quick:active{background:var(--red-wash)}
 
 /* first launch — p1. The brand is the splash; pairing is the front door. */
 #onboard{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;background:var(--ground)}
-.ob-card{margin:auto;width:100%;padding:0 32px;display:flex;flex-direction:column;gap:12px;text-align:center}
+/* p1 is a splash, so the mark sits in the optical centre and the actions sit
+   on the bottom rail — not stacked together in the middle. */
+#onboard{justify-content:space-between}
+.ob-card{margin:auto;width:100%;padding:0 24px;display:flex;flex-direction:column;
+  gap:12px;text-align:center;align-items:center}
+#ob-launch{flex:1;justify-content:center;padding-bottom:0}
+.ob-actions{width:100%;display:flex;flex-direction:column;gap:16px;padding:0 0 54px;margin-top:auto}
+.ob-link{font-size:15px;color:var(--ink-2);background:none;border:0}
 .ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:68px;line-height:1;letter-spacing:0}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-2);margin-bottom:10px}
@@ -579,9 +611,7 @@ button.card:active{transform:scale(.99)}
 @keyframes traceDot{0%,38%{opacity:0}44%,52%{opacity:1}60%,100%{opacity:0}}
 
 /* ---------------------------------------------------- the colour cascade */
-#swatch-any{position:relative;background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66)}
-#swatch-any::after{content:'';position:absolute;inset:6px;border-radius:50%;background:var(--picked,var(--ink));
-  border:1.5px solid var(--hairline)}
+
 #colorpop{position:relative;z-index:12;margin:0 20px;border-radius:22px;background:var(--surface);
   border:1px solid var(--hairline);padding:14px 16px;
   display:flex;flex-direction:column;gap:12px;flex:none}
@@ -608,3 +638,17 @@ button.card:active{transform:scale(.99)}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* ------------------------------------------------- the 44px floor, by shape
+   These are the recurring small controls: the inline text action at the end of
+   a row ("send it", "swap?", "renew"), the chips, the segmented control and
+   the search field. Each is drawn at the size its frame shows and padded out
+   to a 44px target, because what a finger gets and what an eye sees are
+   allowed to differ. */
+.card.line .end,.row .end,button.end{min-height:44px;min-width:44px;display:inline-flex;
+  align-items:center;justify-content:flex-end;padding:0 4px}
+.seg button{min-height:44px}
+.search{min-height:48px}
+.search input{min-height:44px}
+.chipbtn{min-height:44px;display:inline-flex;align-items:center}
+.callbtn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:17px}

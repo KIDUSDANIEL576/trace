@@ -132,9 +132,11 @@ const el = (html) => { const d = document.createElement('div'); d.innerHTML = ht
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const count = (o) => Object.values(o).filter(Boolean).length;
 
-function tickRow({ on, title, meta, right }) {
+/* `hand` marks content a person wrote — the one rule that separates what the
+   app says from what a partner said. It is the product, not a flourish. */
+function tickRow({ on, title, meta, right, hand }) {
   return `<button class="row"><span class="tick${on ? ' on' : ''}">${on ? '✓' : ''}</span>` +
-    `<span class="grow"><span class="n light" style="opacity:${on ? .45 : 1};display:block">${esc(title)}</span>` +
+    `<span class="grow"><span class="n light${hand ? ' hand' : ''}" style="opacity:${on ? .45 : 1};display:block${hand ? ';font-size:23px;line-height:1.2' : ''}">${esc(title)}</span>` +
     (meta ? `<span class="s">${esc(meta)}</span>` : '') + `</span>` +
     (right || '') + `</button>`;
 }
@@ -342,7 +344,7 @@ const ROOM_VIEWS = {
         ${db.dreams.map((d) => `<div class="row"><span class="grow"><span class="n">${esc(d.t)}</span>
           <span class="s">${esc(d.s)}</span></span></div>`).join('')}
         <button class="row" data-sub="promise"><span class="grow"><span class="n">Co-signed promise</span>
-          <span class="s">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
+          <span class="s hand" style="font-size:20px;color:var(--ink)">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
         <button class="row" data-sub="bucket"><span class="grow"><span class="n">Bucket list</span>
           <span class="s">${db.buckets.length - count(db.bucket)} open · ${count(db.bucket)} done</span></span>
           <span class="chev">›</span></button>
@@ -410,7 +412,7 @@ const ROOM_VIEWS = {
         </div>
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
-        ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:38px;height:38px;border-radius:50%;
+        ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:44px;height:44px;border-radius:50%;
           background:${m.g};border:3px solid ${db.mood === m.n ? 'var(--ink)' : 'transparent'};
           opacity:${db.mood === -1 || db.mood === m.n ? 1 : .4}"></button>`).join('')}
       </div>
@@ -500,7 +502,7 @@ function openSub(kind) {
         body.innerHTML = '';
         body.appendChild(el(`<div class="p-note">${db.items.length - count(db.got)} left · ticks sync both ways, instantly</div>`));
         db.items.forEach((i) => {
-          const r = el(tickRow({ on: !!db.got[i.id], title: i.name, meta: null,
+          const r = el(tickRow({ on: !!db.got[i.id], title: i.name, hand: true, meta: null,
             right: `<span class="who">${i.who}</span>` }));
           r.addEventListener('click', () => {
             db.got[i.id] = !db.got[i.id]; buzz(8);
@@ -762,7 +764,7 @@ function renderRules() {
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
     </div>
-    <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
+    <button data-wipe style="margin:0 20px 18px;min-height:44px;padding:12px;border-radius:999px;font-size:13px;
       color:var(--red);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
@@ -872,14 +874,14 @@ function traceCard(b, live) {
 function todoCard(b) {
   const open = db.tasks.filter((t) => !db.done[t.id]).slice(0, 2);
   const oneDone = db.tasks.find((t) => db.done[t.id]);
-  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Must do — from his board</div>` +
+  b.innerHTML = `<div class="w-kicker">Must do — from his board</div>` +
     open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
     (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
   return { cap: 'Ticks sync both ways, instantly' };
 }
 function shopCard(b) {
   const left = db.items.length - count(db.got);
-  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Groceries</div>` +
+  b.innerHTML = `<div class="w-kicker">Groceries</div>` +
     `<div class="w-big">${left} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span></div>`;
   return { cap: 'Only while someone is shopping' };
 }

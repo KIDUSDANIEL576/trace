@@ -273,7 +273,7 @@ function renderPeople() {
           color:${p.red ? 'var(--on-red)' : 'var(--emph-ink)'}">${p.tag}</span>
         <span class="grow"><span class="t" style="font-size:15px;font-weight:600">${esc(p.n)}</span>
           <span class="d">${esc(p.s)}</span></span>
-        <button style="font-size:16px" data-call="${p.id}">✆</button></div>`).join('')
+        <button class="callbtn" data-call="${p.id}">✆</button></div>`).join('')
       || `<div class="foot" style="padding-top:24px">Nobody by that name.</div>`;
   };
   s.innerHTML = `

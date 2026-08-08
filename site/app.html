@@ -229,11 +229,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* the one header shape every room shares — p2/p6/p7 */
 .hd{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0;flex:none}
-.pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+.pill{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;
   background:var(--surface-2);border:1px solid var(--hairline);font-size:13px;font-weight:500;color:var(--ink)}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulseDot 2.4s ease-in-out infinite}
-.icob{width:36px;height:36px;border-radius:50%;background:var(--surface-2);border:1px solid var(--hairline);
-  display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;color:var(--ink)}
+/* The frames draw this circle at 36 and the spec sets a 44px floor for
+   targets. Both are satisfiable: the button is 44 and the circle it paints is
+   36, so what a finger gets and what an eye sees are allowed to differ. */
+.icob{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex:none;color:var(--ink);position:relative;background:none;border:0}
+.icob::before{content:'';position:absolute;inset:4px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--hairline)}
+.icob > *,.icob{z-index:0}
+.icob::before{z-index:-1}
 .icob:active{transform:scale(.93)}
 .title{padding:24px 26px 0;flex:none;text-align:center}
 .title .k{font-size:14px;color:var(--ink-3)}
@@ -299,10 +306,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 .deck{display:flex;gap:8px;padding:0 20px;overflow-x:auto;flex:none;scrollbar-width:none}
 .deck::-webkit-scrollbar{display:none}
-.deck .c{min-width:110px;height:64px;border-radius:14px;background:var(--surface);
+.deck .c{min-width:116px;min-height:68px;border-radius:14px;background:var(--surface);
   border:1px solid var(--hairline);padding:9px 11px;flex:none}
 .deck .c b{font-size:13px;font-weight:600;display:block}
-.deck .c i{font-style:normal;font-size:10px;color:var(--ink-3);margin-top:6px;display:block}
+.deck .c i{font-style:normal;font-size:12px;color:var(--ink-3);margin-top:5px;display:block}
 
 /* ------------------------------------------------- the canvas room — p2, p36 */
 /* the composer and the brush pop both push up from the dock; the canvas may
@@ -327,8 +334,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   padding:7px 14px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
   font-size:12px;pointer-events:none;opacity:0;transition:opacity .3s}
 #canvas-note:not(:empty){opacity:1}
+/* The whisper is the app talking, so it is system sans. A prompt pinned from
+   the deck is also the app's words, not a partner's — the handwriting rule
+   cuts both ways or it stops meaning anything. */
 #whisper{position:absolute;z-index:7;left:12px;right:12px;top:44%;text-align:center;
-  font-family:Caveat,cursive;font-weight:600;font-size:24px;color:var(--ink-3);
+  font-size:15px;line-height:1.5;color:var(--ink-3);
   pointer-events:none;opacity:0;transition:opacity .6s}
 #whisper.on{opacity:1}
 #mirror-line{position:absolute;z-index:6;left:50%;top:16px;bottom:16px;width:1px;opacity:0;
@@ -349,17 +359,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* 390 minus 40 of rail leaves 350: three 46px rounds and three 8px gaps take
    162, so the palette gets 188 and the row never overflows the device. */
 .dock-row{display:flex;align-items:center;gap:8px}
-#brushes{height:54px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
-  padding:0 8px;justify-content:space-between}
-.tool{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5}
+#brushes{height:56px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+  padding:0 6px;justify-content:space-between}
+.tool{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5;flex:none}
 .tool.is-on{background:var(--red-wash);border-color:var(--red-line);opacity:1}
 .tool.is-on .ts-i{color:var(--red)}
 .tool:active{transform:scale(.92)}
-#colors{flex:1;min-width:0;height:54px;border-radius:999px;background:var(--surface);
-  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center;gap:12px}
-.swatch{width:26px;height:26px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline) inset}
-.swatch.is-on{border-color:var(--ink)}
+#colors{flex:1;min-width:0;height:56px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-around;gap:0}
+/* Four pens in 188px of rail gives each 47px, so the swatch presents a full
+   44px target while the ink circle stays 26px. Five never fit — which is the
+   other reason the cascade moved into the brush pop. */
+.swatch{width:44px;height:44px;border-radius:50%;border:0;padding:0;flex:none;
+  display:flex;align-items:center;justify-content:center;background:none!important}
+.swatch::after{content:'';width:26px;height:26px;border-radius:50%;background:var(--sw);
+  border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline) inset;transition:border-color .15s}
+.swatch.is-on::after{border-color:var(--ink)}
 .rbtn{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;color:var(--ink)}
 .rbtn:active{transform:scale(.92)}
@@ -563,13 +579,29 @@ button.card:active{transform:scale(.99)}
 #brushpop .bp-taper{padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:13px;color:var(--ink)}
 #brushpop .bp-taper.on{border-color:var(--red);background:var(--red-wash);color:var(--red-text)}
-#brushpop .bp-quick{flex:1;padding:9px 0;border-radius:12px;border:1px solid var(--hairline);
+#brushpop .bp-quick{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:12.5px;color:var(--ink)}
+/* the colour cascade — an invention, so it sits with the other invention
+   (thickness) rather than in the four-pen row the frames actually draw */
+#brushpop .bp-any{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;
+  border-radius:14px;border:1px solid var(--hairline);background:var(--ground-alt);
+  font-size:13px;color:var(--ink)}
+#brushpop .bp-any-dot{width:22px;height:22px;border-radius:50%;flex:none;
+  background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66);position:relative}
+#brushpop .bp-any-dot::after{content:'';position:absolute;inset:5px;border-radius:50%;
+  background:var(--picked,var(--ink));border:1.5px solid var(--hairline)}
 #brushpop .bp-quick:active{background:var(--red-wash)}
 
 /* first launch — p1. The brand is the splash; pairing is the front door. */
 #onboard{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;background:var(--ground)}
-.ob-card{margin:auto;width:100%;padding:0 32px;display:flex;flex-direction:column;gap:12px;text-align:center}
+/* p1 is a splash, so the mark sits in the optical centre and the actions sit
+   on the bottom rail — not stacked together in the middle. */
+#onboard{justify-content:space-between}
+.ob-card{margin:auto;width:100%;padding:0 24px;display:flex;flex-direction:column;
+  gap:12px;text-align:center;align-items:center}
+#ob-launch{flex:1;justify-content:center;padding-bottom:0}
+.ob-actions{width:100%;display:flex;flex-direction:column;gap:16px;padding:0 0 54px;margin-top:auto}
+.ob-link{font-size:15px;color:var(--ink-2);background:none;border:0}
 .ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:68px;line-height:1;letter-spacing:0}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-2);margin-bottom:10px}
@@ -594,9 +626,7 @@ button.card:active{transform:scale(.99)}
 @keyframes traceDot{0%,38%{opacity:0}44%,52%{opacity:1}60%,100%{opacity:0}}
 
 /* ---------------------------------------------------- the colour cascade */
-#swatch-any{position:relative;background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66)}
-#swatch-any::after{content:'';position:absolute;inset:6px;border-radius:50%;background:var(--picked,var(--ink));
-  border:1.5px solid var(--hairline)}
+
 #colorpop{position:relative;z-index:12;margin:0 20px;border-radius:22px;background:var(--surface);
   border:1px solid var(--hairline);padding:14px 16px;
   display:flex;flex-direction:column;gap:12px;flex:none}
@@ -623,6 +653,20 @@ button.card:active{transform:scale(.99)}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* ------------------------------------------------- the 44px floor, by shape
+   These are the recurring small controls: the inline text action at the end of
+   a row ("send it", "swap?", "renew"), the chips, the segmented control and
+   the search field. Each is drawn at the size its frame shows and padded out
+   to a 44px target, because what a finger gets and what an eye sees are
+   allowed to differ. */
+.card.line .end,.row .end,button.end{min-height:44px;min-width:44px;display:inline-flex;
+  align-items:center;justify-content:flex-end;padding:0 4px}
+.seg button{min-height:44px}
+.search{min-height:48px}
+.search input{min-height:44px}
+.chipbtn{min-height:44px;display:inline-flex;align-items:center}
+.callbtn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:17px}
 
 </style>
 <script>
@@ -763,11 +807,10 @@ button.card:active{transform:scale(.99)}
             <div class="dock-row">
               <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
               <div id="colors">
-                <button class="swatch is-on" data-c="red"></button>
-                <button class="swatch" data-c="ink"></button>
-                <button class="swatch" data-c="amber"></button>
-                <button class="swatch" data-c="violet"></button>
-                <button class="swatch" id="swatch-any" title="any color"></button>
+                <button class="swatch is-on" data-c="red" style="--sw:var(--red)"></button>
+                <button class="swatch" data-c="ink" style="--sw:var(--ink)"></button>
+                <button class="swatch" data-c="amber" style="--sw:var(--amber)"></button>
+                <button class="swatch" data-c="violet" style="--sw:var(--violet)"></button>
               </div>
               <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
             </div>
@@ -2592,7 +2635,9 @@ function toggleBrushPop() {
     <div class="bp-row"${isEraser ? ' hidden' : ''}><span>ink</span>
       <input class="bp-alpha" type="range" min="20" max="100" step="5" value="${Math.round(cfg.alpha * 100)}">
       <b class="bp-alphan">${Math.round(cfg.alpha * 100)}%</b></div>
-    <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>`;
+    <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>
+    <button ${isEraser ? 'hidden ' : ''}class="bp-any" id="swatch-any" title="any colour">
+      <span class="bp-any-dot"></span>any colour</button>`;
   $('#dock').before(popEl);
   const prev = popEl.querySelector('.bp-prev').getContext('2d');
   const paintPrev = () => {
@@ -2651,7 +2696,7 @@ $$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListen
 /* The swatches show the slot in the current theme; the stroke stores the slot
    name, so a repaint is all a theme flip needs. */
 function retintPens() {
-  $$('.swatch[data-c]').forEach(b => { b.style.background = penColor(b.dataset.c); });
+  $$('.swatch[data-c]').forEach(b => { b.style.setProperty('--sw', penColor(b.dataset.c)); });
 }
 window.addEventListener('themechange', () => { retintPens(); redraw(); });
 retintPens();
@@ -2665,7 +2710,9 @@ const hsl2hex = (h, sN, l) => {
   };
   return ('#' + f(0) + f(8) + f(4)).toUpperCase();
 };
-const anyBtn = $('#swatch-any');
+/* the cascade trigger lives in the brush pop now, which is rebuilt on every
+   open — so it is looked up when needed rather than captured at boot */
+const anyBtn = () => $('#swatch-any');
 let colorPop = null, cpHue = store.get('cpHue', 24);
 const recentColors = store.get('recentColors', []);
 function rememberColor(c) {
@@ -2677,8 +2724,9 @@ function rememberColor(c) {
 }
 function pickCustom(c) {
   state.color = c;
-  anyBtn.style.setProperty('--picked', c);
-  $$('.swatch').forEach(x => x.classList.toggle('is-on', x === anyBtn));
+  const b = anyBtn();
+  if (b) b.style.setProperty('--picked', c);
+  $$('.swatch').forEach(x => x.classList.remove('is-on'));
   rememberColor(c);
 }
 function closeColorPop() { if (colorPop) { colorPop.remove(); colorPop = null; } }
@@ -2750,7 +2798,9 @@ function openColorPop() {
     pickCustom(sel); closeColorPop(); buzz(10);
   });
 }
-anyBtn.addEventListener('click', () => (colorPop ? closeColorPop() : openColorPop()));
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#swatch-any')) { colorPop ? closeColorPop() : openColorPop(); }
+});
 wrap.addEventListener('pointerdown', closeColorPop);
 /* fixed swatches remember themselves too — the cascade's recent row is universal */
 $$('.swatch').forEach(b => { if (b.dataset.c) b.addEventListener('click', () => rememberColor(b.dataset.c)); });
@@ -3898,29 +3948,58 @@ function firstRun() {
   store.set('pairCode', code);
   const ob = document.createElement('div');
   ob.id = 'onboard';
-  /* 19a: Meet Trace — one surface, both of you, all day. Pairing is the
-     front door, so the code and the join field are the whole screen. */
+  /* p1: the brand IS the splash. The mark, the wordmark, the slogan and one
+     button — SCREENS.md is explicit that nothing else may be here ("do not add
+     a carousel, a value-prop, or permission prompts; the next tap must be a
+     canvas"). Pairing is real, but it is the second step, behind "I have a
+     code", because most people are starting rather than joining. */
   ob.innerHTML = `
-    <div class="ob-card">
-      <div style="font-size:15px;color:var(--ink-2)">Meet</div>
-      <div class="ob-wm">Trace</div>
-      <div class="ob-h">One surface, both of you, all day.</div>
-      <input id="ob-name" placeholder="your name" maxlength="14">
+    <div class="ob-card" id="ob-launch">
+      <svg viewBox="0 0 120 120" style="width:150px;height:150px;margin:0 auto" aria-label="trace">
+        <path d="M18 82 C42 26,66 96,102 34" stroke="var(--red)" stroke-width="13" fill="none"
+          stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite"></path>
+        <circle cx="102" cy="34" r="8" fill="var(--ink)" style="animation:traceDot 4.4s linear infinite"></circle>
+        <path d="M18 82 C42 26,66 96,102 34" stroke="var(--ink)" stroke-width="13" fill="none"
+          stroke-linecap="round" style="stroke-dasharray:320;animation:traceDraw 4.4s linear infinite;animation-delay:2.2s;opacity:0"></path>
+        <circle cx="102" cy="34" r="8" fill="var(--red)" style="animation:traceDot 4.4s linear infinite;animation-delay:2.2s;opacity:0"></circle>
+      </svg>
+      <div class="ob-wm">tra<em>ce</em></div>
+      <div class="ob-h">Leave me a trace.</div>
+      <div class="ob-actions">
+        <button class="ob-share" id="ob-start">Start a canvas</button>
+        <button class="ob-link" id="ob-havecode">I have a code</button>
+      </div>
+    </div>
+    <div class="ob-card hidden" id="ob-pair">
       <div class="ob-code-l">Your code</div>
       <div class="ob-code">${code}</div>
-      <button class="ob-share">Share it with your person</button>
+      <input id="ob-name" placeholder="your name" maxlength="14">
       <input id="ob-their" placeholder="or type theirs" maxlength="5">
-      <button class="ob-go">Start a canvas</button>
-      <button class="ob-skip">Try it alone first — Maya will draw back</button>
+      <div class="ob-actions">
+        <button class="ob-share" id="ob-join">Join them</button>
+        <button class="ob-go" id="ob-sharecode">Share my code instead</button>
+        <button class="ob-skip">Try it alone first — Maya will draw back</button>
+      </div>
     </div>`;
   document.getElementById('screen').appendChild(ob);
   const done = () => { store.set('onboarded', true); ob.remove(); };
-  ob.querySelector('.ob-share').addEventListener('click', async () => {
+  const $ob = (sel) => ob.querySelector(sel);
+
+  /* "Start a canvas" is the whole of p1's job: it opens the canvas. The code
+     still exists and is still shareable, but nobody is made to deal with it
+     before they have drawn anything. */
+  $ob('#ob-start').addEventListener('click', () => { done(); showApp(); });
+  $ob('#ob-havecode').addEventListener('click', () => {
+    $ob('#ob-launch').classList.add('hidden');
+    $ob('#ob-pair').classList.remove('hidden');
+    $ob('#ob-their').focus();
+  });
+  $ob('#ob-sharecode').addEventListener('click', async () => {
     const text = 'draw with me on trace — my code is ' + code;
     try { if (navigator.share) { await navigator.share({ text }); return; } } catch {}
     try { await navigator.clipboard.writeText(text); toast('copied — send it to them'); } catch { toast('your code: ' + code); }
   });
-  ob.querySelector('.ob-go').addEventListener('click', () => {
+  $ob('#ob-join').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
     const field = ob.querySelector('#ob-their');
@@ -3947,7 +4026,7 @@ function firstRun() {
     }
     done(); showApp();
   });
-  ob.querySelector('.ob-skip').addEventListener('click', () => {
+  $ob('.ob-skip').addEventListener('click', () => {
     const name = ob.querySelector('#ob-name').value.trim();
     if (name && window.TRACE_NET) { TRACE_NET.name = name; localStorage.setItem('trace:myname', name); }
     done();
@@ -4182,9 +4261,11 @@ const el = (html) => { const d = document.createElement('div'); d.innerHTML = ht
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const count = (o) => Object.values(o).filter(Boolean).length;
 
-function tickRow({ on, title, meta, right }) {
+/* `hand` marks content a person wrote — the one rule that separates what the
+   app says from what a partner said. It is the product, not a flourish. */
+function tickRow({ on, title, meta, right, hand }) {
   return `<button class="row"><span class="tick${on ? ' on' : ''}">${on ? '✓' : ''}</span>` +
-    `<span class="grow"><span class="n light" style="opacity:${on ? .45 : 1};display:block">${esc(title)}</span>` +
+    `<span class="grow"><span class="n light${hand ? ' hand' : ''}" style="opacity:${on ? .45 : 1};display:block${hand ? ';font-size:23px;line-height:1.2' : ''}">${esc(title)}</span>` +
     (meta ? `<span class="s">${esc(meta)}</span>` : '') + `</span>` +
     (right || '') + `</button>`;
 }
@@ -4392,7 +4473,7 @@ const ROOM_VIEWS = {
         ${db.dreams.map((d) => `<div class="row"><span class="grow"><span class="n">${esc(d.t)}</span>
           <span class="s">${esc(d.s)}</span></span></div>`).join('')}
         <button class="row" data-sub="promise"><span class="grow"><span class="n">Co-signed promise</span>
-          <span class="s">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
+          <span class="s hand" style="font-size:20px;color:var(--ink)">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
         <button class="row" data-sub="bucket"><span class="grow"><span class="n">Bucket list</span>
           <span class="s">${db.buckets.length - count(db.bucket)} open · ${count(db.bucket)} done</span></span>
           <span class="chev">›</span></button>
@@ -4460,7 +4541,7 @@ const ROOM_VIEWS = {
         </div>
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
-        ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:38px;height:38px;border-radius:50%;
+        ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:44px;height:44px;border-radius:50%;
           background:${m.g};border:3px solid ${db.mood === m.n ? 'var(--ink)' : 'transparent'};
           opacity:${db.mood === -1 || db.mood === m.n ? 1 : .4}"></button>`).join('')}
       </div>
@@ -4550,7 +4631,7 @@ function openSub(kind) {
         body.innerHTML = '';
         body.appendChild(el(`<div class="p-note">${db.items.length - count(db.got)} left · ticks sync both ways, instantly</div>`));
         db.items.forEach((i) => {
-          const r = el(tickRow({ on: !!db.got[i.id], title: i.name, meta: null,
+          const r = el(tickRow({ on: !!db.got[i.id], title: i.name, hand: true, meta: null,
             right: `<span class="who">${i.who}</span>` }));
           r.addEventListener('click', () => {
             db.got[i.id] = !db.got[i.id]; buzz(8);
@@ -4812,7 +4893,7 @@ function renderRules() {
       <button class="p-cta" data-save>Save</button>
       <button class="p-ghost" data-export>Export data</button>
     </div>
-    <button data-wipe style="margin:0 20px 18px;padding:12px;border-radius:999px;font-size:13px;
+    <button data-wipe style="margin:0 20px 18px;min-height:44px;padding:12px;border-radius:999px;font-size:13px;
       color:var(--red);background:none;border:1px solid var(--red-line);flex:none">Delete everything on this phone</button>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-sub]', s).forEach((b) => b.addEventListener('click', () => openSub(b.dataset.sub)));
@@ -4922,14 +5003,14 @@ function traceCard(b, live) {
 function todoCard(b) {
   const open = db.tasks.filter((t) => !db.done[t.id]).slice(0, 2);
   const oneDone = db.tasks.find((t) => db.done[t.id]);
-  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Must do — from his board</div>` +
+  b.innerHTML = `<div class="w-kicker">Must do — from his board</div>` +
     open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
     (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
   return { cap: 'Ticks sync both ways, instantly' };
 }
 function shopCard(b) {
   const left = db.items.length - count(db.got);
-  b.innerHTML = `<div class="w-kicker" style="color:var(--violet)">Groceries</div>` +
+  b.innerHTML = `<div class="w-kicker">Groceries</div>` +
     `<div class="w-big">${left} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span></div>`;
   return { cap: 'Only while someone is shopping' };
 }
@@ -5730,7 +5811,7 @@ R.addSub('week7', 'week 32', (body) => {
     body.innerHTML = '';
     db.week7.forEach(([d, t], n) => {
       const r = el(`<button class="row"><span class="cnt" style="width:38px;color:${t === '—' ? 'var(--ink-5)' : 'var(--red)'}">${d}</span>
-        <span class="grow"><span class="n light" style="font-style:${t === '—' ? 'normal' : 'italic'};
+        <span class="grow"><span class="n light ${t === '—' ? '' : 'hand'}" style="font-size:${t === '—' ? 16 : 23}px;
           color:${t === '—' ? 'var(--ink-5)' : 'var(--ink)'}">${esc(t)}</span></span></button>`);
       r.addEventListener('click', () => {
         const v = prompt('Add to ' + d + ' — typed, shown in your hand', t === '—' ? '' : t);
@@ -6662,7 +6743,7 @@ const PAGES = [
 
 const title = $('#sc-canvas .title');
 const pills = el(`<div style="display:flex;gap:6px;padding:12px 24px 0;flex:none">
-  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="padding:8px 18px;border-radius:999px;
+  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
     font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('')}
 </div>`);
 title.after(pills);
@@ -7591,17 +7672,17 @@ function renderNew() {
   const s = screens.newevent;
   const d = db.draft || { what: '', when: 'Fri 8, 7 PM', who: 'Both of us', remind: 'Day before' };
   s.innerHTML = `
-    <div class="hd" style="padding:18px 24px 0">
-      <button style="font-size:15px;color:var(--ink-3)" data-close>Cancel</button>
+    <div class="hd" style="padding:12px 12px 0">
+      <button style="font-size:15px;color:var(--ink-3);min-height:44px;padding:0 12px" data-close>Cancel</button>
       <div style="font-size:17px;font-weight:600">New event</div>
-      <button style="font-size:15px;font-weight:700;color:var(--red-text)" data-save>Save</button>
+      <button style="font-size:15px;font-weight:700;color:var(--red-text);min-height:44px;padding:0 12px" data-save>Save</button>
     </div>
     <div class="page">
       <div style="padding:18px 20px 0;flex:none">
         <div class="card" style="border-width:1px">
           <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">What</div>
           <input id="ev-what" placeholder="dinner at Sam’s" value="${esc(d.what)}"
-            style="width:100%;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
+            style="width:100%;min-height:44px;border:0;outline:none;background:none;color:var(--ink);margin-top:4px;
             font-family:Caveat,cursive;font-weight:700;font-size:30px;caret-color:var(--red)">
         </div>
       </div>
@@ -7628,7 +7709,7 @@ function renderNew() {
       <div class="eyebrow">Remind us</div>
       <div style="display:flex;gap:8px;padding:0 20px;flex-wrap:wrap;flex:none">
         ${['Day before', 'Two hours', 'When I leave work', 'Never'].map((t) =>
-          `<button data-remind="${t}" style="padding:9px 15px;border-radius:999px;font-size:13px;
+          `<button data-remind="${t}" class="chipbtn" style="padding:0 15px;border-radius:999px;font-size:13px;
             font-weight:${t === d.remind ? 600 : 400};
             background:${t === d.remind ? 'var(--emph)' : 'var(--surface)'};
             color:${t === d.remind ? 'var(--emph-ink)' : 'var(--ink)'};
@@ -8035,7 +8116,7 @@ function renderUnsaid() {
             <div class="hand" style="font-size:26px;line-height:1.2">${esc(u.t)}</div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
               <span style="font-size:12px;color:var(--ink-4)">held ${u.days} days${u.edits ? ` · edited ${u.edits} times` : ''}</span>
-              <button style="font-size:13px;font-weight:700;color:var(--red-text)" data-send="${u.id}">send it</button>
+              <button class="end red" data-send="${u.id}">send it</button>
             </div>
           </div>`).join('')}
         ${gone.map((u) => `
@@ -8043,7 +8124,7 @@ function renderUnsaid() {
             <div class="hand" style="font-size:24px;line-height:1.2;color:var(--ink-3)">${esc(u.t)}</div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
               <span style="font-size:12px;color:var(--ink-4)">held ${Math.round(u.days / 7)} weeks · you let this one go</span>
-              <button style="font-size:13px;color:var(--ink-4)" data-release="${u.id}">release</button>
+              <button class="end" style="color:var(--ink-4)" data-release="${u.id}">release</button>
             </div>
           </div>`).join('')}
         <button class="card" data-new style="border-style:dashed;text-align:center;color:var(--ink-3)">
@@ -8498,7 +8579,7 @@ function renderFriend() {
             return `<div class="r"><span class="k">${label}</span>
               ${locked
                 ? '<span class="v" style="color:var(--ink-4)">never</span>'
-                : `<button class="v${on ? '' : ''}" data-see="${k}"
+                : `<button class="v end" data-see="${k}"
                     style="color:${on ? 'var(--ink)' : 'var(--ink-4)'}">${on ? 'yes' : 'no'}</button>`}</div>`;
           }).join('')}
         </div>
@@ -8979,7 +9060,7 @@ function renderPeople() {
           color:${p.red ? 'var(--on-red)' : 'var(--emph-ink)'}">${p.tag}</span>
         <span class="grow"><span class="t" style="font-size:15px;font-weight:600">${esc(p.n)}</span>
           <span class="d">${esc(p.s)}</span></span>
-        <button style="font-size:16px" data-call="${p.id}">✆</button></div>`).join('')
+        <button class="callbtn" data-call="${p.id}">✆</button></div>`).join('')
       || `<div class="foot" style="padding-top:24px">Nobody by that name.</div>`;
   };
   s.innerHTML = `

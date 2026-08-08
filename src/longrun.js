@@ -156,7 +156,7 @@ function renderFriend() {
             return `<div class="r"><span class="k">${label}</span>
               ${locked
                 ? '<span class="v" style="color:var(--ink-4)">never</span>'
-                : `<button class="v${on ? '' : ''}" data-see="${k}"
+                : `<button class="v end" data-see="${k}"
                     style="color:${on ? 'var(--ink)' : 'var(--ink-4)'}">${on ? 'yes' : 'no'}</button>`}</div>`;
           }).join('')}
         </div>
