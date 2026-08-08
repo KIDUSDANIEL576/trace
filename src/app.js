@@ -101,12 +101,20 @@ let fadeTimers = [];
  *   theme it was drawn in, and ink drawn at night would come back cream on
  *   white. Custom colours stay literal hex and pass through.
  *
- * It holds one day. The canvas is "today's canvas" — it seals at goodnight and
- * what survives past midnight is the wall of marks both people chose to keep,
- * which is a different surface (p36). So a stamp from another day is dropped
- * rather than restored.
+ * Whether it holds more than one day is "Permanent ink" (db.sw.ink, shipped
+ * ON): with it on the marks come back whatever the stamp says. With it off the
+ * canvas is "today's canvas" — it seals at goodnight and what survives past
+ * midnight is only the wall of marks both people chose to keep, a different
+ * surface (p36), so a stamp from another day is dropped rather than restored.
  */
 const dayStamp = () => new Date().toDateString();
+/* "Permanent ink" (rooms.js SWS -> db.sw.ink, shipped ON) is the switch this
+   day check answers to. rooms.js boots after us and owns db, so read its store
+   directly; absent, unset or unreadable means the shipped default, which is on. */
+const permanentInk = () => {
+  try { return (JSON.parse(localStorage.getItem('trace.clean.v2') || '{}').sw || {}).ink !== false; }
+  catch (e) { return true; }
+};
 function inkOut() {
   syncPageRef();
   const w2 = W || 320, h2 = H || 320;
@@ -132,7 +140,8 @@ function saveInk() {
 }
 function loadInk() {
   const saved = store.get('ink', null);
-  if (!saved || saved.day !== dayStamp() || !saved.pages) return 0;
+  if (!saved || !saved.pages) return 0;
+  if (saved.day !== dayStamp() && !permanentInk()) return 0;
   const w2 = W || 320, h2 = H || 320;
   let n = 0;
   for (const k in pages) {

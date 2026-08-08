@@ -81,6 +81,16 @@ const NET = window.TRACE_NET = {
 
   emit(event, payload) {
     if (!t) return;
+    /* 19j "Show that I'm here". The `hi` beacon IS the presence broadcast: it is
+       the only message that makes the other phone say "<name> is here", and it
+       carries the name and the tz that draws her clock in the presence panel.
+       Off has to stop it at source -- hiding the pill on the receiving side
+       would still have shipped it. Ink, hearts, tugs, "leaving now" and the
+       flare are untouched, and you still see her: her beacon is her choice.
+       Truthiness, not !== false, so the wire agrees with the row, which renders
+       !!db.sw[id]. No settings store at all (nothing has loaded rooms.js) means
+       there is no preference to honour, so today's behaviour stands. */
+    if (event === 'hi' && window.TRACE_ROOMS && !(window.TRACE_ROOMS.db.sw || {}).presence) return;
     if (event === 'sp') {                       // batch stroke points ~12/s
       ptsBuf.push(payload);
       if (!ptsFlush) ptsFlush = setTimeout(() => {

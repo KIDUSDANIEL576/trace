@@ -4,8 +4,11 @@
 cannot read what matters.
 
 - **Drawings and handwriting** are rendered on your devices and exchanged
-  between them. With "On-device only" enabled (default), stroke data is
-  relayed, not stored: our server never keeps a copy after delivery.
+  between them. Stroke data is relayed, not stored: the server never keeps a
+  copy after delivery. This is not a setting. The transport is a broadcast
+  relay with no storage behind it, so there is no other mode to switch to —
+  "On-device only" in Quiet & private states the guarantee rather than
+  offering to turn it off.
 - **The pocket** exists only on the device that created it. It is excluded
   from search, sync, backup and export. We could not produce it if asked.
 - **Health ("Doctor's note")** is never summarized, trended, or synced

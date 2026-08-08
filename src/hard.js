@@ -91,7 +91,7 @@ setInterval(paintQuiet, 1200);
 
 /* what the rest of the app asks before it counts, offers or records */
 R.counts = () => !quiet();
-R.offers = () => !quiet();
+R.offers = () => !quiet() && !!(db.sw || {}).coach;
 R.records = () => !quiet();
 
 /* ---------------------------------------------------------------- screens */

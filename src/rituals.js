@@ -274,9 +274,13 @@ function paintPin() {
   const pin = db.pinnedPrompt;
   const pinned = pin && pin.day === today();
   const empty = APP.strokeCount() === 0;
-  w.textContent = !empty ? '' : pinned ? pin.text : 'Tonight, together — need something to draw?';
-  w.classList.toggle('on', empty);
-  w.style.pointerEvents = empty && !pinned ? 'auto' : 'none';
+  /* The unbidden half of the whisper is the app suggesting something, so it asks
+     the shared "may we offer?" predicate — db.sw.coach is the permanent twin of
+     quiet(). A prompt you pinned yourself is your own choice, and stays. */
+  const offer = empty && !pinned && !!(R.offers && R.offers());
+  w.textContent = pinned && empty ? pin.text : offer ? 'Tonight, together — need something to draw?' : '';
+  w.classList.toggle('on', empty && !!(pinned || offer));
+  w.style.pointerEvents = offer ? 'auto' : 'none';
   w.style.cursor = 'pointer';
 }
 setInterval(paintPin, 1200);

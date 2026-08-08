@@ -87,7 +87,10 @@ const DEFAULTS = () => ({
   /* 21a — what her widget gets */
   pub: { trace: true, list: true, cal: true, mood: false, leave: true, notice: true },
   /* 19j — rules */
-  sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
+  /* coach ships ON: SCREENS.md p4 says the prompt exists because "most nights
+     die on the blank page", so suggestions are the designed default and this
+     switch is how you turn them off, not how you turn them on. */
+  sw: { presence: true, quiet: false, pocket: true, ink: true, coach: true, backup: true },
   /* board content */
   notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
   week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'ink' }, { t: 'pick up cake', c: 'amber' }] },
@@ -149,6 +152,17 @@ function swRow(id, name, sub, on, amber) {
   return `<button class="row" data-sw="${id}"><span class="grow"><span class="n">${esc(name)}</span>` +
     `<span class="s">${esc(sub)}</span></span>` +
     `<span class="sw${on ? ' on' : ''}${amber ? ' amber' : ''}"><i></i></span></button>`;
+}
+
+/* Some of these are not preferences. The pocket's absence from her device is
+   unconditional — docs/PRIVACY.md states it as policy and every egress path
+   already enforces it, including the export, which drops it before the file is
+   written. A switch there was worse than a switch that does nothing: it told
+   you the guarantee had an off position. This states it instead. */
+function factRow(name, sub) {
+  return `<div class="row"><span class="grow"><span class="n">${esc(name)}</span>` +
+    `<span class="s">${esc(sub)}</span></span>` +
+    `<span class="who free" style="pointer-events:none">always</span></div>`;
 }
 
 /* =============================================================== screens */
@@ -731,10 +745,15 @@ function renderStates() {
 const SWS = [
   { id: 'presence', name: 'Show that I’m here', sub: 'A dot, never a location' },
   { id: 'quiet', name: 'Quiet hours', sub: 'Nothing buzzes 10pm–7am' },
-  { id: 'pocket', name: 'The pocket', sub: 'Hidden planning, absent from her device' },
+  { id: 'pocket', name: 'The pocket', sub: 'Hidden planning, absent from her device', fact: true },
   { id: 'ink', name: 'Permanent ink', sub: 'Keep marks past the day' },
   { id: 'coach', name: 'Tiny suggestions', sub: 'Facts only, never advice' },
-  { id: 'backup', name: 'On-device only', sub: 'Drawings never sync raw' },
+  /* Also not a preference. The transport is a broadcast relay: strokes are
+     delivered and nothing is kept, and there is no code path that stores them
+     server-side to opt into. README invariant 3 states it flatly — "drawings
+     sync as encrypted strokes; they are never processed server-side" — so an
+     off position here would have to be built before it could be offered. */
+  { id: 'backup', name: 'On-device only', sub: 'Strokes are relayed to her phone and never kept on a server', fact: true },
 ];
 
 const theme = () => (window.TRACE_THEME ? TRACE_THEME.get() : 'paper');
@@ -762,7 +781,7 @@ function renderRules() {
               color:${theme() === v ? 'var(--red-text)' : 'var(--ink)'}">${label}</button>`).join('')}
         </div>
       </div>
-      ${SWS.map((w) => swRow(w.id, w.name, w.sub, !!db.sw[w.id])).join('')}
+      ${SWS.map((w) => (w.fact ? factRow(w.name, w.sub) : swRow(w.id, w.name, w.sub, !!db.sw[w.id]))).join('')}
     </div>
     <div style="padding:0 20px;flex:none;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
       <button class="row" data-sub="loud"><span class="grow"><span class="n">How loud</span>
