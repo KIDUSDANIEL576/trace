@@ -710,7 +710,7 @@ function renderStates() {
       </div>
     </div>
     <div class="foot">The widget is the app for days you never open it.</div>`;
-  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('board')));
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-close]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
 }
 
@@ -792,7 +792,14 @@ function renderRules() {
     /* "everything you have" has to mean everything — the board, the ink on all
        three pages, your name, your pairing. Never the channel token: that is a
        live key, and a file that leaks it hands someone your canvas. */
-    const all = { exported: new Date().toISOString(), version: 1, board: db, ink: {}, you: {} };
+    /* The pocket, the unsaid and the flare count are per-user private state.
+       README: the pocket "must be absent from the partner's device entirely,
+       including search indexes and shared backups" — and an export file is a
+       backup that gets emailed. `board: db` shipped all three. */
+    const PRIVATE = ['pocket', 'unsaid', 'flares', 'flare', 'pocketSteps'];
+    const shared = {};
+    for (const k in db) if (!PRIVATE.includes(k)) shared[k] = db[k];
+    const all = { exported: new Date().toISOString(), version: 1, board: shared, ink: {}, you: {} };
     try {
       if (APP.exportPages) all.ink = APP.exportPages();
       all.you.name = localStorage.getItem('trace:myname') || 'me';
@@ -989,6 +996,10 @@ $('#presence').addEventListener('click', () => {
   });
 });
 $('#room-search').addEventListener('input', (e) => renderRooms(e.target.value));
+/* p6 draws a ✕ in the Rooms header and it was never wired — the one screen in
+   the build whose close button did nothing. It goes back to the canvas,
+   because the canvas is what "closing" the directory reveals. */
+$$('[data-back]', screens.rooms).forEach((b) => b.addEventListener('click', () => show('canvas')));
 
 /* the room screens are built lazily, the light ones eagerly */
 renderRooms(); renderBoard(); renderStates(); renderRules();
@@ -1066,7 +1077,11 @@ window.TRACE_BOARD = {
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
   subRows,
-  addBeyond(label, sub, screen, group) { BEYOND.push([label, sub, () => show(screen), group]); },
+  /* `screen` is a screen name, or a function for the few doors that are not
+     screens (the p16 springboard demo lives on the shell, not in the stack) */
+  addBeyond(label, sub, screen, group) {
+    BEYOND.push([label, sub, typeof screen === 'function' ? screen : () => show(screen), group]);
+  },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,

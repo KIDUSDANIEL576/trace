@@ -75,7 +75,10 @@ R.defaults({
     { n: 3, t: 'Leo’s birth certificate', w: 'Green folder with the tax papers', who: 'Maya, school application' },
   ],
   /* 23a guest mode, 24c sleep, 24h car, 24b flare */
-  guest: false, awake: true, carMode: false, flares: 2,
+  guest: false, awake: true, carMode: false,
+  /* three a year, resetting in January — README Interruptions #1, and the
+     panel's own copy. It shipped at 2 and never reset. */
+  flares: 3, flareYear: null,
   /* 24d widget stack order */
   stack: ['Live trace', 'Must do', 'This week', 'Thinking of you', 'Goodnight'],
   /* 23b doctor's note */
@@ -473,6 +476,9 @@ R.addSub('flare', 'the flare', (body) => {
     body.innerHTML = '';
     body.appendChild(el(bigNum('I need you', 'The only thing that interrupts')));
     body.appendChild(note('Breaks armour, quiet hours, guest mode — everything. Three a year.'));
+    /* the reset is lazy: nobody is online at midnight on New Year's Day */
+    const yr = new Date().getFullYear();
+    if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
       const b = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:64px">Hold three seconds</button>`);
       let t = null;
@@ -613,19 +619,31 @@ R.addSub('week7', 'week 32', (body) => {
 });
 
 R.addSub('kids', 'kid’s corner', (body) => {
-  body.appendChild(el(`<div class="p-canvas" style="height:170px;display:flex;align-items:center;justify-content:center">
-    <svg viewBox="0 0 260 140" style="width:100%;height:100%">
-      <path d="M30 100 C60 40,90 120,120 60 S190 30,230 90" stroke="var(--ink)" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <circle cx="90" cy="46" r="10" fill="var(--amber)"/></svg></div>`));
-  body.appendChild(el(`<div class="p-hint">Leo drew at 4:12 — his own corner, his own rules</div>`));
-  body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Wrong-answer bin</div>`));
-  db.wrongBin.forEach((w) => {
-    const r = el(`<button class="row"><span class="grow"><span class="n light" style="font-style:italic">${esc(w)}</span></span>
-      <span class="chev">↺</span></button>`);
-    r.addEventListener('click', () => { buzz(8); toast('restored — turns out it was true'); });
-    body.appendChild(r);
-  });
-  body.appendChild(note('Kept for laughing at later. Restore one if it turns out true.'));
+  /* The bin holds things a child said, so they are in a hand — and restoring
+     one has to actually take it out of the bin. It toasted success and left
+     the row sitting there, which is the worst of both. */
+  const draw = () => {
+    body.innerHTML = '';
+    body.appendChild(el(`<div class="p-canvas" style="height:170px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 260 140" style="width:100%;height:100%">
+        <path d="M30 100 C60 40,90 120,120 60 S190 30,230 90" stroke="var(--ink)" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <circle cx="90" cy="46" r="10" fill="var(--amber)"/></svg></div>`));
+    body.appendChild(el(`<div class="p-hint">Leo drew at 4:12 — his own corner, his own rules</div>`));
+    body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Wrong-answer bin</div>`));
+    if (!db.wrongBin.length) body.appendChild(el(`<div class="p-hint">Empty. Everything he said turned out true.</div>`));
+    db.wrongBin.forEach((w) => {
+      const r = el(`<button class="row"><span class="grow"><span class="n light hand"
+        style="font-size:23px;line-height:1.2">${esc(w)}</span></span>
+        <span class="chev">↺</span></button>`);
+      r.addEventListener('click', () => {
+        db.wrongBin = db.wrongBin.filter((x) => x !== w);
+        save(); buzz(8); toast('restored — turns out it was true'); draw();
+      });
+      body.appendChild(r);
+    });
+    body.appendChild(note('Kept for laughing at later. Restore one if it turns out true.'));
+  };
+  draw();
 });
 
 R.addSub('letter', 'photo of the letter', (body) => {

@@ -385,6 +385,10 @@ R.addNav('memoryyear', () => show('memory'));
 R.addBeyond('The daily loop', 'Four moments, ninety seconds, three rules', 'loop');
 R.addBeyond('Your people', 'Who to call, and who calls them', 'people');
 R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle', 'The hard parts');
+/* p16 — her phone, with your board on it. A demo surface, so it is a door in
+   the directory rather than the screen the app opens on (invariant 1). */
+R.addBeyond('Her home screen', 'What your board looks like from her side',
+  () => window.TRACE_APP_SHOWHOME && window.TRACE_APP_SHOWHOME());
 
 renderWheel(); renderMemory(); renderLoop(); renderKid(); renderPeople(); renderSettle();
 })();

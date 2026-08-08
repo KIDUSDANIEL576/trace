@@ -27,7 +27,11 @@ const $$ = (s2, r) => [...(r || document).querySelectorAll(s2)];
 
 R.defaults({
   perm: 'unasked',          /* notification permission: unasked|later|granted|denied */
-  loud: { flare: 'ring', leave: 'banner', goodnight: 'banner', trace: 'widget', notice: 'widget', list: 'widget' },
+  /* Goodnight is off by default — README Interruptions #4, and p50 draws its
+     switch off. `agreed` is the only other thing allowed to ring, and only
+     because both people said yes to it. */
+  loud: { flare: 'ring', leave: 'banner', goodnight: 'off', agreed: 'banner',
+    trace: 'widget', notice: 'widget', list: 'widget' },
   widgetTut: false,
   sealed: null,             /* {when, marks} — the last chapter */
   reviewAsked: false,

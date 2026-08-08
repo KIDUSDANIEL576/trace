@@ -3839,7 +3839,8 @@ function showHome() {
   document.getElementById('screen').classList.add('on-home');
   window.TRACE_BOARD && TRACE_BOARD.inked();
 }
-$('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showHome(); });
+$('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showApp(); });
+window.TRACE_APP_SHOWHOME = showHome;   /* the p16 demo, opened deliberately */
 
 /* The widget is rooms.js's — it decides which card shows. When that card is
    the one-time trace, it hands us the canvas to paint the ink into. */
@@ -4033,7 +4034,11 @@ function firstRun() {
   });
 }
 
-showHome();
+/* Invariant 1: home is always the canvas. The simulated springboard is a demo
+   of p16 — the partner's phone, showing what your board looks like from her
+   side — and it is reachable from the directory. It is not where the app
+   opens, and booting into it broke the first rule in the product. */
+showApp();
 firstRun();
 let opened = false;
 $('#widget').addEventListener('click', () => {
@@ -4054,7 +4059,7 @@ setTimeout(() => {
 const remote = {};   // id -> stroke
 window.TRACE_APP = {
   /* --- what the clean shell (rooms.js) needs from the engine --- */
-  toast, buzz, log, openPanel, openFeature, openSheet,
+  toast, buzz, log, openPanel, closePanel, openFeature, openSheet,
   features: () => FEATURES,
   strokeCount: () => strokes.filter(k => k.who !== 'fx').length,
   handCount: () => new Set(strokes.filter(k => k.who !== 'fx').map(k => k.who)).size || 1,
@@ -4839,7 +4844,7 @@ function renderStates() {
       </div>
     </div>
     <div class="foot">The widget is the app for days you never open it.</div>`;
-  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('board')));
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-close]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
 }
 
@@ -4921,7 +4926,14 @@ function renderRules() {
     /* "everything you have" has to mean everything — the board, the ink on all
        three pages, your name, your pairing. Never the channel token: that is a
        live key, and a file that leaks it hands someone your canvas. */
-    const all = { exported: new Date().toISOString(), version: 1, board: db, ink: {}, you: {} };
+    /* The pocket, the unsaid and the flare count are per-user private state.
+       README: the pocket "must be absent from the partner's device entirely,
+       including search indexes and shared backups" — and an export file is a
+       backup that gets emailed. `board: db` shipped all three. */
+    const PRIVATE = ['pocket', 'unsaid', 'flares', 'flare', 'pocketSteps'];
+    const shared = {};
+    for (const k in db) if (!PRIVATE.includes(k)) shared[k] = db[k];
+    const all = { exported: new Date().toISOString(), version: 1, board: shared, ink: {}, you: {} };
     try {
       if (APP.exportPages) all.ink = APP.exportPages();
       all.you.name = localStorage.getItem('trace:myname') || 'me';
@@ -5118,6 +5130,10 @@ $('#presence').addEventListener('click', () => {
   });
 });
 $('#room-search').addEventListener('input', (e) => renderRooms(e.target.value));
+/* p6 draws a ✕ in the Rooms header and it was never wired — the one screen in
+   the build whose close button did nothing. It goes back to the canvas,
+   because the canvas is what "closing" the directory reveals. */
+$$('[data-back]', screens.rooms).forEach((b) => b.addEventListener('click', () => show('canvas')));
 
 /* the room screens are built lazily, the light ones eagerly */
 renderRooms(); renderBoard(); renderStates(); renderRules();
@@ -5195,7 +5211,11 @@ window.TRACE_BOARD = {
   addPresence(fn) { PRESENCE_EXTRAS.push(fn); },
   addScreen(name, render) { RENDERERS[name] = render; },
   subRows,
-  addBeyond(label, sub, screen, group) { BEYOND.push([label, sub, () => show(screen), group]); },
+  /* `screen` is a screen name, or a function for the few doors that are not
+     screens (the p16 springboard demo lives on the shell, not in the stack) */
+  addBeyond(label, sub, screen, group) {
+    BEYOND.push([label, sub, typeof screen === 'function' ? screen : () => show(screen), group]);
+  },
   screens, deck, resetDeck,
   defaults(more) { for (const k in more) if (!(k in db)) db[k] = more[k]; save(); },
   openSub, openRoom, show, save, push,
@@ -5291,7 +5311,10 @@ R.defaults({
     { n: 3, t: 'Leo’s birth certificate', w: 'Green folder with the tax papers', who: 'Maya, school application' },
   ],
   /* 23a guest mode, 24c sleep, 24h car, 24b flare */
-  guest: false, awake: true, carMode: false, flares: 2,
+  guest: false, awake: true, carMode: false,
+  /* three a year, resetting in January — README Interruptions #1, and the
+     panel's own copy. It shipped at 2 and never reset. */
+  flares: 3, flareYear: null,
   /* 24d widget stack order */
   stack: ['Live trace', 'Must do', 'This week', 'Thinking of you', 'Goodnight'],
   /* 23b doctor's note */
@@ -5689,6 +5712,9 @@ R.addSub('flare', 'the flare', (body) => {
     body.innerHTML = '';
     body.appendChild(el(bigNum('I need you', 'The only thing that interrupts')));
     body.appendChild(note('Breaks armour, quiet hours, guest mode — everything. Three a year.'));
+    /* the reset is lazy: nobody is online at midnight on New Year's Day */
+    const yr = new Date().getFullYear();
+    if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
       const b = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:64px">Hold three seconds</button>`);
       let t = null;
@@ -5829,19 +5855,31 @@ R.addSub('week7', 'week 32', (body) => {
 });
 
 R.addSub('kids', 'kid’s corner', (body) => {
-  body.appendChild(el(`<div class="p-canvas" style="height:170px;display:flex;align-items:center;justify-content:center">
-    <svg viewBox="0 0 260 140" style="width:100%;height:100%">
-      <path d="M30 100 C60 40,90 120,120 60 S190 30,230 90" stroke="var(--ink)" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <circle cx="90" cy="46" r="10" fill="var(--amber)"/></svg></div>`));
-  body.appendChild(el(`<div class="p-hint">Leo drew at 4:12 — his own corner, his own rules</div>`));
-  body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Wrong-answer bin</div>`));
-  db.wrongBin.forEach((w) => {
-    const r = el(`<button class="row"><span class="grow"><span class="n light" style="font-style:italic">${esc(w)}</span></span>
-      <span class="chev">↺</span></button>`);
-    r.addEventListener('click', () => { buzz(8); toast('restored — turns out it was true'); });
-    body.appendChild(r);
-  });
-  body.appendChild(note('Kept for laughing at later. Restore one if it turns out true.'));
+  /* The bin holds things a child said, so they are in a hand — and restoring
+     one has to actually take it out of the bin. It toasted success and left
+     the row sitting there, which is the worst of both. */
+  const draw = () => {
+    body.innerHTML = '';
+    body.appendChild(el(`<div class="p-canvas" style="height:170px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 260 140" style="width:100%;height:100%">
+        <path d="M30 100 C60 40,90 120,120 60 S190 30,230 90" stroke="var(--ink)" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <circle cx="90" cy="46" r="10" fill="var(--amber)"/></svg></div>`));
+    body.appendChild(el(`<div class="p-hint">Leo drew at 4:12 — his own corner, his own rules</div>`));
+    body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">Wrong-answer bin</div>`));
+    if (!db.wrongBin.length) body.appendChild(el(`<div class="p-hint">Empty. Everything he said turned out true.</div>`));
+    db.wrongBin.forEach((w) => {
+      const r = el(`<button class="row"><span class="grow"><span class="n light hand"
+        style="font-size:23px;line-height:1.2">${esc(w)}</span></span>
+        <span class="chev">↺</span></button>`);
+      r.addEventListener('click', () => {
+        db.wrongBin = db.wrongBin.filter((x) => x !== w);
+        save(); buzz(8); toast('restored — turns out it was true'); draw();
+      });
+      body.appendChild(r);
+    });
+    body.appendChild(note('Kept for laughing at later. Restore one if it turns out true.'));
+  };
+  draw();
 });
 
 R.addSub('letter', 'photo of the letter', (body) => {
@@ -6344,7 +6382,7 @@ function render() {
     </div>
     <div class="body" style="padding:10px 0 0;gap:0">${cur[4]()}</div>`;
 
-  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => R.show('board')));
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => R.show('rooms')));
   $$('[data-close]', s).forEach((b) => b.addEventListener('click', () => R.show('rooms')));
   $$('[data-tab]', s).forEach((b) => b.addEventListener('click', () => {
     tab = b.dataset.tab; ui.buzz(8); render();
@@ -6414,7 +6452,11 @@ const $$ = (s2, r) => [...(r || document).querySelectorAll(s2)];
 
 R.defaults({
   perm: 'unasked',          /* notification permission: unasked|later|granted|denied */
-  loud: { flare: 'ring', leave: 'banner', goodnight: 'banner', trace: 'widget', notice: 'widget', list: 'widget' },
+  /* Goodnight is off by default — README Interruptions #4, and p50 draws its
+     switch off. `agreed` is the only other thing allowed to ring, and only
+     because both people said yes to it. */
+  loud: { flare: 'ring', leave: 'banner', goodnight: 'off', agreed: 'banner',
+    trace: 'widget', notice: 'widget', list: 'widget' },
   widgetTut: false,
   sealed: null,             /* {when, marks} — the last chapter */
   reviewAsked: false,
@@ -7002,8 +7044,9 @@ function seal() {
   db.sealedOn = today();
   /* Streak counts the night either of you sealed, and a missed night pauses
      it rather than resetting — there is no version of this product where the
-     app tells you that you broke something. */
-  db.streak += 1;
+     app tells you that you broke something. In a quiet mode the day still
+     seals; it just does not become a number. */
+  if (!R.quiet || !R.quiet()) db.streak += 1;
   save();
   R.push('seal', { on: db.sealedOn, streak: db.streak });
   window.TRACE_SEALED = true;
@@ -7034,6 +7077,7 @@ function pickSealTime() {
 
 /* the p2 stat card and the live countdown share one timer */
 function paintStat() {
+  if (R.quiet && R.quiet()) return;      /* hard.js owns the display while quiet */
   const v = $('#st-goodnight');
   if (v) v.textContent = db.sealedOn === today() ? 'sealed' : coarse(untilSeal());
   const st = $('#st-streak');
@@ -7170,6 +7214,7 @@ function renderPrompt() {
 function paintPin() {
   const w = $('#whisper');
   if (!w) return;
+  if (R.quiet && R.quiet()) { w.textContent = ''; w.classList.remove('on'); return; }
   const pin = db.pinnedPrompt;
   const pinned = pin && pin.day === today();
   const empty = APP.strokeCount() === 0;
@@ -7216,9 +7261,20 @@ const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
 R.defaults({
   modes: {},              /* repair | cover | newborn | grief | guest | armour | solo | visitor */
   covered: [],            /* task ids handed over */
-  loudness: { flare: true, leave: true, agreed: true, goodnight: false },
   ended: null,            /* 'pause' | 'closed' — the app's last state */
 });
+
+/* p50 is the honest list, so it has to be the same list the push path reads.
+   `db.loud` is that store (flows.js owns the fuller per-kind panel); these are
+   the four the spec permits, projected onto it. A screen that promises to
+   silence something and writes to a key nobody reads is worse than no screen. */
+const LOUD_KEY = { leave: 'leave', agreed: 'agreed', goodnight: 'goodnight' };
+const isLoud = (k) => (db.loud || {})[LOUD_KEY[k]] !== 'off';
+const setLoud = (k, on) => {
+  db.loud = db.loud || {};
+  db.loud[LOUD_KEY[k]] = on ? (k === 'goodnight' ? 'banner' : 'banner') : 'off';
+  save();
+};
 
 /* =========================================================== quiet the machinery
  *
@@ -7244,11 +7300,32 @@ R.quiet = quiet;
 R.setMode = setMode;
 document.documentElement.classList.toggle('is-quiet', quiet());
 
-/* the machinery, silenced where it lives rather than at each call site */
-window.addEventListener('quietchange', () => {
+/* The switch is worthless without consumers, so this is the machinery it
+   actually silences, in one place: the streak stops counting, the goodnight
+   countdown stops nagging, and the prompt deck stops offering itself. README:
+   "Build this as one shared 'quiet the machinery' switch rather than
+   per-feature conditionals."
+   Everything here is a read, so a mode pauses the machinery — it never
+   destroys anything, and leaving the mode restores the real numbers. */
+function paintQuiet() {
+  const on = quiet();
   const st = $('#st-streak');
-  if (st) st.style.opacity = quiet() ? .35 : 1;
-});
+  if (st) {
+    st.style.opacity = on ? .4 : 1;
+    st.textContent = on ? 'paused' : (db.streak || 41) + ' days';
+  }
+  const gn = $('#st-goodnight');
+  if (gn && on) gn.textContent = '—';
+  const w = $('#whisper');            /* where the prompt deck offers itself */
+  if (w && on) { w.textContent = ''; w.classList.remove('on'); }
+}
+window.addEventListener('quietchange', paintQuiet);
+setInterval(paintQuiet, 1200);
+
+/* what the rest of the app asks before it counts, offers or records */
+R.counts = () => !quiet();
+R.offers = () => !quiet();
+R.records = () => !quiet();
 
 /* ---------------------------------------------------------------- screens */
 
@@ -7401,7 +7478,7 @@ const INTERRUPTS = [
 
 function renderInterrupt() {
   const s = screens.interrupt;
-  const L = db.loudness;
+  const L = { leave: isLoud('leave'), agreed: isLoud('agreed'), goodnight: isLoud('goodnight') };
   const silenced = !L.leave && !L.agreed && !L.goodnight;
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Interruptions</button>
@@ -7433,12 +7510,12 @@ function renderInterrupt() {
     </div>`;
   back(s);
   $$('[data-loud]', s).forEach((b) => b.addEventListener('click', () => {
-    const k = b.dataset.loud; L[k] = !L[k]; save(); buzz(8); renderInterrupt();
+    const k = b.dataset.loud; setLoud(k, !L[k]); buzz(8); renderInterrupt();
   }));
   $$('[data-silence]', s).forEach((b) => b.addEventListener('click', () => {
     const next = silenced;
-    L.leave = L.agreed = next; L.goodnight = false;
-    save(); buzz(10);
+    setLoud('leave', next); setLoud('agreed', next); setLoud('goodnight', false);
+    buzz(10);
     toast(next ? 'back on — except goodnight' : 'only the flare can reach you now');
     renderInterrupt();
   }));
@@ -9172,6 +9249,10 @@ R.addNav('memoryyear', () => show('memory'));
 R.addBeyond('The daily loop', 'Four moments, ninety seconds, three rules', 'loop');
 R.addBeyond('Your people', 'Who to call, and who calls them', 'people');
 R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle', 'The hard parts');
+/* p16 — her phone, with your board on it. A demo surface, so it is a door in
+   the directory rather than the screen the app opens on (invariant 1). */
+R.addBeyond('Her home screen', 'What your board looks like from her side',
+  () => window.TRACE_APP_SHOWHOME && window.TRACE_APP_SHOWHOME());
 
 renderWheel(); renderMemory(); renderLoop(); renderKid(); renderPeople(); renderSettle();
 })();

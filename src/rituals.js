@@ -100,8 +100,9 @@ function seal() {
   db.sealedOn = today();
   /* Streak counts the night either of you sealed, and a missed night pauses
      it rather than resetting — there is no version of this product where the
-     app tells you that you broke something. */
-  db.streak += 1;
+     app tells you that you broke something. In a quiet mode the day still
+     seals; it just does not become a number. */
+  if (!R.quiet || !R.quiet()) db.streak += 1;
   save();
   R.push('seal', { on: db.sealedOn, streak: db.streak });
   window.TRACE_SEALED = true;
@@ -132,6 +133,7 @@ function pickSealTime() {
 
 /* the p2 stat card and the live countdown share one timer */
 function paintStat() {
+  if (R.quiet && R.quiet()) return;      /* hard.js owns the display while quiet */
   const v = $('#st-goodnight');
   if (v) v.textContent = db.sealedOn === today() ? 'sealed' : coarse(untilSeal());
   const st = $('#st-streak');
@@ -268,6 +270,7 @@ function renderPrompt() {
 function paintPin() {
   const w = $('#whisper');
   if (!w) return;
+  if (R.quiet && R.quiet()) { w.textContent = ''; w.classList.remove('on'); return; }
   const pin = db.pinnedPrompt;
   const pinned = pin && pin.day === today();
   const empty = APP.strokeCount() === 0;

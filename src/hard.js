@@ -22,9 +22,20 @@ const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
 R.defaults({
   modes: {},              /* repair | cover | newborn | grief | guest | armour | solo | visitor */
   covered: [],            /* task ids handed over */
-  loudness: { flare: true, leave: true, agreed: true, goodnight: false },
   ended: null,            /* 'pause' | 'closed' — the app's last state */
 });
+
+/* p50 is the honest list, so it has to be the same list the push path reads.
+   `db.loud` is that store (flows.js owns the fuller per-kind panel); these are
+   the four the spec permits, projected onto it. A screen that promises to
+   silence something and writes to a key nobody reads is worse than no screen. */
+const LOUD_KEY = { leave: 'leave', agreed: 'agreed', goodnight: 'goodnight' };
+const isLoud = (k) => (db.loud || {})[LOUD_KEY[k]] !== 'off';
+const setLoud = (k, on) => {
+  db.loud = db.loud || {};
+  db.loud[LOUD_KEY[k]] = on ? (k === 'goodnight' ? 'banner' : 'banner') : 'off';
+  save();
+};
 
 /* =========================================================== quiet the machinery
  *
@@ -50,11 +61,32 @@ R.quiet = quiet;
 R.setMode = setMode;
 document.documentElement.classList.toggle('is-quiet', quiet());
 
-/* the machinery, silenced where it lives rather than at each call site */
-window.addEventListener('quietchange', () => {
+/* The switch is worthless without consumers, so this is the machinery it
+   actually silences, in one place: the streak stops counting, the goodnight
+   countdown stops nagging, and the prompt deck stops offering itself. README:
+   "Build this as one shared 'quiet the machinery' switch rather than
+   per-feature conditionals."
+   Everything here is a read, so a mode pauses the machinery — it never
+   destroys anything, and leaving the mode restores the real numbers. */
+function paintQuiet() {
+  const on = quiet();
   const st = $('#st-streak');
-  if (st) st.style.opacity = quiet() ? .35 : 1;
-});
+  if (st) {
+    st.style.opacity = on ? .4 : 1;
+    st.textContent = on ? 'paused' : (db.streak || 41) + ' days';
+  }
+  const gn = $('#st-goodnight');
+  if (gn && on) gn.textContent = '—';
+  const w = $('#whisper');            /* where the prompt deck offers itself */
+  if (w && on) { w.textContent = ''; w.classList.remove('on'); }
+}
+window.addEventListener('quietchange', paintQuiet);
+setInterval(paintQuiet, 1200);
+
+/* what the rest of the app asks before it counts, offers or records */
+R.counts = () => !quiet();
+R.offers = () => !quiet();
+R.records = () => !quiet();
 
 /* ---------------------------------------------------------------- screens */
 
@@ -207,7 +239,7 @@ const INTERRUPTS = [
 
 function renderInterrupt() {
   const s = screens.interrupt;
-  const L = db.loudness;
+  const L = { leave: isLoud('leave'), agreed: isLoud('agreed'), goodnight: isLoud('goodnight') };
   const silenced = !L.leave && !L.agreed && !L.goodnight;
   s.innerHTML = `
     <div class="hd"><button class="pill" data-back>Interruptions</button>
@@ -239,12 +271,12 @@ function renderInterrupt() {
     </div>`;
   back(s);
   $$('[data-loud]', s).forEach((b) => b.addEventListener('click', () => {
-    const k = b.dataset.loud; L[k] = !L[k]; save(); buzz(8); renderInterrupt();
+    const k = b.dataset.loud; setLoud(k, !L[k]); buzz(8); renderInterrupt();
   }));
   $$('[data-silence]', s).forEach((b) => b.addEventListener('click', () => {
     const next = silenced;
-    L.leave = L.agreed = next; L.goodnight = false;
-    save(); buzz(10);
+    setLoud('leave', next); setLoud('agreed', next); setLoud('goodnight', false);
+    buzz(10);
     toast(next ? 'back on — except goodnight' : 'only the flare can reach you now');
     renderInterrupt();
   }));

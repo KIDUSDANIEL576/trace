@@ -285,7 +285,7 @@ function render() {
     </div>
     <div class="body" style="padding:10px 0 0;gap:0">${cur[4]()}</div>`;
 
-  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => R.show('board')));
+  $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => R.show('rooms')));
   $$('[data-close]', s).forEach((b) => b.addEventListener('click', () => R.show('rooms')));
   $$('[data-tab]', s).forEach((b) => b.addEventListener('click', () => {
     tab = b.dataset.tab; ui.buzz(8); render();

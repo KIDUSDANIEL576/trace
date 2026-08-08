@@ -1685,7 +1685,8 @@ function showHome() {
   document.getElementById('screen').classList.add('on-home');
   window.TRACE_BOARD && TRACE_BOARD.inked();
 }
-$('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showHome(); });
+$('#home-bar').addEventListener('click', () => { closePanel(); closeSheet(); showApp(); });
+window.TRACE_APP_SHOWHOME = showHome;   /* the p16 demo, opened deliberately */
 
 /* The widget is rooms.js's — it decides which card shows. When that card is
    the one-time trace, it hands us the canvas to paint the ink into. */
@@ -1879,7 +1880,11 @@ function firstRun() {
   });
 }
 
-showHome();
+/* Invariant 1: home is always the canvas. The simulated springboard is a demo
+   of p16 — the partner's phone, showing what your board looks like from her
+   side — and it is reachable from the directory. It is not where the app
+   opens, and booting into it broke the first rule in the product. */
+showApp();
 firstRun();
 let opened = false;
 $('#widget').addEventListener('click', () => {
@@ -1900,7 +1905,7 @@ setTimeout(() => {
 const remote = {};   // id -> stroke
 window.TRACE_APP = {
   /* --- what the clean shell (rooms.js) needs from the engine --- */
-  toast, buzz, log, openPanel, openFeature, openSheet,
+  toast, buzz, log, openPanel, closePanel, openFeature, openSheet,
   features: () => FEATURES,
   strokeCount: () => strokes.filter(k => k.who !== 'fx').length,
   handCount: () => new Set(strokes.filter(k => k.who !== 'fx').map(k => k.who)).size || 1,
