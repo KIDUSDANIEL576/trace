@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SPRITE, EMOJI_ICONS } from './src/icons.mjs';
+import { SPRITE, EMOJI_ICONS, APP_ICONS } from './src/icons.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const at = (p) => (isAbsolute(p) ? p : join(ROOT, p));
@@ -153,13 +153,14 @@ frames = frames.replace(/<div style="([^"]*)"/g, (m, style) => {
 });
 
 /* ----------------------------------------------------- emoji → icons */
-// Every emoji becomes a monoline stroke icon (SF Symbols / Lucide language —
-// what real apps in this genre ship). currentColor, sized by font-size.
+// Every emoji becomes a drawn icon from src/icons.mjs — the same pen as the
+// mark, tinted by currentColor and sized by font-size.
 
+const ico = (id) => `<svg class="ts-i"><use href="#i-${id}"/></svg>`;
 let iconSwaps = 0;
 for (const [emoji, id] of EMOJI_ICONS) {
   const before = frames.length;
-  frames = frames.split(emoji).join(`<svg class="ts-i"><use href="#i-${id}"/></svg>`);
+  frames = frames.split(emoji).join(ico(id));
   if (frames.length !== before) iconSwaps++;
 }
 // anything pictographic left is unmapped — surface it, don't ship it silently
@@ -507,12 +508,36 @@ const PWA_HEAD = `<link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="trace">
 <link rel="apple-touch-icon" href="pwa/apple-touch-512.png">
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>`;
-writeFileSync(join(at(OUT), 'app.html'),
-  read('src/app.html')
-    .replace('<!--FONT-->', () => PWA_HEAD + `\n<style>${caveatCss}${scriptFaces}</style>`)
-    .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
-    .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
-    .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>\n<script>\n${read('src/surfaces.js')}\n</script>\n<script>\n${read('src/flows.js')}\n</script>\n<script>\n${read('src/write.js')}\n</script>\n<script>\n${read('src/rituals.js')}\n</script>\n<script>\n${read('src/hard.js')}\n</script>\n<script>\n${read('src/calendar.js')}\n</script>\n<script>\n${read('src/life.js')}\n</script>\n<script>\n${read('src/longrun.js')}\n</script>\n<script>\n${read('src/more.js')}\n</script>`));
+/* The app was never run through the icon swap — only the design frames were —
+   so its own chrome shipped ⚙ ⌕ ✆ ⌂ ❑ ◔ ◍ as system-font glyphs, drawn by
+   whatever the device resolved. Same pen for the app as for everything else.
+   The close button is matched by the button rather than by the character,
+   because ✕ elsewhere is punctuation inside a sentence and has to stay type. */
+const drawIcons = (src) => {
+  let out = src.replace(/(class="icob"[^>]*)>✕</g, (_, a) => `${a}>${ico('close')}<`);
+  for (const [glyph, id] of APP_ICONS) out = out.split(glyph).join(ico(id));
+  return out;
+};
+
+const APP_JS = ['app-extra', 'app-sync', 'app-extra2', 'app', 'rooms', 'rooms2', 'surfaces',
+  'flows', 'write', 'rituals', 'hard', 'calendar', 'life', 'longrun', 'more'];
+const appHtml = drawIcons(read('src/app.html'))
+  .replace('<!--FONT-->', () => PWA_HEAD + `\n<style>${caveatCss}${scriptFaces}</style>`)
+  .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
+  .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
+  .replace('<!--JS-->', () => APP_JS.map((f) => `<script>\n${drawIcons(read(`src/${f}.js`))}\n</script>`).join('\n'));
+
+/* The same discipline as the frames: an icon glyph that slipped through is a
+   system font sitting in the middle of a drawn set, so say so rather than ship
+   it. The allowlist is marks, not icons — ✕ ✓ ⋯ ▮ inside sentences, ▸ on a
+   debug log line, ◈ ahead of a label, ▼ the meal wheel's needle, and ▍ ◗ ▬ the
+   simulated Android status bar, which is meant to look like someone else's
+   chrome because that is exactly what it is. */
+const stray = [...new Set(appHtml.replace(/<svg id="ts-icons"[\s\S]*?<\/svg>/, '')
+  .match(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{21FF}\u{2300}-\u{24FF}\u{2580}-\u{27BF}\u{25A0}-\u{25FF}\u{2900}-\u{297F}]/gu) || [])]
+  .filter((c) => !'✕✓⋯▮⌫▸◈▍◗▬▼→↑↓'.includes(c));
+if (stray.length) notes.push('app still spends system glyphs on icons: ' + stray.join(' '));
+writeFileSync(join(at(OUT), 'app.html'), appHtml);
 writeFileSync(join(at(OUT), 'index.html'), html);
 
 /* ------------------------------------------------- manifest + change log */

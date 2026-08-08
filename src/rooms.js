@@ -181,7 +181,9 @@ function show(name, room) {
   if (name !== 'canvas') window.dispatchEvent(new Event('traceroom'));
   $('#cb-room').textContent = activeRoom;
   $('#screen').dataset.room = name === 'room' ? room : (name === 'canvas' ? 'Canvas' : 'Rooms');
-  $('#cb-left').textContent = name === 'canvas' ? '✎' : '✎';
+  /* innerHTML, not textContent — the pen is a drawn glyph now, and assigning
+     markup to textContent would print the markup */
+  $('#cb-left').innerHTML = '✎';
   if (name === 'canvas') requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
 }
 

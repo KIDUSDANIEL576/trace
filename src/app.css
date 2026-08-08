@@ -120,6 +120,44 @@
   }
 }
 
+/* ── the drawn edge ──────────────────────────────────────────────────────
+ * Nothing a hand draws closes on itself perfectly. Every corner in here was
+ * the same corner — one radius, four times, on every card in the app — and a
+ * hundred identical corners is the single loudest machine tell on the screen,
+ * louder than any icon.
+ *
+ * So each radius token names four corners that disagree, in the elliptical
+ * `horizontal / vertical` form so no corner is even circular. The deviation is
+ * about a tenth of the radius: enough that the eye reads the edge as drawn,
+ * small enough that nothing looks damaged. Two variants of each, alternated
+ * down a list, so eight rows are not one row eight times.
+ *
+ * Geometry, not colour — this sits outside the theme blocks on purpose, and
+ * both grounds inherit it.
+ */
+:root{
+  --r12:11px 13px 12px 13px / 13px 12px 13px 11px;
+  --r12b:13px 12px 13px 11px / 11px 13px 12px 13px;
+  --r14:13px 15px 14px 15px / 15px 14px 15px 13px;
+  --r14b:15px 14px 15px 13px / 13px 15px 14px 15px;
+  --r16:15px 18px 16px 17px / 17px 16px 18px 15px;
+  --r16b:17px 16px 18px 15px / 15px 18px 16px 17px;
+  --r18:17px 20px 18px 19px / 19px 18px 20px 17px;
+  --r18b:19px 18px 20px 17px / 17px 20px 18px 19px;
+  --r20:19px 22px 20px 21px / 21px 20px 22px 19px;
+  --r22:21px 24px 22px 23px / 23px 22px 24px 21px;
+  /* a drawn circle is an ellipse that never quite comes back to where it
+     started; the percentages keep it right at any diameter */
+  --rdisc:47% 53% 54% 46% / 53% 46% 50% 54%;
+  --rdisc-b:54% 46% 47% 53% / 46% 54% 53% 47%;
+  --r24:23px 26px 24px 25px / 25px 24px 26px 23px;
+  /* a pill stays a pill — but the ends are not the same end. The radii
+     overflow the height, so the browser scales all four by one factor and
+     what survives is the difference between them: one shoulder slightly
+     flatter than the other, which is what happens when you draw one. */
+  --rpill:999px 1090px 999px 1060px / 999px 999px 999px 999px;
+}
+
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{background:var(--stage);color:var(--ink);overflow:hidden;
@@ -223,15 +261,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* the one header shape every room shares — p2/p6/p7 */
 .hd{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0;flex:none}
-.pill{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:999px;
+.pill{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:var(--rpill);
   background:var(--surface-2);border:1px solid var(--hairline);font-size:13px;font-weight:500;color:var(--ink)}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulseDot 2.4s ease-in-out infinite}
 /* The frames draw this circle at 36 and the spec sets a 44px floor for
    targets. Both are satisfiable: the button is 44 and the circle it paints is
    36, so what a finger gets and what an eye sees are allowed to differ. */
-.icob{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+.icob{width:44px;height:44px;border-radius:var(--rdisc);display:flex;align-items:center;justify-content:center;
   font-size:15px;flex:none;color:var(--ink);position:relative;background:none;border:0}
-.icob::before{content:'';position:absolute;inset:4px;border-radius:50%;
+.icob::before{content:'';position:absolute;inset:4px;border-radius:var(--rdisc-b);
   background:var(--surface-2);border:1px solid var(--hairline)}
 .icob > *,.icob{z-index:0}
 .icob::before{z-index:-1}
@@ -249,9 +287,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .foot{padding:14px 24px 20px;font-size:13px;color:var(--ink-70);text-align:center;flex:none}
 
 /* the row — one shape for tasks, items, rooms, switches */
-.row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;
+.row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r18);
   background:var(--surface);border:1px solid var(--hairline);text-align:left;width:100%;flex:none;color:var(--ink)}
 .row:active{transform:scale(.99)}
+/* A list of eight rows drawn by hand is eight different rectangles. Cycling
+   three variants down the list is what stops it being one rectangle stamped
+   eight times, which is the thing the eye actually notices. */
+.row:nth-child(3n+2),.card:nth-child(3n+2),.stat2>div:nth-child(2){border-radius:var(--r18b)}
+.row:nth-child(3n),.card:nth-child(3n){border-radius:var(--r16b)}
 .row .grow{flex:1;min-width:0}
 .row .n{font-size:16px;font-weight:600;display:block}
 .row .n.light{font-weight:500}
@@ -262,12 +305,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .row.on{background:var(--red-wash);border-color:var(--red-line)}
 /* p6: the room glyph sits on a filled tile — red for the canvas, ink for
    everything else. Nothing else in the directory is allowed colour. */
-.ico{width:38px;height:38px;border-radius:12px;background:var(--ground-alt);display:flex;align-items:center;
+.ico{width:38px;height:38px;border-radius:var(--r12);background:var(--ground-alt);display:flex;align-items:center;
   justify-content:center;font-size:17px;flex:none}
 .ico.ink{background:var(--emph);color:var(--emph-ink)}
 .ico.red{background:var(--red);color:var(--on-red)}
 .ico .ts-i{font-size:18px}
-.tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink-5);display:flex;
+.tick{width:26px;height:26px;border-radius:var(--rdisc);border:2px solid var(--ink-5);display:flex;
   align-items:center;justify-content:center;font-size:13px;color:var(--on-red);flex:none;transition:.15s}
 .tick.on{border-color:var(--ink);background:var(--ink);color:var(--emph-ink)}
 .row.done .grow{opacity:.45}
@@ -284,7 +327,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .sw.on{background:var(--red);justify-content:flex-end}
 .sw.amber.on{background:var(--amber)}
 
-.search{margin:18px 20px 0;height:44px;border-radius:14px;background:var(--surface);
+.search{margin:18px 20px 0;height:44px;border-radius:var(--r14);background:var(--surface);
   border:1px solid var(--hairline);display:flex;align-items:center;gap:10px;padding:0 16px;flex:none}
 .search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font:15px inherit}
 .search input::placeholder{color:var(--ink-3)}
@@ -296,13 +339,13 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 
 /* the two stat cards — p2, the only summary allowed on the canvas */
 .stat2{display:flex;gap:10px;padding:14px 20px 0;flex:none}
-.stat2>div{flex:1;padding:13px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline)}
+.stat2>div{flex:1;padding:13px 16px;border-radius:var(--r16);background:var(--surface);border:1px solid var(--hairline)}
 .stat2 .k{font-size:12px;color:var(--ink-3)}
 .stat2 .v{font-size:21px;font-weight:700;margin-top:2px}
 
 .deck{display:flex;gap:8px;padding:0 20px;overflow-x:auto;flex:none;scrollbar-width:none}
 .deck::-webkit-scrollbar{display:none}
-.deck .c{min-width:116px;min-height:68px;border-radius:14px;background:var(--surface);
+.deck .c{min-width:116px;min-height:68px;border-radius:var(--r14b);background:var(--surface);
   border:1px solid var(--hairline);padding:9px 11px;flex:none}
 .deck .c b{font-size:13px;font-weight:600;display:block}
 .deck .c i{font-style:normal;font-size:12px;color:var(--ink-3);margin-top:5px;display:block}
@@ -316,7 +359,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
    the height, and neither number means anything while you are typing. */
 #sc-canvas.composing #canvas-zone{min-height:0;flex:0 1 96px}
 #sc-canvas.composing .stat2{display:none}
-#canvas-wrap{position:relative;flex:1;border-radius:24px;overflow:hidden;background:var(--surface);
+#canvas-wrap{position:relative;flex:1;border-radius:var(--r24);overflow:hidden;background:var(--surface);
   border:1px solid var(--hairline);touch-action:none}
 #card-sky{position:absolute;inset:0;opacity:0;transition:opacity .6s}
 #card-light{position:absolute;inset:0;background:none}
@@ -358,24 +401,24 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 /* seven targets at the 44px floor need every pixel of the rail: no gap, and
    space-between distributes what is left. With the dock-row's 8px gap they
    overflowed the pill and the last tool fell off the device. */
-#brushes{height:56px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+#brushes{height:56px;border-radius:var(--rpill);background:var(--surface);border:1px solid var(--hairline);
   padding:0 3px;justify-content:space-between;gap:0}
-.tool{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+.tool{width:44px;height:44px;border-radius:var(--r12b);display:flex;align-items:center;justify-content:center;
   font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5;flex:none}
 .tool.is-on{background:var(--red-wash);border-color:var(--red-line);opacity:1}
 .tool.is-on .ts-i{color:var(--red)}
 .tool:active{transform:scale(.92)}
-#colors{flex:1;min-width:0;height:56px;border-radius:999px;background:var(--surface);
+#colors{flex:1;min-width:0;height:56px;border-radius:var(--rpill);background:var(--surface);
   border:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-around;gap:0}
 /* Four pens in 188px of rail gives each 47px, so the swatch presents a full
    44px target while the ink circle stays 26px. Five never fit — which is the
    other reason the cascade moved into the brush pop. */
-.swatch{width:44px;height:44px;border-radius:50%;border:0;padding:0;flex:none;
+.swatch{width:44px;height:44px;border-radius:var(--rdisc);border:0;padding:0;flex:none;
   display:flex;align-items:center;justify-content:center;background:none!important}
 .swatch::after{content:'';width:26px;height:26px;border-radius:50%;background:var(--sw);
   border:3px solid transparent;box-shadow:0 0 0 1px var(--hairline) inset;transition:border-color .15s}
 .swatch.is-on::after{border-color:var(--ink)}
-.rbtn{width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--hairline);
+.rbtn{width:46px;height:46px;border-radius:var(--rdisc-b);background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;color:var(--ink)}
 .rbtn:active{transform:scale(.92)}
 .rbtn.hot{background:var(--red);color:var(--on-red);border-color:transparent}
@@ -387,18 +430,18 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 
 /* ------------------------------------------------ the one control bar — p2 */
 #controlbar{display:flex;align-items:center;gap:10px;padding:16px 20px 26px;flex:none}
-.cb{width:52px;height:52px;border-radius:50%;background:var(--surface);border:1px solid var(--hairline);
+.cb{width:52px;height:52px;border-radius:var(--rdisc);background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;color:var(--ink)}
 .cb:active{transform:scale(.93)}
-#cb-room{flex:1;height:52px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
+#cb-room{flex:1;height:52px;border-radius:var(--rpill);background:var(--emph);color:var(--emph-ink);
   border:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600}
 
 /* buttons — p1/p3/p4. Primary red, primary ink, secondary white. */
-.btn-red{min-height:58px;border-radius:999px;background:var(--red);color:var(--on-red);
+.btn-red{min-height:58px;border-radius:var(--rpill);background:var(--red);color:var(--on-red);
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;width:100%}
-.btn-ink{min-height:58px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
+.btn-ink{min-height:58px;border-radius:var(--rpill);background:var(--emph);color:var(--emph-ink);
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;width:100%}
-.btn-plain{min-height:56px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+.btn-plain{min-height:56px;border-radius:var(--rpill);background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:500;width:100%;color:var(--ink)}
 .btn-red:active,.btn-ink:active,.btn-plain:active{transform:scale(.98)}
 
@@ -414,7 +457,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .head .l{font-size:14px;line-height:1.55;color:var(--ink-70);margin-top:10px}
 
 /* a padded block card, and its inverted twin */
-.card{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);
+.card{border-radius:var(--r20);background:var(--surface);border:1px solid var(--hairline);
   padding:16px 18px;text-align:left;width:100%;color:var(--ink);display:block}
 .card .t{font-size:15px;font-weight:700;display:block}
 .card .d{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.45;display:block}
@@ -439,7 +482,7 @@ button.card:active{transform:scale(.99)}
 
 /* segmented choice — p28, p30, p45 */
 .seg{display:flex;gap:8px;padding:16px 20px 0;flex:none}
-.seg button{flex:1;padding:12px 0;border-radius:14px;font-size:14px;background:var(--surface);
+.seg button{flex:1;padding:12px 0;border-radius:var(--r14);font-size:14px;background:var(--surface);
   border:1px solid var(--hairline);color:var(--ink)}
 .seg button.on{background:var(--emph);color:var(--emph-ink);border-color:transparent;font-weight:600}
 
@@ -448,7 +491,7 @@ button.card:active{transform:scale(.99)}
 .bar > i{display:block;height:100%;background:var(--red);transition:width .3s ease}
 
 /* the red banner — a clash, a shock, anything the screen is actually about */
-.banner{margin:18px 20px 0;border-radius:22px;background:var(--red);color:var(--on-red);
+.banner{margin:18px 20px 0;border-radius:var(--r22);background:var(--red);color:var(--on-red);
   padding:22px;flex:none}
 .banner .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
 .banner .h{font-size:26px;font-weight:700;line-height:1.2;margin-top:10px}
@@ -456,11 +499,11 @@ button.card:active{transform:scale(.99)}
 .banner.ink .lbl{color:var(--emph-red);opacity:1;font-weight:700}
 
 /* the dashed aside — always the rule, never the content */
-.note{border-radius:18px;background:var(--ground-alt);border:1px dashed var(--dashed);
+.note{border-radius:var(--r18b);background:var(--ground-alt);border:1px dashed var(--dashed);
   padding:15px 17px;font-size:13px;line-height:1.55;color:var(--ink-70)}
 
 /* a grouped table of label/value rows sharing one card — p51, p35, p26 */
-.sheet{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
+.sheet{border-radius:var(--r20);background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
 .sheet .r{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px}
 .sheet .r + .r{border-top:1px solid var(--divider)}
 .sheet .r .k{font-size:15px;color:var(--ink-70)}

@@ -123,6 +123,39 @@ Generated from the README's own path and geometry so it cannot drift from the
 brand sheet. The ink dot is not optional — it is the wet tip of the other
 person's stroke, and the same shape the app uses as its presence indicator.
 
+### Icons — `src/icons.mjs`
+
+Forty-one symbols, none of them stroked. A `stroke-width` is one number, so a
+monoline icon has the same weight everywhere; a pen presses through the middle
+of a stroke and lifts off the ends. So each path is sampled, given a half-width
+that varies along its arc, and emitted as a filled ribbon with arc caps — the
+mark's own pen (`stroke-width 13` on a 120 box, 10.8%) at a 24 box, which is
+about 2.4.
+
+Four more things, all hashed from the icon's own name so the set is identical
+in every build and a diff shows real changes rather than noise:
+
+- lines **bow** — smooth low-frequency noise along the arc, so a straight line
+  sags like a drawn one instead of kinking like a damaged one
+- strokes **overshoot** the corner they are turning
+- every sharp turn **splits the stroke**, because a hand draws a box as four
+  strokes that cross, not one mitred outline
+- no circle is a circle — one sweep with a gap where the pen lifted
+
+The build swaps glyphs for symbols in two places: `EMOJI_ICONS` over the design
+frames, and `APP_ICONS` over the app itself. The second list exists because the
+app used to spend system-font glyphs on icon duty — `⚙` for rules, `⌕` for
+search, `⌂ ❑ ◔ ◍` for the four rooms — which meant the nav was drawn by
+whatever font the device happened to resolve. `build.mjs` now fails the run
+loudly if a pictographic glyph survives. `✓ ✕ ⋯ ▮ ↑ ↓` deliberately stay as
+type: they are marks inside sentences, and a sentence with an `<svg>` in the
+middle of it is not a sentence.
+
+The same argument runs through `app.css`'s **drawn edge** tokens (`--r18`,
+`--rdisc`, `--rpill`). One radius repeated on a hundred corners is a louder
+machine tell than any icon, so each token names four corners that disagree by
+about a tenth of the radius, and lists alternate variants down their length.
+
 ---
 
 ## The gallery — `site/clean.html`
