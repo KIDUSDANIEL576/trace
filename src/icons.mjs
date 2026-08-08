@@ -436,6 +436,92 @@ const S = (id, inner, solid = false) => {
     `<g transform="rotate(${tilt} 12 12)" fill="currentColor" stroke="none">${drawn}</g></symbol>`;
 };
 
+/* ── the pen, lent out ────────────────────────────────────────────────────
+ *
+ * A button's outline is the largest drawn line on the screen and it was a
+ * 1px hairline, which is the one line width a pen cannot make. This returns a
+ * hand-drawn rounded rectangle as a standalone SVG, sized for use as a
+ * 9-slice `border-image`: the corners land inside the corner slices and carry
+ * the character, the middles stretch to whatever width the button happens to
+ * be. A stretched slice keeps its thickness — the horizontal edges are only
+ * scaled along their length — so one image fits every button.
+ *
+ * The colour is baked, because a data URI cannot see `currentColor`. That is
+ * why build.mjs emits one per ink value rather than one in total.
+ */
+export function drawnEdge(id, { size = 64, inset = 3, radius = 18, width = 0.8,
+  colour = '#1A1A1A', dash = 0 } = {}) {
+  const s = size, i = inset, r = radius, far = s - i;
+  const d = `M${i + r} ${i}H${far - r}A${r} ${r} 0 0 1 ${far} ${i + r}` +
+    `V${far - r}A${r} ${r} 0 0 1 ${far - r} ${far}` +
+    `H${i + r}A${r} ${r} 0 0 1 ${i} ${far - r}` +
+    `V${i + r}A${r} ${r} 0 0 1 ${i + r} ${i}Z`;
+  let pieces = trace(d).flatMap((sub) => shatter(sub));
+  if (dash) pieces = pieces.flatMap((pc) => chop(pc, dash, dash * 0.75));
+  const parts = pieces
+    .map((pc, k) => ribbon(id, k, dash ? pc : overshoot(pc, id, k), width))
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}">` +
+    `<g fill="${colour}">${parts}</g></svg>`;
+}
+
+/* Cut a stroke into dashes by arc length.
+ *
+ * The dashed border on a note is a real distinction in the design — a note is
+ * not a card — and `stroke-dasharray` cannot be used here because nothing is
+ * stroked. Cutting the path into separate short strokes is closer to the truth
+ * anyway: a dashed line drawn by hand is a row of individual marks, each with
+ * its own taper, not one line with holes punched in it. */
+function chop(sub, on, off) {
+  const p = sub.pts;
+  const out = [];
+  let run = [p[0]], acc = 0, drawing = true;
+  for (let i = 1; i < p.length; i++) {
+    let seg = dist(p[i - 1], p[i]);
+    let from = p[i - 1];
+    while (seg > 1e-9) {
+      const need = (drawing ? on : off) - acc;
+      if (seg < need) { acc += seg; if (drawing) run.push(p[i]); break; }
+      const k = need / seg;
+      const cut = [from[0] + (p[i][0] - from[0]) * k, from[1] + (p[i][1] - from[1]) * k];
+      if (drawing) { run.push(cut); if (run.length > 1) out.push({ pts: run, closed: false, soft: [false, false] }); }
+      run = [cut];
+      drawing = !drawing;
+      seg -= need; acc = 0; from = cut;
+    }
+  }
+  if (drawing && run.length > 1) out.push({ pts: run, closed: false, soft: [false, false] });
+  return out;
+}
+
+/* A circular button cannot use the edge above: `border-image` paints the
+ * border *box*, and knows nothing about `border-radius`, so a 9-slice on a
+ * disc draws a square. Discs are a fixed size, so they take a whole drawn
+ * circle as a background instead — one sweep with a gap where the pen lifted,
+ * the same way the icons' circles are drawn. */
+export function drawnDisc(id, { size = 64, inset = 3, width = 0.8, colour = '#1A1A1A' } = {}) {
+  const c = size / 2, r = c - inset;
+  const g = 0.34 + Math.abs(tremor(id, 11)) * 0.4;      /* where the pen lifted */
+  const a0 = tremor(id, 12) * Math.PI;
+  const p = (a) => `${(c + Math.cos(a) * r).toFixed(2)} ${(c + Math.sin(a) * r).toFixed(2)}`;
+  const d = `M${p(a0)}A${r} ${r} 0 1 1 ${p(a0 + Math.PI * 2 - g)}`;
+  const parts = trace(d).flatMap((sub) => shatter(sub))
+    .map((pc, k) => ribbon(id, k, overshoot(pc, id, k), width))
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">` +
+    `<g fill="${colour}">${parts}</g></svg>`;
+}
+
+/* The mark itself, shortened to sign a button. This is the logo's own curve —
+ * `M18 82 C42 26,66 96,102 34` flattened to a wider, shallower box so it reads
+ * as an underline rather than a squiggle, and without the ink dot, because the
+ * dot means presence and a button is not a person. */
+export function drawnMark(colour = '#E23343') {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 26" width="120" height="26">` +
+    `<path d="M6 18 C26 4,44 24,66 10 S104 6,114 16" fill="none" stroke="${colour}" ` +
+    `stroke-width="6" stroke-linecap="round"/></svg>`;
+}
+
 /* ── the set ──────────────────────────────────────────────────────────────
  * Geometry is re-authored wherever the silhouette itself was the tell: ribs
  * that were exactly parallel, rays of identical length, a heart with two

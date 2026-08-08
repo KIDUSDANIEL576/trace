@@ -158,6 +158,12 @@
   --rpill:999px 1090px 999px 1060px / 999px 999px 999px 999px;
 }
 
+/* build.mjs generates the drawn edges here — three `border-image` sources and
+   the mark, one set per ground. They are baked colours because a data URI
+   cannot read currentColor, and generated rather than checked in so they come
+   out of the same pen as the icons. */
+/*DRAWN-EDGES*/
+
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{background:var(--stage);color:var(--ink);overflow:hidden;
@@ -815,3 +821,52 @@ button.card:active{transform:scale(.99)}
   border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
   color:var(--ink-70);font-size:13px;display:none;align-items:center}
 #screen.drawing #draw-count{display:inline-flex}
+
+/* ── the pen draws the outlines ──────────────────────────────────────────
+ * A 1px hairline is the one line width a pen cannot make, and it was the
+ * outline of every row, card, sheet and secondary button in the app.
+ *
+ * `border-image` replaces it. Two details matter:
+ *
+ *   border-width stays 1px and *transparent*. `border-image-width` is the
+ *   second value after the slash and does not participate in layout, so the
+ *   drawn band can be 22px deep without moving a single pixel of content.
+ *   Sizing, padding and the 44px target audit are all untouched.
+ *
+ *   `border-image` paints the border *box* and knows nothing about
+ *   `border-radius`, so the radius is baked into the image instead — which is
+ *   why there are two: a card at r18, and a pill authored as a 2R square so
+ *   any half-height border-image-width scales its corner to exactly R.
+ *
+ * A circle cannot be done this way at all — a 9-slice on a disc draws a
+ * square. Discs are a fixed size, so they take a whole drawn circle as a
+ * background layer instead.
+ */
+.row,.card,.note,.sheet,.search,.stat2>div,.deck .c,.seg button,.btn-plain,.pill,
+#brushes,#colors,.cb,.icob,.rbtn{border-color:transparent}
+.row,.card,.note,.sheet,.search,.stat2>div,.deck .c,.seg button{
+  border-width:1px;border-style:solid;border-image:var(--edge-card) 22/22px stretch}
+.btn-plain{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/28px stretch}
+.pill{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/22px stretch}
+#brushes,#colors{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/28px stretch}
+.cb,.icob,.rbtn{background-image:var(--edge-disc);background-size:100% 100%;
+  background-repeat:no-repeat;background-position:center}
+
+/* Selection and warning used to be a red `border-color`, and border-image
+   overrides border-color — so without these two the selected row and the
+   warning card would lose the only thing that marked them. `.card.pick` needs
+   nothing here: it sets the `border` shorthand, which resets border-image, and
+   it out-specifies the plain `.card` rule anyway. */
+.row.on,.card.warn{border-image:var(--edge-on) 22/22px stretch}
+/* a note is not a card — it says so with a dashed edge, and now the dashes are
+   individual pen marks rather than one line with holes punched in it */
+.note{border-image:var(--edge-note) 22/22px stretch}
+
+/* The mark, signing the one action that matters on the screen. It is the
+   logo's own curve without the ink dot — the dot means presence, and a button
+   is not a person. Only the two real CTAs carry it; the nav pill does not,
+   because a signature you see on every screen stops being one. */
+.btn-red,.btn-ink{background-repeat:no-repeat;background-position:center calc(100% - 7px);
+  background-size:72px 15px;padding-bottom:9px}
+.btn-red{background-image:var(--mark-on-red)}
+.btn-ink{background-image:var(--mark-sign)}

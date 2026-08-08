@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from 'node:fs';
 import { dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SPRITE, EMOJI_ICONS, APP_ICONS } from './src/icons.mjs';
+import { SPRITE, EMOJI_ICONS, APP_ICONS, drawnEdge, drawnDisc, drawnMark } from './src/icons.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const at = (p) => (isAbsolute(p) ? p : join(ROOT, p));
@@ -519,11 +519,60 @@ const drawIcons = (src) => {
   return out;
 };
 
+/* The drawn edge, as data URIs.
+ *
+ * A data URI cannot see `currentColor`, so the ink has to be baked and one
+ * image emitted per value the theme can take — two, here. They are generated
+ * rather than checked in so the button outlines come out of the same pen as
+ * the icons, and a change to the pen moves both.
+ *
+ * Everything is percent-encoded including the parentheses, which
+ * encodeURIComponent leaves alone: an `rgba()` inside an unquoted `url()`
+ * closes it early, and the quoted form cannot survive an HTML style attribute.
+ */
+const cssUrl = (svg) => 'url(data:image/svg+xml,' +
+  encodeURIComponent(svg).replace(/\(/g, '%28').replace(/\)/g, '%29') + ')';
+
+/* Both edges are authored so that the corner slice is exactly the corner arc's
+   bounding box, and everything else falls out proportionally.
+ *
+ *   card  64 box, 3 inset, r18, slice 22 → arc spans [3,21] ⊂ [0,22] ✓
+ *         drawn at border-image-width 22px, so scale 1: 3px inset, r18.
+ *
+ *   pill  96 box, 6 inset, r38, slice 44 → arc spans [6,44] = [0,44] ✓
+ *         a pill's radius is half its height, so a caller passing
+ *         border-image-width = height/2 gets scale = h/88, and the inset and
+ *         radius scale with it. One image fits a 44px pill and a 58px one.
+ *
+ * The slice must leave a middle strip: 72 sliced at 36 leaves nothing to
+ * stretch, and the edges come out as notches between the corners. The pill is
+ * drawn at twice the weight because it is used at half scale. */
+const edgeSet = (ink, red) => [
+  `--edge-card:${cssUrl(drawnEdge('edge-card', { size: 64, inset: 3, radius: 18, colour: ink }))}`,
+  `--edge-pill:${cssUrl(drawnEdge('edge-pill', { size: 96, inset: 6, radius: 38, width: 1.6, colour: ink }))}`,
+  `--edge-disc:${cssUrl(drawnDisc('edge-disc', { size: 64, colour: ink }))}`,
+  /* selection and warning used to be signalled with border-color, which
+     border-image overrides — so those states need their own drawn edge or
+     they go silent */
+  `--edge-on:${cssUrl(drawnEdge('edge-on', { size: 64, inset: 3, radius: 18, width: 1.05, colour: red }))}`,
+  /* a note is not a card, and it said so with a dashed border */
+  `--edge-note:${cssUrl(drawnEdge('edge-note', { size: 64, inset: 3, radius: 18, colour: ink, dash: 3.4 }))}`,
+].join(';');
+
+const PAPER = `${edgeSet('rgba(26,26,26,.3)', 'rgba(226,51,67,.55)')};` +
+  `--mark-sign:${cssUrl(drawnMark('#E23343'))};--mark-on-red:${cssUrl(drawnMark('rgba(255,255,255,.6)'))}`;
+const NIGHT = `${edgeSet('rgba(245,239,228,.34)', 'rgba(240,74,88,.6)')};` +
+  `--mark-sign:${cssUrl(drawnMark('#F04A58'))};--mark-on-red:${cssUrl(drawnMark('rgba(21,18,14,.62)'))}`;
+const EDGES = `:root{${PAPER}}\n:root[data-theme="dark"]{${NIGHT}}\n` +
+  `@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){${NIGHT}}}\n`;
+
 const APP_JS = ['app-extra', 'app-sync', 'app-extra2', 'app', 'rooms', 'rooms2', 'surfaces',
   'flows', 'write', 'rituals', 'hard', 'calendar', 'life', 'longrun', 'more'];
+const appCss = read('src/app.css');
+if (!appCss.includes('/*DRAWN-EDGES*/')) throw new Error('app.css lost its /*DRAWN-EDGES*/ marker');
 const appHtml = drawIcons(read('src/app.html'))
   .replace('<!--FONT-->', () => PWA_HEAD + `\n<style>${caveatCss}${scriptFaces}</style>`)
-  .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
+  .replace('<!--CSS-->', () => `<style>\n${appCss.replace('/*DRAWN-EDGES*/', () => EDGES)}\n</style>`)
   .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
   .replace('<!--JS-->', () => APP_JS.map((f) => `<script>\n${drawIcons(read(`src/${f}.js`))}\n</script>`).join('\n'));
 
