@@ -259,6 +259,38 @@ let touching = { on: false };  // 10a state
 let smooth = null;                 // EMA of pointer samples — the jitter filter
 const SMOOTH = .42;                // lower = silkier, higher = snappier
 
+/* ------------------------------------------------------------- draw mode
+   SCREENS.md p2: "Tapping the canvas enters draw mode with zero chrome."
+   Touching the ink is the gesture — it already means "I am drawing now", so
+   it does not need a button of its own, and the stroke you started still
+   lands. Nothing is unmounted: the chrome folds, so Done restores it exactly.
+   The canvas is resized on both transitions because its backing store is
+   sized in device pixels and the box changes underneath it. */
+const screenEl = $('#screen');
+let drawMode = false;
+function setDrawMode(on) {
+  if (drawMode === on) return;
+  drawMode = on;
+  screenEl.classList.toggle('drawing', on);
+  paintDrawCount();
+  /* wait out the fold so the canvas measures its final box, not its first frame */
+  setTimeout(() => { sizeCanvas(); redraw(); }, 300);
+}
+window.TRACE_DRAWMODE = setDrawMode;
+/* navigating away must not leave the chrome folded behind you */
+window.addEventListener('traceroom', () => setDrawMode(false));
+function paintDrawCount() {
+  const el = $('#draw-count');
+  if (!el) return;
+  const n = strokes.filter((k) => k.who !== 'fx').length;
+  el.textContent = n === 1 ? '1 mark' : n + ' marks';
+}
+$('#draw-done').addEventListener('click', () => { setDrawMode(false); buzz(8); });
+$('#draw-count').addEventListener('click', () => { setDrawMode(false); buzz(6); });
+
+wrap.addEventListener('pointerdown', () => { setDrawMode(true); paintDrawCount(); });
+wrap.addEventListener('pointerup', paintDrawCount);
+
 wrap.addEventListener('pointerdown', (e) => {
   if (window.TRACE_SEALED) { toast('this canvas is sealed — the last chapter keeps it'); return; }
   if (curPage === 'hers') { toast('her page — it arrives, you watch'); return; }

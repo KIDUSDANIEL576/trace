@@ -27,12 +27,13 @@ const PAGES = [
   ['hers', 'hers', 'her page — it arrives, you watch'],
 ];
 
-const title = $('#sc-canvas .title');
-const pills = el(`<div style="display:flex;gap:6px;padding:12px 24px 0;flex:none">
-  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
-    font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('')}
-</div>`);
-title.after(pills);
+/* The pages sit with the drawing tools rather than above the canvas: in the
+   resting state the title already says which page you are on, and the pills
+   were costing 69px to repeat it. */
+const pills = $('#sc-canvas .pagerow');
+pills.innerHTML = PAGES.map(([k, label]) =>
+  `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
+    font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('');
 
 function paintPills() {
   const cur = APP.curPage();

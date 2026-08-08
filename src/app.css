@@ -551,11 +551,12 @@ button.card:active{transform:scale(.99)}
 .list-quiet .no{color:var(--red-text);font-weight:700;margin-right:8px}
 .list-quiet .yes{color:var(--ink);font-weight:700;margin-right:8px}
 
-#toast{position:absolute;z-index:70;left:50%;bottom:112px;transform:translate(-50%,14px);
+#toast{position:absolute;z-index:70;left:50%;bottom:112px;transition:opacity .25s,transform .25s,bottom var(--fold);transform:translate(-50%,14px);
   padding:10px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
   font-size:13px;font-weight:500;opacity:0;pointer-events:none;
   transition:opacity .25s,transform .25s;max-width:86%;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+#screen.drawing #toast{bottom:212px}
 
 .ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}
 
@@ -703,3 +704,71 @@ button.card:active{transform:scale(.99)}
   --on-red:#141210;
   color:#F5EFE4;
 }
+
+/* ====================================================== draw mode — p2's own
+   "Tapping the canvas enters draw mode with zero chrome." (SCREENS.md p2)
+   The resting screen is p2 exactly: presence, title, canvas, the two stat
+   cards, the control bar. Touching the canvas folds all of that away and the
+   ink goes full bleed, with one floating bar carrying the tools.
+
+   Everything animates from the same 260ms curve so the chrome reads as
+   getting out of the way rather than disappearing — and nothing is destroyed,
+   so "Done" puts the screen back exactly as it was. */
+#screen{--fold:260ms cubic-bezier(.4,0,.2,1)}
+
+/* p2 has no tool bar. The brushes and the pen palette belong to the act of
+   drawing, so at rest they fold away and give the canvas their 125px back —
+   which is most of the difference between a preview and a surface. */
+#dock{transition:opacity var(--fold),max-height var(--fold),margin var(--fold)}
+#screen:not(.drawing) #dock{opacity:0;max-height:0;margin:0;overflow:hidden;pointer-events:none}
+#sc-canvas .hd,#sc-canvas .title,#sc-canvas .stat2,#col > #controlbar{
+  transition:opacity var(--fold),transform var(--fold),max-height var(--fold),margin var(--fold)}
+
+#screen.drawing #sc-canvas .hd,
+#screen.drawing #sc-canvas .title,
+#screen.drawing #sc-canvas .stat2{
+  opacity:0;max-height:0;margin:0;padding-top:0;padding-bottom:0;
+  transform:translateY(-8px);pointer-events:none;overflow:hidden}
+#screen.drawing #col > #controlbar{
+  opacity:0;max-height:0;padding:0;transform:translateY(12px);pointer-events:none;overflow:hidden}
+#screen.drawing #col{padding-top:34px}
+
+/* full bleed, but never under the status bar or the home indicator */
+#screen.drawing #canvas-zone{padding:6px 6px 0}
+#screen.drawing #canvas-wrap{border-radius:22px}
+#screen.drawing #dock{margin:0;position:absolute;left:12px;right:12px;bottom:22px;z-index:14}
+
+/* the floating bar. It sits over the ink, so it carries its own ground and a
+   soft edge rather than borrowing the card's. */
+#screen.drawing #brushes,
+#screen.drawing #colors{background:var(--surface);box-shadow:0 8px 24px rgba(26,26,26,.14)}
+:root[data-theme="dark"] #screen.drawing #brushes,
+:root[data-theme="dark"] #screen.drawing #colors{box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+/* the pages live with the tools while drawing — in the resting state the
+   title already names the page, so the pills would be saying it twice */
+#sc-canvas [data-page]{display:none}
+#screen.drawing #sc-canvas [data-page]{display:inline-flex}
+#sc-canvas .pagerow{transition:opacity var(--fold);opacity:0;max-height:0;overflow:hidden;padding:0!important}
+/* in draw mode the pages ride just above the tool bar, so the top of the
+   screen stays the canvas and one row of chrome — not three competing pills */
+#screen.drawing #sc-canvas .pagerow{opacity:1;max-height:none;overflow:visible;
+  position:absolute;left:12px;right:12px;bottom:152px;z-index:14;
+  display:flex;gap:6px;justify-content:center;padding:0!important}
+#screen.drawing #sc-canvas [data-page]{min-height:38px;padding:0 16px;font-size:13px;
+  background:var(--surface);border:1px solid var(--hairline);
+  box-shadow:0 6px 18px rgba(26,26,26,.12)}
+:root[data-theme="dark"] #screen.drawing #sc-canvas [data-page]{box-shadow:0 6px 18px rgba(0,0,0,.45)}
+
+/* one way out, and it is always in the same place */
+#draw-done{position:absolute;z-index:16;top:52px;right:14px;min-height:44px;padding:0 16px;
+  border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:14px;font-weight:600;
+  display:none;align-items:center;gap:7px;box-shadow:0 6px 18px rgba(26,26,26,.18)}
+#screen.drawing #draw-done{display:inline-flex}
+#draw-done:active{transform:scale(.96)}
+
+/* a count that does not need the title block to say it */
+#draw-count{position:absolute;z-index:16;top:52px;left:14px;min-height:44px;padding:0 14px;
+  border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+  color:var(--ink-70);font-size:13px;display:none;align-items:center}
+#screen.drawing #draw-count{display:inline-flex}

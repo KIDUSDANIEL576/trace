@@ -566,11 +566,12 @@ button.card:active{transform:scale(.99)}
 .list-quiet .no{color:var(--red-text);font-weight:700;margin-right:8px}
 .list-quiet .yes{color:var(--ink);font-weight:700;margin-right:8px}
 
-#toast{position:absolute;z-index:70;left:50%;bottom:112px;transform:translate(-50%,14px);
+#toast{position:absolute;z-index:70;left:50%;bottom:112px;transition:opacity .25s,transform .25s,bottom var(--fold);transform:translate(-50%,14px);
   padding:10px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);
   font-size:13px;font-weight:500;opacity:0;pointer-events:none;
   transition:opacity .25s,transform .25s;max-width:86%;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+#screen.drawing #toast{bottom:212px}
 
 .ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}
 
@@ -719,6 +720,74 @@ button.card:active{transform:scale(.99)}
   color:#F5EFE4;
 }
 
+/* ====================================================== draw mode — p2's own
+   "Tapping the canvas enters draw mode with zero chrome." (SCREENS.md p2)
+   The resting screen is p2 exactly: presence, title, canvas, the two stat
+   cards, the control bar. Touching the canvas folds all of that away and the
+   ink goes full bleed, with one floating bar carrying the tools.
+
+   Everything animates from the same 260ms curve so the chrome reads as
+   getting out of the way rather than disappearing — and nothing is destroyed,
+   so "Done" puts the screen back exactly as it was. */
+#screen{--fold:260ms cubic-bezier(.4,0,.2,1)}
+
+/* p2 has no tool bar. The brushes and the pen palette belong to the act of
+   drawing, so at rest they fold away and give the canvas their 125px back —
+   which is most of the difference between a preview and a surface. */
+#dock{transition:opacity var(--fold),max-height var(--fold),margin var(--fold)}
+#screen:not(.drawing) #dock{opacity:0;max-height:0;margin:0;overflow:hidden;pointer-events:none}
+#sc-canvas .hd,#sc-canvas .title,#sc-canvas .stat2,#col > #controlbar{
+  transition:opacity var(--fold),transform var(--fold),max-height var(--fold),margin var(--fold)}
+
+#screen.drawing #sc-canvas .hd,
+#screen.drawing #sc-canvas .title,
+#screen.drawing #sc-canvas .stat2{
+  opacity:0;max-height:0;margin:0;padding-top:0;padding-bottom:0;
+  transform:translateY(-8px);pointer-events:none;overflow:hidden}
+#screen.drawing #col > #controlbar{
+  opacity:0;max-height:0;padding:0;transform:translateY(12px);pointer-events:none;overflow:hidden}
+#screen.drawing #col{padding-top:34px}
+
+/* full bleed, but never under the status bar or the home indicator */
+#screen.drawing #canvas-zone{padding:6px 6px 0}
+#screen.drawing #canvas-wrap{border-radius:22px}
+#screen.drawing #dock{margin:0;position:absolute;left:12px;right:12px;bottom:22px;z-index:14}
+
+/* the floating bar. It sits over the ink, so it carries its own ground and a
+   soft edge rather than borrowing the card's. */
+#screen.drawing #brushes,
+#screen.drawing #colors{background:var(--surface);box-shadow:0 8px 24px rgba(26,26,26,.14)}
+:root[data-theme="dark"] #screen.drawing #brushes,
+:root[data-theme="dark"] #screen.drawing #colors{box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+/* the pages live with the tools while drawing — in the resting state the
+   title already names the page, so the pills would be saying it twice */
+#sc-canvas [data-page]{display:none}
+#screen.drawing #sc-canvas [data-page]{display:inline-flex}
+#sc-canvas .pagerow{transition:opacity var(--fold);opacity:0;max-height:0;overflow:hidden;padding:0!important}
+/* in draw mode the pages ride just above the tool bar, so the top of the
+   screen stays the canvas and one row of chrome — not three competing pills */
+#screen.drawing #sc-canvas .pagerow{opacity:1;max-height:none;overflow:visible;
+  position:absolute;left:12px;right:12px;bottom:152px;z-index:14;
+  display:flex;gap:6px;justify-content:center;padding:0!important}
+#screen.drawing #sc-canvas [data-page]{min-height:38px;padding:0 16px;font-size:13px;
+  background:var(--surface);border:1px solid var(--hairline);
+  box-shadow:0 6px 18px rgba(26,26,26,.12)}
+:root[data-theme="dark"] #screen.drawing #sc-canvas [data-page]{box-shadow:0 6px 18px rgba(0,0,0,.45)}
+
+/* one way out, and it is always in the same place */
+#draw-done{position:absolute;z-index:16;top:52px;right:14px;min-height:44px;padding:0 16px;
+  border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:14px;font-weight:600;
+  display:none;align-items:center;gap:7px;box-shadow:0 6px 18px rgba(26,26,26,.18)}
+#screen.drawing #draw-done{display:inline-flex}
+#draw-done:active{transform:scale(.96)}
+
+/* a count that does not need the title block to say it */
+#draw-count{position:absolute;z-index:16;top:52px;left:14px;min-height:44px;padding:0 14px;
+  border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
+  color:var(--ink-70);font-size:13px;display:none;align-items:center}
+#screen.drawing #draw-count{display:inline-flex}
+
 </style>
 <script>
 /* Theme, before first paint. Paper is the design; dark is a preference, and
@@ -824,6 +893,8 @@ button.card:active{transform:scale(.99)}
             <div class="k">Today’s canvas</div>
             <div class="v" id="canvas-count">0 marks, 0 hands</div>
           </div>
+
+          <div class="pagerow"></div>
 
           <div id="canvas-zone">
             <div id="canvas-wrap">
@@ -949,6 +1020,8 @@ button.card:active{transform:scale(.99)}
       <span id="sb-batt"><i id="sb-batt-fill"></i></span>
     </span>
   </div>
+  <button id="draw-count">0 marks</button>
+  <button id="draw-done">Done<span style="opacity:.6">✓</span></button>
   <button id="home-bar" title="home"></button>
   <div id="toast"></div>
 </div>
@@ -2463,6 +2536,38 @@ let touching = { on: false };  // 10a state
 
 let smooth = null;                 // EMA of pointer samples — the jitter filter
 const SMOOTH = .42;                // lower = silkier, higher = snappier
+
+/* ------------------------------------------------------------- draw mode
+   SCREENS.md p2: "Tapping the canvas enters draw mode with zero chrome."
+   Touching the ink is the gesture — it already means "I am drawing now", so
+   it does not need a button of its own, and the stroke you started still
+   lands. Nothing is unmounted: the chrome folds, so Done restores it exactly.
+   The canvas is resized on both transitions because its backing store is
+   sized in device pixels and the box changes underneath it. */
+const screenEl = $('#screen');
+let drawMode = false;
+function setDrawMode(on) {
+  if (drawMode === on) return;
+  drawMode = on;
+  screenEl.classList.toggle('drawing', on);
+  paintDrawCount();
+  /* wait out the fold so the canvas measures its final box, not its first frame */
+  setTimeout(() => { sizeCanvas(); redraw(); }, 300);
+}
+window.TRACE_DRAWMODE = setDrawMode;
+/* navigating away must not leave the chrome folded behind you */
+window.addEventListener('traceroom', () => setDrawMode(false));
+function paintDrawCount() {
+  const el = $('#draw-count');
+  if (!el) return;
+  const n = strokes.filter((k) => k.who !== 'fx').length;
+  el.textContent = n === 1 ? '1 mark' : n + ' marks';
+}
+$('#draw-done').addEventListener('click', () => { setDrawMode(false); buzz(8); });
+$('#draw-count').addEventListener('click', () => { setDrawMode(false); buzz(6); });
+
+wrap.addEventListener('pointerdown', () => { setDrawMode(true); paintDrawCount(); });
+wrap.addEventListener('pointerup', paintDrawCount);
 
 wrap.addEventListener('pointerdown', (e) => {
   if (window.TRACE_SEALED) { toast('this canvas is sealed — the last chapter keeps it'); return; }
@@ -4363,6 +4468,7 @@ function show(name, room) {
   if (name === 'states') activeRoom = 'Widget';
   if (name === 'rules') activeRoom = 'Quiet & private';
   if (name === 'surfaces') activeRoom = 'Every surface';
+  if (name !== 'canvas') window.dispatchEvent(new Event('traceroom'));
   $('#cb-room').textContent = activeRoom;
   $('#screen').dataset.room = name === 'room' ? room : (name === 'canvas' ? 'Canvas' : 'Rooms');
   $('#cb-left').textContent = name === 'canvas' ? '✎' : '✎';
@@ -5191,6 +5297,10 @@ $('#cb-room').addEventListener('click', () => show(current === 'rooms' ? 'canvas
 $('#cb-right').addEventListener('click', () => show(current === 'rules' ? 'canvas' : 'rules'));
 $('#cb-left').addEventListener('click', () => {
   if (current !== 'canvas') return show('canvas');
+  /* the tools live with drawing now, so the pencil opens draw mode first —
+     and only reaches for the brush options once they are actually on screen */
+  const drawing = $('#screen').classList.contains('drawing');
+  if (!drawing) { window.TRACE_DRAWMODE && TRACE_DRAWMODE(true); return; }
   APP.brushPop && APP.brushPop();
 });
 $('#to-board').addEventListener('click', () => show('board'));
@@ -6935,12 +7045,13 @@ const PAGES = [
   ['hers', 'hers', 'her page — it arrives, you watch'],
 ];
 
-const title = $('#sc-canvas .title');
-const pills = el(`<div style="display:flex;gap:6px;padding:12px 24px 0;flex:none">
-  ${PAGES.map(([k, label]) => `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
-    font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('')}
-</div>`);
-title.after(pills);
+/* The pages sit with the drawing tools rather than above the canvas: in the
+   resting state the title already says which page you are on, and the pills
+   were costing 69px to repeat it. */
+const pills = $('#sc-canvas .pagerow');
+pills.innerHTML = PAGES.map(([k, label]) =>
+  `<button data-page="${k}" style="min-height:44px;padding:0 18px;border-radius:999px;
+    font-size:13.5px;font-weight:600;border:1px solid transparent;color:var(--ink)">${label}</button>`).join('');
 
 function paintPills() {
   const cur = APP.curPage();

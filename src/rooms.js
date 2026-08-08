@@ -178,6 +178,7 @@ function show(name, room) {
   if (name === 'states') activeRoom = 'Widget';
   if (name === 'rules') activeRoom = 'Quiet & private';
   if (name === 'surfaces') activeRoom = 'Every surface';
+  if (name !== 'canvas') window.dispatchEvent(new Event('traceroom'));
   $('#cb-room').textContent = activeRoom;
   $('#screen').dataset.room = name === 'room' ? room : (name === 'canvas' ? 'Canvas' : 'Rooms');
   $('#cb-left').textContent = name === 'canvas' ? '✎' : '✎';
@@ -1006,6 +1007,10 @@ $('#cb-room').addEventListener('click', () => show(current === 'rooms' ? 'canvas
 $('#cb-right').addEventListener('click', () => show(current === 'rules' ? 'canvas' : 'rules'));
 $('#cb-left').addEventListener('click', () => {
   if (current !== 'canvas') return show('canvas');
+  /* the tools live with drawing now, so the pencil opens draw mode first —
+     and only reaches for the brush options once they are actually on screen */
+  const drawing = $('#screen').classList.contains('drawing');
+  if (!drawing) { window.TRACE_DRAWMODE && TRACE_DRAWMODE(true); return; }
   APP.brushPop && APP.brushPop();
 });
 $('#to-board').addEventListener('click', () => show('board'));
