@@ -52,10 +52,10 @@ function watchFaces() {
           ${trace(drawing() ? 'var(--red)' : 'var(--amber)')}
           <div style="display:flex;gap:6px">
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
-              <div style="font-size:9px;color:var(--ink-3)">LEFT</div>
+              <div style="font-size:12px;color:var(--ink-3)">LEFT</div>
               <div style="font-size:15px;font-weight:600">${left}</div></div>
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
-              <div style="font-size:9px;color:var(--ink-3)">NIGHT</div>
+              <div style="font-size:12px;color:var(--ink-3)">NIGHT</div>
               <div style="font-size:15px;font-weight:600;color:var(--red-text)">27m</div></div>
           </div>
         </div>
@@ -104,10 +104,10 @@ function lockScreens() {
         </div>
         <div style="display:flex;justify-content:center;gap:10px;margin-top:14px;padding-bottom:16px">
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
-            <div style="font-size:10px;color:var(--ink-2)">TRACE · GOODNIGHT</div>
+            <div style="font-size:12px;color:var(--ink-2)">TRACE · GOODNIGHT</div>
             <div style="font-size:20px;font-weight:600;color:var(--red-text);margin-top:2px">27:14</div></div>
           <div style="width:140px;border-radius:18px;background:var(--hairline);backdrop-filter:blur(8px);padding:10px 12px">
-            <div style="font-size:10px;color:var(--ink-2)">TRACE · MUST DO</div>
+            <div style="font-size:12px;color:var(--ink-2)">TRACE · MUST DO</div>
             <div style="font-size:13px;font-weight:600;margin-top:4px">${esc((t[0] || {}).title || 'nothing left')}
               ${t.length > 1 ? `<span style="color:var(--amber)">+${t.length - 1}</span>` : ''}</div></div>
         </div>

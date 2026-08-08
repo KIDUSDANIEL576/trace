@@ -50,6 +50,8 @@
   --bezel:#1A1A1A;
   --device-shadow:0 24px 50px rgba(26,26,26,.22);
   --scrim:rgba(26,26,26,.45);
+  --track:rgba(26,26,26,.18);   /* a switch's off state */
+  --grid-empty:rgba(26,26,26,.07);  /* a day with no marks — pale, never white */
 }
 
 /* Dark mode is a preference, not the design. It is not an inversion of
@@ -94,6 +96,8 @@
   --bezel:#2A241D;
   --device-shadow:0 24px 50px rgba(0,0,0,.55);
   --scrim:rgba(0,0,0,.6);
+  --track:rgba(245,239,228,.2);
+  --grid-empty:rgba(245,239,228,.1);
 }
 
 /* Follow the OS only when the user has not picked. An explicit choice
@@ -112,6 +116,7 @@
     --emph-red:#B3202E;--emph-line:rgba(21,18,14,.16);
     --violet:#9C8BD8;--bezel:#2A241D;
     --device-shadow:0 24px 50px rgba(0,0,0,.55);--scrim:rgba(0,0,0,.6);
+    --track:rgba(245,239,228,.2);--grid-empty:rgba(245,239,228,.1);
   }
 }
 
@@ -270,9 +275,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .who.them{background:var(--red-wash);color:var(--red-text)}
 .who.free{background:var(--red);color:var(--on-red)}
 .who{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:var(--ground-alt);flex:none}
-.sw{width:46px;height:28px;border-radius:99px;background:rgba(26,26,26,.18);padding:3px;display:flex;
+button.who{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+/* the off-track is a token so the dark override cannot out-specify `.sw.on`
+   and leave every switch painting its ON state the same as its OFF state */
+.sw{width:46px;height:28px;border-radius:99px;background:var(--track);padding:3px;display:flex;
   justify-content:flex-start;transition:all .18s ease;flex:none}
-:root[data-theme="dark"] .sw{background:rgba(245,239,228,.2)}
 .sw i{width:22px;height:22px;border-radius:50%;background:#fff;display:block}
 .sw.on{background:var(--red);justify-content:flex-end}
 .sw.amber.on{background:var(--amber)}
@@ -348,8 +355,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* 390 minus 40 of rail leaves 350: three 46px rounds and three 8px gaps take
    162, so the palette gets 188 and the row never overflows the device. */
 .dock-row{display:flex;align-items:center;gap:8px}
+/* seven targets at the 44px floor need every pixel of the rail: no gap, and
+   space-between distributes what is left. With the dock-row's 8px gap they
+   overflowed the pill and the last tool fell off the device. */
 #brushes{height:56px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
-  padding:0 6px;justify-content:space-between}
+  padding:0 3px;justify-content:space-between;gap:0}
 .tool{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
   font-size:17px;border:1px solid transparent;color:var(--ink);opacity:.5;flex:none}
 .tool.is-on{background:var(--red-wash);border-color:var(--red-line);opacity:1}
@@ -496,8 +506,12 @@ button.card:active{transform:scale(.99)}
 
 #panel{position:absolute;inset:0;z-index:35;display:flex;flex-direction:column;background:var(--ground)}
 #panel-bar{display:flex;align-items:center;gap:10px;padding:52px 20px 8px;flex:none}
-#panel-close{font-size:15px;width:36px;height:36px;border-radius:50%;background:var(--surface);
-  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center}
+/* the sole dismiss affordance on every panel — there is no backdrop tap and
+   no gesture, so it does not get to be under the floor */
+#panel-close{font-size:15px;width:44px;height:44px;border-radius:50%;flex:none;
+  display:flex;align-items:center;justify-content:center;position:relative;background:none;border:0}
+#panel-close::before{content:'';position:absolute;inset:4px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--hairline);z-index:-1}
 #panel-title{font-size:17px;font-weight:600}
 #panel-aux{margin-left:auto;font-size:13px;font-weight:600;color:var(--red-text);font-variant-numeric:tabular-nums}
 #panel-body{flex:1;min-height:0;position:relative;padding:8px 20px 24px;overflow:auto;

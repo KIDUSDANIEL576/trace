@@ -123,7 +123,7 @@ function renderMemory() {
   /* empty days are a pale ink tint, not white — on paper, white cells would be
      the brightest thing on the grid and the blank weeks would read as the loud
      ones. SCREENS.md p21: "Empty days are pale, never red." */
-  const shades = ['rgba(26,26,26,.07)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
+  const shades = ['var(--grid-empty)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
   const cells = Array.from({ length: 98 }, (_, n) => {
     const h = ((n * 2654435761) >>> 0) % 10;
     return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];

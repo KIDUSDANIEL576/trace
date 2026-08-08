@@ -218,7 +218,7 @@ R.addSub('waiting', 'the waiting room', (body) => {
       mine.forEach((b) => {
         const r = el(`<button class="row"><span class="grow"><span class="n">${esc(b.t)}</span>
           <span class="s">${esc(b.b)} · ${esc(b.d)}</span></span>
-          <span class="cnt" style="color:var(--amber)">${esc(b.d)}</span></button>`);
+          <span class="cnt" style="color:var(--red-text)">${esc(b.d)}</span></button>`);
         r.addEventListener('click', () => {
           db.unblocked[b.id] = true; buzz(12); resetDeck(); push('unblock', { id: b.id }); draw(); paint();
           toast('unblocked — it drops off both sides');
@@ -248,7 +248,7 @@ R.addSub('brief', 'the brief', (body) => {
     <div style="font-size:15px;color:var(--ink-2)">You’re taking over</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
-  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--amber)'))));
+  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--red-text)'))));
   body.appendChild(el(`<div class="row" style="background:var(--red-wash);border-color:var(--red-line)">
     <span class="grow"><span class="s">Maya’s note</span>
     <span class="n light hand" style="font-size:23px;line-height:1.25;margin-top:4px">${esc(b.note)}</span></span></div>`));
@@ -303,7 +303,7 @@ R.addSub('renewals', 'renewal radar', (body) => {
       const row = el(`<button class="row" style="${off ? 'opacity:.45' : ''}">
         <span class="grow"><span class="n" style="text-decoration:${off ? 'line-through' : 'none'}">${esc(r.t)}</span>
         <span class="s">${esc(r.s)}</span></span>
-        <span class="cnt" style="color:var(--amber)">${esc(r.d)}</span></button>`);
+        <span class="cnt" style="color:var(--red-text)">${esc(r.d)}</span></button>`);
       row.addEventListener('click', () => { db.cancelled[r.id] = !off; buzz(10); push('renewal', { id: r.id }); draw(); });
       body.appendChild(row);
     });
@@ -394,7 +394,7 @@ R.addSub('doctor', 'doctor’s note', (body) => {
   body.appendChild(el(`<div class="eyebrow" style="padding:8px 0 2px">What to ask · written together, last night</div>`));
   d.qs.forEach((q) => body.appendChild(el(
     `<div class="chip hand" style="font-size:23px;line-height:1.25">${esc(q)}</div>`)));
-  body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--amber)')));
+  body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--red-text)')));
   body.appendChild(el(kv('Details', 'hers to share', 'var(--red)')));
   body.appendChild(note('Health is the one room Trace never summarizes, never trends, never guesses. It just holds the questions you’d forget in the chair.'));
   const b = el(`<button class="${d.sent ? 'p-ghost' : 'p-cta'}">${d.sent ? 'On her widget ✓' : 'Send to her widget'}</button>`);
@@ -541,7 +541,7 @@ R.addSub('car', 'car mode', (body) => {
     body.appendChild(sw);
     [['Auto-sent to Maya’s widget', db.carMode ? 'Home in 24 min' : '—'], ['Canvas', 'normal'],
      ['Lists', 'normal'], ['Detected', 'moving, 48 km/h']]
-      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'Detected' ? 'var(--amber)' : 'var(--ink)'))));
+      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'Detected' ? 'var(--red-text)' : 'var(--ink)'))));
     body.appendChild(note('Say it once — it lands as a line in your handwriting, not a transcript. CarPlay and Android Auto show the same one card. Nothing else.'));
   };
   draw();
@@ -552,7 +552,7 @@ R.addSub('stack', 'widget stack', (body) => {
     body.innerHTML = '';
     body.appendChild(el(`<div class="p-hint">The order she sees — tap a row to move it up</div>`));
     db.stack.forEach((name, n) => {
-      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--ink)', 'var(--amber)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
+      const r = el(`<button class="row"><span class="cnt" style="color:${['var(--red)', 'var(--ink)', 'var(--red-text)', 'var(--ink)', 'var(--red)'][n % 5]};width:22px">${n + 1}</span>
         <span class="grow"><span class="n light">${esc(name)}</span></span>
         <span class="chev">↑↓</span></button>`);
       r.addEventListener('click', () => {
@@ -588,7 +588,7 @@ R.addSub('daymap', 'map of your day', (body) => {
 R.addSub('wall', 'the wall', (body) => {
   body.appendChild(el(bigNum(db.wallKept + ' kept forever', 'Permanent ink')));
   const grid = el(`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>`);
-  const COLS = ['var(--amber)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
+  const COLS = ['var(--red-text)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
   for (let i = 0; i < db.wallKept; i++) {
     grid.appendChild(el(`<div style="aspect-ratio:1;border-radius:14px;background:var(--surface);
       border:1px solid ${i === db.wallKept - 1 ? 'rgba(233,161,59,.4)' : 'var(--surface)'};
@@ -614,7 +614,7 @@ R.addSub('week7', 'week 32', (body) => {
         if (v === null) return;
         db.week7[n][1] = v.trim() || '—';
         if (d === 'Thu') db.week.items = db.week7[n][1].split('·').map((x, i) =>
-          ({ t: x.trim(), c: i ? 'var(--amber)' : 'var(--ink)' })).filter((x) => x.t && x.t !== '—');
+          ({ t: x.trim(), c: i ? 'var(--red-text)' : 'var(--ink)' })).filter((x) => x.t && x.t !== '—');
         save(); push('week', { n, t: db.week7[n][1] }); draw(); paint(); buzz(10);
       });
       body.appendChild(r);
@@ -657,7 +657,7 @@ R.addSub('letter', 'photo of the letter', (body) => {
   body.appendChild(el(`<div class="p-canvas" style="height:200px;background:var(--surface);
     display:flex;align-items:center;justify-content:center;color:rgba(243,240,244,.35);font-size:13px">letter, read on device</div>`));
   body.appendChild(el(kv('From', l.from, 'var(--ink)')));
-  body.appendChild(el(kv('Reply by', l.by, 'var(--amber)')));
+  body.appendChild(el(kv('Reply by', l.by, 'var(--red-text)')));
   body.appendChild(el(kv('Read on device', 'photo never uploaded', 'var(--ink)')));
   const b = el(`<button class="${l.added ? 'p-ghost' : 'p-cta'}">${l.added ? 'In Household ✓' : 'Add to Household'}</button>`);
   b.addEventListener('click', () => {
@@ -696,7 +696,7 @@ R.addSub('chapters', 'chapters', (body) => {
   body.appendChild(el(bigNum(db.chapters.length + ' chapters', 'Your story so far')));
   db.chapters.forEach((c) => body.appendChild(el(`<div class="row" style="flex-direction:column;align-items:stretch;gap:4px;
     ${c.now ? 'border-color:var(--hairline)' : ''}">
-    <span class="s">${c.now ? '<b style="color:var(--amber)">NOW</b> · ' : ''}Chapter ${c.n} · ${esc(c.when)}</span>
+    <span class="s">${c.now ? '<b style="color:var(--red-text)">NOW</b> · ' : ''}Chapter ${c.n} · ${esc(c.when)}</span>
     <span class="n">${esc(c.t)}</span><span class="s">${esc(c.s)}</span></div>`)));
   body.appendChild(note('Chapters close themselves when life visibly shifts. You can rename, never delete.'));
 });
@@ -822,7 +822,7 @@ R.addCard((d) => {
   if (!n || !d.pub.list) return null;
   return { pri: 6, kind: 'waiting', tint: 'var(--ink)', head: n + ' waiting', foot: 'blocked on her',
     render(b) {
-      b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">Waiting on you</div>
+      b.innerHTML = `<div class="w-kicker" style="color:var(--red-text)">Waiting on you</div>
         <div class="w-big">${n} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">things can’t move</span></div>`;
       return { cap: 'One number. No nagging, just visible.' };
     } };
@@ -854,7 +854,7 @@ R.addCard((d) => {
   if (h < 5 || h > 11) return null;
   return { pri: 3.5, kind: 'handoff', tint: 'var(--ink)', head: 'three things', foot: 'while you slept',
     render(b) {
-      b.innerHTML = `<div class="w-kicker" style="color:var(--amber)">While you slept</div>
+      b.innerHTML = `<div class="w-kicker" style="color:var(--red-text)">While you slept</div>
         <div class="w-note">Maya left you three things</div>`;
       return { cap: 'Appears once, at your wake time. Never a notification.' };
     } };

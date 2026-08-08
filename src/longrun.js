@@ -226,10 +226,10 @@ function renderSolo() {
       ${head('Time apart, on purpose', so.on ? esc(so.yours).replace(/s$/, '') + ' is yours' : 'Nothing is protected yet')}
       <div style="padding:18px 20px 0;flex:none">
         <div class="card ink" style="border-radius:22px;padding:20px 22px">
-          <div style="display:flex;justify-content:space-between;gap:20px">
-            <span><span class="lbl">Your night</span>
+          <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <span style="min-width:0"><span class="lbl">Your night</span>
               <span style="display:block;font-size:24px;font-weight:700;margin-top:4px">${esc(so.yours)}</span></span>
-            <span style="text-align:right"><span class="lbl">Hers</span>
+            <span style="text-align:right;min-width:0"><span class="lbl">Hers</span>
               <span style="display:block;font-size:24px;font-weight:700;margin-top:4px">${esc(so.hers)}</span></span>
           </div>
           <div class="d" style="margin-top:12px;line-height:1.5">Protected like an appointment. Trace declines
