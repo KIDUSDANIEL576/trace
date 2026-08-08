@@ -24,11 +24,11 @@ const KEY = 'trace.clean.v2';
 const DEFAULTS = () => ({
   /* 19d — household */
   tasks: [
-    { id: 't1', title: 'Bins out before 7', meta: 'Recurring · Thursdays', who: 'You', chip: '#6EA8FF' },
-    { id: 't2', title: 'Call the plumber', meta: 'Claimed 2h ago', who: 'Maya', chip: '#FF7BC5' },
-    { id: 't3', title: 'Pick up the prescription', meta: 'Doctor’s note attached', who: 'Free', chip: '#EDEFF7' },
-    { id: 't4', title: 'Reply to the landlord', meta: 'Photo of the letter', who: 'You', chip: '#6EA8FF' },
-    { id: 't5', title: 'Book Sunday table', meta: 'Someone’s coming', who: 'Free', chip: '#EDEFF7' },
+    { id: 't1', title: 'Bins out before 7', meta: 'Recurring · Thursdays', who: 'You', chip: '#7EC8FF' },
+    { id: 't2', title: 'Call the plumber', meta: 'Claimed 2h ago', who: 'Maya', chip: '#FF7A9C' },
+    { id: 't3', title: 'Pick up the prescription', meta: 'Doctor’s note attached', who: 'Free', chip: '#F3F0F4' },
+    { id: 't4', title: 'Reply to the landlord', meta: 'Photo of the letter', who: 'You', chip: '#7EC8FF' },
+    { id: 't5', title: 'Book Sunday table', meta: 'Someone’s coming', who: 'Free', chip: '#F3F0F4' },
     { id: 't6', title: 'Ten minutes, together', meta: 'Weekly reset', who: 'Both', chip: '#4ADE80' },
   ],
   done: { t2: true },
@@ -90,7 +90,7 @@ const DEFAULTS = () => ({
   sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
   /* board content */
   notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
-  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: '#EDEFF7' }, { t: 'pick up cake', c: '#FFB020' }] },
+  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: '#F3F0F4' }, { t: 'pick up cake', c: '#F4C66B' }] },
   leaving: null,          /* {mins} — auto, breaks through armour */
   thinking: null,         /* {ts} — "thinking of you" */
   traceSeen: false,       /* one-time trace burns after she sees it */
@@ -186,12 +186,12 @@ function show(name, room) {
 
 const ROOMS = [
   { name: 'Canvas', sub: 'Draw, presence, goodnight', tint: '#4ADE80', icon: '✎', count: () => 'live' },
-  { name: 'Household', sub: 'Tasks, lists, meals, split', tint: '#6EA8FF', icon: '⌂',
+  { name: 'Household', sub: 'Tasks, lists, meals, split', tint: '#7EC8FF', icon: '⌂',
     count: () => String(db.tasks.length - count(db.done)) },
   { name: 'Together', sub: 'Savings, dreams, promises', tint: '#4ADE80', icon: '❑',
     count: () => String(db.buckets.length - count(db.bucket)) },
-  { name: 'Memory', sub: 'Chapters, movies, jar', tint: '#FFB020', icon: '◔', count: () => String(db.marks) },
-  { name: 'Wellbeing', sub: 'Mood, habits, focus', tint: '#FF7BC5', icon: '◍',
+  { name: 'Memory', sub: 'Chapters, movies, jar', tint: '#F4C66B', icon: '◔', count: () => String(db.marks) },
+  { name: 'Wellbeing', sub: 'Mood, habits, focus', tint: '#FF7A9C', icon: '◍',
     count: () => String(db.habits.length - 1) },
 ];
 
@@ -344,7 +344,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['rgba(255,255,255,.06)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', '#6EA8FF', '#FFB020'];
+    const shades = ['rgba(255,255,255,.06)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', '#7EC8FF', '#F4C66B'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -370,7 +370,7 @@ const ROOM_VIEWS = {
   /* 19i — wellbeing */
   Wellbeing() {
     const MOODS = [
-      { n: 0, name: 'Bright', g: 'radial-gradient(circle at 40% 35%,#FFD98A,#FFB020)' },
+      { n: 0, name: 'Bright', g: 'radial-gradient(circle at 40% 35%,#FFD98A,#F4C66B)' },
       { n: 1, name: 'Soft', g: 'radial-gradient(circle at 40% 35%,#9CC0FF,#3D5BD9)' },
       { n: 2, name: 'Grey', g: 'radial-gradient(circle at 40% 35%,#B8BDCB,#565D75)' },
       { n: 3, name: 'Heavy', g: 'radial-gradient(circle at 40% 35%,#7B8AE8,#232B66)' },
@@ -397,7 +397,7 @@ const ROOM_VIEWS = {
       </div>
       <div style="display:flex;gap:10px;padding:14px 20px 0;justify-content:center;flex:none">
         ${MOODS.map((m) => `<button data-mood="${m.n}" style="width:38px;height:38px;border-radius:50%;
-          background:${m.g};border:3px solid ${db.mood === m.n ? '#EDEFF7' : 'transparent'};
+          background:${m.g};border:3px solid ${db.mood === m.n ? '#F3F0F4' : 'transparent'};
           opacity:${db.mood === -1 || db.mood === m.n ? 1 : .4}"></button>`).join('')}
       </div>
       <div class="body" style="padding-top:20px">
@@ -673,17 +673,17 @@ function renderStates() {
     <div class="hd"><button class="pill" data-back>Every widget state</button>
       <button class="icob" data-close>✕</button></div>
     <div class="body" style="padding-top:18px;gap:10px">
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FF7BC5',
-        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF7BC5;margin-right:6px"></span>Goodnight in',
-        '<span style="color:#FF7BC5">27:14</span>', 'shows nightly<br>from 9 PM', true)}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#6EA8FF', 'Groceries',
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FF7A9C',
+        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF7A9C;margin-right:6px"></span>Goodnight in',
+        '<span style="color:#FF7A9C">27:14</span>', 'shows nightly<br>from 9 PM', true)}
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#7EC8FF', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
         'only while<br>someone shops', true)}
       ${card('rgba(74,222,128,.3)', 'linear-gradient(160deg,#153A2C,#0B1F18)', '#4ADE80', 'Leaving now',
         '<span style="color:#4ADE80">32 min</span>', 'auto · breaks<br>through armour', true)}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#FFB020', 'Notice',
-        'Landlord letter — reply by <span style="color:#FFB020">Aug 15</span>', 'until it’s<br>handled')}
-      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', 'rgba(237,239,247,.6)', 'Quiet day',
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', '#F4C66B', 'Notice',
+        'Landlord letter — reply by <span style="color:#F4C66B">Aug 15</span>', 'until it’s<br>handled')}
+      ${card('rgba(255,255,255,.12)', 'linear-gradient(160deg,#141E4E,#0A0F2E)', 'rgba(243,240,244,.6)', 'Quiet day',
         `Nothing today. <span style="color:#4ADE80">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.15);padding:14px 16px">
         <span style="font-size:13px;line-height:1.55;color:var(--ink-2)">Priority when states compete: leaving now → live drawing →
@@ -791,37 +791,37 @@ function deck() {
 
   const hersN = (APP.hersCount && APP.hersCount()) || 0;
   if (db.pub.trace && (partnerLive || ((strokeN + hersN) && !db.traceSeen)))
-    add(2, { kind: 'trace', tint: '#FF7BC5', head: partnerLive ? 'drawing' : 'a trace',
-      foot: 'trace · one-time', spark: sparkline('#FFB020'), render: traceCard });
+    add(2, { kind: 'trace', tint: '#FF7A9C', head: partnerLive ? 'drawing' : 'a trace',
+      foot: 'trace · one-time', spark: sparkline('#F4C66B'), render: traceCard });
 
   /* a fresh tap is the warmest thing on the deck, so it sits behind only
      "leaving now" and the live trace — it ages out after ten minutes */
   const freshTap = db.thinking && (Date.now() - db.thinking.ts) < 6e5;
   if (freshTap)
-    add(3, { kind: 'think', tint: '#FFB020', head: 'thinking of you',
+    add(3, { kind: 'think', tint: '#F4C66B', head: 'thinking of you',
       foot: 'tapped your name', render: thinkCard });
 
   const open = db.tasks.filter((t) => !db.done[t.id]);
   if (db.pub.list && open.length)
-    add(5, { kind: 'todo', tint: '#6EA8FF', head: open.length + ' left',
+    add(5, { kind: 'todo', tint: '#7EC8FF', head: open.length + ' left',
       foot: 'today’s list', render: todoCard });
 
   if (db.shopping && db.pub.list)
-    add(4, { kind: 'shop', tint: '#6EA8FF', head: (db.items.length - count(db.got)) + ' left',
+    add(4, { kind: 'shop', tint: '#7EC8FF', head: (db.items.length - count(db.got)) + ' left',
       foot: 'groceries · he’s at the shop', render: shopCard });
 
   if (db.pub.notice && db.notices.length)
-    add(7, { kind: 'notice', tint: '#FFB020', head: db.notices[0].when,
+    add(7, { kind: 'notice', tint: '#F4C66B', head: db.notices[0].when,
       foot: 'notice', render: noticeCard });
 
   if (db.pub.cal && db.week.items.length)
-    add(8, { kind: 'week', tint: '#FF7BC5', head: db.week.dow + ' ' + db.week.day,
+    add(8, { kind: 'week', tint: '#FF7A9C', head: db.week.dow + ' ' + db.week.day,
       foot: 'this week', render: weekCard });
 
   for (const fn of EXTRA_CARDS) { const c = fn(db); if (c) add(c.pri, c); }
 
   if (!cards.length)
-    add(99, { kind: 'quiet', tint: 'rgba(237,239,247,.6)', head: 'Nothing today',
+    add(99, { kind: 'quiet', tint: 'rgba(243,240,244,.6)', head: 'Nothing today',
       foot: 'quiet day', render: quietCard });
 
   /* 21c's order, as a number — so the flare (0) outranks even "leaving now" */
@@ -832,21 +832,21 @@ const sparkline = (c) => `<svg viewBox="0 0 90 24" style="width:100%;height:24px
   `<path d="M4 16 C24 4,40 22,86 8" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
 
 function traceCard(b, live) {
-  b.innerHTML = `<div class="w-live" style="color:#FF7BC5"><b style="background:#FF7BC5"></b>` +
+  b.innerHTML = `<div class="w-live" style="color:#FF7A9C"><b style="background:#FF7A9C"></b>` +
     (live ? 'Maya is drawing — live' : 'Maya left you a trace') + `</div>`;
   return { ink: true, cap: 'One-time trace · fades once you’ve seen it · tap to join' };
 }
 function todoCard(b) {
   const open = db.tasks.filter((t) => !db.done[t.id]).slice(0, 2);
   const oneDone = db.tasks.find((t) => db.done[t.id]);
-  b.innerHTML = `<div class="w-kicker" style="color:#6EA8FF">Must do — from his board</div>` +
+  b.innerHTML = `<div class="w-kicker" style="color:#7EC8FF">Must do — from his board</div>` +
     open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
     (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
   return { cap: 'Ticks sync both ways, instantly' };
 }
 function shopCard(b) {
   const left = db.items.length - count(db.got);
-  b.innerHTML = `<div class="w-kicker" style="color:#6EA8FF">Groceries</div>` +
+  b.innerHTML = `<div class="w-kicker" style="color:#7EC8FF">Groceries</div>` +
     `<div class="w-big">${left} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span></div>`;
   return { cap: 'Only while someone is shopping' };
 }
@@ -859,8 +859,8 @@ function weekCard(b) {
 }
 function noticeCard(b) {
   const n = db.notices[0];
-  b.innerHTML = `<div class="w-kicker" style="color:#FFB020">Notice</div>` +
-    `<div class="w-note">${esc(n.t)} <span style="color:#FFB020">${esc(n.when)}</span></div>`;
+  b.innerHTML = `<div class="w-kicker" style="color:#F4C66B">Notice</div>` +
+    `<div class="w-note">${esc(n.t)} <span style="color:#F4C66B">${esc(n.when)}</span></div>`;
   return { cap: 'Stays until it’s handled' };
 }
 function leaveCard(b) {

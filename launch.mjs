@@ -29,36 +29,36 @@ const page = `<!DOCTYPE html>
 <title>trace — three launches</title>
 <style>
 ${caveat}
-:root{--ink:#EDEFF7;--i2:rgba(237,239,247,.55);--i3:rgba(237,239,247,.45);--i4:rgba(237,239,247,.4);--red:#E23343}
+:root{--ink:#F3F0F4;--i2:rgba(243,240,244,.55);--i3:rgba(243,240,244,.45);--i4:rgba(243,240,244,.4);--red:#E23343}
 *{box-sizing:border-box}
-html,body{margin:0;background:#0A0A0C;color:var(--ink);
+html,body{margin:0;background:#0C0B10;color:var(--ink);
   font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 body{padding:40px 34px 90px}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 h1{margin:0 0 6px;font-size:34px;font-weight:600;letter-spacing:-.02em}
 .sub{margin:0 0 30px;font-size:15.5px;color:var(--i2);max-width:820px;line-height:1.55}
 .bar{display:flex;gap:10px;align-items:center;margin-bottom:34px;flex-wrap:wrap}
-.btn{padding:11px 20px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;font-size:14px;font-weight:600}
+.btn{padding:11px 20px;border-radius:999px;background:#F3F0F4;color:#0C0B10;font-size:14px;font-weight:600}
 .btn.ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.12)}
 .btn.on{background:var(--red);color:#fff}
 .rack{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
 .slot{width:330px}
 .name{display:flex;align-items:baseline;gap:9px;margin-bottom:11px}
 .name b{font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:6px;
-  background:rgba(255,255,255,.09);color:rgba(237,239,247,.75)}
+  background:rgba(255,255,255,.09);color:rgba(243,240,244,.75)}
 .name span{font-size:15px;font-weight:600}
 .why{font-size:13px;line-height:1.55;color:var(--i2);margin-top:12px;min-height:76px}
 .why em{color:var(--ink);font-style:normal;font-weight:600}
 .screen{width:330px;height:640px;border-radius:40px;border:7px solid #08080B;overflow:hidden;position:relative;
-  background:#0A0A0C;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer}
+  background:#0C0B10;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer}
 .stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .wm{position:relative;display:flex;align-items:baseline;height:96px}
-.wm .ltr{font-family:Caveat,cursive;font-weight:700;font-size:78px;line-height:1;color:#EDEFF7;
+.wm .ltr{font-family:Caveat,cursive;font-weight:700;font-size:78px;line-height:1;color:#F3F0F4;
   display:inline-block;clip-path:inset(0 100% -25% 0);will-change:clip-path}
 .tip{position:absolute;width:9px;height:9px;border-radius:50%;background:#fff;opacity:0;pointer-events:none;
   box-shadow:0 0 12px rgba(255,255,255,.9),0 0 26px rgba(255,255,255,.35);will-change:transform}
 .tip.red{background:#fff;box-shadow:0 0 12px rgba(226,51,67,.95),0 0 30px rgba(226,51,67,.5)}
-.slog{margin-top:26px;font-family:Caveat,cursive;font-size:23px;color:rgba(237,239,247,.5);opacity:0}
+.slog{margin-top:26px;font-family:Caveat,cursive;font-size:23px;color:rgba(243,240,244,.5);opacity:0}
 .under{position:absolute;left:0;bottom:-4px;height:0;overflow:visible}
 .icon-morph{position:absolute;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:17px;
   background:var(--red);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;
@@ -134,7 +134,7 @@ function run(v) {
   const S = 1 / speed;
 
   /* --- reset to black --- */
-  ltrs.forEach((l) => { l.style.clipPath = 'inset(0 100% -25% 0)'; l.style.color = '#EDEFF7';
+  ltrs.forEach((l) => { l.style.clipPath = 'inset(0 100% -25% 0)'; l.style.color = '#F3F0F4';
     l.style.opacity = 1; l.style.transform = 'none'; l.style.transition = 'none'; l.style.filter = 'none'; });
   tip.style.opacity = 0; tip.className = 'tip';
   const und = wm.querySelector('svg.und');

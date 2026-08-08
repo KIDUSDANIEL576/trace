@@ -38,8 +38,11 @@ function paintPills() {
   const cur = APP.curPage();
   $$('[data-page]', pills).forEach((b) => {
     const on = b.dataset.page === cur;
-    b.style.background = on ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.05)';
-    b.style.borderColor = on ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.08)';
+    /* red is the selection colour now — the store shot's active pill is a red
+       outline on a dark red fill, not a lighter grey */
+    b.style.background = on ? 'rgba(226,51,67,.16)' : 'rgba(255,255,255,.05)';
+    b.style.borderColor = on ? '#E23343' : 'rgba(255,255,255,.08)';
+    b.style.color = on ? '#F3F0F4' : 'var(--ink)';
     b.style.opacity = on ? 1 : .65;
   });
   const k = $('#sc-canvas .title .k');
@@ -93,7 +96,7 @@ function openPad() {
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
     <div id="wp-prev" style="min-height:52px;display:flex;align-items:center;justify-content:center;
       border-radius:14px;background:rgba(255,255,255,.04);padding:6px 10px;overflow:hidden;
-      font:700 ${size}px '${font}',cursive;color:#EDEFF7"></div>
+      font:700 ${size}px '${font}',cursive;color:#F3F0F4"></div>
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
       style="padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.06);color:var(--ink);font:15px inherit;outline:none">
@@ -104,8 +107,8 @@ function openPad() {
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
-      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:#FFB020;min-width:0">
-      <button id="wp-send" style="padding:11px 22px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;
+      <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}" style="flex:1;accent-color:#F4C66B;min-width:0">
+      <button id="wp-send" style="padding:11px 22px;border-radius:999px;background:#F3F0F4;color:#0C0B10;
         font-size:14px;font-weight:600">Send</button>
     </div>
   </div>`);
@@ -154,14 +157,14 @@ if (simActions) {
       pts.push([+(0.5 + 0.16 * Math.pow(Math.sin(t), 3) * 1.4).toFixed(4),
                 +(0.42 - 0.13 * (Math.cos(t) - .45 * Math.cos(2 * t) - .2 * Math.cos(3 * t))).toFixed(4), 1]);
     }
-    APP.receivePageInk({ pts, c: '#FF7BC5', w: 8, alpha: 1, taper: true, brush: 'pen' });
+    APP.receivePageInk({ pts, c: '#FF7A9C', w: 8, alpha: 1, taper: true, brush: 'pen' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('her page reached your widget');
   });
   simActions.appendChild(b);
   const b2 = el(`<button>she writes in her hand</button>`);
   b2.addEventListener('click', () => {
-    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: '#FF7BC5' });
+    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: '#FF7A9C' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('“miss you”, in her hand, on your widget');
   });

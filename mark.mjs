@@ -37,9 +37,9 @@ const page = `<!DOCTYPE html>
 <title>trace — the mark</title>
 <style>
 ${ds}${caveat}
-:root{--ink:#EDEFF7;--i2:rgba(237,239,247,.55);--i4:rgba(237,239,247,.4);--red:#E23343}
+:root{--ink:#F3F0F4;--i2:rgba(243,240,244,.55);--i4:rgba(243,240,244,.4);--red:#E23343}
 *{box-sizing:border-box}
-html,body{margin:0;background:#0A0A0C;color:var(--ink);
+html,body{margin:0;background:#0C0B10;color:var(--ink);
   font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 body{padding:40px 34px 100px}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
@@ -49,15 +49,15 @@ h2{margin:60px 0 16px;font-size:24px;font-weight:600;letter-spacing:-.02em}
 .bar{display:flex;gap:9px;align-items:center;margin-bottom:26px;flex-wrap:wrap}
 .btn{padding:10px 17px;border-radius:999px;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.11);font-size:13.5px;font-weight:600}
-.btn.on{background:#EDEFF7;color:#0A0A0C;border-color:transparent}
+.btn.on{background:#F3F0F4;color:#0C0B10;border-color:transparent}
 .btn.go{background:var(--red);color:#fff;border-color:transparent}
 
 .stagewrap{display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap}
 .screen{width:380px;height:660px;border-radius:44px;border:7px solid #08080B;overflow:hidden;position:relative;
-  background:#0A0A0C;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer;flex:none}
+  background:#0C0B10;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer;flex:none}
 .stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .lock{position:relative;display:flex;align-items:baseline}
-.trac{font-family:'Dancing Script';font-weight:700;font-size:104px;line-height:1.4;color:#EDEFF7;
+.trac{font-family:'Dancing Script';font-weight:700;font-size:104px;line-height:1.4;color:#F3F0F4;
   clip-path:inset(0 100% -20% -8%);will-change:clip-path}
 .sw{position:absolute;overflow:visible;pointer-events:none}
 .sw path{fill:none;stroke:var(--red);stroke-linecap:round}
@@ -66,7 +66,7 @@ h2{margin:60px 0 16px;font-size:24px;font-weight:600;letter-spacing:-.02em}
 .tip.red{box-shadow:0 0 14px rgba(226,51,67,.95),0 0 34px rgba(226,51,67,.55)}
 .glow{position:absolute;border-radius:50%;pointer-events:none;opacity:0;z-index:1;
   background:radial-gradient(circle,rgba(226,51,67,.5),rgba(226,51,67,0) 70%)}
-.slog{margin-top:20px;font-family:Caveat,cursive;font-size:23px;color:rgba(237,239,247,.5);opacity:0}
+.slog{margin-top:20px;font-family:Caveat,cursive;font-size:23px;color:rgba(243,240,244,.5);opacity:0}
 .hint{position:absolute;left:0;right:0;bottom:20px;text-align:center;font-size:11.5px;color:var(--i4)}
 .side{flex:1;min-width:300px;font-size:14px;line-height:1.65;color:var(--i2)}
 .side b{color:var(--ink)}
@@ -260,11 +260,11 @@ const swooshOnly = (px, c) => \`
 
 document.getElementById('sheet').innerHTML = \`
   <div class="card" style="width:430px">
-    <div class="cell" style="height:190px;padding-right:40px">\${lockup(84, '#EDEFF7')}</div>
+    <div class="cell" style="height:190px;padding-right:40px">\${lockup(84, '#F3F0F4')}</div>
     <div class="cap">Hero — splash, store, marketing</div>
   </div>
   <div class="card" style="width:300px">
-    <div class="cell" style="height:110px;padding-right:20px">\${lockup(30, '#EDEFF7')}</div>
+    <div class="cell" style="height:110px;padding-right:20px">\${lockup(30, '#F3F0F4')}</div>
     <div class="cell" style="height:80px;background:#F4F3F1;padding-right:20px">\${lockup(30, '#14131A')}</div>
     <div class="cap">In-app header · on light</div>
   </div>

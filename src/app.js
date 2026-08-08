@@ -81,7 +81,7 @@ const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
 
 const state = {
-  brush: 'pen', color: '#FFB020',
+  brush: 'pen', color: '#E23343',
   mode: null,            // null | mirror | trace | passpen | onemore...
   bothHere: false,
   penHolder: 'you',
@@ -330,7 +330,7 @@ const sara = {
     drawingNow = !!on;
     $('#presence').classList.toggle('live', on);
     $('#presence-txt').textContent = on ? 'Maya is drawing' : 'Maya is here';
-    $('#presence-dot').style.background = on ? '#FF7BC5' : '#4ADE80';
+    $('#presence-dot').style.background = on ? '#FF7A9C' : '#4ADE80';
     const tag = $('#canvas-tag'); if (tag) tag.classList.toggle('on', !!on);
     window.TRACE_BOARD && TRACE_BOARD.paint && TRACE_BOARD.paint();
   },
@@ -1725,7 +1725,7 @@ function paintNet() {
   if (!online && !netDown) {
     netDown = true;
     toast('offline — your marks will wait, nothing is lost');
-    $('#presence-dot').style.background = '#FFB020';
+    $('#presence-dot').style.background = '#F4C66B';
   }
   if (online && netDown) {
     netDown = false;

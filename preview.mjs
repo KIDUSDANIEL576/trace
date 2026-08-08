@@ -38,11 +38,11 @@ const page = `<!DOCTYPE html>
 <title>trace — proposals</title>
 <style>
 ${fonts}
-:root{--ink:#EDEFF7;--i2:rgba(237,239,247,.55);--i3:rgba(237,239,247,.45);--i4:rgba(237,239,247,.4);
-  --amber:#FFB020;--pink:#FF7BC5;--blue:#6EA8FF;--green:#4ADE80;--red:#E23343;
+:root{--ink:#F3F0F4;--i2:rgba(243,240,244,.55);--i3:rgba(243,240,244,.45);--i4:rgba(243,240,244,.4);
+  --amber:#F4C66B;--pink:#FF7A9C;--blue:#7EC8FF;--green:#4ADE80;--red:#E23343;
   --card:rgba(255,255,255,.055);--cbd:rgba(255,255,255,.07);--chip:rgba(255,255,255,.08)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:#0A0A0C;color:var(--ink);
+html,body{margin:0;background:#0C0B10;color:var(--ink);
   font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 body{padding:44px 40px 120px}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
@@ -57,24 +57,24 @@ h2{margin:0 0 8px;font-size:28px;font-weight:600;letter-spacing:-.02em}
 .row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
 .cap{font-size:13px;color:var(--i3);margin-top:10px}
 .card{border-radius:22px;background:var(--card);border:1px solid var(--cbd);padding:20px}
-.btn{padding:11px 20px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;font-size:14px;font-weight:600}
+.btn{padding:11px 20px;border-radius:999px;background:#F3F0F4;color:#0C0B10;font-size:14px;font-weight:600}
 .btn.ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid rgba(255,255,255,.12)}
 .phone{width:330px;height:714px;border-radius:40px;border:7px solid #08080B;overflow:hidden;position:relative;
   background:linear-gradient(180deg,#0C1234 0%,#080B22 60%,#05060F 100%);box-shadow:0 28px 60px rgba(0,0,0,.6);flex:none}
 
 /* ---------- 1 · launch ---------- */
 #launch{width:330px;height:714px;border-radius:40px;border:7px solid #08080B;overflow:hidden;position:relative;
-  background:#0A0A0C;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 28px 60px rgba(0,0,0,.6)}
+  background:#0C0B10;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 28px 60px rgba(0,0,0,.6)}
 .lk-word{display:flex;align-items:center;opacity:0}
-.lk-word span{font-family:Caveat,cursive;font-weight:700;font-size:64px;color:#EDEFF7;line-height:1}
+.lk-word span{font-family:Caveat,cursive;font-weight:700;font-size:64px;color:#F3F0F4;line-height:1}
 .lk-e{width:44px;height:44px;margin-left:-3px;margin-top:5px}
 .lk-e path{stroke:#E23343;stroke-width:9;fill:none;stroke-linecap:round}
 .lk-slogan{position:absolute;left:0;right:0;bottom:88px;text-align:center;font-family:Caveat,cursive;
-  font-size:22px;color:rgba(237,239,247,.5);opacity:0}
+  font-size:22px;color:rgba(243,240,244,.5);opacity:0}
 .icons{display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap}
 .ic{border-radius:22.5%;background:#E23343;display:flex;align-items:center;justify-content:center;
   box-shadow:0 10px 26px rgba(0,0,0,.5)}
-.ic.dark{background:#0A0A0C;border:1px solid rgba(255,255,255,.12)}
+.ic.dark{background:#0C0B10;border:1px solid rgba(255,255,255,.12)}
 .ic svg path{fill:none;stroke-linecap:round}
 
 /* ---------- 2 · pad ---------- */
@@ -88,7 +88,7 @@ h2{margin:0 0 8px;font-size:28px;font-weight:600;letter-spacing:-.02em}
 .seg button .nd{position:absolute;top:6px;right:12px;width:6px;height:6px;border-radius:50%;background:var(--pink);opacity:0}
 .seg button .nd.on{opacity:1;animation:pulseDot 1.6s ease-in-out infinite}
 @keyframes pulseDot{0%,100%{opacity:.4}50%{opacity:1}}
-.seg button.on{background:#EDEFF7;color:#0A0A0C}
+.seg button.on{background:#F3F0F4;color:#0C0B10}
 .pad{position:relative;flex:1;border-radius:24px;background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.08);overflow:hidden;touch-action:none}
 .pad canvas{position:absolute;inset:0;width:100%;height:100%}
@@ -119,11 +119,11 @@ h2{margin:0 0 8px;font-size:28px;font-weight:600;letter-spacing:-.02em}
 .hands{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .hands button{padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.1);font-size:17px;color:var(--i2)}
-.hands button.on{background:#EDEFF7;color:#0A0A0C;border-color:transparent}
+.hands button.on{background:#F3F0F4;color:#0C0B10;border-color:transparent}
 #hw-stage{position:absolute;inset:0;padding:60px 22px}
-#hw-out{font-size:27px;line-height:1.5;color:#FFB020;white-space:pre-wrap;word-break:break-word}
+#hw-out{font-size:27px;line-height:1.5;color:#F4C66B;white-space:pre-wrap;word-break:break-word}
 #hw-out .ch{display:inline-block;opacity:0}
-.hw-caret{display:inline-block;width:2px;height:1em;background:#FFB020;vertical-align:-.14em;animation:blink 1s steps(1) infinite}
+.hw-caret{display:inline-block;width:2px;height:1em;background:#F4C66B;vertical-align:-.14em;animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .kb{position:absolute;left:0;right:0;bottom:0;background:rgba(10,12,26,.96);border-top:1px solid rgba(255,255,255,.1);
   padding:8px 5px 16px;display:flex;flex-direction:column;gap:6px}
@@ -145,14 +145,14 @@ h2{margin:0 0 8px;font-size:28px;font-weight:600;letter-spacing:-.02em}
 .srow .n{font-size:14.5px;font-weight:600;display:block;line-height:1.25}
 .srow .s{font-size:11.5px;color:var(--i3);display:block;margin-top:2px}
 .srow .v{font-size:12.5px;color:var(--i2);flex:none;max-width:44%;text-align:right}
-.srow .chev{color:rgba(237,239,247,.3);font-size:15px}
+.srow .chev{color:rgba(243,240,244,.3);font-size:15px}
 .tog{width:44px;height:26px;border-radius:99px;background:rgba(255,255,255,.16);padding:3px;display:flex;
   justify-content:flex-start;flex:none;transition:.18s}
 .tog i{width:20px;height:20px;border-radius:50%;background:#fff;display:block}
 .tog.on{background:var(--green);justify-content:flex-end}
 .you{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;
   background:linear-gradient(160deg,#1E2C63,#0D1436);border:1px solid rgba(255,255,255,.12)}
-.you .av{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFD98A,#FFB020);flex:none}
+.you .av{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#FFD98A,#F4C66B);flex:none}
 .you .av.b{background:radial-gradient(circle at 40% 35%,#FF9ED4,#C2418C)}
 .danger{color:var(--red);border-color:rgba(226,51,67,.3)!important}
 .note{font-size:12px;color:var(--i4);padding:12px 6px 22px;text-align:center;line-height:1.5}
@@ -231,11 +231,11 @@ including saying no to any of it.</p>
             <div class="pad-note" id="pad-note">draw — it lands on her widget, read-only</div>
           </div>
           <div class="pad-tools">
-            <button class="sw on" data-c="#FFB020" style="background:#FFB020"></button>
-            <button class="sw" data-c="#FF7BC5" style="background:#FF7BC5"></button>
-            <button class="sw" data-c="#6EA8FF" style="background:#6EA8FF"></button>
+            <button class="sw on" data-c="#F4C66B" style="background:#F4C66B"></button>
+            <button class="sw" data-c="#FF7A9C" style="background:#FF7A9C"></button>
+            <button class="sw" data-c="#7EC8FF" style="background:#7EC8FF"></button>
             <button class="sw" data-c="#4ADE80" style="background:#4ADE80"></button>
-            <button class="sw" data-c="#EDEFF7" style="background:#EDEFF7"></button>
+            <button class="sw" data-c="#F3F0F4" style="background:#F3F0F4"></button>
             <button class="btn ghost" id="pad-clear" style="margin-left:auto;padding:8px 14px;font-size:12px">Clear</button>
             <button class="btn ghost" id="pad-her" style="padding:8px 14px;font-size:12px">She draws</button>
           </div>
@@ -257,9 +257,9 @@ including saying no to any of it.</p>
     </div>
 
     <div class="legend">
-      <div class="leg"><i style="background:#FFB020"></i><span><b>Mine →</b> my board. Ink goes one way: onto her
+      <div class="leg"><i style="background:#F4C66B"></i><span><b>Mine →</b> my board. Ink goes one way: onto her
         widget, read-only. Good morning, a shopping doodle, a heart. She sees, she can't edit.</span></div>
-      <div class="leg"><i style="background:#FF7BC5"></i><span><b>Hers →</b> her board, mirrored onto my widget.
+      <div class="leg"><i style="background:#FF7A9C"></i><span><b>Hers →</b> her board, mirrored onto my widget.
         Same rule reversed. I never touch her ink.</span></div>
       <div class="leg"><i style="background:#4ADE80"></i><span><b>US →</b> the shared canvas. Both pens live on one
         surface — this is where mirror, trace-over, pass-the-pen and Both Here live. The only place either of us
@@ -290,7 +290,7 @@ including saying no to any of it.</p>
           <div class="kr"><span>q</span><span>w</span><span>e</span><span>r</span><span>t</span><span>y</span><span>u</span><span>i</span><span>o</span><span>p</span></div>
           <div class="kr"><span>a</span><span>s</span><span>d</span><span>f</span><span>g</span><span>h</span><span>j</span><span>k</span><span>l</span></div>
           <div class="kr"><span>z</span><span>x</span><span>c</span><span>v</span><span>b</span><span>n</span><span>m</span><span>⌫</span></div>
-          <div class="kr"><span class="wide">space</span><span class="wide" style="background:#EDEFF7;color:#0A0A0C">send</span></div>
+          <div class="kr"><span class="wide">space</span><span class="wide" style="background:#F3F0F4;color:#0C0B10">send</span></div>
         </div>
       </div>
       <div class="cap">Type below — it renders here</div>
@@ -341,11 +341,11 @@ including saying no to any of it.</p>
       <div class="cap">Scrollable — the whole thing</div>
     </div>
     <div class="legend" style="max-width:340px">
-      <div class="leg"><i style="background:#FFB020"></i><span><b>The pair comes first.</b> Your name, her name,
+      <div class="leg"><i style="background:#F4C66B"></i><span><b>The pair comes first.</b> Your name, her name,
         how long, and the key that moves you both to a new phone. In a couples app this is the identity screen.</span></div>
-      <div class="leg"><i style="background:#FF7BC5"></i><span><b>How loud is its own group</b>, not buried in
+      <div class="leg"><i style="background:#FF7A9C"></i><span><b>How loud is its own group</b>, not buried in
         toggles — it's the promise the product makes about silence, so it gets a row that shows its own state.</span></div>
-      <div class="leg"><i style="background:#6EA8FF"></i><span><b>The rules read as sentences</b>, not switch labels.
+      <div class="leg"><i style="background:#7EC8FF"></i><span><b>The rules read as sentences</b>, not switch labels.
         "A dot, never a location." You should be able to read this screen and know what the app won't do.</span></div>
       <div class="leg"><i style="background:#E23343"></i><span><b>The two ends live together</b> — delete everything,
         and unpair — in red, below a rule, after everything else. Nothing else is red anywhere in Trace.</span></div>
@@ -434,7 +434,7 @@ lr.style.strokeDasharray = LL;
 let turn = 0;
 setInterval(() => {
   turn = 1 - turn;
-  lr.style.stroke = turn ? '#EDEFF7' : '#E23343';
+  lr.style.stroke = turn ? '#F3F0F4' : '#E23343';
   lr.animate([{ strokeDashoffset: LL }, { strokeDashoffset: 0 }],
     { duration: 900, easing: 'cubic-bezier(.4,0,.3,1)', fill: 'forwards' });
 }, 1000);
@@ -443,7 +443,7 @@ setInterval(() => {
 const pad = document.getElementById('pad'), cv = document.getElementById('pad-cv');
 const mwcv = document.getElementById('mw-cv');
 const cx = cv.getContext('2d'), mx = mwcv.getContext('2d');
-let mode = 'mine', color = '#FFB020';
+let mode = 'mine', color = '#F4C66B';
 let mineStrokes = [], herStrokes = [], usStrokes = [];
 const DPR = Math.min(2, devicePixelRatio || 1);
 function fit() {
@@ -543,7 +543,7 @@ function note(t) {
 document.getElementById('pad-her').addEventListener('click', () => {
   const target = mode === 'us' ? usStrokes : herStrokes;
   const y0 = 60 + Math.random() * 260;
-  const s = { c: '#FF7BC5', w: 8, pts: [], ghost: mode !== 'us' && mode !== 'hers' };
+  const s = { c: '#FF7A9C', w: 8, pts: [], ghost: mode !== 'us' && mode !== 'hers' };
   for (let i = 0; i <= 26; i++) {
     s.pts.push({ x: 26 + i * 9, y: y0 + Math.sin(i / 3.2) * 30, v: 6 });
   }
@@ -647,7 +647,7 @@ document.getElementById('set-body').innerHTML = SET.map((r) => {
   if (r.pair) return '<div class="you"><div class="av"></div><div class="av b" style="margin-left:-18px"></div>' +
     '<div style="flex:1;min-width:0;margin-left:6px"><div style="font-size:15px;font-weight:600">You &amp; Maya</div>' +
     '<div style="font-size:12px;color:var(--i3);margin-top:2px">Paired 41 days · code 8f2k1</div></div>' +
-    '<div style="font-size:15px;color:rgba(237,239,247,.3)">›</div></div>';
+    '<div style="font-size:15px;color:rgba(243,240,244,.3)">›</div></div>';
   const right = r.tog !== undefined ? '<span class="tog' + (r.tog ? ' on' : '') + '"><i></i></span>'
     : r.locked ? '<span style="font-size:11px;color:var(--green);font-weight:600">always</span>'
     : (r.v ? '<span class="v">' + r.v + '</span>' : '') + (r.chev ? '<span class="chev">›</span>' : '');

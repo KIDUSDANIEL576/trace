@@ -40,9 +40,9 @@ const page = `<!DOCTYPE html>
 <title>trace — the cursive launch, and five marks</title>
 <style>
 ${faces}${caveat}
-:root{--ink:#EDEFF7;--i2:rgba(237,239,247,.55);--i4:rgba(237,239,247,.4);--red:#E23343;--card:rgba(255,255,255,.05)}
+:root{--ink:#F3F0F4;--i2:rgba(243,240,244,.55);--i4:rgba(243,240,244,.4);--red:#E23343;--card:rgba(255,255,255,.05)}
 *{box-sizing:border-box}
-html,body{margin:0;background:#0A0A0C;color:var(--ink);
+html,body{margin:0;background:#0C0B10;color:var(--ink);
   font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 body{padding:40px 34px 100px}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
@@ -52,24 +52,24 @@ h2{margin:64px 0 6px;font-size:26px;font-weight:600;letter-spacing:-.02em}
 .bar{display:flex;gap:9px;align-items:center;margin-bottom:26px;flex-wrap:wrap}
 .btn{padding:10px 17px;border-radius:999px;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.11);font-size:13.5px;font-weight:600}
-.btn.on{background:#EDEFF7;color:#0A0A0C;border-color:transparent}
+.btn.on{background:#F3F0F4;color:#0C0B10;border-color:transparent}
 .btn.go{background:var(--red);color:#fff;border-color:transparent}
 
 /* ------------------------------------------------------- the launch */
 .stagewrap{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
 .screen{width:360px;height:640px;border-radius:42px;border:7px solid #08080B;overflow:hidden;position:relative;
-  background:#0A0A0C;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer;flex:none}
+  background:#0C0B10;box-shadow:0 26px 56px rgba(0,0,0,.6);cursor:pointer;flex:none}
 .stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .wordwrap{position:relative;height:150px;display:flex;align-items:center}
 .word{font-size:96px;line-height:1.5;white-space:nowrap;
-  background-image:linear-gradient(90deg,#EDEFF7 0px,#EDEFF7 100%);
+  background-image:linear-gradient(90deg,#F3F0F4 0px,#F3F0F4 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
   clip-path:inset(0 100% -22% 0);will-change:clip-path}
 .tip{position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;opacity:0;pointer-events:none;
   box-shadow:0 0 14px rgba(255,255,255,.95),0 0 30px rgba(255,255,255,.4);will-change:transform;z-index:3}
 .glow{position:absolute;border-radius:50%;pointer-events:none;opacity:0;z-index:1;
   background:radial-gradient(circle,rgba(226,51,67,.55),rgba(226,51,67,0) 70%)}
-.slog{margin-top:14px;font-family:Caveat,cursive;font-size:22px;color:rgba(237,239,247,.5);opacity:0}
+.slog{margin-top:14px;font-family:Caveat,cursive;font-size:22px;color:rgba(243,240,244,.5);opacity:0}
 .hint{position:absolute;left:0;right:0;bottom:20px;text-align:center;font-size:11.5px;color:var(--i4)}
 .side{flex:1;min-width:300px;font-size:14px;line-height:1.65;color:var(--i2)}
 .side b{color:var(--ink)}
@@ -188,7 +188,7 @@ function run() {
   const me = ++tok, S = 1 / speed;
   applyFont();
   word.style.clipPath = 'inset(0 100% -22% 0)';
-  word.style.backgroundImage = 'linear-gradient(90deg,#EDEFF7 0px,#EDEFF7 100%)';
+  word.style.backgroundImage = 'linear-gradient(90deg,#F3F0F4 0px,#F3F0F4 100%)';
   word.style.transform = 'none'; word.style.opacity = 1;
   tip.style.opacity = 0; slog.style.opacity = 0; glow.style.opacity = 0;
 
@@ -232,9 +232,9 @@ function run() {
          to the end of the e — ink bleeding into the last two letters */
       const head = cx + (W - cx + 50) * e;
       word.style.backgroundImage =
-        'linear-gradient(90deg,#EDEFF7 0px,#EDEFF7 ' + cx.toFixed(1) + 'px,' +
+        'linear-gradient(90deg,#F3F0F4 0px,#F3F0F4 ' + cx.toFixed(1) + 'px,' +
         '#E23343 ' + cx.toFixed(1) + 'px,#E23343 ' + Math.max(cx, head - 44).toFixed(1) + 'px,' +
-        '#EDEFF7 ' + Math.max(cx + 1, head).toFixed(1) + 'px,#EDEFF7 100%)';
+        '#F3F0F4 ' + Math.max(cx + 1, head).toFixed(1) + 'px,#F3F0F4 100%)';
       /* 3 · one glow behind ce, then settle */
       const g = Math.sin(Math.min(1, r) * Math.PI);
       const gw = (W - cx) + 120;
@@ -284,21 +284,21 @@ const MARKS = [
   { t: '1 · The signature',
     d: 'Dancing Script at 700, one connected word, and the last two letters carry the second colour. The whole product in two letters: the word is finished by someone else. Survives at 24px, which none of the thin scripts do.',
     hero: (s) => '<div style="font-family:\\'Dancing Script\\';font-weight:700;font-size:' + s +
-      'px;line-height:1.5;color:#EDEFF7">tra<span style="color:#E23343">ce</span></div>',
+      'px;line-height:1.5;color:#F3F0F4">tra<span style="color:#E23343">ce</span></div>',
     icon: '<div class="ic" style="background:#E23343"><span style="font-family:\\'Dancing Script\\';font-weight:700;font-size:50px;color:#fff;line-height:1.6">t</span></div>' },
 
   { t: '2 · The ink change',
     d: 'Sacramento — a true monoline, the closest thing to an actual pen. A red dot sits exactly on the join between a and c: the visible moment the pen changed hands. That dot alone is the icon.',
     hero: (s) => '<div style="position:relative;font-family:Sacramento;font-size:' + (s * 1.06) +
-      'px;line-height:1.5;color:#EDEFF7">tra<span style="color:#E23343">ce</span>' +
+      'px;line-height:1.5;color:#F3F0F4">tra<span style="color:#E23343">ce</span>' +
       '<span style="position:absolute;left:44.5%;bottom:26%;width:9px;height:9px;border-radius:50%;background:#E23343;box-shadow:0 0 12px rgba(226,51,67,.9)"></span></div>',
-    icon: '<div class="ic" style="background:#0A0A0C;border:1px solid rgba(255,255,255,.14)">' +
+    icon: '<div class="ic" style="background:#0C0B10;border:1px solid rgba(255,255,255,.14)">' +
       '<span style="width:16px;height:16px;border-radius:50%;background:#E23343;box-shadow:0 0 18px rgba(226,51,67,.9)"></span></div>' },
 
   { t: '3 · The trace underneath',
     d: 'Kaushan in white, and the red stroke the app already draws living under the word — the thing you leave behind. The swoosh alone is the strongest icon of the five, because it is the exact ink your partner sees on the canvas.',
     hero: (s) => '<div style="position:relative;padding-bottom:22px"><div style="font-family:\\'Kaushan Script\\';font-size:' +
-      (s * .92) + 'px;line-height:1.5;color:#EDEFF7">trace</div>' +
+      (s * .92) + 'px;line-height:1.5;color:#F3F0F4">trace</div>' +
       '<div style="position:absolute;left:-4px;right:-10px;bottom:-2px;height:34px">' + SW(220, 36, TAIL, '#E23343', 7) + '</div></div>',
     icon: '<div class="ic" style="background:#E23343;padding:14px">' + SW(220, 36, TAIL, '#fff', 13) + '</div>' },
 
@@ -307,8 +307,8 @@ const MARKS = [
     hero: (s) => '<div style="position:relative;display:inline-block;padding:16px 26px">' +
       '<div style="position:absolute;inset:0">' + SW(300, 130,
         'M262 44 C300 12,236 -6,150 6 C64 18,4 44,14 78 C24 112,120 132,196 120 C252 112,286 92,282 74', '#E23343', 6) + '</div>' +
-      '<div style="font-family:Yellowtail;font-size:' + (s * .84) + 'px;line-height:1.5;color:#EDEFF7;position:relative">trace</div></div>',
-    icon: '<div class="ic" style="background:#0A0A0C;border:1px solid rgba(255,255,255,.14);padding:11px">' +
+      '<div style="font-family:Yellowtail;font-size:' + (s * .84) + 'px;line-height:1.5;color:#F3F0F4;position:relative">trace</div></div>',
+    icon: '<div class="ic" style="background:#0C0B10;border:1px solid rgba(255,255,255,.14);padding:11px">' +
       SW(300, 130, 'M262 44 C300 12,236 -6,150 6 C64 18,4 44,14 78 C24 112,120 132,196 120 C252 112,286 92,282 74', '#E23343', 11) + '</div>' },
 
   { t: '5 · Two hands',
@@ -316,10 +316,10 @@ const MARKS = [
     hero: (s) => '<div style="position:relative">' +
       '<div style="position:absolute;left:7px;top:7px;font-family:Parisienne;font-size:' + s +
       'px;line-height:1.5;color:rgba(226,51,67,.62);transform:rotate(-3.5deg)">trace</div>' +
-      '<div style="font-family:Parisienne;font-size:' + s + 'px;line-height:1.5;color:#EDEFF7;position:relative">trace</div></div>',
-    icon: '<div class="ic" style="background:#0A0A0C;border:1px solid rgba(255,255,255,.14)">' +
+      '<div style="font-family:Parisienne;font-size:' + s + 'px;line-height:1.5;color:#F3F0F4;position:relative">trace</div></div>',
+    icon: '<div class="ic" style="background:#0C0B10;border:1px solid rgba(255,255,255,.14)">' +
       '<div style="position:relative"><span style="position:absolute;left:4px;top:3px;font-family:Parisienne;font-size:42px;color:rgba(226,51,67,.75);line-height:1.5;transform:rotate(-4deg);display:block">t</span>' +
-      '<span style="font-family:Parisienne;font-size:42px;color:#EDEFF7;line-height:1.5;position:relative">t</span></div></div>' },
+      '<span style="font-family:Parisienne;font-size:42px;color:#F3F0F4;line-height:1.5;position:relative">t</span></div></div>' },
 ];
 
 document.getElementById('marks').innerHTML = MARKS.map((m) => \`
@@ -330,7 +330,7 @@ document.getElementById('marks').innerHTML = MARKS.map((m) => \`
       <div class="small">\${m.hero(23)}</div>
       <div class="appicon">\${m.icon}</div>
     </div>
-    <div class="lightrow">\${m.hero(30).replace(/#EDEFF7/g, '#14131A').replace(/rgba\\(226,51,67,\\.62\\)/g, 'rgba(226,51,67,.55)')}</div>
+    <div class="lightrow">\${m.hero(30).replace(/#F3F0F4/g, '#14131A').replace(/rgba\\(226,51,67,\\.62\\)/g, 'rgba(226,51,67,.55)')}</div>
   </div>\`).join('');
 </script>
 </body></html>

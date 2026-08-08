@@ -457,7 +457,7 @@ writeFileSync(join(at(OUT), 'manifest.webmanifest'), JSON.stringify({
   name: 'trace', short_name: 'trace',
   description: 'One canvas, both of you, all day.',
   start_url: './app.html', scope: './', display: 'standalone',
-  background_color: '#0A0A0C', theme_color: '#0A0A0C',
+  background_color: '#0C0B10', theme_color: '#0C0B10',
   icons: [
     { src: 'pwa/icon-512.png', sizes: '512x512', type: 'image/png' },
     { src: 'pwa/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
@@ -491,7 +491,7 @@ self.addEventListener('notificationclick',e=>{
   }));
 });`);
 const PWA_HEAD = `<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0A0A0C">
+<meta name="theme-color" content="#0C0B10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="trace">
@@ -555,11 +555,11 @@ for (const n of notes) console.log(`\nnote: ${n}`);
       `<li>${l.replace(/^([-*]|\d+\.) /, '')}</li>`).join('') + '</ul>';
     return `<p>${t}</p>`;
   }).join('\n').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  const legalCss = `<style>*{box-sizing:border-box}body{margin:0;background:#0A0A0C;color:#EDEFF7;
+  const legalCss = `<style>*{box-sizing:border-box}body{margin:0;background:#0C0B10;color:#F3F0F4;
     font:15px/1.65 -apple-system,'Segoe UI',system-ui,sans-serif;padding:40px 22px 80px}
     .w{max-width:680px;margin:0 auto}h1{font-size:26px;letter-spacing:-.01em}h2{font-size:18px;margin-top:26px}
-    p,li{color:rgba(237,239,247,.72)}b{color:#EDEFF7}a{color:#6EA8FF}ul{padding-left:20px}
-    .back{font-size:13px;color:rgba(237,239,247,.45)}</style>`;
+    p,li{color:rgba(243,240,244,.72)}b{color:#F3F0F4}a{color:#7EC8FF}ul{padding-left:20px}
+    .back{font-size:13px;color:rgba(243,240,244,.45)}</style>`;
   for (const [src2, out2, title2] of [['docs/PRIVACY.md', 'privacy.html', 'privacy'], ['docs/TERMS.md', 'terms.html', 'terms']]) {
     writeFileSync(join(at(OUT), out2),
       `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -571,24 +571,24 @@ for (const n of notes) console.log(`\nnote: ${n}`);
   writeFileSync(join(at(OUT), 'start.html'), `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>trace — one canvas, both of you</title>
-<meta name="theme-color" content="#0A0A0C">
+<meta name="theme-color" content="#0C0B10">
 <style>
 @font-face{font-family:'Dancing Script';font-weight:700;src:url(data:font/woff2;base64,${dsB64}) format('woff2')}
 *{box-sizing:border-box;margin:0}
-body{background:#0A0A0C;color:#EDEFF7;font:16px/1.6 -apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+body{background:#0C0B10;color:#F3F0F4;font:16px/1.6 -apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:40px 24px;text-align:center}
 .mark{font-family:'Dancing Script';font-weight:700;font-size:88px;line-height:1.35;display:flex;align-items:baseline}
 .mark svg{width:82px;height:40px;overflow:visible;transform:translateY(-8px)}
-.line{font-size:18px;color:rgba(237,239,247,.6);margin:10px 0 34px;max-width:34ch;text-wrap:balance}
-.go{display:inline-block;padding:16px 42px;border-radius:999px;background:#EDEFF7;color:#0A0A0C;
+.line{font-size:18px;color:rgba(243,240,244,.6);margin:10px 0 34px;max-width:34ch;text-wrap:balance}
+.go{display:inline-block;padding:16px 42px;border-radius:999px;background:#F3F0F4;color:#0C0B10;
   font-size:17px;font-weight:650;text-decoration:none}
 .how{margin-top:38px;max-width:420px;width:100%;text-align:left;border:1px solid rgba(255,255,255,.1);
   border-radius:18px;padding:18px 20px;background:rgba(255,255,255,.04)}
-.how b{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:rgba(237,239,247,.45)}
-.how p{font-size:14.5px;color:rgba(237,239,247,.72);margin-top:8px}
-.foot{margin-top:40px;font-size:12.5px;color:rgba(237,239,247,.35)}
-.foot a{color:rgba(237,239,247,.5)}
+.how b{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,240,244,.45)}
+.how p{font-size:14.5px;color:rgba(243,240,244,.72);margin-top:8px}
+.foot{margin-top:40px;font-size:12.5px;color:rgba(243,240,244,.35)}
+.foot a{color:rgba(243,240,244,.5)}
 </style></head><body>
 <div class="mark">trac<svg viewBox="0 0 140 70"><path d="M6 50 C28 12, 60 66, 98 28 C110 17, 122 15, 133 21"
   fill="none" stroke="#E23343" stroke-width="10" stroke-linecap="round"/></svg></div>
