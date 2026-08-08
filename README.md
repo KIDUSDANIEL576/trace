@@ -97,6 +97,42 @@ live data.
 `R.quiet()` is the single "quiet the machinery" predicate. Repair, cover,
 newborn and grief all want the same silence, so anything that counts,
 congratulates, nags or scores asks it once rather than carrying a flag each.
+A paused pairing (p51) counts too — "everything freezes" is the same silence
+under another name. `R.offers()` is the same question one step softer: may the
+app suggest something right now, which is quiet plus the "Tiny suggestions"
+switch.
+
+### The canvas persists for a day
+
+Strokes live in `pages` and are written to `trace:ink` under a day stamp.
+Three things about that are load-bearing:
+
+- **Points are stored normalised.** The canvas is one size at boot, another
+  once the app view appears, another again after a rotation. Restored strokes
+  keep the `_n` cache her page has always used, and `sizeCanvas()` re-projects
+  every page — projecting once at load put marks 10-35% out of place.
+- **`c` stays a palette slot.** Same reason it is a slot on the wire: a
+  resolved colour carries the theme it was drawn in, and ink drawn at night
+  would come back cream on white.
+- **One day, unless you say otherwise.** The canvas seals at goodnight, and
+  what survives past midnight is the p36 wall of marks both people chose to
+  keep. "Permanent ink" in Quiet & private is the switch that decides whether
+  a stamp from another day is restored or dropped.
+
+### Some settings are not settings
+
+Two rows in Quiet & private render as a stated fact with an `always` chip
+rather than a switch, because they are guarantees and a toggle claimed they
+had an off position:
+
+- **The pocket** is excluded from search, sync, backup and export by policy,
+  and every egress path already enforces it.
+- **On-device only** describes a broadcast relay with no storage behind it.
+  There is no code path that keeps strokes server-side to opt into, so the off
+  state would have to be built before it could be offered.
+
+The rule worth carrying: a switch is a promise that the behaviour has two
+sides. If it only has one, say so.
 
 ### QA
 
