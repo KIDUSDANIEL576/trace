@@ -449,9 +449,41 @@ const scriptFaces = [
 ].map(([fam, file]) =>
   `@font-face{font-family:'${fam}';font-display:swap;src:url(data:font/woff2;base64,${b64('src/fonts/script/' + file + '.woff2')}) format('woff2')}`
 ).join('');
+/* ------------------------------------------------------------- PWA shell */
+/* the one realistic 7-day launch path: the app installs to the home screen,
+   runs standalone, and works offline (it is one self-contained file) */
+const SW_VERSION = Date.now().toString(36);
+writeFileSync(join(at(OUT), 'manifest.webmanifest'), JSON.stringify({
+  name: 'trace', short_name: 'trace',
+  description: 'One canvas, both of you, all day.',
+  start_url: './app.html', scope: './', display: 'standalone',
+  background_color: '#0A0A0C', theme_color: '#0A0A0C',
+  icons: [
+    { src: 'pwa/icon-512.png', sizes: '512x512', type: 'image/png' },
+    { src: 'pwa/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+}, null, 2));
+cpSync(at('src/pwa'), join(at(OUT), 'pwa'), { recursive: true });
+writeFileSync(join(at(OUT), 'sw.js'), `/* trace sw ${SW_VERSION} */
+const C='trace-${SW_VERSION}';
+const CORE=['./app.html','./manifest.webmanifest','./pwa/icon-512.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r})
+    .catch(()=>caches.match(e.request).then(r=>r||caches.match('./app.html'))));
+});`);
+const PWA_HEAD = `<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0A0A0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="trace">
+<link rel="apple-touch-icon" href="pwa/apple-touch-512.png">
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>`;
 writeFileSync(join(at(OUT), 'app.html'),
   read('src/app.html')
-    .replace('<!--FONT-->', () => `<style>${caveatCss}${scriptFaces}</style>`)
+    .replace('<!--FONT-->', () => PWA_HEAD + `\n<style>${caveatCss}${scriptFaces}</style>`)
     .replace('<!--CSS-->', () => `<style>\n${read('src/app.css')}\n</style>`)
     .replace('<!--SPRITE-->', () => SPRITE + `<style>.ts-i{width:1em;height:1em;display:inline-block;vertical-align:-.12em;flex:none}</style>`)
     .replace('<!--JS-->', () => `<script>\n${read('src/app-extra.js')}\n</script>\n<script>\n${read('src/app-sync.js')}\n</script>\n<script>\n${read('src/app-extra2.js')}\n</script>\n<script>\n${read('src/app.js')}\n</script>\n<script>\n${read('src/rooms.js')}\n</script>\n<script>\n${read('src/rooms2.js')}\n</script>\n<script>\n${read('src/surfaces.js')}\n</script>\n<script>\n${read('src/flows.js')}\n</script>\n<script>\n${read('src/write.js')}\n</script>`));

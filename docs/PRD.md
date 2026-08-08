@@ -112,7 +112,31 @@ Per §plan.html (ships as designed): Free = the whole core promise; **Plus $4.99
 8. A stroke never leaves its couple except by explicit, reversible donation. Aggregates only.
 9. **If a feature works only because leaving hurts, it doesn't ship.**
 
-## 10. Open questions
+## 10. Launch scope — the one-week cut (v0.9 "the week")
+
+**Decision: ship the PWA.** The prototype is a real, complete, self-contained
+app; wrapped as a PWA it installs to the home screen, runs standalone,
+works offline, and pairs live over Supabase. Native (widgets, watch, APNs,
+IAP) is v1.0, 4–6 weeks later — the store build. The week's definition of
+done:
+
+- **Ships:** installable PWA at a real domain · live pairing · the full
+  canvas engine (7 brushes, pressure, cascade, handwriting keys) · pages
+  (us/mine/hers) · the five rooms + board + widget sim · all flows (primer,
+  How loud, Your key, unpair) · offline outbox · export/delete.
+- **Ships degraded, honestly labeled:** the "widget" is the in-app home
+  screen (real WidgetKit is v1.0); notifications are Web Push where
+  available (Android yes, iOS 16.4+ installed-PWA yes); the flare rings as
+  loud as the platform allows and says so.
+- **Does not ship:** watch, tablet wall-board, lock screens (rendered
+  previews stay in-app as "coming with the store build"), IAP (launch free,
+  subscription lands with native), the launch animation (parked by owner).
+- **Backend hardening before public link:** channel names must become
+  unguessable — pair code exchanges for a random channel token at first
+  handshake (server function), so a 5-char code cannot be scanned. Rate
+  limit joins. This is the one security gate that blocks launch.
+
+## 11. Open questions
 
 - Undo semantics when both drew since (v1: retract own stroke only, tombstone in log).
 - E2E encryption of stroke payloads (v1.1 target; realtime broadcast supports opaque payloads today).
