@@ -24,8 +24,8 @@
     set:function(p){
       try{ localStorage.setItem(K,p); }catch(e){}
       apply(p);
-      /* canvas strokes are painted with resolved literals, so the cache has
-         to be dropped or the ink keeps yesterday's colour */
+      /* strokes name a palette slot and resolve per device, so a flip needs
+         the token cache dropped and a repaint — nothing stored changes */
       window.dispatchEvent(new Event('themechange'));
       window.dispatchEvent(new Event('resize'));
     }
@@ -126,10 +126,10 @@
             <div class="dock-row">
               <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
               <div id="colors">
-                <button class="swatch is-on" data-c="#E23343" style="background:#E23343"></button>
-                <button class="swatch" data-tok="--ink" data-c="#1A1A1A" style="background:#1A1A1A"></button>
-                <button class="swatch" data-c="#E9A13B" style="background:#E9A13B"></button>
-                <button class="swatch" data-c="#7A6BB5" style="background:#7A6BB5"></button>
+                <button class="swatch is-on" data-c="red"></button>
+                <button class="swatch" data-c="ink"></button>
+                <button class="swatch" data-c="amber"></button>
+                <button class="swatch" data-c="violet"></button>
                 <button class="swatch" id="swatch-any" title="any color"></button>
               </div>
               <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>

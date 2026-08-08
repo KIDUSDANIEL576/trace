@@ -558,8 +558,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     set:function(p){
       try{ localStorage.setItem(K,p); }catch(e){}
       apply(p);
-      /* canvas strokes are painted with resolved literals, so the cache has
-         to be dropped or the ink keeps yesterday's colour */
+      /* strokes name a palette slot and resolve per device, so a flip needs
+         the token cache dropped and a repaint — nothing stored changes */
       window.dispatchEvent(new Event('themechange'));
       window.dispatchEvent(new Event('resize'));
     }
@@ -660,10 +660,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
             <div class="dock-row">
               <button class="rbtn" id="undo-btn" title="undo"><svg class="ts-i"><use href="#i-undo"/></svg></button>
               <div id="colors">
-                <button class="swatch is-on" data-c="#E23343" style="background:#E23343"></button>
-                <button class="swatch" data-tok="--ink" data-c="#1A1A1A" style="background:#1A1A1A"></button>
-                <button class="swatch" data-c="#E9A13B" style="background:#E9A13B"></button>
-                <button class="swatch" data-c="#7A6BB5" style="background:#7A6BB5"></button>
+                <button class="swatch is-on" data-c="red"></button>
+                <button class="swatch" data-c="ink"></button>
+                <button class="swatch" data-c="amber"></button>
+                <button class="swatch" data-c="violet"></button>
                 <button class="swatch" id="swatch-any" title="any color"></button>
               </div>
               <button class="rbtn hot" id="heart-btn" title="heartbeat"><svg class="ts-i"><use href="#i-heart-fill"/></svg></button>
@@ -949,7 +949,7 @@ function heartRate() {
 function keepAlive() {
   api.closeSheet();
   const { W, H } = canvas();
-  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: 'var(--amber)', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
+  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: 'amber', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
   strokes.add(s);
   note('she drew this. it dies unless you trace it.');
   toast('go over her line to keep it alive');
@@ -1112,7 +1112,7 @@ function comeHere() {
     { transform: 'translateX(9px)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(0)' }],
     { duration: 620, easing: 'ease-in-out' });
   note('her whole phone just leaned toward you');
-  sara.after(3400, () => { note(''); sara.drawShape('come', { c: 'var(--red)' }); });
+  sara.after(3400, () => { note(''); sara.drawShape('come', { c: 'red' }); });
 }
 
 /* --------------------------------------------- 2g · gesture onboarding */
@@ -1151,12 +1151,12 @@ function bannerDay() {
   ];
   letters.forEach((L, i) => {
     sara.after(400 + i * 520, () => {
-      strokes.add({ pts: wobblePath(L, 3, 4), c: 'var(--amber)', w: 8, brush: 'pen', who: 'sara', born: now() });
+      strokes.add({ pts: wobblePath(L, 3, 4), c: 'amber', w: 8, brush: 'pen', who: 'sara', born: now() });
       buzz(10);
     });
   });
   sara.after(400 + letters.length * 520 + 400, () => {
-    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: 'var(--red)', w: 9, brush: 'pen', who: 'sara', born: now() });
+    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: 'red', w: 9, brush: 'pen', who: 'sara', born: now() });
     note('drawn two days ago. sealed until 00:00.');
     setTimeout(() => note(''), 5000);
   });
@@ -2100,12 +2100,27 @@ const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
 
 const state = {
-  brush: 'pen', color: 'var(--red)',
+  brush: 'pen', color: 'red',
   mode: null,            // null | mirror | trace | passpen | onemore...
   bothHere: false,
   penHolder: 'you',
   traceGuide: null, traceHits: 0,
 };
+
+/* A stroke is content, and content syncs. If it carried a resolved colour the
+   ink pen would arrive on a paper phone as cream on white — invisible — so
+   palette pens store a slot name and every device resolves it in its own
+   theme. Custom colours from the cascade are literal hex and pass straight
+   through; anything unrecognised does too, which keeps old saved strokes
+   working. */
+const PEN_SLOT = { ink: '--ink', red: '--red', amber: '--amber', violet: '--violet' };
+function penColor(c) {
+  if (typeof c !== 'string') return TOK('--ink');
+  if (PEN_SLOT[c]) return TOK(PEN_SLOT[c]);
+  if (c.startsWith('var(')) return TOK(c.slice(4, -1).trim());   // repaint leftovers
+  return c;
+}
+window.penColor = penColor;
 
 function drawStroke(s, upTo = Infinity, alpha = 1) {
   if (s.type === 'text') return drawTextStroke(s, alpha);
@@ -2114,9 +2129,9 @@ function drawStroke(s, upTo = Infinity, alpha = 1) {
   ctx.save();
   ctx.lineCap = ctx.lineJoin = 'round';
   ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
-  ctx.strokeStyle = s.c;
+  ctx.strokeStyle = penColor(s.c);
   if (s.brush === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = 1; }
-  if (s.brush === 'spark') { ctx.shadowColor = s.c; ctx.shadowBlur = 10; }
+  if (s.brush === 'spark') { ctx.shadowColor = penColor(s.c); ctx.shadowBlur = 10; }
   const n = Math.min(pts.length, upTo);
 
   if (s.taper && s.brush !== 'zap' && s.brush !== 'hi' && s.brush !== 'eraser') {
@@ -2165,7 +2180,7 @@ function drawTextStroke(s, alpha = 1) {
   const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
   ctx.save();
   ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
-  ctx.fillStyle = s.c;
+  ctx.fillStyle = penColor(s.c);
   ctx.textBaseline = 'middle';
   let x = s.x;
   for (const ch of s.text) {
@@ -2360,7 +2375,7 @@ const sara = {
   drawShape(name, opts = {}) {
     const base = SHAPES[name] || SHAPES.squiggle;
     const pts = wobblePath(base, 4, 5);
-    const s = { pts: [], c: opts.c || 'var(--red)', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
+    const s = { pts: [], c: opts.c || 'red', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
     strokes.push(s);
     this.presence(true);
     log('sara draws ' + name);
@@ -2486,7 +2501,7 @@ function toggleBrushPop() {
     const realCtx = ctx; const swap = Object.getOwnPropertyDescriptor(window, 'noop');
     prev.save(); prev.lineCap = prev.lineJoin = 'round';
     prev.globalAlpha = isEraser ? .5 : cfg.alpha;
-    prev.strokeStyle = isEraser ? TOK('--ink-2') : state.color;
+    prev.strokeStyle = isEraser ? TOK('--ink-2') : penColor(state.color);
     if (isEraser) prev.setLineDash([2, 7]);
     if (cfg.taper) {
       const pts = fake.pts;
@@ -2530,16 +2545,10 @@ $$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListen
   state.color = b.dataset.c;
 }); });
 
-/* The pen palette is four literals because the canvas needs literals, but the
-   ink pen means "the colour you write in" — near-black on paper, cream in the
-   dark. It follows the theme; red, amber and violet do not. */
+/* The swatches show the slot in the current theme; the stroke stores the slot
+   name, so a repaint is all a theme flip needs. */
 function retintPens() {
-  $$('.swatch[data-tok]').forEach(b => {
-    const was = b.dataset.c;
-    b.dataset.c = TOK(b.dataset.tok);
-    b.style.background = b.dataset.c;
-    if (state.color === was) state.color = b.dataset.c;
-  });
+  $$('.swatch[data-c]').forEach(b => { b.style.background = penColor(b.dataset.c); });
 }
 window.addEventListener('themechange', () => { retintPens(); redraw(); });
 retintPens();
@@ -2749,7 +2758,7 @@ function playInto(x, box, shapes, opts = {}) {
         for (let s = 0; s < 5; s++) dense.push({
           x: jit(pts[i].x + (pts[i + 1].x - pts[i].x) * s / 5, 3),
           y: jit(pts[i].y + (pts[i + 1].y - pts[i].y) * s / 5, 3) });
-      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = sh.c || TOK('--red'); x.lineWidth = sh.w || 8;
+      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = penColor(sh.c || 'red'); x.lineWidth = sh.w || 8;
       for (let i = 1; i < dense.length; i++) {
         if (stop || !box.isConnected) return;
         x.beginPath(); x.moveTo(dense[i - 1].x, dense[i - 1].y); x.lineTo(dense[i].x, dense[i].y); x.stroke();
@@ -2773,7 +2782,7 @@ const FEATURES = [
     run() {
       toggleMode('trace');
       if (state.mode === 'trace') {
-        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: 'var(--ink)', w: 14, brush: 'pen' };
+        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: 'ink', w: 14, brush: 'pen' };
         state.traceHits = 0;
         $('#canvas-note').textContent = 'her line. put yours on top of it.';
       } else { state.traceGuide = null; $('#canvas-note').textContent = ''; }
@@ -2925,7 +2934,7 @@ function openReveal() {
   };
   toast('hold-to-reveal on — draw with the ghost brush first. tap ✕ ⋯ to exit');
   sara.after(400, () => { if (!strokes.some(s => s.brush === 'ghost'))
-    sara.drawShape('xo', { c: 'var(--violet)' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
+    sara.drawShape('xo', { c: 'violet' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
   exitOnSheet(() => { featureHooks = {}; holdReveal = false; note.textContent = ''; });
 }
 function exitOnSheet(fn) {
@@ -3301,8 +3310,8 @@ function openSlept() {
     const pauseNote = document.createElement('div'); pauseNote.className = 'p-hint'; pauseNote.textContent = '';
     body.appendChild(pauseNote);
     const stop = playInto(x, box, [
-      { shape: 'heartL', c: 'var(--red)', w: 10, speed: 46, pause: 2200 },
-      { shape: 'heart', c: 'var(--red)', w: 10, speed: 40 },
+      { shape: 'heartL', c: 'red', w: 10, speed: 46, pause: 2200 },
+      { shape: 'heart', c: 'red', w: 10, speed: 40 },
     ], {
       onPause: () => { pauseNote.textContent = 'she stopped here.'; setTimeout(() => pauseNote.textContent = '', 2100); },
       done: () => { pauseNote.textContent = 'she was awake 26 minutes.'; log('while-you-slept replay done'); },
@@ -3371,7 +3380,7 @@ function openThread() {
 /* --- one year ago --- */
 function openYearAgo() {
   closeSheet();
-  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: 'var(--ink)', w: 13 };
+  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: 'ink', w: 13 };
   redraw();
   $('#canvas-note').textContent = 'one year ago tonight, she drew this. draw it again, worse.';
   toast('both versions stay, stacked, forever');
@@ -3703,14 +3712,14 @@ function paintWidget(target) {
   for (const s of mine) {
     if (s.type === 'text') {
       wx.font = `700 ${s.size}px '${s.font}', cursive`;
-      wx.fillStyle = s.c; wx.textBaseline = 'middle';
+      wx.fillStyle = penColor(s.c); wx.textBaseline = 'middle';
       wx.globalAlpha = 1; wx.fillText(s.text, s.x, s.y);
       continue;
     }
     if (s.pts.length < 2) continue;
     wx.globalCompositeOperation = s.brush === 'eraser' ? 'destination-out' : 'source-over';
     wx.globalAlpha = s.brush === 'eraser' ? 1 : (s.alpha !== undefined ? s.alpha : 1);
-    wx.strokeStyle = s.c; wx.lineWidth = s.w;
+    wx.strokeStyle = penColor(s.c); wx.lineWidth = s.w;
     wx.beginPath(); wx.moveTo(s.pts[0].x, s.pts[0].y);
     for (const p of s.pts) wx.lineTo(p.x, p.y);
     wx.stroke();
@@ -3849,12 +3858,12 @@ $('#widget').addEventListener('click', () => {
   if (opened) return; opened = true;
   setTimeout(() => {
     if (window.TRACE_NET && TRACE_NET.live()) return;
-    sara.drawShape('sun', { c: 'var(--amber)' });
+    sara.drawShape('sun', { c: 'amber' });
   }, 1200);
 });
 setTimeout(() => {
   if (true) return;   // opening moment now happens on first widget tap
-  sara.drawShape('sun', { c: 'var(--amber)', then: () => {
+  sara.drawShape('sun', { c: 'amber', then: () => {
     $('#canvas-note').textContent = 'draw how today feels';
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
   }});
@@ -4028,7 +4037,7 @@ const DEFAULTS = () => ({
   sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
   /* board content */
   notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
-  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'var(--ink)' }, { t: 'pick up cake', c: 'var(--amber)' }] },
+  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'ink' }, { t: 'pick up cake', c: 'amber' }] },
   leaving: null,          /* {mins} — auto, breaks through armour */
   thinking: null,         /* {ts} — "thinking of you" */
   traceSeen: false,       /* one-time trace burns after she sees it */
@@ -4282,7 +4291,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['var(--surface)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', 'var(--violet)', 'var(--amber)'];
+    const shades = ['var(--surface)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -5821,10 +5830,10 @@ R.addCard((d) => d.guest ? {
 
 /* 24c: asleep — the widget dims and stops updating */
 R.addCard((d) => d.awake ? null : {
-  pri: 10, kind: 'asleep', tint: 'var(--violet)', head: 'asleep', foot: 'her state',
+  pri: 10, kind: 'asleep', tint: 'var(--ink-3)', head: 'asleep', foot: 'her state',
   render(b) {
     b.innerHTML = `<div class="w-mid" style="opacity:.55"><div class="w-orb"
-      style="background:radial-gradient(circle at 40% 35%,var(--violet),#26356F);box-shadow:0 0 30px rgba(110,168,255,.35)"></div>
+      style="background:var(--ink-5);box-shadow:none"></div>
       <b>Maya is asleep</b><i>Your marks are waiting for her</i></div>`;
     return {};
   } });
@@ -5892,7 +5901,7 @@ function watchFaces() {
     <div style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:6px 0 2px">
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:168px;height:200px;border-radius:48px;background:#000;border:3px solid #2A2A30;
+        <div style="width:168px;height:200px;border-radius:48px;background:var(--emph);border:3px solid var(--emph);
           box-shadow:0 18px 40px var(--scrim);padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="font-size:11px;color:var(--red);font-weight:600">Maya</span>
@@ -5912,7 +5921,7 @@ function watchFaces() {
       </div>
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:180px;height:180px;border-radius:50%;background:#000;border:3px solid #2A2A30;
+        <div style="width:180px;height:180px;border-radius:50%;background:var(--emph);border:3px solid var(--emph);
           box-shadow:0 18px 40px var(--scrim);position:relative;display:flex;flex-direction:column;
           align-items:center;justify-content:center;gap:3px">
           <div style="position:absolute;inset:10px;border-radius:50%;border:2px solid var(--hairline)"></div>
@@ -5943,7 +5952,7 @@ function lockScreens() {
         <div style="position:absolute;top:12px;left:14px;padding:4px 10px;border-radius:999px;
           background:var(--hairline);font-size:10px;letter-spacing:.12em;color:var(--ink-2)">iOS LOCK</div>
         <div style="display:flex;justify-content:center;padding-top:38px">
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:#000;font-size:12px">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:12px">
             <span style="width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulseDot 2s ease-in-out infinite"></span>
             ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--ink-4)">· live</span></div>
         </div>
@@ -6673,14 +6682,14 @@ if (simActions) {
       pts.push([+(0.5 + 0.16 * Math.pow(Math.sin(t), 3) * 1.4).toFixed(4),
                 +(0.42 - 0.13 * (Math.cos(t) - .45 * Math.cos(2 * t) - .2 * Math.cos(3 * t))).toFixed(4), 1]);
     }
-    APP.receivePageInk({ pts, c: TOK('--red'), w: 8, alpha: 1, taper: true, brush: 'pen' });
+    APP.receivePageInk({ pts, c: 'red', w: 8, alpha: 1, taper: true, brush: 'pen' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('her page reached your widget');
   });
   simActions.appendChild(b);
   const b2 = el(`<button>she writes in her hand</button>`);
   b2.addEventListener('click', () => {
-    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: TOK('--red') });
+    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: 'red' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('“miss you”, in her hand, on your widget');
   });

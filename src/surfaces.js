@@ -43,7 +43,7 @@ function watchFaces() {
     <div style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:6px 0 2px">
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:168px;height:200px;border-radius:48px;background:#000;border:3px solid #2A2A30;
+        <div style="width:168px;height:200px;border-radius:48px;background:var(--emph);border:3px solid var(--emph);
           box-shadow:0 18px 40px var(--scrim);padding:18px 16px;display:flex;flex-direction:column;justify-content:space-between">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="font-size:11px;color:var(--red);font-weight:600">Maya</span>
@@ -63,7 +63,7 @@ function watchFaces() {
       </div>
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="width:180px;height:180px;border-radius:50%;background:#000;border:3px solid #2A2A30;
+        <div style="width:180px;height:180px;border-radius:50%;background:var(--emph);border:3px solid var(--emph);
           box-shadow:0 18px 40px var(--scrim);position:relative;display:flex;flex-direction:column;
           align-items:center;justify-content:center;gap:3px">
           <div style="position:absolute;inset:10px;border-radius:50%;border:2px solid var(--hairline)"></div>
@@ -94,7 +94,7 @@ function lockScreens() {
         <div style="position:absolute;top:12px;left:14px;padding:4px 10px;border-radius:999px;
           background:var(--hairline);font-size:10px;letter-spacing:.12em;color:var(--ink-2)">iOS LOCK</div>
         <div style="display:flex;justify-content:center;padding-top:38px">
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:#000;font-size:12px">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--emph);color:var(--emph-ink);font-size:12px">
             <span style="width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulseDot 2s ease-in-out infinite"></span>
             ${drawing() ? 'Maya is drawing' : 'Maya is here'}<span style="color:var(--ink-4)">· live</span></div>
         </div>

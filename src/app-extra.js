@@ -177,7 +177,7 @@ function heartRate() {
 function keepAlive() {
   api.closeSheet();
   const { W, H } = canvas();
-  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: 'var(--amber)', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
+  const s = { pts: wobblePath(SHAPES.sun, 4, 5), c: 'amber', w: 10, brush: 'pen', who: 'sara', born: now(), life: 1 };
   strokes.add(s);
   note('she drew this. it dies unless you trace it.');
   toast('go over her line to keep it alive');
@@ -340,7 +340,7 @@ function comeHere() {
     { transform: 'translateX(9px)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(0)' }],
     { duration: 620, easing: 'ease-in-out' });
   note('her whole phone just leaned toward you');
-  sara.after(3400, () => { note(''); sara.drawShape('come', { c: 'var(--red)' }); });
+  sara.after(3400, () => { note(''); sara.drawShape('come', { c: 'red' }); });
 }
 
 /* --------------------------------------------- 2g · gesture onboarding */
@@ -379,12 +379,12 @@ function bannerDay() {
   ];
   letters.forEach((L, i) => {
     sara.after(400 + i * 520, () => {
-      strokes.add({ pts: wobblePath(L, 3, 4), c: 'var(--amber)', w: 8, brush: 'pen', who: 'sara', born: now() });
+      strokes.add({ pts: wobblePath(L, 3, 4), c: 'amber', w: 8, brush: 'pen', who: 'sara', born: now() });
       buzz(10);
     });
   });
   sara.after(400 + letters.length * 520 + 400, () => {
-    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: 'var(--red)', w: 9, brush: 'pen', who: 'sara', born: now() });
+    strokes.add({ pts: wobblePath(SHAPES.heart.map(([x, y]) => [x * .5 + .3, y * .5 + .35]), 3, 5), c: 'red', w: 9, brush: 'pen', who: 'sara', born: now() });
     note('drawn two days ago. sealed until 00:00.');
     setTimeout(() => note(''), 5000);
   });

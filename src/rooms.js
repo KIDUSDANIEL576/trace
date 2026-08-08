@@ -90,7 +90,7 @@ const DEFAULTS = () => ({
   sw: { presence: true, quiet: false, pocket: true, ink: true, coach: false, backup: true },
   /* board content */
   notices: [{ id: 'n1', t: 'Landlord letter — reply by', when: 'Aug 15' }],
-  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'var(--ink)' }, { t: 'pick up cake', c: 'var(--amber)' }] },
+  week: { dow: 'THU', day: 7, items: [{ t: 'dentist 3pm', c: 'ink' }, { t: 'pick up cake', c: 'amber' }] },
   leaving: null,          /* {mins} — auto, breaks through armour */
   thinking: null,         /* {ts} — "thinking of you" */
   traceSeen: false,       /* one-time trace burns after she sees it */
@@ -344,7 +344,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['var(--surface)', 'rgba(110,168,255,.35)', 'rgba(110,168,255,.6)', 'var(--violet)', 'var(--amber)'];
+    const shades = ['var(--surface)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];

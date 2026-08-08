@@ -169,14 +169,14 @@ if (simActions) {
       pts.push([+(0.5 + 0.16 * Math.pow(Math.sin(t), 3) * 1.4).toFixed(4),
                 +(0.42 - 0.13 * (Math.cos(t) - .45 * Math.cos(2 * t) - .2 * Math.cos(3 * t))).toFixed(4), 1]);
     }
-    APP.receivePageInk({ pts, c: TOK('--red'), w: 8, alpha: 1, taper: true, brush: 'pen' });
+    APP.receivePageInk({ pts, c: 'red', w: 8, alpha: 1, taper: true, brush: 'pen' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('her page reached your widget');
   });
   simActions.appendChild(b);
   const b2 = el(`<button>she writes in her hand</button>`);
   b2.addEventListener('click', () => {
-    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: TOK('--red') });
+    APP.receivePageInk({ pts: [], text: 'miss you', font: 'Parisienne', size: 40, x: .2, y: .4, c: 'red' });
     R.db.traceSeen = false; R.resetDeck(); R.save(); R.paint();
     toast('“miss you”, in her hand, on your widget');
   });

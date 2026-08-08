@@ -815,10 +815,10 @@ R.addCard((d) => d.guest ? {
 
 /* 24c: asleep — the widget dims and stops updating */
 R.addCard((d) => d.awake ? null : {
-  pri: 10, kind: 'asleep', tint: 'var(--violet)', head: 'asleep', foot: 'her state',
+  pri: 10, kind: 'asleep', tint: 'var(--ink-3)', head: 'asleep', foot: 'her state',
   render(b) {
     b.innerHTML = `<div class="w-mid" style="opacity:.55"><div class="w-orb"
-      style="background:radial-gradient(circle at 40% 35%,var(--violet),#26356F);box-shadow:0 0 30px rgba(110,168,255,.35)"></div>
+      style="background:var(--ink-5);box-shadow:none"></div>
       <b>Maya is asleep</b><i>Your marks are waiting for her</i></div>`;
     return {};
   } });

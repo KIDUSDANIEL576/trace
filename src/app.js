@@ -92,12 +92,27 @@ const brushCfg = Object.assign({}, BRUSH_DEFAULTS, store.get('brushCfg', {}));
 const saveBrushCfg = () => store.set('brushCfg', brushCfg);
 
 const state = {
-  brush: 'pen', color: 'var(--red)',
+  brush: 'pen', color: 'red',
   mode: null,            // null | mirror | trace | passpen | onemore...
   bothHere: false,
   penHolder: 'you',
   traceGuide: null, traceHits: 0,
 };
+
+/* A stroke is content, and content syncs. If it carried a resolved colour the
+   ink pen would arrive on a paper phone as cream on white — invisible — so
+   palette pens store a slot name and every device resolves it in its own
+   theme. Custom colours from the cascade are literal hex and pass straight
+   through; anything unrecognised does too, which keeps old saved strokes
+   working. */
+const PEN_SLOT = { ink: '--ink', red: '--red', amber: '--amber', violet: '--violet' };
+function penColor(c) {
+  if (typeof c !== 'string') return TOK('--ink');
+  if (PEN_SLOT[c]) return TOK(PEN_SLOT[c]);
+  if (c.startsWith('var(')) return TOK(c.slice(4, -1).trim());   // repaint leftovers
+  return c;
+}
+window.penColor = penColor;
 
 function drawStroke(s, upTo = Infinity, alpha = 1) {
   if (s.type === 'text') return drawTextStroke(s, alpha);
@@ -106,9 +121,9 @@ function drawStroke(s, upTo = Infinity, alpha = 1) {
   ctx.save();
   ctx.lineCap = ctx.lineJoin = 'round';
   ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
-  ctx.strokeStyle = s.c;
+  ctx.strokeStyle = penColor(s.c);
   if (s.brush === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = 1; }
-  if (s.brush === 'spark') { ctx.shadowColor = s.c; ctx.shadowBlur = 10; }
+  if (s.brush === 'spark') { ctx.shadowColor = penColor(s.c); ctx.shadowBlur = 10; }
   const n = Math.min(pts.length, upTo);
 
   if (s.taper && s.brush !== 'zap' && s.brush !== 'hi' && s.brush !== 'eraser') {
@@ -157,7 +172,7 @@ function drawTextStroke(s, alpha = 1) {
   const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
   ctx.save();
   ctx.globalAlpha = alpha * (s.alpha !== undefined ? s.alpha : 1);
-  ctx.fillStyle = s.c;
+  ctx.fillStyle = penColor(s.c);
   ctx.textBaseline = 'middle';
   let x = s.x;
   for (const ch of s.text) {
@@ -352,7 +367,7 @@ const sara = {
   drawShape(name, opts = {}) {
     const base = SHAPES[name] || SHAPES.squiggle;
     const pts = wobblePath(base, 4, 5);
-    const s = { pts: [], c: opts.c || 'var(--red)', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
+    const s = { pts: [], c: opts.c || 'red', w: opts.w || 9, brush: 'pen', who: 'sara', born: now(), mirror: !!opts.mirror };
     strokes.push(s);
     this.presence(true);
     log('sara draws ' + name);
@@ -478,7 +493,7 @@ function toggleBrushPop() {
     const realCtx = ctx; const swap = Object.getOwnPropertyDescriptor(window, 'noop');
     prev.save(); prev.lineCap = prev.lineJoin = 'round';
     prev.globalAlpha = isEraser ? .5 : cfg.alpha;
-    prev.strokeStyle = isEraser ? TOK('--ink-2') : state.color;
+    prev.strokeStyle = isEraser ? TOK('--ink-2') : penColor(state.color);
     if (isEraser) prev.setLineDash([2, 7]);
     if (cfg.taper) {
       const pts = fake.pts;
@@ -522,16 +537,10 @@ $$('.swatch').forEach(b => { if (b.id === 'swatch-any') return; b.addEventListen
   state.color = b.dataset.c;
 }); });
 
-/* The pen palette is four literals because the canvas needs literals, but the
-   ink pen means "the colour you write in" — near-black on paper, cream in the
-   dark. It follows the theme; red, amber and violet do not. */
+/* The swatches show the slot in the current theme; the stroke stores the slot
+   name, so a repaint is all a theme flip needs. */
 function retintPens() {
-  $$('.swatch[data-tok]').forEach(b => {
-    const was = b.dataset.c;
-    b.dataset.c = TOK(b.dataset.tok);
-    b.style.background = b.dataset.c;
-    if (state.color === was) state.color = b.dataset.c;
-  });
+  $$('.swatch[data-c]').forEach(b => { b.style.background = penColor(b.dataset.c); });
 }
 window.addEventListener('themechange', () => { retintPens(); redraw(); });
 retintPens();
@@ -741,7 +750,7 @@ function playInto(x, box, shapes, opts = {}) {
         for (let s = 0; s < 5; s++) dense.push({
           x: jit(pts[i].x + (pts[i + 1].x - pts[i].x) * s / 5, 3),
           y: jit(pts[i].y + (pts[i + 1].y - pts[i].y) * s / 5, 3) });
-      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = sh.c || TOK('--red'); x.lineWidth = sh.w || 8;
+      x.lineCap = x.lineJoin = 'round'; x.strokeStyle = penColor(sh.c || 'red'); x.lineWidth = sh.w || 8;
       for (let i = 1; i < dense.length; i++) {
         if (stop || !box.isConnected) return;
         x.beginPath(); x.moveTo(dense[i - 1].x, dense[i - 1].y); x.lineTo(dense[i].x, dense[i].y); x.stroke();
@@ -765,7 +774,7 @@ const FEATURES = [
     run() {
       toggleMode('trace');
       if (state.mode === 'trace') {
-        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: 'var(--ink)', w: 14, brush: 'pen' };
+        state.traceGuide = { pts: wobblePath(SHAPES.heart, 3, 6), c: 'ink', w: 14, brush: 'pen' };
         state.traceHits = 0;
         $('#canvas-note').textContent = 'her line. put yours on top of it.';
       } else { state.traceGuide = null; $('#canvas-note').textContent = ''; }
@@ -917,7 +926,7 @@ function openReveal() {
   };
   toast('hold-to-reveal on — draw with the ghost brush first. tap ✕ ⋯ to exit');
   sara.after(400, () => { if (!strokes.some(s => s.brush === 'ghost'))
-    sara.drawShape('xo', { c: 'var(--violet)' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
+    sara.drawShape('xo', { c: 'violet' }), strokes[strokes.length - 1] && (strokes[strokes.length - 1].brush = 'ghost'); });
   exitOnSheet(() => { featureHooks = {}; holdReveal = false; note.textContent = ''; });
 }
 function exitOnSheet(fn) {
@@ -1293,8 +1302,8 @@ function openSlept() {
     const pauseNote = document.createElement('div'); pauseNote.className = 'p-hint'; pauseNote.textContent = '';
     body.appendChild(pauseNote);
     const stop = playInto(x, box, [
-      { shape: 'heartL', c: 'var(--red)', w: 10, speed: 46, pause: 2200 },
-      { shape: 'heart', c: 'var(--red)', w: 10, speed: 40 },
+      { shape: 'heartL', c: 'red', w: 10, speed: 46, pause: 2200 },
+      { shape: 'heart', c: 'red', w: 10, speed: 40 },
     ], {
       onPause: () => { pauseNote.textContent = 'she stopped here.'; setTimeout(() => pauseNote.textContent = '', 2100); },
       done: () => { pauseNote.textContent = 'she was awake 26 minutes.'; log('while-you-slept replay done'); },
@@ -1363,7 +1372,7 @@ function openThread() {
 /* --- one year ago --- */
 function openYearAgo() {
   closeSheet();
-  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: 'var(--ink)', w: 13 };
+  state.traceGuide = { pts: wobblePath(SHAPES.sun, 3, 6), c: 'ink', w: 13 };
   redraw();
   $('#canvas-note').textContent = 'one year ago tonight, she drew this. draw it again, worse.';
   toast('both versions stay, stacked, forever');
@@ -1695,14 +1704,14 @@ function paintWidget(target) {
   for (const s of mine) {
     if (s.type === 'text') {
       wx.font = `700 ${s.size}px '${s.font}', cursive`;
-      wx.fillStyle = s.c; wx.textBaseline = 'middle';
+      wx.fillStyle = penColor(s.c); wx.textBaseline = 'middle';
       wx.globalAlpha = 1; wx.fillText(s.text, s.x, s.y);
       continue;
     }
     if (s.pts.length < 2) continue;
     wx.globalCompositeOperation = s.brush === 'eraser' ? 'destination-out' : 'source-over';
     wx.globalAlpha = s.brush === 'eraser' ? 1 : (s.alpha !== undefined ? s.alpha : 1);
-    wx.strokeStyle = s.c; wx.lineWidth = s.w;
+    wx.strokeStyle = penColor(s.c); wx.lineWidth = s.w;
     wx.beginPath(); wx.moveTo(s.pts[0].x, s.pts[0].y);
     for (const p of s.pts) wx.lineTo(p.x, p.y);
     wx.stroke();
@@ -1841,12 +1850,12 @@ $('#widget').addEventListener('click', () => {
   if (opened) return; opened = true;
   setTimeout(() => {
     if (window.TRACE_NET && TRACE_NET.live()) return;
-    sara.drawShape('sun', { c: 'var(--amber)' });
+    sara.drawShape('sun', { c: 'amber' });
   }, 1200);
 });
 setTimeout(() => {
   if (true) return;   // opening moment now happens on first widget tap
-  sara.drawShape('sun', { c: 'var(--amber)', then: () => {
+  sara.drawShape('sun', { c: 'amber', then: () => {
     $('#canvas-note').textContent = 'draw how today feels';
     setTimeout(() => $('#canvas-note').textContent = '', 5000);
   }});
