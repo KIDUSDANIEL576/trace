@@ -158,16 +158,23 @@ setInterval(() => {
 
 /* ==================== 2 · the notification taxonomy ====================== */
 
+/* This panel is the same four permissions p50 states, plus the things that can
+   only ever sit on the widget. It used to offer a banner for drawings and a
+   ring for notices, which invariant 2 forbids outright — "never notifies:
+   drawings, streaks, missions, journal, mood weather, or any room talking
+   about itself". Offering a level the product may not honour is worse than
+   hiding the row: it is a setting that lies. */
 const LOUD_KINDS = [
   { id: 'flare', n: 'The flare', s: 'Three a year · full screen', locked: 'ring' },
-  { id: 'leave', n: '“Leaving now”', s: 'Home in N minutes' },
-  { id: 'goodnight', n: 'Goodnight', s: 'The seal, nightly' },
-  { id: 'trace', n: 'Drawing traces', s: 'One-time ink', lockedMax: 'banner' },
-  { id: 'notice', n: 'Notices', s: 'Deadlines, letters, doses' },
+  { id: 'leave', n: '“Leaving now”', s: 'Only when someone starts moving home' },
+  { id: 'agreed', n: 'A reminder you both agreed to', s: 'Never one person’s idea alone' },
+  { id: 'goodnight', n: 'Goodnight', s: 'One nudge at your hour · off by default' },
+  { id: 'trace', n: 'Drawing traces', s: 'One-time ink', locked: 'widget' },
+  { id: 'notice', n: 'Notices', s: 'Deadlines, letters, doses', locked: 'widget' },
   { id: 'list', n: 'List ticks', s: 'Ticks as they happen', locked: 'widget' },
 ];
-const LEVELS = ['ring', 'banner', 'widget'];
-const LEVEL_LABEL = { ring: 'Rings', banner: 'Banner', widget: 'Widget only' };
+const LEVELS = ['ring', 'banner', 'off'];
+const LEVEL_LABEL = { ring: 'Rings', banner: 'Banner', off: 'Widget only' };
 
 R.addSub('loud', 'how loud', (body) => {
   const draw = () => {
@@ -176,7 +183,9 @@ R.addSub('loud', 'how loud', (body) => {
     LOUD_KINDS.forEach((k) => {
       const cur = k.locked || db.loud[k.id] || 'widget';
       const row = el(`<div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
-        <div><span class="n">${esc(k.n)}</span><span class="s">${esc(k.s)}${k.locked ? ' · can’t be turned down' : ''}</span></div>
+        <div><span class="n">${esc(k.n)}</span><span class="s">${esc(k.s)}${
+          k.locked === 'ring' ? ' · can’t be turned down' :
+          k.locked === 'widget' ? ' · waits on the widget, always' : ''}</span></div>
         <div style="display:flex;gap:6px">${LEVELS.map((lv) => {
           const dis = (k.locked && lv !== k.locked) || (k.lockedMax === 'banner' && lv === 'ring');
           const on = cur === lv;

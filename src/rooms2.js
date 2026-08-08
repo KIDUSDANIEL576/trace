@@ -372,7 +372,10 @@ R.addSub('guest', 'guest mode', (body) => {
       <span class="s">${db.guest ? 'The phone can sit on the table' : 'Hide the private layer'}</span></span>
       <span class="sw amber${db.guest ? ' on' : ''}"><i></i></span></button>`);
     sw.addEventListener('click', () => {
-      db.guest = !db.guest; buzz(12); push('guest', { on: db.guest }); draw(); paint();
+      db.guest = !db.guest;
+      /* it says it ends at midnight, so it has to record which day it began */
+      db.guestDay = db.guest ? new Date().toDateString() : null;
+      save(); buzz(12); push('guest', { on: db.guest }); draw(); paint();
       toast(db.guest ? 'guest mode on — ends itself at midnight' : 'back to normal');
     });
     body.appendChild(sw);

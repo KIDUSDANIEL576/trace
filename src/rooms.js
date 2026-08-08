@@ -821,9 +821,40 @@ function renderRules() {
 
 /* 21c: leaving now → live drawing → must-dos → notices → week → quiet.
    Cards are built fresh each paint so the deck reflects the board exactly. */
+/* Guest mode and meeting armour were toggles nobody read — the private layer
+   stayed visible with a guest in the room, and armour held nothing. Both are
+   promises about what reaches the other person, so the deck is where they are
+   kept.
+   Armour holds rather than drops: at 3:30 everything arrives at once, as one
+   summary rather than eleven buzzes (p13). Guest mode hides the intimate
+   layer and leaves the useful one — lists and calendar stay (p35). */
+const GUEST_HIDES = ['trace', 'think', 'mood', 'pocket'];
+const ARMOUR_HOLDS = ['trace', 'think', 'todo', 'shop', 'notice', 'week'];
+
+/* "auto-ends at midnight" is a promise, and nobody is awake to run a timer —
+   so it is checked whenever the deck is built. */
+function guestExpired() {
+  if (!db.guest) return false;
+  if (db.guestDay && db.guestDay === new Date().toDateString()) return false;
+  db.guest = false; db.guestDay = null; save(); push('guest', { on: false });
+  return true;
+}
+
+function armourOver() {
+  if (!db.armour) return true;
+  const t = new Date(); const mins = t.getHours() * 60 + t.getMinutes();
+  return mins >= 15 * 60 + 30 || mins < 14 * 60;      /* 2:00–3:30 PM */
+}
+
 function deck() {
+  guestExpired();
   const cards = [];
-  const add = (pri, c) => cards.push(Object.assign({ pri }, c));
+  const held = [];
+  const add = (pri, c) => {
+    if (db.guest && GUEST_HIDES.includes(c.kind)) return;
+    if (db.armour && !armourOver() && ARMOUR_HOLDS.includes(c.kind)) { held.push(c.kind); return; }
+    cards.push(Object.assign({ pri }, c));
+  };
   const partnerLive = APP.partnerDrawing && APP.partnerDrawing();
   const strokeN = APP.strokeCount ? APP.strokeCount() : 0;
 
@@ -862,6 +893,13 @@ function deck() {
 
   for (const fn of EXTRA_CARDS) { const c = fn(db); if (c) add(c.pri, c); }
 
+  /* p13: at 3:30 everything arrives at once, gently — one summary, not eleven
+     buzzes. The count is the whole of the catch-up. */
+  if (held.length)
+    cards.push({ pri: 6, kind: 'held', tint: 'var(--ink-2)',
+      head: held.length + (held.length === 1 ? ' thing' : ' things'),
+      foot: 'waited while you were in', render: heldCard });
+
   if (!cards.length)
     add(99, { kind: 'quiet', tint: 'var(--ink-2)', head: 'Nothing today',
       foot: 'quiet day', render: quietCard });
@@ -885,6 +923,12 @@ function todoCard(b) {
     open.map((t) => `<div class="w-row"><span class="w-tick"></span><span>${esc(t.title)}</span></div>`).join('') +
     (oneDone ? `<div class="w-row"><span class="w-tick done">✓</span><span class="off">${esc(oneDone.title)}</span></div>` : '');
   return { cap: 'Ticks sync both ways, instantly' };
+}
+function heldCard(b) {
+  b.innerHTML = `<div class="w-kicker">Held while you were in</div>
+    <div class="w-big">Arriving now</div>
+    <div class="w-foot">One summary, not eleven buzzes.</div>`;
+  return { cap: 'Nothing was dropped — only delayed' };
 }
 function shopCard(b) {
   const left = db.items.length - count(db.got);
@@ -1088,8 +1132,15 @@ window.TRACE_BOARD = {
   el, esc, count, tickRow, navRow, swRow,
   ui: { toast, buzz, panel: (t, b) => APP.openPanel && APP.openPanel(t, b) },
   /* "leaving now" and "thinking of you" are pushed, not polled */
-  leaving(mins) { db.leaving = { mins }; resetDeck(); push('leaving', { mins }); paintWidget();
-    if ((db.loud || {}).leave !== 'widget' && window.TRACE_PUSH) TRACE_PUSH.ring('leave', 'Leaving now — home in ' + mins + ' min'); },
+  leaving(mins) {
+    /* p59: on a protected night the app tells the other person less, not more.
+       The departure still records; it just does not broadcast. */
+    const solo = (db.modes || {}).solo && db.solo && db.solo.on;
+    db.leaving = { mins }; resetDeck(); paintWidget();
+    if (solo) { save(); toast('your night — nothing was sent'); return; }
+    push('leaving', { mins });
+    if ((db.loud || {}).leave !== 'off' && (db.loud || {}).leave !== 'widget' && window.TRACE_PUSH)
+      TRACE_PUSH.ring('leave', 'Leaving now — home in ' + mins + ' min'); },
   thinking() { db.thinking = { ts: Date.now() }; resetDeck(); push('thinking', {}); paintWidget(); },
   db,
 };
