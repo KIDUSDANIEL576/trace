@@ -113,6 +113,32 @@ Screens are named the way a person reaches them — a directory row, or
 to check touch targets, palette discipline and the type floor mechanically
 rather than by eye.
 
+```
+node qa/registry.mjs                            duplicate db keys, screens, rows, dead rows
+node qa/contrast.mjs [dark]                     text that cannot be read against its ground
+node qa/deadends.mjs                            press every control; report what moved nothing
+node qa/deadends.mjs "Repair,New event"         a slice, in order, for a repro
+```
+
+`deadends` exists because every other check here can pass on a photograph. A
+palette audit cannot tell a working switch from a painted one. So it presses
+each control and asks whether the screen, an open panel, the text, the DOM, the
+store or a toast moved — a switch that only flips a class still counts. State
+is snapshotted and restored between screens, because "Delete everything" and
+"Hold to unpair" are real buttons and it presses them.
+
+Two things it learned the hard way, both worth keeping in mind for any tool
+like it:
+
+- **Address controls by identity, not index.** Re-indexing at press time means
+  that the moment a press re-renders a list, the tool presses a stand-in and
+  blames the original. It reported two working brushes as dead that way.
+- **Account for every control.** Coverage is part of the result: pressed,
+  disabled, gone, unreachable. A tightened filter once dropped the count from
+  541 to 387 and read as an improvement. When something is unreachable the tool
+  names what covered it — "181 unreachable" is not a finding, it is a question,
+  and the answer was one line of markup.
+
 ### App icon
 
 ```
