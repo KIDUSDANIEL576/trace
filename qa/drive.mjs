@@ -47,7 +47,23 @@ const openDirectory = (page) => page.evaluate(() => document.getElementById('cb-
 /* Reaching a screen is either one hop through the directory or two through a
    room. Returns false rather than throwing so a caller can report "not
    reachable" as a finding instead of a crash. */
+/* Some directory rows leave the app entirely — "Her home screen" swaps to the
+   springboard, where #cb-room does not exist. Without resetting first, every
+   navigation after one of those silently no-ops and the caller measures the
+   springboard over and over while believing it walked the app. */
+async function reset(page) {
+  await page.evaluate(() => {
+    document.getElementById('home')?.classList.add('hidden');
+    document.getElementById('appview')?.classList.remove('hidden');
+    const p = document.getElementById('panel');
+    if (p && !p.classList.contains('hidden')) document.getElementById('panel-close')?.click();
+    document.getElementById('sheet')?.classList.add('hidden');
+  });
+  await page.waitForTimeout(160);
+}
+
 async function goto(page, spec) {
+  await reset(page);
   if (!spec || spec === 'canvas') return true;
   const [a, b] = spec.split(':');
   /* panels are overlays opened by key, not screens you navigate to */
@@ -77,6 +93,7 @@ async function goto(page, spec) {
 }
 
 const visible = (page) => page.evaluate(() => {
+  if (!document.getElementById('home').classList.contains('hidden')) return 'springboard';
   const s = [...document.querySelectorAll('.scr')].find((x) => !x.classList.contains('hidden'));
   return s ? s.id : null;
 });
@@ -162,7 +179,7 @@ async function main() {
           .map((e) => parseFloat(cs(e, 'fontSize'))))].sort((a, b) => a - b),
       };
     });
-    console.log(JSON.stringify({ ...data, pageErrors: errors }, null, 2));
+    console.log(JSON.stringify({ ...data, at: await visible(page), pageErrors: errors }, null, 2));
     await browser.close(); return;
   }
 

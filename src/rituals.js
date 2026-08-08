@@ -66,7 +66,7 @@ function renderGoodnight() {
     <div class="hd"><button class="pill" data-back>Tonight</button>
       <button class="icob" data-close>✕</button></div>
     <div style="text-align:center;padding:44px 24px 0;flex:none">
-      <div style="font-size:15px;color:var(--ink-2)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
+      <div style="font-size:15px;color:var(--ink-70)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
       <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--red);margin-top:6px;
         font-variant-numeric:tabular-nums">${sealed ? '—' : clock(untilSeal())}</div>
     </div>

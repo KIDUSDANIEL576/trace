@@ -129,7 +129,7 @@ function renderNew() {
   const d = db.draft || { what: '', when: 'Fri 8, 7 PM', who: 'Both of us', remind: 'Day before' };
   s.innerHTML = `
     <div class="hd" style="padding:12px 12px 0">
-      <button style="font-size:15px;color:var(--ink-3);min-height:44px;padding:0 12px" data-close>Cancel</button>
+      <button style="font-size:15px;color:var(--ink-70);min-height:44px;padding:0 12px" data-close>Cancel</button>
       <div style="font-size:17px;font-weight:600">New event</div>
       <button style="font-size:15px;font-weight:700;color:var(--red-text);min-height:44px;padding:0 12px" data-save>Save</button>
     </div>

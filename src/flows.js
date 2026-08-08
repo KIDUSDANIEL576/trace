@@ -216,10 +216,10 @@ function makeKey() {
 R.addSub('key', 'your key', (body) => {
   const key = makeKey();
   body.appendChild(note('A new phone starts from this. It re-arms the pairing and pulls your board back — <b>drawings stay on the phones that drew them</b>, as promised.'));
-  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:var(--red-wash);
-    border:1px dashed rgba(233,161,59,.3);text-align:center">
-    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">Your key</div>
-    <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--amber);margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
+  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:var(--emph);
+    color:var(--emph-ink);text-align:center">
+    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--emph-red)">Your key</div>
+    <div style="font:700 17px ui-monospace,Menlo,monospace;letter-spacing:.06em;margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
   const copy = el(`<button class="p-cta">Copy it somewhere safe</button>`);
   copy.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(key); toast('copied — a notes app or a password manager'); }
@@ -260,12 +260,12 @@ R.addSub('unpair', 'unpair', (body) => {
     return;
   }
   body.appendChild(note('No consent theatre — either of you can do this alone, instantly. Here is exactly what happens:'));
-  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--amber)')));
+  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--red-text)')));
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
-  const hold = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
+  const hold = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
     const APP = window.TRACE_APP;

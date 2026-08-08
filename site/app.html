@@ -87,8 +87,8 @@
   --ink:#F5EFE4;
   --ink-70:rgba(245,239,228,.78);
   --ink-2:rgba(245,239,228,.6);
-  --ink-3:rgba(245,239,228,.5);
-  --ink-4:rgba(245,239,228,.42);
+  --ink-3:rgba(245,239,228,.56);
+  --ink-4:rgba(245,239,228,.46);
   --ink-5:rgba(245,239,228,.3);
 
   --red:#F04A58;
@@ -122,8 +122,8 @@
     --ground:#15120E;--ground-alt:#1B1713;--ground-deep:#100E0B;--stage:#0E0C0A;
     --surface:#211C17;--surface-2:#292219;
     --hairline:rgba(245,239,228,.12);--divider:rgba(245,239,228,.09);--dashed:rgba(245,239,228,.22);
-    --ink:#F5EFE4;--ink-70:rgba(245,239,228,.78);--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.5);
-    --ink-4:rgba(245,239,228,.42);--ink-5:rgba(245,239,228,.3);
+    --ink:#F5EFE4;--ink-70:rgba(245,239,228,.78);--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.56);
+    --ink-4:rgba(245,239,228,.46);--ink-5:rgba(245,239,228,.3);
     --red:#F04A58;--red-text:#FF8A92;--red-wash:rgba(240,74,88,.14);
     --red-line:rgba(240,74,88,.4);--on-red:#15120E;
     --emph:#F5EFE4;--emph-ink:#15120E;--emph-ink-2:rgba(21,18,14,.75);
@@ -273,7 +273,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .row .s{display:block;font-size:12px;color:var(--ink-3);margin-top:2px}
 .row .s.big{font-size:13px;color:var(--ink-2);margin-top:1px}
 .row .cnt{font-size:15px;font-weight:600}
-.row .chev{font-size:16px;color:var(--ink-4)}
+.row .chev{font-size:16px;color:var(--ink-3)}
 .row.on{background:var(--red-wash);border-color:var(--red-line)}
 /* p6: the room glyph sits on a filled tile — red for the canvas, ink for
    everything else. Nothing else in the directory is allowed colour. */
@@ -349,7 +349,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
    the deck is also the app's words, not a partner's — the handwriting rule
    cuts both ways or it stops meaning anything. */
 #whisper{position:absolute;z-index:7;left:12px;right:12px;top:44%;text-align:center;
-  font-size:15px;line-height:1.5;color:var(--ink-3);
+  font-size:15px;line-height:1.5;color:var(--ink-70);
   pointer-events:none;opacity:0;transition:opacity .6s}
 #whisper.on{opacity:1}
 #mirror-line{position:absolute;z-index:6;left:50%;top:16px;bottom:16px;width:1px;opacity:0;
@@ -478,7 +478,7 @@ button.card:active{transform:scale(.99)}
 .sheet{border-radius:20px;background:var(--surface);border:1px solid var(--hairline);overflow:hidden}
 .sheet .r{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px}
 .sheet .r + .r{border-top:1px solid var(--divider)}
-.sheet .r .k{font-size:15px;color:var(--ink-2)}
+.sheet .r .k{font-size:15px;color:var(--ink-70)}
 .sheet .r .v{font-size:14px;font-weight:700;flex:none}
 .sheet .r .v.red{color:var(--red-text)}
 
@@ -541,7 +541,7 @@ button.card:active{transform:scale(.99)}
 .p-ghost{min-height:50px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:15px;width:100%;color:var(--ink)}
 .p-stat{font-size:40px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
-.p-hint{font-size:14px;color:var(--ink-2);text-align:center}
+.p-hint{font-size:14px;color:var(--ink-70);text-align:center}
 .p-row{display:flex;gap:9px}
 .p-row>*{flex:1}
 .chip{padding:13px 15px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);
@@ -619,10 +619,10 @@ button.card:active{transform:scale(.99)}
   gap:12px;text-align:center;align-items:center}
 #ob-launch{flex:1;justify-content:center;padding-bottom:0}
 .ob-actions{width:100%;display:flex;flex-direction:column;gap:16px;padding:0 0 54px;margin-top:auto}
-.ob-link{font-size:15px;color:var(--ink-2);background:none;border:0}
+.ob-link{font-size:15px;color:var(--ink-70);background:none;border:0}
 .ob-wm{font-family:Caveat,cursive;font-weight:700;font-size:68px;line-height:1;letter-spacing:0}
 .ob-wm em{font-style:normal;color:var(--red)}
-.ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-2);margin-bottom:10px}
+.ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
 #onboard input{padding:15px 16px;border-radius:16px;border:1px solid var(--hairline);
   background:var(--surface);color:var(--ink);font:15px inherit;outline:none;text-align:center}
 #ob-their{font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.2em}
@@ -631,7 +631,7 @@ button.card:active{transform:scale(.99)}
 .ob-share{min-height:58px;border-radius:999px;background:var(--red);color:var(--on-red);font-size:17px;font-weight:600}
 .ob-go{min-height:56px;border-radius:999px;background:var(--surface);
   border:1px solid var(--hairline);color:var(--ink);font-size:17px;font-weight:500}
-.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-2)}
+.ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70)}
 
 /* the mark — one stroke, wet tip. p1 and every loading state. */
 @keyframes traceDraw{
@@ -5484,7 +5484,7 @@ const kv = (k, v, tint) =>
 
 const bigNum = (v, k) =>
   `<div style="text-align:center;padding:8px 0 2px">
-    <div style="font-size:15px;color:var(--ink-2)">${esc(k)}</div>
+    <div style="font-size:15px;color:var(--ink-70)">${esc(k)}</div>
     <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;margin-top:2px">${esc(v)}</div></div>`;
 
 const note = (t) => el(`<div class="p-note">${t}</div>`);
@@ -5526,7 +5526,7 @@ R.addSub('load', 'mental load', (body) => {
     const hers = db.load.filter((l) => l.who === 'Maya').reduce((n, l) => n + wt(l), 0);
     const pct = Math.round(hers / all * 100);
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
-      <div style="font-size:15px;color:var(--ink-2)">Who is <span style="color:var(--red)">remembering</span>, not doing</div>
+      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--red-text)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
     body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
@@ -5584,7 +5584,7 @@ R.addSub('money', 'money truth', (body) => {
 R.addSub('brief', 'the brief', (body) => {
   const b = db.brief;
   body.appendChild(el(`<div style="padding:4px 0 2px">
-    <div style="font-size:15px;color:var(--ink-2)">You’re taking over</div>
+    <div style="font-size:15px;color:var(--ink-70)">You’re taking over</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
   b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--red-text)'))));
@@ -5628,7 +5628,7 @@ R.addSub('energy', 'energy match', (body) => {
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red-text)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
   };
   draw();
 });
@@ -5707,7 +5707,7 @@ R.addSub('guest', 'guest mode', (body) => {
     ['The pocket', 'never existed', 'always hidden']];
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(`<div style="padding:2px 0 4px"><div style="font-size:15px;color:var(--ink-2)">Someone’s coming</div>
+    body.appendChild(el(`<div style="padding:2px 0 4px"><div style="font-size:15px;color:var(--ink-70)">Someone’s coming</div>
       <div style="font-size:26px;font-weight:600;margin-top:2px">Your parents, Saturday</div></div>`));
     const sw = el(`<button class="row"><span class="grow"><span class="n">Guest mode</span>
       <span class="s">${db.guest ? 'The phone can sit on the table' : 'Hide the private layer'}</span></span>
@@ -5790,7 +5790,7 @@ R.addSub('tiny', 'the tiny one', (body) => {
 });
 
 R.addSub('handoff', 'morning handoff', (body) => {
-  body.appendChild(el(`<div style="padding:2px 0 2px"><div style="font-size:15px;color:var(--ink-2)">While you slept</div>
+  body.appendChild(el(`<div style="padding:2px 0 2px"><div style="font-size:15px;color:var(--ink-70)">While you slept</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">Maya left you three things</div></div>`));
   db.overnight.forEach((o) => body.appendChild(el(`<div class="row"><span class="grow">
     <span class="s">${esc(o.at)}</span><span class="n light" style="margin-top:3px">${esc(o.t)}</span></span></div>`)));
@@ -5825,7 +5825,7 @@ R.addSub('flare', 'the flare', (body) => {
     const yr = new Date().getFullYear();
     if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
-      const b = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:64px">Hold three seconds</button>`);
+      const b = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:64px;font-weight:700">Hold three seconds</button>`);
       let t = null;
       const start = () => { t = setTimeout(() => {
         db.flares--; db.flare = { ts: Date.now() }; resetDeck(); push('flare', {}); buzz(40); paint(); draw();
@@ -6048,8 +6048,9 @@ R.addSub('pocket', 'the pocket', (body) => {
   const p = db.pocket;
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(`<div class="row" style="background:var(--emph);color:var(--emph-ink);border-color:transparent">
-      <span style="font-size:18px">◈</span><span class="grow"><span class="s">The pocket — does not exist on Maya’s device</span></span></div>`));
+    body.appendChild(el(`<div class="row" style="background:var(--emph);border-color:transparent">
+      <span style="font-size:18px;color:var(--emph-ink)">◈</span><span class="grow">
+      <span style="display:block;font-size:13px;color:var(--emph-ink-2)">The pocket — does not exist on Maya’s device</span></span></div>`));
     body.appendChild(el(bigNum(p.what, p.when)));
     p.steps.forEach((st, n) => {
       const r = el(tickRow({ on: st.done, title: st.t }));
@@ -6783,10 +6784,10 @@ function makeKey() {
 R.addSub('key', 'your key', (body) => {
   const key = makeKey();
   body.appendChild(note('A new phone starts from this. It re-arms the pairing and pulls your board back — <b>drawings stay on the phones that drew them</b>, as promised.'));
-  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:var(--red-wash);
-    border:1px dashed rgba(233,161,59,.3);text-align:center">
-    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)">Your key</div>
-    <div style="font:600 15px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--amber);margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
+  body.appendChild(el(`<div style="padding:16px;border-radius:16px;background:var(--emph);
+    color:var(--emph-ink);text-align:center">
+    <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--emph-red)">Your key</div>
+    <div style="font:700 17px ui-monospace,Menlo,monospace;letter-spacing:.06em;margin-top:8px;word-break:break-all">${esc(key)}</div></div>`));
   const copy = el(`<button class="p-cta">Copy it somewhere safe</button>`);
   copy.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(key); toast('copied — a notes app or a password manager'); }
@@ -6827,12 +6828,12 @@ R.addSub('unpair', 'unpair', (body) => {
     return;
   }
   body.appendChild(note('No consent theatre — either of you can do this alone, instantly. Here is exactly what happens:'));
-  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--amber)')));
+  body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--red-text)')));
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
-  const hold = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:60px">Hold three seconds to unpair</button>`);
+  const hold = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
     const APP = window.TRACE_APP;
@@ -7161,7 +7162,7 @@ function renderGoodnight() {
     <div class="hd"><button class="pill" data-back>Tonight</button>
       <button class="icob" data-close>✕</button></div>
     <div style="text-align:center;padding:44px 24px 0;flex:none">
-      <div style="font-size:15px;color:var(--ink-2)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
+      <div style="font-size:15px;color:var(--ink-70)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
       <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--red);margin-top:6px;
         font-variant-numeric:tabular-nums">${sealed ? '—' : clock(untilSeal())}</div>
     </div>
@@ -7901,7 +7902,7 @@ function renderNew() {
   const d = db.draft || { what: '', when: 'Fri 8, 7 PM', who: 'Both of us', remind: 'Day before' };
   s.innerHTML = `
     <div class="hd" style="padding:12px 12px 0">
-      <button style="font-size:15px;color:var(--ink-3);min-height:44px;padding:0 12px" data-close>Cancel</button>
+      <button style="font-size:15px;color:var(--ink-70);min-height:44px;padding:0 12px" data-close>Cancel</button>
       <div style="font-size:17px;font-weight:600">New event</div>
       <button style="font-size:15px;font-weight:700;color:var(--red-text);min-height:44px;padding:0 12px" data-save>Save</button>
     </div>
@@ -8484,7 +8485,7 @@ function renderGrief() {
         <div style="font-size:14px;color:var(--ink-3)">Today is the ${esc(g.date)}</div>
         <div style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin-top:8px">
           ${g.years} years since ${esc(g.who)}.</div>
-        <div style="font-size:15px;line-height:1.6;color:var(--ink-2);margin-top:16px">Maya knows. Trace told her
+        <div style="font-size:15px;line-height:1.6;color:var(--ink-70);margin-top:16px">Maya knows. Trace told her
           quietly this morning, the way you asked it to. She hasn’t been asked to do anything about it.</div>
         <div style="display:flex;flex-direction:column;gap:9px;margin-top:30px">
           <button class="card" data-g="canvas"><div class="t">Show me the canvas from that week</div>
@@ -8559,7 +8560,7 @@ function renderMoving() {
       </div>
       <div style="padding:14px 20px 0;flex:none">
         <div class="card warn"><div class="t">Trace is watching for</div>
-          <div class="d" style="font-size:14px;color:var(--ink-2)">the two of you both thinking the
+          <div class="d" style="font-size:14px;color:var(--ink-70)">the two of you both thinking the
             other booked the van.</div></div>
       </div>
       <div class="spacer"></div>
@@ -9127,7 +9128,7 @@ function renderWheel() {
         <div class="h sm">the wheel does</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px 0">
-        <div style="font-size:18px;color:var(--red)">▼</div>
+        <div style="font-size:18px;color:var(--red-text)">▼</div>
         <div style="position:relative;width:270px;height:270px">
           <div id="wheel-disc" style="position:absolute;inset:0;border-radius:50%;border:2px solid var(--ink);
             transition:transform 1.6s cubic-bezier(.16,.9,.24,1);
@@ -9141,7 +9142,7 @@ function renderWheel() {
           </div>
         </div>
         <div style="padding:8px 16px;border-radius:999px;background:var(--surface);
-          border:1px solid var(--hairline);font-size:13px;color:var(--ink-2)">
+          border:1px solid var(--hairline);font-size:13px;color:var(--ink-70)">
           ${db.vetoUsed ? 'Veto spent. Tonight is law.' : 'Maya can veto once. Then it’s law.'}</div>
       </div>
       <div class="actions">
@@ -9395,7 +9396,7 @@ function renderSettle() {
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
         <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
-        <div style="font-size:15px;color:var(--ink-2);margin-top:6px">${ahead} ahead. That’s all it says.</div>
+        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead} ahead. That’s all it says.</div>
       </div>
       <div style="padding:22px 20px 0;flex:none">
         <div class="sheet">

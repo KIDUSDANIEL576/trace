@@ -212,7 +212,7 @@ function renderGrief() {
         <div style="font-size:14px;color:var(--ink-3)">Today is the ${esc(g.date)}</div>
         <div style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin-top:8px">
           ${g.years} years since ${esc(g.who)}.</div>
-        <div style="font-size:15px;line-height:1.6;color:var(--ink-2);margin-top:16px">Maya knows. Trace told her
+        <div style="font-size:15px;line-height:1.6;color:var(--ink-70);margin-top:16px">Maya knows. Trace told her
           quietly this morning, the way you asked it to. She hasn’t been asked to do anything about it.</div>
         <div style="display:flex;flex-direction:column;gap:9px;margin-top:30px">
           <button class="card" data-g="canvas"><div class="t">Show me the canvas from that week</div>
@@ -287,7 +287,7 @@ function renderMoving() {
       </div>
       <div style="padding:14px 20px 0;flex:none">
         <div class="card warn"><div class="t">Trace is watching for</div>
-          <div class="d" style="font-size:14px;color:var(--ink-2)">the two of you both thinking the
+          <div class="d" style="font-size:14px;color:var(--ink-70)">the two of you both thinking the
             other booked the van.</div></div>
       </div>
       <div class="spacer"></div>

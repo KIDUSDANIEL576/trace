@@ -99,6 +99,16 @@ for (const t of targets) {
       await page.waitForTimeout(200);
       continue;
     }
+    /* some directory rows leave the app (the springboard), where #cb-room does
+       not exist — without this reset every later target silently measures the
+       springboard instead of itself */
+    await page.evaluate(() => {
+      document.getElementById('home')?.classList.add('hidden');
+      document.getElementById('appview')?.classList.remove('hidden');
+      const pn = document.getElementById('panel');
+      if (pn && !pn.classList.contains('hidden')) document.getElementById('panel-close')?.click();
+    });
+    await page.waitForTimeout(150);
     await page.evaluate(() => document.getElementById('cb-room').click());
     await page.waitForTimeout(300);
     await page.evaluate((l) => { [...document.querySelectorAll('#rooms-list .row')].find(x => x.textContent.includes(l))?.click(); }, a);

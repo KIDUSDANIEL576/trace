@@ -145,7 +145,7 @@ const kv = (k, v, tint) =>
 
 const bigNum = (v, k) =>
   `<div style="text-align:center;padding:8px 0 2px">
-    <div style="font-size:15px;color:var(--ink-2)">${esc(k)}</div>
+    <div style="font-size:15px;color:var(--ink-70)">${esc(k)}</div>
     <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;margin-top:2px">${esc(v)}</div></div>`;
 
 const note = (t) => el(`<div class="p-note">${t}</div>`);
@@ -187,7 +187,7 @@ R.addSub('load', 'mental load', (body) => {
     const hers = db.load.filter((l) => l.who === 'Maya').reduce((n, l) => n + wt(l), 0);
     const pct = Math.round(hers / all * 100);
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
-      <div style="font-size:15px;color:var(--ink-2)">Who is <span style="color:var(--red)">remembering</span>, not doing</div>
+      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--red-text)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
     body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
@@ -245,7 +245,7 @@ R.addSub('money', 'money truth', (body) => {
 R.addSub('brief', 'the brief', (body) => {
   const b = db.brief;
   body.appendChild(el(`<div style="padding:4px 0 2px">
-    <div style="font-size:15px;color:var(--ink-2)">You’re taking over</div>
+    <div style="font-size:15px;color:var(--ink-70)">You’re taking over</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
   b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--red-text)'))));
@@ -289,7 +289,7 @@ R.addSub('energy', 'energy match', (body) => {
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red-text)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
   };
   draw();
 });
@@ -368,7 +368,7 @@ R.addSub('guest', 'guest mode', (body) => {
     ['The pocket', 'never existed', 'always hidden']];
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(`<div style="padding:2px 0 4px"><div style="font-size:15px;color:var(--ink-2)">Someone’s coming</div>
+    body.appendChild(el(`<div style="padding:2px 0 4px"><div style="font-size:15px;color:var(--ink-70)">Someone’s coming</div>
       <div style="font-size:26px;font-weight:600;margin-top:2px">Your parents, Saturday</div></div>`));
     const sw = el(`<button class="row"><span class="grow"><span class="n">Guest mode</span>
       <span class="s">${db.guest ? 'The phone can sit on the table' : 'Hide the private layer'}</span></span>
@@ -451,7 +451,7 @@ R.addSub('tiny', 'the tiny one', (body) => {
 });
 
 R.addSub('handoff', 'morning handoff', (body) => {
-  body.appendChild(el(`<div style="padding:2px 0 2px"><div style="font-size:15px;color:var(--ink-2)">While you slept</div>
+  body.appendChild(el(`<div style="padding:2px 0 2px"><div style="font-size:15px;color:var(--ink-70)">While you slept</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">Maya left you three things</div></div>`));
   db.overnight.forEach((o) => body.appendChild(el(`<div class="row"><span class="grow">
     <span class="s">${esc(o.at)}</span><span class="n light" style="margin-top:3px">${esc(o.t)}</span></span></div>`)));
@@ -486,7 +486,7 @@ R.addSub('flare', 'the flare', (body) => {
     const yr = new Date().getFullYear();
     if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
-      const b = el(`<button class="p-cta" style="background:var(--red);color:#fff;min-height:64px">Hold three seconds</button>`);
+      const b = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:64px;font-weight:700">Hold three seconds</button>`);
       let t = null;
       const start = () => { t = setTimeout(() => {
         db.flares--; db.flare = { ts: Date.now() }; resetDeck(); push('flare', {}); buzz(40); paint(); draw();
@@ -709,8 +709,9 @@ R.addSub('pocket', 'the pocket', (body) => {
   const p = db.pocket;
   const draw = () => {
     body.innerHTML = '';
-    body.appendChild(el(`<div class="row" style="background:var(--emph);color:var(--emph-ink);border-color:transparent">
-      <span style="font-size:18px">◈</span><span class="grow"><span class="s">The pocket — does not exist on Maya’s device</span></span></div>`));
+    body.appendChild(el(`<div class="row" style="background:var(--emph);border-color:transparent">
+      <span style="font-size:18px;color:var(--emph-ink)">◈</span><span class="grow">
+      <span style="display:block;font-size:13px;color:var(--emph-ink-2)">The pocket — does not exist on Maya’s device</span></span></div>`));
     body.appendChild(el(bigNum(p.what, p.when)));
     p.steps.forEach((st, n) => {
       const r = el(tickRow({ on: st.done, title: st.t }));

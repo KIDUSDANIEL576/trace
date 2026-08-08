@@ -67,7 +67,7 @@ function renderWheel() {
         <div class="h sm">the wheel does</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px 0">
-        <div style="font-size:18px;color:var(--red)">▼</div>
+        <div style="font-size:18px;color:var(--red-text)">▼</div>
         <div style="position:relative;width:270px;height:270px">
           <div id="wheel-disc" style="position:absolute;inset:0;border-radius:50%;border:2px solid var(--ink);
             transition:transform 1.6s cubic-bezier(.16,.9,.24,1);
@@ -81,7 +81,7 @@ function renderWheel() {
           </div>
         </div>
         <div style="padding:8px 16px;border-radius:999px;background:var(--surface);
-          border:1px solid var(--hairline);font-size:13px;color:var(--ink-2)">
+          border:1px solid var(--hairline);font-size:13px;color:var(--ink-70)">
           ${db.vetoUsed ? 'Veto spent. Tonight is law.' : 'Maya can veto once. Then it’s law.'}</div>
       </div>
       <div class="actions">
@@ -335,7 +335,7 @@ function renderSettle() {
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
         <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
-        <div style="font-size:15px;color:var(--ink-2);margin-top:6px">${ahead} ahead. That’s all it says.</div>
+        <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead} ahead. That’s all it says.</div>
       </div>
       <div style="padding:22px 20px 0;flex:none">
         <div class="sheet">
