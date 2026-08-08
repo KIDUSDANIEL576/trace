@@ -457,7 +457,10 @@ writeFileSync(join(at(OUT), 'manifest.webmanifest'), JSON.stringify({
   name: 'trace', short_name: 'trace',
   description: 'One canvas, both of you, all day.',
   start_url: './app.html', scope: './', display: 'standalone',
-  background_color: '#0C0B10', theme_color: '#0C0B10',
+  /* paper, because this is what the OS paints before the app has drawn a
+     pixel — a dark splash in front of a cream app is a flash of the wrong
+     product. Matches --ground in the default theme. */
+  background_color: '#FBF4EA', theme_color: '#FBF4EA',
   icons: [
     { src: 'pwa/icon-512.png', sizes: '512x512', type: 'image/png' },
     { src: 'pwa/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
@@ -490,10 +493,17 @@ self.addEventListener('notificationclick',e=>{
     return clients.openWindow('./app.html');
   }));
 });`);
+/* theme-color paints the OS chrome around the app. It ships as paper — the
+   default ground, and the right answer before any script runs — and the boot
+   script in app.html then keeps this one tag on whichever ground actually
+   resolved. One tag rather than a media-scoped pair, because the app's own
+   preference has to be able to beat the OS in both directions and a media
+   query cannot be overridden by a later tag. Status bar style is `default`
+   (dark glyphs) to match paper. */
 const PWA_HEAD = `<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0C0B10">
+<meta name="theme-color" content="#FBF4EA">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="trace">
 <link rel="apple-touch-icon" href="pwa/apple-touch-512.png">
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>`;

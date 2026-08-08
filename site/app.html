@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
 <title>trace — app</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0C0B10">
+<meta name="theme-color" content="#FBF4EA">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="trace">
 <link rel="apple-touch-icon" href="pwa/apple-touch-512.png">
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
@@ -631,10 +631,28 @@ button.card:active{transform:scale(.99)}
    rather than in app.js because a stamped attribute after paint is a flash. */
 (function(){
   var K='trace:theme';
+  var PAPER='#FBF4EA', DARK='#15120E';
+  var os = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  /* The OS paints its chrome from theme-color, so the preference has to reach
+     it too — otherwise picking Dark leaves a cream bar above a dark app, and
+     picking "match phone" on a dark phone leaves the same. Resolved here
+     rather than by a media-scoped tag, because a media query cannot be
+     overridden by a later tag and the app has to be able to beat the OS. */
+  function chrome(p){
+    var dark = p==='dark' || (p!=='paper' && !!(os && os.matches));
+    var m = document.querySelector('meta[name="theme-color"]');
+    if(m) m.setAttribute('content', dark ? DARK : PAPER);
+  }
   function apply(p){
     if(p==='paper'||p==='dark') document.documentElement.setAttribute('data-theme',p==='paper'?'light':'dark');
     else document.documentElement.removeAttribute('data-theme');
+    chrome(p);
   }
+  /* on "match phone", the OS can change under us */
+  if(os && os.addEventListener) os.addEventListener('change',function(){
+    var p; try{ p=localStorage.getItem(K)||'paper'; }catch(e){ p='paper'; }
+    if(p!=='paper'&&p!=='dark') chrome(p);
+  });
   var pref='paper';
   try{ pref=localStorage.getItem(K)||'paper'; }catch(e){}
   apply(pref);
