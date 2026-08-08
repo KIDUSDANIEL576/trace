@@ -353,7 +353,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 
 .search{margin:18px 20px 0;height:44px;border-radius:var(--r14);background:var(--surface);
   border:1px solid var(--hairline);display:flex;align-items:center;gap:10px;padding:0 16px;flex:none}
-.search input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:15px inherit}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font-size:15px;font-family:inherit}
 .search input::placeholder{color:var(--ink-3)}
 
 .splitbar{margin:18px 20px 0;height:8px;border-radius:99px;background:var(--ground-alt);
@@ -641,7 +641,7 @@ button.card:active{transform:scale(.99)}
 @media (max-width:760px){#sim{display:none}#stage{padding:0}}
 
 /* brush options — tap the active tool again */
-#brushpop{position:relative;z-index:12;margin:0 20px;border-radius:22px;background:var(--surface);
+#brushpop{position:relative;z-index:15;margin:0;border-radius:22px;background:var(--surface);
   border:1px solid var(--hairline);padding:14px 16px;
   display:flex;flex-direction:column;gap:11px;flex:none}
 #brushpop .bp-row{display:flex;align-items:center;gap:10px}
@@ -679,7 +679,7 @@ button.card:active{transform:scale(.99)}
 .ob-wm em{font-style:normal;color:var(--red)}
 .ob-h{font-family:Caveat,cursive;font-weight:600;font-size:28px;color:var(--ink-70);margin-bottom:10px}
 #onboard input{padding:15px 16px;border-radius:16px;border:1px solid var(--hairline);
-  background:var(--surface);color:var(--ink);font:15px inherit;text-align:center}
+  background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit;text-align:center}
 #ob-their{font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.2em}
 .ob-code-l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-top:6px}
 .ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:var(--red)}
@@ -824,6 +824,9 @@ button.card:active{transform:scale(.99)}
 #screen.drawing #sc-canvas .pagerow{opacity:1;max-height:none;overflow:visible;
   position:absolute;left:12px;right:12px;bottom:152px;z-index:14;
   display:flex;gap:6px;justify-content:center;padding:0!important}
+/* has to out-specify `#screen.drawing #sc-canvas .pagerow` above, which is
+   (2,2,0) — a plain `#sc-canvas.picking .pagerow` is (1,2,0) and silently loses */
+#screen.drawing #sc-canvas.picking .pagerow{opacity:0;pointer-events:none}
 #screen.drawing #sc-canvas [data-page]{min-height:38px;padding:0 16px;font-size:13px;
   background:var(--surface);border:1px solid var(--hairline);
   box-shadow:0 6px 18px rgba(26,26,26,.12)}
@@ -2893,7 +2896,11 @@ $$('#brushes .tool').forEach(b => b.addEventListener('click', () => {
 
 /* brush options — tap the active tool again (thickness, opacity, taper) */
 let popEl = null;
-function closeBrushPop() { if (popEl) { popEl.remove(); popEl = null; } }
+function closeBrushPop() {
+  if (!popEl) return;
+  popEl.remove(); popEl = null;
+  document.getElementById('sc-canvas').classList.remove('picking');
+}
 function toggleBrushPop() {
   if (popEl) return closeBrushPop();
   const cfg = brushCfg[state.brush];
@@ -2919,7 +2926,19 @@ function toggleBrushPop() {
     <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>
     <button ${isEraser ? 'hidden ' : ''}class="bp-any" id="swatch-any" title="any colour">
       <span class="bp-any-dot"></span>any colour</button>`;
-  $('#dock').before(popEl);
+  /* Inside the dock, not before it. In draw mode #dock goes
+     position:absolute;bottom:22px;z-index:14 and vacates its slot in the flow;
+     a popover inserted before it landed in that vacated slot and was painted
+     over by the dock — four of its five controls were physically unhittable,
+     with elementFromPoint returning the page pills, a brush and a swatch.
+     The dock is a flex column, so prepending puts the popover directly above
+     the tools it belongs to and it inherits the dock's own stacking. */
+  $('#dock').prepend(popEl);
+  /* The page pills are pinned at a fixed offset above the dock rather than
+     riding in its flow, so a popover that grows the dock upward covers them.
+     While you are setting a brush they are noise anyway — same call the write
+     pad makes when it hides the tools. */
+  $('#sc-canvas').classList.add('picking');
   const prev = popEl.querySelector('.bp-prev').getContext('2d');
   const paintPrev = () => {
     prev.clearRect(0, 0, 120, 40);
@@ -6209,7 +6228,7 @@ function editDay(day, n, current, redraw) {
   const wrap = el(`<div style="display:flex;flex-direction:column;gap:11px"></div>`);
   const input = el(`<input placeholder="${esc(day)} — what's happening"
     style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);background:var(--surface);
-    color:var(--ink);font:17px inherit">`);
+    color:var(--ink);font-size:17px;font-family:inherit">`);
   input.value = current === '—' ? '' : current;
   const prev = el(`<div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
     <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
@@ -7270,7 +7289,7 @@ function openPad() {
     padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:none">
     <input id="wp-in" placeholder="good morning…" maxlength="40" autocomplete="off"
       style="padding:14px 16px;border-radius:16px;border:1px solid var(--hairline);
-      background:var(--surface);color:var(--ink);font:17px inherit">
+      background:var(--surface);color:var(--ink);font-size:17px;font-family:inherit">
     <div style="border-radius:18px;background:var(--red-wash);border:1px solid var(--red-line);padding:14px 16px">
       <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text)">Rendered in your hand</div>
       <div id="wp-prev" style="min-height:44px;margin-top:8px;overflow:hidden;word-break:break-word;
@@ -8004,7 +8023,7 @@ function openLegacy() {
       chapter and jar entry, forever, at no cost. You can also name someone who may be given a
       copy — a parent, a sibling, a child.</div>`));
     const inp = el(`<input placeholder="their name and email" style="padding:14px 16px;border-radius:16px;
-      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
+      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit">`);
     inp.value = db.legacy || '';
     body.appendChild(inp);
     const b = el(`<button class="p-cta">Save</button>`);
@@ -9702,9 +9721,9 @@ function renderSettle() {
   $$('[data-add]', s).forEach((b) => b.addEventListener('click', () => {
     ui.panel('add one', (body) => {
       const t = el(`<input placeholder="what it was" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit">`);
       const v = el(`<input placeholder="€" inputmode="decimal" style="padding:14px 16px;border-radius:16px;
-        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
+        border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit">`);
       body.appendChild(t); body.appendChild(v);
       const go = el(`<button class="p-cta">Add</button>`);
       go.addEventListener('click', () => {

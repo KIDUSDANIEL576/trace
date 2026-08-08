@@ -352,7 +352,7 @@ function openLegacy() {
       chapter and jar entry, forever, at no cost. You can also name someone who may be given a
       copy — a parent, a sibling, a child.</div>`));
     const inp = el(`<input placeholder="their name and email" style="padding:14px 16px;border-radius:16px;
-      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:15px inherit">`);
+      border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit">`);
     inp.value = db.legacy || '';
     body.appendChild(inp);
     const b = el(`<button class="p-cta">Save</button>`);

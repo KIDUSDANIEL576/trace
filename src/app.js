@@ -490,7 +490,11 @@ $$('#brushes .tool').forEach(b => b.addEventListener('click', () => {
 
 /* brush options — tap the active tool again (thickness, opacity, taper) */
 let popEl = null;
-function closeBrushPop() { if (popEl) { popEl.remove(); popEl = null; } }
+function closeBrushPop() {
+  if (!popEl) return;
+  popEl.remove(); popEl = null;
+  document.getElementById('sc-canvas').classList.remove('picking');
+}
 function toggleBrushPop() {
   if (popEl) return closeBrushPop();
   const cfg = brushCfg[state.brush];
@@ -516,7 +520,19 @@ function toggleBrushPop() {
     <button ${isEraser || isHi ? 'hidden ' : ''}class="bp-taper${cfg.taper ? ' on' : ''}">${cfg.taper ? 'taper on — ends breathe' : 'taper off — even line'}</button>
     <button ${isEraser ? 'hidden ' : ''}class="bp-any" id="swatch-any" title="any colour">
       <span class="bp-any-dot"></span>any colour</button>`;
-  $('#dock').before(popEl);
+  /* Inside the dock, not before it. In draw mode #dock goes
+     position:absolute;bottom:22px;z-index:14 and vacates its slot in the flow;
+     a popover inserted before it landed in that vacated slot and was painted
+     over by the dock — four of its five controls were physically unhittable,
+     with elementFromPoint returning the page pills, a brush and a swatch.
+     The dock is a flex column, so prepending puts the popover directly above
+     the tools it belongs to and it inherits the dock's own stacking. */
+  $('#dock').prepend(popEl);
+  /* The page pills are pinned at a fixed offset above the dock rather than
+     riding in its flow, so a popover that grows the dock upward covers them.
+     While you are setting a brush they are noise anyway — same call the write
+     pad makes when it hides the tools. */
+  $('#sc-canvas').classList.add('picking');
   const prev = popEl.querySelector('.bp-prev').getContext('2d');
   const paintPrev = () => {
     prev.clearRect(0, 0, 120, 40);
