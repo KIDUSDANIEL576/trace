@@ -110,27 +110,42 @@ const SNAP = `(() => {
  * Visibility is a hit test, not a size test. `max-height:0` with
  * `overflow:hidden` leaves children with a perfectly good bounding box while
  * clipping them out of sight, and an `opacity:0` parent still hit-tests — the
- * canvas tool dock is both, and got enumerated while invisible. */
+ * canvas tool dock is both, and got enumerated while invisible.
+ *
+ * But a hit test is only meaningful where the control actually is. Filtering
+ * on "inside the viewport" at enumeration time silently dropped everything
+ * below the fold — 154 controls, most of a long screen — and turned a blind
+ * spot into a much bigger one. So enumeration only asks the questions that
+ * scrolling cannot change (display, visibility, opacity, a real size), and the
+ * hit test happens at press time, after the control has been scrolled to. A
+ * control that is still not hittable once it has been scrolled into view is
+ * genuinely unreachable, and is counted and named as such rather than being
+ * quietly folded into either total. */
 const KEYFN = `(e) => e.tagName.toLowerCase() + '|' + (e.className || '') + '|' +
   [...e.attributes].filter(a => a.name.startsWith('data-')).map(a => a.name + '=' + a.value).join(',') +
   '|' + (e.innerText || e.placeholder || e.getAttribute('aria-label') ||
          e.getAttribute('title') || '').replace(/\\s+/g, ' ').trim().slice(0, 44)`;
 
-const SHOWN = `(e) => {
+/* everything scrolling cannot fix */
+const LAID_OUT = `(e) => {
   for (let n = e; n && n.nodeType === 1; n = n.parentElement) {
     const cs = getComputedStyle(n);
     if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity < 0.05) return false;
   }
   const r = e.getBoundingClientRect();
-  if (r.width < 1 || r.height < 1) return false;
-  if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
-  /* clipped by an ancestor's overflow, or covered by an overlay */
+  return r.width >= 1 && r.height >= 1;
+}`;
+
+/* clipped by an ancestor's overflow, or covered — asked only once it is in view */
+const HITTABLE = `(e) => {
+  const r = e.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > innerHeight) return false;
   const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
   return !!hit && (e === hit || e.contains(hit) || hit.contains(e));
 }`;
 
 const LIST = `[...${ROOT}.querySelectorAll('button,[data-sub],input,textarea,select,a[href],[role="button"]')]
-  .filter(${SHOWN})`;
+  .filter(${LAID_OUT})`;
 
 const TAPPABLES = `(() => {
   const root = ${ROOT};
@@ -191,7 +206,8 @@ async function goto(spec) {
 
 const dead = [];
 const threw = [];
-let pressed = 0, live = 0, skipped = 0;
+const unreachable = [];
+let pressed = 0, live = 0, skipped = 0, gone = 0;
 
 for (const t of work) {
   await restore();
@@ -205,23 +221,45 @@ for (const t of work) {
 
     const before = await page.evaluate(SNAP);
     const errAt = errors.length;
-    let clicked = false;
+    /* bring it into view first — the hit test below is about whether the
+       control is reachable, not about where the page happens to be scrolled */
+    const found = await page.evaluate(
+      new Function('sel', `
+        const key = ${KEYFN};
+        const seen = {};
+        for (const e of ${LIST}) {
+          const k = key(e);
+          seen[k] = (seen[k] || 0) + 1;
+          if (k === sel.key && seen[k] === sel.nth) {
+            e.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+            return true;
+          }
+        }
+        return false;
+      `), c);
+    if (!found) { gone++; continue; }
+    await page.waitForTimeout(70);
+
+    let clicked = '';
     try {
       clicked = await page.evaluate(
         new Function('sel', `
-          const root = ${ROOT};
-          if (!root) return false;
           const key = ${KEYFN};
           const seen = {};
           for (const e of ${LIST}) {
             const k = key(e);
             seen[k] = (seen[k] || 0) + 1;
-            if (k === sel.key && seen[k] === sel.nth) { e.click(); return true; }
+            if (k !== sel.key || seen[k] !== sel.nth) continue;
+            if (!(${HITTABLE})(e)) return 'unreachable';
+            e.click();
+            return 'ok';
           }
-          return false;   /* it is no longer there — say so, do not press a stand-in */
+          return 'gone';   /* do not press a stand-in */
         `), c);
     } catch (e) { threw.push({ target: t, label: c.label, why: String(e.message).slice(0, 120) }); }
-    if (!clicked) { skipped++; continue; }
+    if (clicked === 'gone') { gone++; continue; }
+    if (clicked === 'unreachable') { unreachable.push({ target: t, label: c.label, cls: c.cls }); continue; }
+    if (clicked !== 'ok') { gone++; continue; }
 
     pressed++;
     await page.waitForTimeout(230);
@@ -251,10 +289,17 @@ for (const d of dead) {
   byTarget.get(d.target).push(d);
 }
 
-console.log(`pressed ${pressed} controls across ${work.length} screens`);
-console.log(`  ${live} moved something`);
-console.log(`  ${dead.length} moved nothing`);
-console.log(`  ${skipped} skipped (disabled, or a text field)`);
+/* Coverage is part of the result. A sweep that quietly tests fewer controls
+   than it did last time reads as an improvement, so every control is accounted
+   for in one of these buckets and none of them is allowed to hide. */
+console.log(`${pressed + skipped + gone + unreachable.length} controls found across ${work.length} screens`);
+console.log(`  ${pressed} pressed`);
+console.log(`     ${live} moved something`);
+console.log(`     ${dead.length} moved nothing`);
+console.log(`  ${skipped} not pressed — disabled, or a text field`);
+console.log(`  ${gone} not pressed — no longer on the screen by the time its turn came`);
+console.log(`  ${unreachable.length} not pressed — still not hittable after scrolling to it`);
+for (const u of unreachable.slice(0, 20)) console.log(`      ${u.target}  "${u.label}"  ${u.cls}`);
 if (threw.length) {
   console.log(`\n${threw.length} errors while pressing:`);
   for (const e of threw.slice(0, 40)) console.log(`  ${e.target}  ${e.label || ''}  — ${e.why}`);
@@ -266,7 +311,7 @@ if (dead.length) {
     for (const d of items) console.log(`      "${d.label}"   ${d.cls}${d.data ? '  [' + d.data + ']' : ''}`);
   }
 }
-writeFileSync('qa/deadends.json', JSON.stringify({ pressed, live, dead, threw }, null, 2));
+writeFileSync('qa/deadends.json', JSON.stringify({ pressed, live, skipped, gone, dead, threw, unreachable }, null, 2));
 console.log(`\nqa/deadends.json written`);
 await browser.close();
 process.exit(0);

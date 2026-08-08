@@ -1,6 +1,9 @@
 {
   "pressed": 5,
   "live": 5,
+  "skipped": 0,
+  "gone": 1,
   "dead": [],
-  "threw": []
+  "threw": [],
+  "unreachable": []
 }

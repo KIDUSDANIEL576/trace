@@ -188,8 +188,16 @@ function renderNew() {
     buzz(8);
   }));
   $$('[data-save]', s).forEach((b) => b.addEventListener('click', () => {
-    const t = (d.what || '').trim();
-    if (!t) { what.focus(); return; }
+    const t = what.value.trim();
+    /* Refusing to save an untitled event is right; refusing in silence is not.
+       This used to be `what.focus(); return;` — and focus() is invisible (there
+       is no :focus rule in the sheet) and does nothing at all when the field is
+       already focused, which is the normal case, because you have to tap into
+       the field to discover it is required. So the one control on this screen
+       that answered a tap with nothing was the one that needed to explain
+       itself. Every sibling handler above ends in a buzz and a toast; so does
+       this one now. */
+    if (!t) { what.focus(); buzz(6); toast('give it a name first'); return; }
     db.week.items.push({ t, c: 'ink' });
     db.draft = null; save(); R.push('week', db.week); buzz(12);
     toast('in both calendars, in your hand');

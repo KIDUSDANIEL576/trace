@@ -147,7 +147,9 @@ function openPad() {
   $('#wp-size', pad).addEventListener('input', (e) => { size = +e.target.value; wobble(); });
   const send = () => {
     const t = input.value.trim();
-    if (!t) { input.focus(); return; }
+    /* same silent guard as the event form had — the pad auto-focuses on open,
+       so focus() here is always a no-op and the send button just did nothing */
+    if (!t) { input.focus(); buzz(6); toast('write something first'); return; }
     APP.addTextStroke(t, font, size, undefined);
     buzz(12); closePad();
   };
