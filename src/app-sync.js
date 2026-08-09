@@ -177,7 +177,11 @@ const NET = window.TRACE_NET = {
     window.TRACE_APP && window.TRACE_APP.partner(false);
   },
 
-  name: localStorage.getItem('trace:myname') || 'me',
+  /* Read through a guard, not straight off the object literal. This line runs
+     at module scope, so a context where storage is denied — an embedded frame,
+     blocked cookies, some private modes — threw here and took the whole sync
+     module down with it, before a single stroke could be drawn. */
+  name: (() => { try { return localStorage.getItem('trace:myname') || 'me'; } catch (e) { return 'me'; } })(),
 };
 
 /* ------------------------------------------------------------ pair UI */

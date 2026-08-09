@@ -228,11 +228,14 @@ R.addSub('loud', 'how loud', (body) => {
 
 /* ======================== 3 · your key — restore ========================= */
 
+/* storage can be denied outright; a key that cannot be built is better than a
+   screen that throws */
+const ls = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 function makeKey() {
-  let code = localStorage.getItem('trace:pairCode') ||
-    (JSON.parse(localStorage.getItem('trace:store') || '{}').pairCode) || 'xxxxx';
+  let code = ls('trace:pairCode') ||
+    (JSON.parse(ls('trace:store') || '{}').pairCode) || 'xxxxx';
   code = String(code).replace(/[^a-z0-9]/gi, '').slice(0, 5) || 'xxxxx';
-  const name = localStorage.getItem('trace:myname') || 'me';
+  const name = ls('trace:myname') || 'me';
   return 'trace-' + code + '-' + btoa(unescape(encodeURIComponent(name))).replace(/=+$/, '').toLowerCase();
 }
 R.addSub('key', 'your key', (body) => {
