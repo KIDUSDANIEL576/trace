@@ -163,6 +163,43 @@ surfaces are not sections: the launch splash, the 33 panels, and the two dock
 overlays. "I have a code" — the only route to pairing — sat at 18px behind that
 clean result. This one prints the scope it walked, every run, for that reason.
 
+### Auditing the product, not the build
+
+```
+node qa/inventory.mjs                           walk every surface: shot + what it offers
+node qa/inventory.mjs --fast                    structure only, no screenshots
+node qa/audit.mjs                               → site/audit.html, the review sheet
+```
+
+Everything else here asks whether the app is built correctly. These two ask
+whether it should exist. `inventory` walks the same surfaces `targets` walks and
+records, per surface, a screenshot and the units a person would judge
+separately; `audit` lays them out as one sheet per screen with Keep / Rework /
+Cut against each line, keyboard-driven, saved in the browser, and exported as
+text.
+
+Three distinctions do the work, and each one exists because its absence made
+the result useless:
+
+- **A capability is not content.** A room lists five demo tasks under the thing
+  that creates them. Judging "Bins out before 7" is judging the task list five
+  times. Rows are listed apart and not counted — 213 decisions instead of 1463.
+- **A panel is not a screen.** A third of the room sub-rows open an overlay.
+  Walking them as screens photographs the room *behind* the overlay, and
+  nineteen surfaces came back as byte-identical copies of Household, each
+  reading as a real screen. Sub-rows whose key is a panel key are captured as
+  panels instead, named by the row that opens them — which is the only place
+  `waiting` is ever spelled "The waiting room".
+- **A table of contents is not a feature.** A room's sub-row list points at
+  sheets that already exist further down, so those rows become links and the
+  sheet keeps the vote.
+
+The page is deliberately ASCII-only. It is meant to be published as an
+artifact, which wraps it in someone else's `<head>`, and the app's copy is full
+of curly quotes and em-dashes — served without `charset=utf-8` the export came
+back as `Trace â€” feature audit`. `audit.mjs` fails the build if a byte above
+127 reaches the file.
+
 `deadends` exists because every other check here can pass on a photograph. A
 palette audit cannot tell a working switch from a painted one. So it presses
 each control and asks whether the screen, an open panel, the text, the DOM, the
