@@ -134,8 +134,15 @@ async function shot(sel, crop) {
         if (cs.visibility === 'hidden' || +cs.opacity < 0.05) continue;
         const r = n.getBoundingClientRect();
         if (r.width < 2 || r.height < 2) continue;
-        /* a transparent full-height wrapper is scaffolding, not the overlay */
-        if (cs.backgroundColor === 'rgba(0, 0, 0, 0)' && !n.textContent.trim()) continue;
+        /* Only things that actually put something on the pixel grid: a filled
+           background, or text of its own. `textContent` is the wrong test —
+           `#panel-body` is a transparent scroller 205px taller than its
+           content, and it inherits every word inside it, so by that test the
+           overlay always reached the bottom of the phone. */
+        const paints = cs.backgroundColor !== 'rgba(0, 0, 0, 0)'
+          || cs.borderTopWidth !== '0px' || cs.borderBottomWidth !== '0px'
+          || [...n.childNodes].some((c) => c.nodeType === 3 && c.data.trim());
+        if (!paints) continue;
         x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y);
         x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
       }
