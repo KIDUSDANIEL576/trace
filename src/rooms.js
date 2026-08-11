@@ -738,14 +738,14 @@ function renderStates() {
     <div class="body" style="padding-top:18px;gap:10px">
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
         '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
-        '<span style="color:var(--red)">27:14</span>', 'shows nightly<br>from 9 PM', true)}
+        '27:14', 'shows nightly<br>from 9 PM', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
         'only while<br>someone shops', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--ground-alt),var(--ground-alt))', 'var(--ink)', 'Leaving now',
         '<span style="color:var(--ink)">32 min</span>', 'auto · breaks<br>through armour', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Notice',
-        'Landlord letter — reply by <span style="color:var(--red-text)">Aug 15</span>', 'until it’s<br>handled')}
+        'Landlord letter — reply by <span style="color:var(--ink)">Aug 15</span>', 'until it’s<br>handled')}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
         `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">

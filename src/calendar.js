@@ -332,8 +332,8 @@ function renderDates() {
           <div class="lbl">In 13 days</div>
           <div style="font-size:26px;font-weight:700;margin-top:8px">Maya’s birthday</div>
           <div class="d" style="margin-top:6px">Planning lives in your pocket — she can’t see this.</div>
-          <button data-pocket style="width:100%;height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Open the pocket</button>
+          <button data-pocket style="width:100%;height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Open the pocket</button>
         </div>
       </div>
       <div class="eyebrow">Coming up</div>

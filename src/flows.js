@@ -290,7 +290,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
-  const hold = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
+  const hold = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
     const APP = window.TRACE_APP;

@@ -204,7 +204,7 @@ R.addSub('load', 'mental load', (body) => {
     const hers = db.load.filter((l) => l.who === 'Maya').reduce((n, l) => n + wt(l), 0);
     const pct = Math.round(hers / all * 100);
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
-      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--red-text)">remembering</span>, not doing</div>
+      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--ink)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
     body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
@@ -235,7 +235,7 @@ R.addSub('waiting', 'the waiting room', (body) => {
       mine.forEach((b) => {
         const r = el(`<button class="row"><span class="grow"><span class="n">${esc(b.t)}</span>
           <span class="s">${esc(b.b)} · ${esc(b.d)}</span></span>
-          <span class="cnt" style="color:var(--red-text)">${esc(b.d)}</span></button>`);
+          <span class="cnt" style="color:var(--ink-70)">${esc(b.d)}</span></button>`);
         r.addEventListener('click', () => {
           db.unblocked[b.id] = true; buzz(12); resetDeck(); push('unblock', { id: b.id }); draw(); paint();
           toast('unblocked — it drops off both sides');
@@ -271,7 +271,7 @@ R.addSub('brief', 'the brief', (body) => {
     <div style="font-size:15px;color:var(--ink-70)">You’re taking over</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
-  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--red-text)'))));
+  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--ink)'))));
   body.appendChild(el(`<div class="row" style="background:var(--red-wash);border-color:var(--red-line)">
     <span class="grow"><span class="s">Maya’s note</span>
     <span class="n light hand" style="font-size:23px;line-height:1.25;margin-top:4px">${esc(b.note)}</span></span></div>`));
@@ -327,7 +327,7 @@ R.addSub('renewals', 'renewal radar', (body) => {
       const row = el(`<button class="row" style="${off ? 'opacity:.45' : ''}">
         <span class="grow"><span class="n" style="text-decoration:${off ? 'line-through' : 'none'}">${esc(r.t)}</span>
         <span class="s">${esc(r.s)}</span></span>
-        <span class="cnt" style="color:var(--red-text)">${esc(r.d)}</span></button>`);
+        <span class="cnt" style="color:var(--ink-70)">${esc(r.d)}</span></button>`);
       row.addEventListener('click', () => { db.cancelled[r.id] = !off; buzz(10); push('renewal', { id: r.id }); draw(); });
       body.appendChild(row);
     });
@@ -514,7 +514,7 @@ R.addSub('flare', 'the flare', (body) => {
     const yr = new Date().getFullYear();
     if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
-      const b = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:64px;font-weight:700">Hold three seconds</button>`);
+      const b = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:64px;font-weight:700">Hold three seconds</button>`);
       let t = null;
       const start = () => { t = setTimeout(() => {
         db.flares--; db.flare = { ts: Date.now() }; resetDeck(); push('flare', {}); buzz(40); paint(); draw();

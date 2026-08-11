@@ -118,9 +118,10 @@ function openPad() {
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
       <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}"
-        style="flex:1;accent-color:var(--red);min-width:0;height:44px">
-      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;background:var(--red);
-        color:var(--on-red);font-size:15px;font-weight:600">Send</button>
+        style="flex:1;accent-color:var(--ink);min-width:0;height:44px">
+      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;
+        background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+        font-size:15px;font-weight:600">Send</button>
     </div>
   </div>`);
   const dock = $('#dock');

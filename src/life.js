@@ -359,8 +359,8 @@ function renderMoney() {
           <div class="t">Three things you can cancel today</div>
           <div class="d" style="line-height:1.5">€${m.cancel}/mo, already found. Trace won’t do it for
             you and won’t ask twice.</div>
-          <button data-show style="width:100%;height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Show me</button>
+          <button data-show style="width:100%;height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Show me</button>
         </div>
       </div>
       <div class="spacer"></div>

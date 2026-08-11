@@ -306,7 +306,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .w-row{display:flex;align-items:center;gap:10px;margin-top:10px}
 .w-tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink-5);display:inline-flex;
   align-items:center;justify-content:center;font-size:11px;color:var(--on-red);flex:none}
-.w-tick.done{border-color:var(--ink);background:var(--ink)}
+.w-tick.done{border-color:var(--ink);background:var(--ink);color:var(--ground)}
 .w-row span{font-size:15px}
 .w-row span.off{opacity:.45;text-decoration:line-through}
 .w-foot{font-size:11px;color:var(--ink-3);margin-top:12px}
@@ -437,12 +437,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    everything else. Nothing else in the directory is allowed colour. */
 .ico{width:38px;height:38px;border-radius:var(--r12);background:var(--ground-alt);display:flex;align-items:center;
   justify-content:center;font-size:17px;flex:none}
-.ico.ink{background:var(--emph);color:var(--emph-ink)}
+.ico.ink{background:var(--emph);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rim)}
 .ico.red{background:var(--emph);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rim)}
 .ico .ts-i{font-size:18px}
 .tick{width:26px;height:26px;border-radius:var(--rdisc);border:2px solid var(--ink-5);display:flex;
   align-items:center;justify-content:center;font-size:13px;color:var(--on-red);flex:none;transition:.15s}
-.tick.on{border-color:var(--ink);background:var(--ink);color:var(--emph-ink)}
+.tick.on{border-color:var(--ink);background:var(--ink);color:var(--ground)}
 .row.done .grow{opacity:.45}
 .row.done .n{text-decoration:line-through}
 .who.them{background:var(--emph);color:var(--ink)}
@@ -1209,7 +1209,7 @@ button.card:active{transform:scale(.99)}
           </div>
 
           <div class="stat2">
-            <div><div class="k">Goodnight in</div><div class="v" id="st-goodnight" style="color:var(--red)">2h 14m</div></div>
+            <div><div class="k">Goodnight in</div><div class="v" id="st-goodnight">2h 14m</div></div>
             <div><div class="k">Streak</div><div class="v" id="st-streak">41 days</div></div>
           </div>
 
@@ -2113,7 +2113,7 @@ window.TRACE_EXTRA = (api) => {
       store.set('pairCode', code);
       body.appendChild(el(`<div style="text-align:center;padding:6px 0 0">
         <div style="font:700 10px ui-monospace,monospace;letter-spacing:.16em;color:var(--ink-3)">YOUR CODE</div>
-        <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--red-text);padding-left:.3em">${code}</div></div>`));
+        <div style="font:700 44px ui-monospace,monospace;letter-spacing:.3em;color:var(--ink);padding-left:.3em">${code}</div></div>`));
 
       const codeIn = el('<input placeholder="or type their code" maxlength="5" style="width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:var(--surface);color:var(--ink);font:700 16px ui-monospace,monospace;letter-spacing:.2em;text-align:center;text-transform:lowercase">');
       body.appendChild(codeIn);
@@ -5455,14 +5455,14 @@ function renderStates() {
     <div class="body" style="padding-top:18px;gap:10px">
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
         '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
-        '<span style="color:var(--red)">27:14</span>', 'shows nightly<br>from 9 PM', true)}
+        '27:14', 'shows nightly<br>from 9 PM', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
         'only while<br>someone shops', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--ground-alt),var(--ground-alt))', 'var(--ink)', 'Leaving now',
         '<span style="color:var(--ink)">32 min</span>', 'auto · breaks<br>through armour', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Notice',
-        'Landlord letter — reply by <span style="color:var(--red-text)">Aug 15</span>', 'until it’s<br>handled')}
+        'Landlord letter — reply by <span style="color:var(--ink)">Aug 15</span>', 'until it’s<br>handled')}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Quiet day',
         `Nothing today. <span style="color:var(--ink)">41 days</span> still yours.`, 'when there’s<br>nothing — calm')}
       <div class="row" style="border-radius:20px;background:var(--surface);border:1px dashed var(--hairline);padding:14px 16px">
@@ -6158,7 +6158,7 @@ R.addSub('load', 'mental load', (body) => {
     const hers = db.load.filter((l) => l.who === 'Maya').reduce((n, l) => n + wt(l), 0);
     const pct = Math.round(hers / all * 100);
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
-      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--red-text)">remembering</span>, not doing</div>
+      <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--ink)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
     body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
     db.load.forEach((l) => {
@@ -6189,7 +6189,7 @@ R.addSub('waiting', 'the waiting room', (body) => {
       mine.forEach((b) => {
         const r = el(`<button class="row"><span class="grow"><span class="n">${esc(b.t)}</span>
           <span class="s">${esc(b.b)} · ${esc(b.d)}</span></span>
-          <span class="cnt" style="color:var(--red-text)">${esc(b.d)}</span></button>`);
+          <span class="cnt" style="color:var(--ink-70)">${esc(b.d)}</span></button>`);
         r.addEventListener('click', () => {
           db.unblocked[b.id] = true; buzz(12); resetDeck(); push('unblock', { id: b.id }); draw(); paint();
           toast('unblocked — it drops off both sides');
@@ -6225,7 +6225,7 @@ R.addSub('brief', 'the brief', (body) => {
     <div style="font-size:15px;color:var(--ink-70)">You’re taking over</div>
     <div style="font-size:26px;font-weight:600;margin-top:2px">${esc(b.task)}</div></div>`));
   body.appendChild(note('Everything Maya knows about it, handed over in one card. No “wait, what’s the code?” at 3 PM.'));
-  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--red-text)'))));
+  b.rows.forEach(([k, v]) => body.appendChild(el(kv(k, v, 'var(--ink)'))));
   body.appendChild(el(`<div class="row" style="background:var(--red-wash);border-color:var(--red-line)">
     <span class="grow"><span class="s">Maya’s note</span>
     <span class="n light hand" style="font-size:23px;line-height:1.25;margin-top:4px">${esc(b.note)}</span></span></div>`));
@@ -6281,7 +6281,7 @@ R.addSub('renewals', 'renewal radar', (body) => {
       const row = el(`<button class="row" style="${off ? 'opacity:.45' : ''}">
         <span class="grow"><span class="n" style="text-decoration:${off ? 'line-through' : 'none'}">${esc(r.t)}</span>
         <span class="s">${esc(r.s)}</span></span>
-        <span class="cnt" style="color:var(--red-text)">${esc(r.d)}</span></button>`);
+        <span class="cnt" style="color:var(--ink-70)">${esc(r.d)}</span></button>`);
       row.addEventListener('click', () => { db.cancelled[r.id] = !off; buzz(10); push('renewal', { id: r.id }); draw(); });
       body.appendChild(row);
     });
@@ -6468,7 +6468,7 @@ R.addSub('flare', 'the flare', (body) => {
     const yr = new Date().getFullYear();
     if (db.flareYear !== yr) { db.flares = 3; db.flareYear = yr; save(); }
     if (db.flares > 0) {
-      const b = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:64px;font-weight:700">Hold three seconds</button>`);
+      const b = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:64px;font-weight:700">Hold three seconds</button>`);
       let t = null;
       const start = () => { t = setTimeout(() => {
         db.flares--; db.flare = { ts: Date.now() }; resetDeck(); push('flare', {}); buzz(40); paint(); draw();
@@ -7499,7 +7499,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
   body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
-  const hold = el(`<button class="p-cta" style="background:var(--red);color:var(--on-red);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
+  const hold = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
   const start = () => { t = setTimeout(() => {
     const APP = window.TRACE_APP;
@@ -7692,9 +7692,10 @@ function openPad() {
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);width:32px">size</span>
       <input id="wp-size" type="range" min="20" max="56" step="2" value="${size}"
-        style="flex:1;accent-color:var(--red);min-width:0;height:44px">
-      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;background:var(--red);
-        color:var(--on-red);font-size:15px;font-weight:600">Send</button>
+        style="flex:1;accent-color:var(--ink);min-width:0;height:44px">
+      <button id="wp-send" style="min-height:44px;padding:0 24px;border-radius:999px;
+        background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+        font-size:15px;font-weight:600">Send</button>
     </div>
   </div>`);
   const dock = $('#dock');
@@ -8793,8 +8794,8 @@ function renderDates() {
           <div class="lbl">In 13 days</div>
           <div style="font-size:26px;font-weight:700;margin-top:8px">Maya’s birthday</div>
           <div class="d" style="margin-top:6px">Planning lives in your pocket — she can’t see this.</div>
-          <button data-pocket style="width:100%;height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Open the pocket</button>
+          <button data-pocket style="width:100%;height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Open the pocket</button>
         </div>
       </div>
       <div class="eyebrow">Coming up</div>
@@ -9326,8 +9327,8 @@ function renderMoney() {
           <div class="t">Three things you can cancel today</div>
           <div class="d" style="line-height:1.5">€${m.cancel}/mo, already found. Trace won’t do it for
             you and won’t ask twice.</div>
-          <button data-show style="width:100%;height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Show me</button>
+          <button data-show style="width:100%;height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Show me</button>
         </div>
       </div>
       <div class="spacer"></div>
@@ -10098,8 +10099,8 @@ function renderPeople() {
         <div class="card ink"><div class="t">Reachable from a locked phone</div>
           <div class="d" style="line-height:1.5">Maya · Leo’s GP · your mum’s ward. No passcode, no
             app, nothing else visible.</div>
-          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
+          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">

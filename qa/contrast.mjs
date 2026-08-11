@@ -46,9 +46,9 @@ const CHECK = `(() => {
      Walking up and stopping at the first painted layer is wrong: a 10% cream
      card over near-black is not 10% cream, and that error is what makes a
      legible element look unreadable and an unreadable one look fine. */
-  /* The base a pane sits on is not an ancestor. `#sky`, `#field` and `#veil`
+  /* The base a pane sits on is not an ancestor. #sky, #field and #veil
      are SIBLINGS of the content column, so walking up the tree misses all
-     three and lands on `body` by luck. Under the glass system that is the
+     three and lands on body by luck. Under the glass system that is the
      whole ground: an ink bloom, a veil over it, the ground under both.
      Composited here at the bloom's worst case — brightest blob, full alpha,
      directly behind the text — so the number errs pessimistic rather than
@@ -60,7 +60,7 @@ const CHECK = `(() => {
     let bg = g.c;
     if (blob) bg = over(blob.c, bg, blob.a);          /* the bloom, at its hottest */
     /* the veil is a gradient; its lightest stop is the honest worst case */
-    const veil = css('--veil').match(/rgba?\([^)]+\)/g) || [];
+    const veil = css('--veil').match(/rgba?\\([^)]+\\)/g) || [];
     const stops = veil.map(parse).filter(Boolean);
     if (stops.length) {
       const thin = stops.reduce((m, s) => (s.a < m.a ? s : m));

@@ -297,8 +297,8 @@ function renderPeople() {
         <div class="card ink"><div class="t">Reachable from a locked phone</div>
           <div class="d" style="line-height:1.5">Maya · Leo’s GP · your mum’s ward. No passcode, no
             app, nothing else visible.</div>
-          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--red);
-            color:var(--on-red);font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
+          <button data-emerg style="width:100%;min-height:44px;border-radius:999px;background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip);
+            font-size:15px;font-weight:600;margin-top:14px">Set who’s on it</button></div>
       </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
