@@ -2107,6 +2107,14 @@ window.TRACE_APP = {
   },
 };
 
+/* The field is the only thing in the app that animates forever. It costs a
+   compositor layer whether or not anyone is looking at it, so it stops when
+   the tab does — the one loop that has to be told to be polite. */
+document.addEventListener('visibilitychange', () => {
+  const f = $('#field');
+  if (f) f.classList.toggle('hold', document.hidden);
+});
+
 log('simulation ready — you and a simulated Sara share this canvas');
 toast('draw anywhere. the room pill opens all ' + FEATURES.filter(f => f.id).length + ' features.', 3600);
 

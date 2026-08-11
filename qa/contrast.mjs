@@ -46,6 +46,29 @@ const CHECK = `(() => {
      Walking up and stopping at the first painted layer is wrong: a 10% cream
      card over near-black is not 10% cream, and that error is what makes a
      legible element look unreadable and an unreadable one look fine. */
+  /* The base a pane sits on is not an ancestor. `#sky`, `#field` and `#veil`
+     are SIBLINGS of the content column, so walking up the tree misses all
+     three and lands on `body` by luck. Under the glass system that is the
+     whole ground: an ink bloom, a veil over it, the ground under both.
+     Composited here at the bloom's worst case — brightest blob, full alpha,
+     directly behind the text — so the number errs pessimistic rather than
+     reporting a ratio that changes with a 26-second animation. */
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const base = (() => {
+    const g = parse(css('--ground')) || parse('rgb(255,255,255)');
+    const blob = parse(css('--field-a'));
+    let bg = g.c;
+    if (blob) bg = over(blob.c, bg, blob.a);          /* the bloom, at its hottest */
+    /* the veil is a gradient; its lightest stop is the honest worst case */
+    const veil = css('--veil').match(/rgba?\([^)]+\)/g) || [];
+    const stops = veil.map(parse).filter(Boolean);
+    if (stops.length) {
+      const thin = stops.reduce((m, s) => (s.a < m.a ? s : m));
+      bg = over(thin.c, bg, thin.a);
+    }
+    return bg;
+  })();
+
   const groundOf = (el) => {
     const layers = [];
     /* start at the element itself — a button paints its own ground, and
@@ -54,7 +77,7 @@ const CHECK = `(() => {
       const p = parse(getComputedStyle(n).backgroundColor);
       if (p && p.a > 0) { layers.push(p); if (p.a >= .999) break; }
     }
-    let bg = [255,255,255];
+    let bg = base;
     for (let i = layers.length - 1; i >= 0; i--) bg = over(layers[i].c, bg, layers[i].a);
     return bg;
   };
@@ -121,5 +144,9 @@ for (const t of targets) {
     if (hits.length) { bad++; console.log(`\n${t}`); for (const h of hits.slice(0,6)) console.log(`   ${h.ratio}:1  ${h.size}px  ${h.fg} on ${h.bg}  "${h.txt}"`); }
   } catch (e) {}
 }
-console.log(bad ? `\n${bad} screens with unreadable text` : '\nevery text/ground pair meets AA');
+/* State the scope with the number — a clean result over a ground the tool
+   never names is the most expensive kind of green. */
+console.log(`\nground: --ground + the brightest field bloom + the thinnest veil stop, ` +
+  `then every painting ancestor composited over it`);
+console.log(bad ? `${bad} screens with unreadable text` : 'every text/ground pair meets AA');
 await browser.close();

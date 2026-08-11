@@ -7,38 +7,44 @@
 <!--FONT-->
 <!--CSS-->
 <script>
-/* Theme, before first paint. Paper is the design; dark is a preference, and
-   "auto" means no attribute at all so the CSS media query decides. Runs here
-   rather than in app.js because a stamped attribute after paint is a flash. */
+/* Theme, before first paint. INK is the app and the default; PAPER is the
+   second ground, and also what the whole screen becomes when their trace
+   arrives. "auto" means no attribute at all, so the CSS media query decides.
+   Runs here rather than in app.js because a stamped attribute after paint is
+   a flash.
+
+   'dark' is accepted and maps to ink: it is what the preference was called
+   before the inversion, and a stored value has to keep working. */
 (function(){
   var K='trace:theme';
-  var PAPER='#FBF4EA', DARK='#15120E';
-  var os = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  var PAPER='#FBFAFB', INK='#08070A';
+  /* the query asks about LIGHT now, because ink is the default and only a
+     light phone should move us off it */
+  var os = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : null;
+  function norm(p){ return p==='paper' ? 'paper' : p==='auto' ? 'auto' : 'ink'; }
   /* The OS paints its chrome from theme-color, so the preference has to reach
-     it too — otherwise picking Dark leaves a cream bar above a dark app, and
-     picking "match phone" on a dark phone leaves the same. Resolved here
-     rather than by a media-scoped tag, because a media query cannot be
-     overridden by a later tag and the app has to be able to beat the OS. */
+     it too — otherwise picking Paper leaves a black bar above a white app. */
   function chrome(p){
-    var dark = p==='dark' || (p!=='paper' && !!(os && os.matches));
+    var paper = p==='paper' || (p==='auto' && !!(os && os.matches));
     var m = document.querySelector('meta[name="theme-color"]');
-    if(m) m.setAttribute('content', dark ? DARK : PAPER);
+    if(m) m.setAttribute('content', paper ? PAPER : INK);
   }
   function apply(p){
-    if(p==='paper'||p==='dark') document.documentElement.setAttribute('data-theme',p==='paper'?'light':'dark');
-    else document.documentElement.removeAttribute('data-theme');
+    p = norm(p);
+    if(p==='auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', p==='paper' ? 'light' : 'dark');
     chrome(p);
   }
   /* on "match phone", the OS can change under us */
   if(os && os.addEventListener) os.addEventListener('change',function(){
-    var p; try{ p=localStorage.getItem(K)||'paper'; }catch(e){ p='paper'; }
-    if(p!=='paper'&&p!=='dark') chrome(p);
+    var p; try{ p=norm(localStorage.getItem(K)); }catch(e){ p='ink'; }
+    if(p==='auto') chrome(p);
   });
-  var pref='paper';
-  try{ pref=localStorage.getItem(K)||'paper'; }catch(e){}
+  var pref='ink';
+  try{ pref=localStorage.getItem(K)||'ink'; }catch(e){}
   apply(pref);
   window.TRACE_THEME={
-    get:function(){ try{ return localStorage.getItem(K)||'paper'; }catch(e){ return 'paper'; } },
+    get:function(){ try{ return norm(localStorage.getItem(K)); }catch(e){ return 'ink'; } },
     set:function(p){
       try{ localStorage.setItem(K,p); }catch(e){}
       apply(p);
@@ -90,6 +96,12 @@
   <!-- ==================== the app ==================== -->
   <div id="appview" class="hidden">
     <div id="sky"></div>
+    <!-- The ambient field: the drawing's own light, diffused through the room.
+         Blur alone is fog — glass is refraction, and refraction needs a lit,
+         coloured field to bend. Three blooms on one 26s loop, under a veil
+         that keeps every text contrast honest. -->
+    <div id="field" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+    <div id="veil" aria-hidden="true"></div>
     <div id="dim"></div>
 
     <div id="col">

@@ -1,124 +1,195 @@
-/* trace — app, on the Trace Paper system (Trace Paper.dc.html, p1–p61).
-   Bright paper: warm off-white grounds, near-black ink, one red accent.
-   Phone 390×844 r46 with an 8px #1A1A1A bezel and a 0 24px 50px shadow.
-   Dark surfaces are inversions for emphasis, not a dark mode — dark mode is
-   the separate token block under [data-theme="dark"], with its own values. */
+/* trace — app, on the glass system.
+   Phone 390×844 r46 in a dark bezel. Two grounds, one ink, glass between. */
 
-/* ============================================================ tokens */
+/* ═══════════════════════════════════════════════════════════════════════
+   THESIS     Red is only ever ink. Never a button, never a badge, never a
+              glow for its own sake — the only red on screen is a mark a
+              human made. Chrome is black glass and white light.
+
+   OWN-WORLD  Two grounds, one ink. INK (#08070A) and PAPER (#FBFAFB) are the
+              same system inverted; #FF2D46 is the only chromatic value in the
+              build. Glass is four real layers — backdrop blur, a thin tint, a
+              lit top edge, a hairline rim — and it takes its bloom from the
+              ink, so the chrome is lit by the drawing.
+
+   STORY      Two people share one canvas. The app should feel like a lit room
+              at 11pm that goes bright white for two seconds when someone
+              thinks of you.
+   ═══════════════════════════════════════════════════════════════════════
+
+   Two names are kept from the old palette on purpose, because renaming them
+   is a rewrite of the engine rather than of the design:
+
+     --ink    is the FOREGROUND (text), not the red. `TOK('--ink')` is read by
+              the canvas engine and 'ink' is a stroke palette slot on the wire.
+     --red    is the one chromatic value, #FF2D46. The name survives; the rule
+              around it does not. It may only paint a mark a person made.
+
+   Everything below is the same structure twice. INK is bare `:root` — it is
+   the default and the ground the ink glows on. PAPER is `[data-theme="light"]`
+   and is also what the whole screen becomes when their trace arrives. */
+
+/* ── INK — a lit room at 11pm. The default. ─────────────────────────── */
 :root{
   /* grounds */
-  --ground:#FBF4EA;          /* paper — default screen background */
-  --ground-alt:#F2EADC;      /* paper-alt — quiet screens (repair, grief, the end) */
-  --ground-deep:#EFE6D6;     /* paper-deep — grief only */
-  --stage:#F2EADC;           /* behind the device */
+  --ground:#08070A;
+  --ground-alt:#0D0C11;      /* quiet screens — repair, grief, the end */
+  --ground-deep:#050409;     /* grief only */
+  --stage:#0A090D;           /* behind the device */
 
-  /* surfaces */
-  --surface:#FFFFFF;         /* card — cards, rows, list items */
-  --surface-2:#FFFFFF;       /* chips, pills, icon buttons */
-  --hairline:rgba(26,26,26,.1);
-  --divider:rgba(26,26,26,.08);
-  --dashed:rgba(26,26,26,.2);
+  /* glass — four layers, in the order real glass builds them */
+  --pane:rgba(255,255,255,.055);      /* the tint */
+  --pane-2:rgba(255,255,255,.085);    /* deep variant, over busier content */
+  --rim:rgba(255,255,255,.13);        /* hairline, inset 1px */
+  --lip:rgba(255,255,255,.42);        /* the lit top edge — what sells it */
+  --sh:rgba(0,0,0,.6);                /* outer shadow */
+  --well:rgba(255,255,255,.06);       /* an idle inset well */
+  --bloom:rgba(255,45,70,.70);        /* the ink's light, thrown by the glass */
+  --blur:26px;
+  --sat:190%;
 
-  /* ink — four levels, as the token table lists them */
-  --ink:#1A1A1A;
-  --ink-70:rgba(26,26,26,.7);      /* secondary text: sentences, not captions */
-  --ink-2:rgba(26,26,26,.55);
-  --ink-3:rgba(26,26,26,.45);
-  --ink-4:rgba(26,26,26,.4);
-  --ink-5:rgba(26,26,26,.3);
+  /* surfaces — kept as names the blocks already use, now glass values */
+  --surface:rgba(255,255,255,.055);
+  --surface-2:rgba(255,255,255,.085);
+  --hairline:rgba(255,255,255,.10);
+  --divider:rgba(255,255,255,.08);
+  --dashed:rgba(255,255,255,.20);
 
-  /* the one accent */
-  --red:#E23343;
-  --red-text:#B3202E;        /* red-deep — red text on paper, contrast-safe */
-  --red-wash:rgba(226,51,67,.1);
-  --red-line:rgba(226,51,67,.35);
+  /* the ambient field — the drawing's own light, diffused */
+  --field-a:rgba(255,45,70,.34);
+  --field-b:rgba(255,45,70,.18);
+  --field-c:rgba(255,255,255,.09);
+  --veil:linear-gradient(180deg,rgba(8,7,10,.74),rgba(8,7,10,.58) 46%,rgba(8,7,10,.82));
+
+  /* foreground — four levels */
+  --ink:#F7F5F8;
+  --ink-70:rgba(247,245,248,.78);
+  --ink-2:rgba(247,245,248,.62);
+  --ink-3:rgba(247,245,248,.52);
+  --ink-4:rgba(247,245,248,.42);
+  --ink-5:rgba(247,245,248,.28);
+
+  /* the one chromatic value */
+  --red:#FF2D46;
+  --red-text:#FF5468;        /* red as small text on this ground */
+  --red-wash:rgba(255,45,70,.15);
+  --red-line:rgba(255,45,70,.38);
+  --red-deep:#D01E32;        /* the only fill white text may ever sit on */
   --on-red:#FFFFFF;
 
-  /* the inverted card — emphasis, not a theme */
-  --emph:#1A1A1A;
-  --emph-ink:#FBF4EA;        /* cream */
-  --emph-ink-2:rgba(251,244,234,.75);
-  --emph-ink-3:rgba(251,244,234,.6);
-  --emph-ink-4:rgba(251,244,234,.45);
-  --emph-red:#E9808A;        /* red-light — red text on ink */
-  --emph-line:rgba(251,244,234,.16);
+  /* the inverted card — an emphasis step, not a theme */
+  --emph:rgba(255,255,255,.10);
+  --emph-ink:#F7F5F8;
+  --emph-ink-2:rgba(247,245,248,.75);
+  --emph-ink-3:rgba(247,245,248,.6);
+  --emph-ink-4:rgba(247,245,248,.45);
+  --emph-red:#FF5468;
+  --emph-line:rgba(255,255,255,.14);
 
-  /* rare third accent, and the pen palette */
-  --amber:#E9A13B;
-  --violet:#7A6BB5;
-
-  --bezel:#1A1A1A;
-  --device-shadow:0 24px 50px rgba(26,26,26,.22);
-  --scrim:rgba(26,26,26,.45);
-  --track:rgba(26,26,26,.18);   /* a switch's off state */
-  --grid-empty:rgba(26,26,26,.07);  /* a day with no marks — pale, never white */
-}
-
-/* Dark mode is a preference, not the design. It is not an inversion of
-   paper — it is the same structure with its own warm near-black values, so
-   the ink card stays an emphasis step rather than blending into the ground. */
-:root[data-theme="dark"]{
-  --ground:#15120E;
-  --ground-alt:#1B1713;
-  --ground-deep:#100E0B;
-  --stage:#0E0C0A;
-
-  --surface:#211C17;
-  --surface-2:#292219;
-  --hairline:rgba(245,239,228,.12);
-  --divider:rgba(245,239,228,.09);
-  --dashed:rgba(245,239,228,.22);
-
-  --ink:#F5EFE4;
-  --ink-70:rgba(245,239,228,.78);
-  --ink-2:rgba(245,239,228,.6);
-  --ink-3:rgba(245,239,228,.56);
-  --ink-4:rgba(245,239,228,.46);
-  --ink-5:rgba(245,239,228,.3);
-
-  --red:#F04A58;
-  --red-text:#FF8A92;
-  --red-wash:rgba(240,74,88,.14);
-  --red-line:rgba(240,74,88,.4);
-  --on-red:#15120E;
-
-  --emph:#F5EFE4;
-  --emph-ink:#15120E;
-  --emph-ink-2:rgba(21,18,14,.75);
-  --emph-ink-3:rgba(21,18,14,.6);
-  --emph-ink-4:rgba(21,18,14,.45);
-  --emph-red:#B3202E;
-  --emph-line:rgba(21,18,14,.16);
-
+  /* the pen's other inks */
   --amber:#E9A13B;
   --violet:#9C8BD8;
 
-  --bezel:#2A241D;
-  --device-shadow:0 24px 50px rgba(0,0,0,.55);
-  --scrim:rgba(0,0,0,.6);
-  --track:rgba(245,239,228,.2);
-  --grid-empty:rgba(245,239,228,.1);
+  --bezel:#141319;
+  --device-shadow:0 50px 96px -34px rgba(0,0,0,.92);
+  --scrim:rgba(0,0,0,.66);
+  --track:rgba(255,255,255,.16);
+  --grid-empty:rgba(255,255,255,.07);
+
+  --ease:cubic-bezier(.16,1,.3,1);
 }
 
-/* Follow the OS only when the user has not picked. An explicit choice
-   stamps data-theme on <html> and wins in both directions. */
-@media (prefers-color-scheme: dark){
+/* ── PAPER — the same system inverted. Also what the reveal becomes. ── */
+:root[data-theme="light"]{
+  --ground:#FBFAFB;
+  --ground-alt:#F4F2F5;
+  --ground-deep:#EFEDF1;
+  --stage:#F4F2F5;
+
+  --pane:rgba(255,255,255,.52);
+  --pane-2:rgba(255,255,255,.68);
+  --rim:rgba(255,255,255,.85);
+  --lip:rgba(255,255,255,1);
+  --sh:rgba(60,40,50,.16);
+  --well:rgba(12,11,15,.05);
+  --bloom:rgba(255,45,70,.55);
+  --blur:26px;
+  --sat:190%;
+
+  --surface:rgba(255,255,255,.52);
+  --surface-2:rgba(255,255,255,.68);
+  --hairline:rgba(12,11,15,.09);
+  --divider:rgba(12,11,15,.07);
+  --dashed:rgba(12,11,15,.18);
+
+  --field-a:rgba(255,45,70,.20);
+  --field-b:rgba(255,45,70,.13);
+  --field-c:rgba(12,11,15,.08);
+  --veil:linear-gradient(180deg,rgba(248,247,249,.74),rgba(248,247,249,.62) 46%,rgba(248,247,249,.80));
+
+  --ink:#0C0B0F;
+  --ink-70:rgba(12,11,15,.70);
+  --ink-2:rgba(12,11,15,.58);
+  --ink-3:rgba(12,11,15,.46);
+  --ink-4:rgba(12,11,15,.40);
+  --ink-5:rgba(12,11,15,.28);
+
+  --red:#FF2D46;
+  --red-text:#C4001C;        /* red as small text on paper — clears AA */
+  --red-wash:rgba(255,45,70,.10);
+  --red-line:rgba(255,45,70,.32);
+  --red-deep:#C4001C;
+  --on-red:#FFFFFF;
+
+  --emph:rgba(12,11,15,.06);
+  --emph-ink:#0C0B0F;
+  --emph-ink-2:rgba(12,11,15,.75);
+  --emph-ink-3:rgba(12,11,15,.6);
+  --emph-ink-4:rgba(12,11,15,.45);
+  --emph-red:#C4001C;
+  --emph-line:rgba(12,11,15,.12);
+
+  --amber:#B87718;
+  --violet:#6A5AA8;
+
+  --bezel:#141319;
+  --device-shadow:0 50px 96px -34px rgba(60,40,50,.42);
+  --scrim:rgba(12,11,15,.45);
+  --track:rgba(12,11,15,.16);
+  --grid-empty:rgba(12,11,15,.06);
+
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+/* Follow the OS only when the user has not picked. INK is the default, so
+   only a light OS moves us — and an explicit choice stamps data-theme on
+   <html> and still wins in both directions. */
+@media (prefers-color-scheme: light){
   :root:not([data-theme="light"]):not([data-theme="dark"]){
-    --ground:#15120E;--ground-alt:#1B1713;--ground-deep:#100E0B;--stage:#0E0C0A;
-    --surface:#211C17;--surface-2:#292219;
-    --hairline:rgba(245,239,228,.12);--divider:rgba(245,239,228,.09);--dashed:rgba(245,239,228,.22);
-    --ink:#F5EFE4;--ink-70:rgba(245,239,228,.78);--ink-2:rgba(245,239,228,.6);--ink-3:rgba(245,239,228,.56);
-    --ink-4:rgba(245,239,228,.46);--ink-5:rgba(245,239,228,.3);
-    --red:#F04A58;--red-text:#FF8A92;--red-wash:rgba(240,74,88,.14);
-    --red-line:rgba(240,74,88,.4);--on-red:#15120E;
-    --emph:#F5EFE4;--emph-ink:#15120E;--emph-ink-2:rgba(21,18,14,.75);
-    --emph-ink-3:rgba(21,18,14,.6);--emph-ink-4:rgba(21,18,14,.45);
-    --emph-red:#B3202E;--emph-line:rgba(21,18,14,.16);
-    --violet:#9C8BD8;--bezel:#2A241D;
-    --device-shadow:0 24px 50px rgba(0,0,0,.55);--scrim:rgba(0,0,0,.6);
-    --track:rgba(245,239,228,.2);--grid-empty:rgba(245,239,228,.1);
+    --ground:#FBFAFB;--ground-alt:#F4F2F5;--ground-deep:#EFEDF1;--stage:#F4F2F5;
+    --pane:rgba(255,255,255,.52);--pane-2:rgba(255,255,255,.68);
+    --rim:rgba(255,255,255,.85);--lip:rgba(255,255,255,1);
+    --sh:rgba(60,40,50,.16);--well:rgba(12,11,15,.05);--bloom:rgba(255,45,70,.55);
+    --surface:rgba(255,255,255,.52);--surface-2:rgba(255,255,255,.68);
+    --hairline:rgba(12,11,15,.09);--divider:rgba(12,11,15,.07);--dashed:rgba(12,11,15,.18);
+    --field-a:rgba(255,45,70,.20);--field-b:rgba(255,45,70,.13);--field-c:rgba(12,11,15,.08);
+    --veil:linear-gradient(180deg,rgba(248,247,249,.74),rgba(248,247,249,.62) 46%,rgba(248,247,249,.80));
+    --ink:#0C0B0F;--ink-70:rgba(12,11,15,.70);--ink-2:rgba(12,11,15,.58);
+    --ink-3:rgba(12,11,15,.46);--ink-4:rgba(12,11,15,.40);--ink-5:rgba(12,11,15,.28);
+    --red:#FF2D46;--red-text:#C4001C;--red-wash:rgba(255,45,70,.10);
+    --red-line:rgba(255,45,70,.32);--red-deep:#C4001C;--on-red:#FFFFFF;
+    --emph:rgba(12,11,15,.06);--emph-ink:#0C0B0F;--emph-ink-2:rgba(12,11,15,.75);
+    --emph-ink-3:rgba(12,11,15,.6);--emph-ink-4:rgba(12,11,15,.45);
+    --emph-red:#C4001C;--emph-line:rgba(12,11,15,.12);
+    --amber:#B87718;--violet:#6A5AA8;
+    --device-shadow:0 50px 96px -34px rgba(60,40,50,.42);--scrim:rgba(12,11,15,.45);
+    --track:rgba(12,11,15,.16);--grid-empty:rgba(12,11,15,.06);
   }
 }
+
+/* The old dark stamp still resolves — "dark" now simply means the default
+   ground, so a stored preference from before the inversion keeps working. */
+:root[data-theme="dark"]{ color-scheme:dark }
 
 /* ── the drawn edge ──────────────────────────────────────────────────────
  * Nothing a hand draws closes on itself perfectly. Every corner in here was
@@ -193,7 +264,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   border-radius:0 2px 2px 0;background:var(--ink-4)}
 #sb-batt-fill{position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:80%;border-radius:2px;background:var(--ink);
   display:block;transition:width 1s,background .4s}
-#sb-batt.low #sb-batt-fill{background:var(--red)}
+#sb-batt.low #sb-batt-fill{background:var(--ink)}
 #home-bar{position:absolute;z-index:31;bottom:12px;left:50%;transform:translateX(-50%);
   width:134px;height:5px;border-radius:3px;background:var(--ink-5);border:0;padding:0}
 
@@ -210,25 +281,30 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 #widget-cap i{font-style:normal}
 #widget-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
 #widget-dots span{width:5px;height:5px;border-radius:50%;background:var(--ink-5);transition:background .2s}
-#widget-dots span.on{background:var(--red)}
+#widget-dots span.on{background:var(--ink)}
 .w-live{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500}
 .w-live b{width:6px;height:6px;border-radius:50%;animation:pulseDot 2.4s ease-in-out infinite}
 .w-kicker{font-size:12px;font-weight:500;color:var(--ink-2)}
 .w-row{display:flex;align-items:center;gap:10px;margin-top:10px}
 .w-tick{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink-5);display:inline-flex;
   align-items:center;justify-content:center;font-size:11px;color:var(--on-red);flex:none}
-.w-tick.done{border-color:var(--red);background:var(--red)}
+.w-tick.done{border-color:var(--ink);background:var(--ink)}
 .w-row span{font-size:15px}
 .w-row span.off{opacity:.45;text-decoration:line-through}
 .w-foot{font-size:11px;color:var(--ink-3);margin-top:12px}
 .w-cal{display:flex;gap:16px;align-items:center;height:100%}
 .w-cal .d{text-align:center;padding:0 6px}
-.w-cal .d i{font-style:normal;font-size:12px;color:var(--red);font-weight:600;display:block}
+.w-cal .d i{font-style:normal;font-size:12px;color:var(--ink);font-weight:600;display:block}
 .w-cal .d b{font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1;display:block}
 .w-cal .rule{width:1px;align-self:stretch;background:var(--divider)}
 .w-cal .items{flex:1}
 .w-cal .items p{margin:0 0 8px;font-family:Caveat,cursive;font-weight:700;font-size:23px;line-height:1.2}
 .w-mid{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+/* Red survives in exactly five places, and every one of them is a mark a
+   person made: this orb and the nav dot (the wet tip of the other person's
+   stroke, which is also how presence is drawn), the app tile and the wordmark
+   (the logo is that same stroke), and the brush picker showing red ink held.
+   The focus ring is the one system affordance allowed to borrow it. */
 .w-orb{width:44px;height:44px;border-radius:50%;background:var(--red);
   box-shadow:0 0 34px var(--red-wash);animation:pulseDot 2.6s ease-in-out infinite}
 .w-mid b{font-size:16px;font-weight:600}
@@ -259,7 +335,37 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 #screen[data-room="Memory"]    #sky{background:var(--ground)}
 #screen[data-room="Wellbeing"] #sky{background:var(--ground)}
 #dim{position:absolute;inset:0;pointer-events:none;background:transparent}
-#col{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:46px}
+
+/* ── the ambient field ───────────────────────────────────────────────────
+ * Three blooms drifting on one 26s loop, blurred to 46px, under a veil.
+ *
+ * The veil is not optional and not decoration: it is what keeps every text
+ * contrast assertion true. Without it the blooms move under the type and the
+ * measured ratio changes with the clock. With it, the ground the text is read
+ * against is the veil, which is fixed.
+ *
+ * `inset:-16%` keeps a bloom's blurred edge outside the frame, so the field
+ * never shows a soft rectangular seam against the bezel. */
+#field{position:absolute;inset:-16%;z-index:0;filter:blur(46px);pointer-events:none;
+  contain:strict}
+#field i{position:absolute;border-radius:50%;display:block;
+  animation:fieldDrift 26s var(--ease) infinite alternate;will-change:transform}
+#field .a{width:60%;height:30%;left:-14%;top:30%;background:var(--field-a)}
+#field .b{width:52%;height:26%;right:-16%;top:62%;background:var(--field-b);animation-delay:-9s}
+#field .c{width:58%;height:26%;left:4%;top:-6%;background:var(--field-c);animation-delay:-17s}
+@keyframes fieldDrift{
+  0%  {transform:translate3d(0,0,0) scale(1)}
+  50% {transform:translate3d(9%,-6%,0) scale(1.14)}
+  100%{transform:translate3d(-7%,7%,0) scale(.94)}
+}
+#veil{position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--veil)}
+/* the field is the room's light; a screen that has gone quiet dims it */
+#screen.quiet #field{opacity:.4}
+/* nonessential loops stop when the tab is hidden — see app.js */
+#field.hold i{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){ #field i{animation:none} }
+
+#col{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;padding-top:46px}
 
 #stack{flex:1;min-height:0;position:relative}
 .scr{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
@@ -308,29 +414,30 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .row .s.big{font-size:13px;color:var(--ink-2);margin-top:1px}
 .row .cnt{font-size:15px;font-weight:600}
 .row .chev{font-size:16px;color:var(--ink-3)}
-.row.on{background:var(--red-wash);border-color:var(--red-line)}
+.row.on{background:var(--pane-2)}
 /* p6: the room glyph sits on a filled tile — red for the canvas, ink for
    everything else. Nothing else in the directory is allowed colour. */
 .ico{width:38px;height:38px;border-radius:var(--r12);background:var(--ground-alt);display:flex;align-items:center;
   justify-content:center;font-size:17px;flex:none}
 .ico.ink{background:var(--emph);color:var(--emph-ink)}
-.ico.red{background:var(--red);color:var(--on-red)}
+.ico.red{background:var(--emph);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rim)}
 .ico .ts-i{font-size:18px}
 .tick{width:26px;height:26px;border-radius:var(--rdisc);border:2px solid var(--ink-5);display:flex;
   align-items:center;justify-content:center;font-size:13px;color:var(--on-red);flex:none;transition:.15s}
 .tick.on{border-color:var(--ink);background:var(--ink);color:var(--emph-ink)}
 .row.done .grow{opacity:.45}
 .row.done .n{text-decoration:line-through}
-.who.them{background:var(--red-wash);color:var(--red-text)}
-.who.free{background:var(--red);color:var(--on-red)}
-.who{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:var(--ground-alt);flex:none}
+.who.them{background:var(--emph);color:var(--ink)}
+.who.free{background:var(--emph);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip)}
+.who{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;flex:none;
+  background:var(--emph);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rim)}
 button.who{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 /* the off-track is a token so the dark override cannot out-specify `.sw.on`
    and leave every switch painting its ON state the same as its OFF state */
 .sw{width:46px;height:28px;border-radius:99px;background:var(--track);padding:3px;display:flex;
   justify-content:flex-start;transition:all .18s ease;flex:none}
 .sw i{width:22px;height:22px;border-radius:50%;background:#fff;display:block}
-.sw.on{background:var(--red);justify-content:flex-end}
+.sw.on{background:var(--ink);justify-content:flex-end}
 .sw.amber.on{background:var(--amber)}
 
 .search{margin:18px 20px 0;height:44px;border-radius:var(--r14);background:var(--surface);
@@ -341,7 +448,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .splitbar{margin:18px 20px 0;height:8px;border-radius:99px;background:var(--ground-alt);
   border:1px solid var(--hairline);overflow:hidden;display:flex;flex:none}
 .splitbar .a{background:var(--ink)}
-.splitbar .b{flex:1;background:var(--red)}
+.splitbar .b{flex:1;background:var(--ink-5)}
 
 /* the two stat cards — p2, the only summary allowed on the canvas */
 .stat2{display:flex;gap:10px;padding:14px 20px 0;flex:none}
@@ -427,7 +534,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .rbtn{width:46px;height:46px;border-radius:var(--rdisc-b);background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;color:var(--ink)}
 .rbtn:active{transform:scale(.92)}
-.rbtn.hot{background:var(--red);color:var(--on-red);border-color:transparent}
+.rbtn.hot{background:var(--pane-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--lip)}
 .rbtn.hot .ts-i{color:var(--on-red)}
 .rbtn.hot.armed{animation:beat 1s ease-in-out infinite}
 @keyframes beat{0%,100%{transform:scale(1)}30%{transform:scale(1.12)}}
@@ -443,7 +550,9 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
   border:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600}
 
 /* buttons — p1/p3/p4. Primary red, primary ink, secondary white. */
-.btn-red{min-height:58px;border-radius:var(--rpill);background:var(--red);color:var(--on-red);
+.btn-red{min-height:58px;border-radius:var(--rpill);background:var(--pane-2);color:var(--ink);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  box-shadow:inset 0 0 0 1px var(--lip), 0 16px 34px -18px var(--sh);
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;width:100%}
 .btn-ink{min-height:58px;border-radius:var(--rpill);background:var(--emph);color:var(--emph-ink);
   display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;width:100%}
@@ -476,15 +585,15 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 button.card:active{transform:scale(.99)}
 
 /* the emphasised card — 2px, and only ever one per screen */
-.card.pick{border:2px solid var(--red);padding:15px 17px}
+.card.pick{border:0;box-shadow:inset 0 0 0 2px var(--lip), 0 16px 34px -18px var(--sh);padding:15px 17px}
 .card.pick-ink{border:2px solid var(--ink);padding:15px 17px}
 /* a card that is really a row */
 .card.line{display:flex;align-items:center;gap:14px}
 .card.line .grow{flex:1;min-width:0}
 .card.line .end{font-size:13px;font-weight:700;flex:none}
-.card.line .end.red{color:var(--red-text)}
+.card.line .end.red{color:var(--ink)}
 .card.line .end.mute{color:var(--ink-4);font-weight:600}
-.card.warn{background:var(--red-wash);border-color:var(--red-line)}
+.card.warn{background:var(--pane-2)}
 
 /* segmented choice — p28, p30, p45 */
 .seg{display:flex;gap:8px;padding:16px 20px 0;flex:none}
@@ -494,10 +603,11 @@ button.card:active{transform:scale(.99)}
 
 /* one progress bar shape — savings, trips, missions */
 .bar{height:9px;border-radius:99px;background:var(--ground-alt);overflow:hidden;margin-top:12px}
-.bar > i{display:block;height:100%;background:var(--red);transition:width .3s ease}
+.bar > i{display:block;height:100%;background:var(--ink);transition:width .3s ease}
 
 /* the red banner — a clash, a shock, anything the screen is actually about */
-.banner{margin:18px 20px 0;border-radius:var(--r22);background:var(--red);color:var(--on-red);
+.banner{margin:18px 20px 0;border-radius:var(--r22);background:var(--pane-2);color:var(--ink);
+  box-shadow:inset 0 0 0 1px var(--lip);
   padding:22px;flex:none}
 .banner .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
 .banner .h{font-size:26px;font-weight:700;line-height:1.2;margin-top:10px}
@@ -515,7 +625,7 @@ button.card:active{transform:scale(.99)}
   background-position:top;background-size:100% 3px}
 .sheet .r .k{font-size:15px;color:var(--ink-70)}
 .sheet .r .v{font-size:14px;font-weight:700;flex:none}
-.sheet .r .v.red{color:var(--red-text)}
+.sheet .r .v.red{color:var(--ink)}
 
 /* a column of blocks at the screen's rail */
 .stackcol{padding:18px 20px 0;display:flex;flex-direction:column;gap:9px;flex:none}
@@ -551,8 +661,8 @@ button.card:active{transform:scale(.99)}
 .sh-item .ts-i{font-size:20px;width:28px;height:22px;flex:none}
 .sh-item b{display:block;font-size:16px;font-weight:600}
 .sh-item i{display:block;font-style:normal;font-size:12.5px;color:var(--ink-3);margin-top:1px}
-.sh-now{background:var(--red-wash);border-color:var(--red-line)}
-.sh-now .ts-i{color:var(--red)}
+.sh-now{background:var(--pane-2)}
+.sh-now .ts-i{color:var(--ink)}
 
 #panel{position:absolute;inset:0;z-index:35;display:flex;flex-direction:column;background:var(--ground)}
 #panel-bar{display:flex;align-items:center;gap:10px;padding:52px 20px 8px;flex:none}
@@ -563,7 +673,7 @@ button.card:active{transform:scale(.99)}
 #panel-close::before{content:'';position:absolute;inset:4px;border-radius:50%;
   background:var(--surface);border:1px solid var(--hairline);z-index:-1}
 #panel-title{font-size:17px;font-weight:600}
-#panel-aux{margin-left:auto;font-size:13px;font-weight:600;color:var(--red-text);font-variant-numeric:tabular-nums}
+#panel-aux{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink-70);font-variant-numeric:tabular-nums}
 #panel-body{flex:1;min-height:0;position:relative;padding:8px 20px 24px;overflow:auto;
   display:flex;flex-direction:column;gap:11px;scrollbar-width:none}
 #panel-body::-webkit-scrollbar{display:none}
@@ -571,7 +681,9 @@ button.card:active{transform:scale(.99)}
   border:1px solid var(--hairline);background:var(--surface);touch-action:none}
 .p-canvas canvas{position:absolute;inset:0;width:100%;height:100%}
 .p-note{font-size:13px;line-height:1.55;color:var(--ink-70)}
-.p-cta{min-height:52px;border-radius:999px;background:var(--red);color:var(--on-red);display:flex;align-items:center;
+.p-cta{min-height:52px;border-radius:999px;background:var(--pane-2);color:var(--ink);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  box-shadow:inset 0 0 0 1px var(--lip), 0 16px 34px -18px var(--sh);display:flex;align-items:center;
   justify-content:center;font-size:16px;font-weight:600;width:100%}
 .p-ghost{min-height:50px;border-radius:999px;background:var(--surface);border:1px solid var(--hairline);
   display:flex;align-items:center;justify-content:center;font-size:15px;width:100%;color:var(--ink)}
@@ -588,9 +700,9 @@ button.card:active{transform:scale(.99)}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .cal button{aspect-ratio:1;border-radius:10px;background:var(--surface);
   border:1px solid var(--hairline);font-size:11px;color:var(--ink-3);position:relative}
-.cal button.marked{border-color:var(--red-line);color:var(--ink)}
+.cal button.marked{box-shadow:inset 0 0 0 1px var(--lip);color:var(--ink)}
 .cal button.marked::after{content:'';position:absolute;inset:22%;border-radius:99px;
-  border:2.5px solid var(--red);border-top-color:transparent;transform:rotate(-30deg)}
+  border:2.5px solid var(--ink-3);border-top-color:transparent;transform:rotate(-30deg)}
 .cal button.today{outline:1.5px solid var(--ink)}
 .dict-row{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:0;
   background-image:var(--rule);background-repeat:no-repeat;background-position:bottom;background-size:100% 3px}
@@ -599,7 +711,7 @@ button.card:active{transform:scale(.99)}
 .dict-row i{font-style:normal;font-size:12px;color:var(--ink-3)}
 .list-quiet{font-size:13px;line-height:1.85;color:var(--ink-2)}
 .list-quiet b{color:var(--ink)}
-.list-quiet .no{color:var(--red-text);font-weight:700;margin-right:8px}
+.list-quiet .no{color:var(--ink);font-weight:700;margin-right:8px}
 .list-quiet .yes{color:var(--ink);font-weight:700;margin-right:8px}
 
 #toast{position:absolute;z-index:70;left:50%;bottom:112px;transition:opacity .25s,transform .25s,bottom var(--fold);transform:translate(-50%,14px);
@@ -615,7 +727,7 @@ button.card:active{transform:scale(.99)}
 .sim-head{font-size:11px;letter-spacing:.14em;color:var(--ink-4)}
 #sim-log{flex:none;height:320px;overflow:auto;border-radius:14px;border:1px solid var(--hairline);
   background:var(--surface);padding:10px 12px;font:11px/1.8 ui-monospace,Menlo,monospace;color:var(--ink-3)}
-#sim-log div::before{content:'▸ ';color:var(--red)}
+#sim-log div::before{content:'▸ ';color:var(--ink-3)}
 .sim-actions{display:flex;flex-direction:column;gap:8px}
 .sim-actions button{padding:11px 12px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--surface);color:var(--ink);font-size:12.5px;text-align:left}
@@ -632,12 +744,12 @@ button.card:active{transform:scale(.99)}
    two most-used controls in the drawing tools were a third of the 44px floor.
    Height on the element grows the box the finger has to land in; the track
    stays centred inside it and looks unchanged. */
-#brushpop input[type=range]{flex:1;accent-color:var(--red);min-width:0;height:44px}
-#brushpop b{font-size:12px;font-weight:600;color:var(--red-text);width:36px;text-align:right;flex:none}
+#brushpop input[type=range]{flex:1;accent-color:var(--ink);min-width:0;height:44px}
+#brushpop b{font-size:12px;font-weight:600;color:var(--ink-70);width:36px;text-align:right;flex:none}
 #brushpop .bp-prev{width:120px;height:40px;margin:0 auto;border-radius:10px;background:var(--ground-alt)}
 #brushpop .bp-taper{min-height:44px;padding:10px 13px;border-radius:14px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:13px;color:var(--ink)}
-#brushpop .bp-taper.on{border-color:var(--red);background:var(--red-wash);color:var(--red-text)}
+#brushpop .bp-taper.on{border-color:var(--lip);background:var(--pane-2);color:var(--ink)}
 #brushpop .bp-quick{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground-alt);font-size:12.5px;color:var(--ink)}
 /* the colour cascade — an invention, so it sits with the other invention
@@ -649,7 +761,7 @@ button.card:active{transform:scale(.99)}
   background:conic-gradient(from 0deg,#f66,#fc6,#ff6,#6f8,#6cf,#96f,#f6c,#f66);position:relative}
 #brushpop .bp-any-dot::after{content:'';position:absolute;inset:5px;border-radius:50%;
   background:var(--picked,var(--ink));border:1.5px solid var(--hairline)}
-#brushpop .bp-quick:active{background:var(--red-wash)}
+#brushpop .bp-quick:active{background:var(--pane-2)}
 
 /* first launch — p1. The brand is the splash; pairing is the front door. */
 #onboard{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;background:var(--ground)}
@@ -673,8 +785,10 @@ button.card:active{transform:scale(.99)}
   background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit;text-align:center}
 #ob-their{font:600 16px ui-monospace,Menlo,monospace;letter-spacing:.2em}
 .ob-code-l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-top:6px}
-.ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:var(--red)}
-.ob-share{min-height:58px;border-radius:999px;background:var(--red);color:var(--on-red);font-size:17px;font-weight:600}
+.ob-code{font:700 38px ui-monospace,Menlo,monospace;letter-spacing:.3em;padding-left:.3em;color:var(--ink)}
+.ob-share{min-height:58px;border-radius:999px;background:var(--pane-2);color:var(--ink);font-size:17px;font-weight:600;
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  box-shadow:inset 0 0 0 1px var(--lip), 0 16px 34px -18px var(--sh)}
 .ob-go{min-height:56px;border-radius:999px;background:var(--surface);
   border:1px solid var(--hairline);color:var(--ink);font-size:17px;font-weight:500}
 .ob-skip{margin-top:4px;font-size:15px;color:var(--ink-70);
@@ -700,7 +814,8 @@ button.card:active{transform:scale(.99)}
 #colorpop .cp-hex{flex:1;min-width:0;height:40px;border-radius:12px;border:1px solid var(--hairline);
   background:var(--ground);color:var(--ink);font:600 14px ui-monospace,Menlo,monospace;
   letter-spacing:.08em;text-align:center;text-transform:uppercase}
-#colorpop .cp-ok{height:40px;padding:0 18px;border-radius:999px;background:var(--red);color:var(--on-red);
+#colorpop .cp-ok{height:40px;padding:0 18px;border-radius:999px;background:var(--pane-2);color:var(--ink);
+  box-shadow:inset 0 0 0 1px var(--lip);
   font-size:14px;font-weight:600;flex:none}
 #colorpop .cp-hue{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:99px;
   background:linear-gradient(90deg,hsl(0,90%,60%),hsl(60,90%,60%),hsl(120,80%,55%),hsl(180,85%,55%),
@@ -857,34 +972,66 @@ button.card:active{transform:scale(.99)}
  * square. Discs are a fixed size, so they take a whole drawn circle as a
  * background layer instead.
  */
-.row,.card,.note,.sheet,.search,.stat2>div,.deck .c,.seg button,.btn-plain,.pill,
-#brushes,#colors,.cb,.icob,.rbtn{border-color:transparent}
-.row,.card,.note,.sheet,.search,.stat2>div,.deck .c,.seg button{
-  border-width:1px;border-style:solid;border-image:var(--edge-card) 22/22px stretch}
-.btn-plain{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/28px stretch}
-.pill{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/22px stretch}
-#brushes,#colors{border-width:1px;border-style:solid;border-image:var(--edge-pill) 44/28px stretch}
-.cb,.icob,.rbtn{background-image:var(--edge-disc);background-size:100% 100%;
-  background-repeat:no-repeat;background-position:center}
+/* ── the glass recipe ─────────────────────────────────────────────────────
+ * Four layers, in this order, every time. Three of them were already here as
+ * a flat surface and a hairline; the two that make it read as glass are the
+ * backdrop blur — which needs the ambient field behind it to have anything to
+ * bend — and the lit lip.
+ *
+ *   backdrop   blur + saturate, so the field's colour carries through
+ *   pane       a thin tint, not a fill
+ *   lip        1px of light caught on the top edge, faded at both ends
+ *   rim        a hairline, inset
+ *   shadow     one soft outer drop
+ *
+ * The lip is what sells it: real glass catches light on its rim, and it is a
+ * gradient that dies at both ends, never a full outline. It goes on ::after
+ * rather than ::before because several of these blocks already spend ::before
+ * on their own content.
+ *
+ * The drawn pen edges that used to be here are gone on purpose. A wobbling
+ * hand-drawn outline was the right answer when the chrome was paper; in this
+ * world the hand belongs to the ink and to Caveat, and the chrome is precise.
+ * Keeping both would have been two crafts arguing on one screen. */
+.row,.card,.sheet,.search,.stat2>div,.deck .c,.seg button,.btn-plain,.pill,
+#brushes,#colors,.cb,.icob,.rbtn,.note{
+  position:relative;
+  background:var(--pane);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  border:0;
+  box-shadow:inset 0 0 0 1px var(--rim), 0 16px 34px -18px var(--sh);
+}
+.row::after,.card::after,.sheet::after,.deck .c::after,.btn-plain::after,.pill::after,
+.note::after,.stat2>div::after{
+  content:'';position:absolute;top:0;left:8%;right:8%;height:1px;z-index:3;
+  pointer-events:none;border-radius:inherit;
+  background:linear-gradient(90deg,transparent,var(--lip),transparent)}
 
-/* Selection and warning used to be a red `border-color`, and border-image
-   overrides border-color — so without these two the selected row and the
-   warning card would lose the only thing that marked them. `.card.pick` needs
-   nothing here: it sets the `border` shorthand, which resets border-image, and
-   it out-specifies the plain `.card` rule anyway. */
-.row.on,.card.warn{border-image:var(--edge-on) 22/22px stretch}
-/* a note is not a card — it says so with a dashed edge, and now the dashes are
-   individual pen marks rather than one line with holes punched in it */
-.note{border-image:var(--edge-note) 22/22px stretch}
+/* deeper panes sit over busier content */
+.card,.sheet,.deck .c{background:var(--pane-2)}
 
-/* The mark, signing the one action that matters on the screen. It is the
-   logo's own curve without the ink dot — the dot means presence, and a button
-   is not a person. Only the two real CTAs carry it; the nav pill does not,
-   because a signature you see on every screen stops being one. */
-.btn-red,.btn-ink{background-repeat:no-repeat;background-position:center calc(100% - 7px);
-  background-size:72px 15px;padding-bottom:9px}
-.btn-red{background-image:var(--mark-on-red)}
-.btn-ink{background-image:var(--mark-sign)}
+/* a note is still not a card — it says so with a dashed rim rather than a
+   drawn one, because nothing else in this world is hand-wobbled */
+.note{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:none;border:1px dashed var(--dashed)}
+.note::after{display:none}
+
+/* selection and warning: the rim brightens, it does not turn red */
+.row.on,.card.warn{box-shadow:inset 0 0 0 1px var(--lip), 0 16px 34px -18px var(--sh)}
+
+/* Ink-lit glass. The bloom is the drawing's light thrown back by the pane —
+   the same rule the field follows, at the scale of one control. This is the
+   only place a red glow is allowed, and it is never idle: it fires on the
+   press and fades. */
+.g-lit{box-shadow:inset 0 0 0 1px var(--rim), 0 16px 34px -18px var(--sh),
+  0 0 40px -8px var(--bloom)}
+
+/* press feedback — 160ms, the same curve everywhere, no bounce */
+.row,.card,.deck .c,.btn-plain,.btn-red,.btn-ink,.pill,.icob,.cb,.rbtn{
+  transition:transform .16s var(--ease), box-shadow .34s var(--ease), background .34s var(--ease)}
+.row:active,.card:active,.deck .c:active,.btn-plain:active,.btn-red:active,
+.btn-ink:active,.pill:active{transform:scale(.975)}
 
 /* ── focus ────────────────────────────────────────────────────────────────
  * There was no `:focus` rule anywhere in this stylesheet — not one — and four

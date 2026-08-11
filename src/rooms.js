@@ -774,7 +774,7 @@ const SWS = [
   { id: 'backup', name: 'On-device only', sub: 'Strokes are relayed to her phone and never kept on a server', fact: true },
 ];
 
-const theme = () => (window.TRACE_THEME ? TRACE_THEME.get() : 'paper');
+const theme = () => (window.TRACE_THEME ? TRACE_THEME.get() : 'ink');
 
 function renderRules() {
   const s = screens.rules;
@@ -790,13 +790,13 @@ function renderRules() {
     <div class="body" style="padding-top:12px">
       <div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
         <span class="grow"><span class="n">Appearance</span>
-          <span class="s">Paper is the app. Dark is for the dark.</span></span>
+          <span class="s">Two grounds, one ink. Ink is the room at 11pm.</span></span>
         <div style="display:flex;gap:6px">
-          ${[['paper', 'Paper'], ['dark', 'Dark'], ['auto', 'Match phone']].map(([v, label]) =>
-            `<button data-theme-pick="${v}" style="flex:1;padding:9px 0;border-radius:12px;font-size:13px;font-weight:600;
-              border:1px solid ${theme() === v ? 'var(--red)' : 'var(--hairline)'};
-              background:${theme() === v ? 'var(--red-wash)' : 'var(--ground-alt)'};
-              color:${theme() === v ? 'var(--red-text)' : 'var(--ink)'}">${label}</button>`).join('')}
+          ${[['ink', 'Ink'], ['paper', 'Paper'], ['auto', 'Match phone']].map(([v, label]) =>
+            `<button data-theme-pick="${v}" style="flex:1;padding:11px 0;border-radius:14px;font-size:13px;font-weight:600;
+              border:1px solid ${theme() === v ? 'var(--lip)' : 'var(--hairline)'};
+              background:${theme() === v ? 'var(--pane-2)' : 'transparent'};
+              color:var(--ink);opacity:${theme() === v ? 1 : .62}">${label}</button>`).join('')}
         </div>
       </div>
       ${SWS.map((w) => (w.fact ? factRow(w.name, w.sub) : swRow(w.id, w.name, w.sub, !!db.sw[w.id]))).join('')}
