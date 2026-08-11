@@ -144,7 +144,7 @@ function openPad() {
   $$('#wp-fonts [data-font]', pad).forEach((b) => b.addEventListener('click', () => {
     font = b.dataset.font; buzz(6); wobble();
     $$('#wp-fonts [data-font]', pad).forEach((x) => x.style.borderColor =
-      x === b ? 'var(--red)' : 'var(--hairline)');
+      x === b ? 'var(--lip)' : 'var(--hairline)');
   }));
   $('#wp-size', pad).addEventListener('input', (e) => { size = +e.target.value; wobble(); });
   const send = () => {

@@ -123,7 +123,7 @@ function renderMemory() {
   /* empty days are a pale ink tint, not white — on paper, white cells would be
      the brightest thing on the grid and the blank weeks would read as the loud
      ones. SCREENS.md p21: "Empty days are pale, never red." */
-  const shades = ['var(--grid-empty)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
+  const shades = ['var(--grid-empty)', 'rgba(var(--red-rgb),.35)', 'rgba(var(--red-rgb),.6)', 'var(--red)', 'var(--ink)'];
   const cells = Array.from({ length: 98 }, (_, n) => {
     const h = ((n * 2654435761) >>> 0) % 10;
     return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -342,7 +342,7 @@ function renderSettle() {
     <div class="page">
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
-        <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
+        <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--ink);margin-top:4px">€${gap}</div>
         <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead
           ? ahead + ' ahead. That’s all it says.'
           : 'Even. That’s all it says.'}</div>

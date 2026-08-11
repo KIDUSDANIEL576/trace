@@ -17,7 +17,7 @@ function toggleRow(body, label, sub, on, onChange) {
     <span><b style="display:block;font-size:14px;font-weight:600">${label}</b><i style="display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:2px">${sub}</i></span>
     <span class="tg" style="flex:none;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s"><i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i></span></button>`);
   const k = row.querySelector('.tg');
-  const paint = () => { k.style.background = on ? 'var(--red)' : 'var(--track)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
+  const paint = () => { k.style.background = on ? 'var(--ink)' : 'var(--track)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
   paint();
   row.addEventListener('click', () => { on = !on; paint(); buzz(8); onChange && onChange(on); });
   body.appendChild(row);
@@ -150,7 +150,7 @@ function heartRate() {
   openPanel('my heart rate, right now', (body) => {
     body.appendChild(noteEl('Not a number you send. A pulse she feels in her hand, live, for as long as you hold it.'));
     const ring = el(`<div style="position:relative;height:230px;display:flex;align-items:center;justify-content:center">
-      <div class="hr" style="width:130px;height:130px;border-radius:99px;background:radial-gradient(circle,rgba(226,51,67,.9),rgba(226,51,67,.15) 70%);box-shadow:0 0 60px rgba(226,51,67,.45);transition:transform .12s"></div></div>`);
+      <div class="hr" style="width:130px;height:130px;border-radius:99px;background:radial-gradient(circle,rgba(var(--red-rgb),.9),rgba(var(--red-rgb),.15) 70%);box-shadow:0 0 60px rgba(var(--red-rgb),.45);transition:transform .12s"></div></div>`);
     body.appendChild(ring);
     const bpmEl = el('<div class="p-stat">— bpm</div>'); body.appendChild(bpmEl);
     const who = el('<div class="p-hint">hold to send yours</div>'); body.appendChild(who);
@@ -187,7 +187,7 @@ function keepAlive() {
     const { wrap } = canvas();
     if (!wrap.isConnected) return clearInterval(decay);
     alive -= .012;
-    s.c = `rgba(233,161,59,${Math.max(0, alive)})`;
+    s.c = `rgba(var(--amber-rgb),${Math.max(0, alive)})`;
     redraw();
     if (alive <= 0) {
       clearInterval(decay);
@@ -203,7 +203,7 @@ function keepAlive() {
     const p = { x: e.clientX - r.left, y: e.clientY - r.top };
     for (const q of s.pts) if (Math.hypot(p.x - q.x, p.y - q.y) < 22) {
       alive = Math.min(1, alive + .06);
-      s.c = `rgba(233,161,59,${alive})`;
+      s.c = `rgba(var(--amber-rgb),${alive})`;
       if (alive > .95) note('alive again. for now.');
       redraw(); break;
     }
@@ -500,7 +500,7 @@ function replayExport() {
     const mine = strokes.all().filter(s => s.who !== 'fx');
     const total = mine.reduce((n, s) => n + s.pts.length, 0) || 1;
     const sliderWrap = el('<div style="display:flex;gap:5px;align-items:center"></div>');
-    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:var(--red)">');
+    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:var(--ink)">');
     sliderWrap.appendChild(range);
     body.appendChild(sliderWrap);
     const tl = el('<div style="display:flex;justify-content:space-between;font:11px ui-monospace,monospace;color:var(--ink-3)"><span>first stroke</span><span>6.0s</span></div>');

@@ -67,7 +67,7 @@ function renderGoodnight() {
       <button class="icob" data-close>✕</button></div>
     <div style="text-align:center;padding:44px 24px 0;flex:none">
       <div style="font-size:15px;color:var(--ink-70)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
-      <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--red);margin-top:6px;
+      <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-top:6px;
         font-variant-numeric:tabular-nums">${sealed ? '—' : clock(untilSeal())}</div>
     </div>
     <div style="margin:32px 56px 0;height:240px;border-radius:24px;background:var(--surface);
@@ -119,7 +119,7 @@ function pickSealTime() {
     const row = el(`<div class="p-row" style="flex-wrap:wrap"></div>`);
     for (const t of ['21:30', '22:00', '22:30', '23:00', '23:30', '00:00']) {
       const b = el(`<button class="chip" style="text-align:center;flex:0 0 30%">${t}</button>`);
-      if (t === db.sealAt) { b.style.borderColor = 'var(--red)'; b.style.background = 'var(--red-wash)'; }
+      if (t === db.sealAt) { b.style.borderColor = 'var(--lip)'; b.style.background = 'var(--pane-2)'; }
       b.addEventListener('click', () => {
         db.sealAt = t; save(); buzz(8); toast('the day now ends at ' + t);
         APP.closePanel ? APP.closePanel() : null;

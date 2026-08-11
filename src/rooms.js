@@ -384,7 +384,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['var(--grid-empty)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
+    const shades = ['var(--grid-empty)', 'rgba(var(--red-rgb),.18)', 'rgba(var(--red-rgb),.42)', 'var(--red)', 'var(--ink)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -415,8 +415,8 @@ const ROOM_VIEWS = {
       { n: 0, name: 'Bright', g: '#E9A13B' },
       { n: 1, name: 'Soft', g: '#F7D8A8' },
       { n: 2, name: 'Grey', g: '#F0A9B0' },
-      { n: 3, name: 'Heavy', g: '#E23343' },
-      { n: 4, name: 'Storm', g: '#B3202E' },
+      { n: 3, name: 'Heavy', g: 'var(--red)' },
+      { n: 4, name: 'Storm', g: 'var(--red-deep)' },
     ];
     const mine = db.mood >= 0 ? MOODS[db.mood] : null;
     const hers = MOODS[db.herMood];
@@ -741,7 +741,7 @@ function renderStates() {
       <button class="icob" data-close>✕</button></div>
     <div class="body" style="padding-top:18px;gap:10px">
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
-        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
+        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ink);margin-right:6px"></span>Goodnight in',
         '27:14', 'shows nightly<br>from 9 PM', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,

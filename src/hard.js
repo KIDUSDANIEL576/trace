@@ -349,7 +349,7 @@ function renderEnd() {
     const t = $('.t', b);
     if (!b.dataset.armed) {
       b.dataset.armed = '1';
-      b.style.borderColor = 'var(--red)';
+      b.style.borderColor = 'var(--red-line)';
       t.textContent = kind === 'pause' ? 'Tap again to pause everything' : 'Tap again — both archives are sent first';
       setTimeout(() => { if (b.isConnected && b.dataset.armed) renderEnd(); }, 5000);
       return;

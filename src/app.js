@@ -1282,7 +1282,7 @@ function openString() {
         x.quadraticCurveTo(w / 2, y0 + sag - pull * 1.6, w - 26, y0);
         x.stroke();
       } else {
-        x.strokeStyle = 'rgba(233,161,59,.4)'; x.lineWidth = 4;
+        x.strokeStyle = 'rgba(var(--amber-rgb),.4)'; x.lineWidth = 4;
         x.beginPath(); x.moveTo(26, y0); x.quadraticCurveTo(w * .3, y0 + 30, w * .42, y0 + 60); x.stroke();
         x.beginPath(); x.moveTo(w - 26, y0); x.quadraticCurveTo(w * .7, y0 + 30, w * .58, y0 + 60); x.stroke();
       }
@@ -1673,7 +1673,7 @@ function mkToggle(body, label, on) {
   const row = document.createElement('button');
   row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);color:var(--ink);font-size:13.5px';
   const k = document.createElement('span');
-  const paint = () => k.style.cssText = `width:46px;height:28px;border-radius:99px;position:relative;transition:background .2s;background:${on ? 'var(--red)' : 'var(--track)'}`;
+  const paint = () => k.style.cssText = `width:46px;height:28px;border-radius:99px;position:relative;transition:background .2s;background:${on ? 'var(--ink)' : 'var(--track)'}`;
   k.innerHTML = '<i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i>';
   const knob = () => k.firstChild.style.transform = on ? 'translateX(18px)' : '';
   paint(); requestAnimationFrame(knob);
@@ -1989,7 +1989,7 @@ function firstRun() {
     const raw = field.value.trim().toLowerCase();
     /* a real error state, not a silent fallback: codes are 5 chars, a-z 0-9 */
     if (raw && !/^[a-z0-9]{5}$/.test(raw)) {
-      field.style.borderColor = 'var(--red)';
+      field.style.borderColor = 'var(--red-line)';
       field.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-7px)' },
         { transform: 'translateX(7px)' }, { transform: 'translateX(0)' }], { duration: 240 });
       toast('codes are 5 letters or numbers — check theirs again');

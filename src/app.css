@@ -72,6 +72,10 @@
   /* the one chromatic value */
   --red:#FF2D46;
   --red-text:#FF5468;        /* red as small text on this ground */
+  /* Alpha-capable, so a translucent red can never drift from the brand red.
+     Eight rgba() literals across the JS were still the PREVIOUS brand red,
+     rendering beside the new one — a CSS-only audit could not see them. */
+  --red-rgb:255,45,70; --amber-rgb:233,161,59;
   --red-wash:rgba(255,45,70,.15);
   --red-line:rgba(255,45,70,.38);
   --red-deep:#D01E32;        /* the only fill white text may ever sit on */
@@ -136,6 +140,7 @@
 
   --red:#FF2D46;
   --red-text:#C4001C;        /* red as small text on paper — clears AA */
+  --red-rgb:255,45,70; --amber-rgb:233,161,59;
   --red-wash:rgba(255,45,70,.10);
   --red-line:rgba(255,45,70,.32);
   --red-deep:#C4001C;
@@ -176,7 +181,8 @@
     --veil:linear-gradient(180deg,rgba(248,247,249,.74),rgba(248,247,249,.62) 46%,rgba(248,247,249,.80));
     --ink:#0C0B0F;--ink-70:rgba(12,11,15,.70);--ink-2:rgba(12,11,15,.58);
     --ink-3:rgba(12,11,15,.46);--ink-4:rgba(12,11,15,.40);--ink-5:rgba(12,11,15,.28);
-    --red:#FF2D46;--red-text:#C4001C;--red-wash:rgba(255,45,70,.10);
+    --red:#FF2D46;--red-text:#C4001C;
+    --red-rgb:255,45,70;--amber-rgb:233,161,59;--red-wash:rgba(255,45,70,.10);
     --red-line:rgba(255,45,70,.32);--red-deep:#C4001C;--on-red:#FFFFFF;
     --emph:rgba(12,11,15,.06);--emph-ink:#0C0B0F;--emph-ink-2:rgba(12,11,15,.75);
     --emph-ink-3:rgba(12,11,15,.6);--emph-ink-4:rgba(12,11,15,.45);
@@ -478,7 +484,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 #card-light{position:absolute;inset:0;background:none}
 #ink{position:absolute;inset:0;width:100%;height:100%}
 #ghost-finger{position:absolute;z-index:8;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:99px;
-  background:radial-gradient(circle,rgba(226,51,67,.7),rgba(226,51,67,0) 70%);opacity:0;
+  background:radial-gradient(circle,rgba(var(--red-rgb),.7),rgba(var(--red-rgb),0) 70%);opacity:0;
   transition:opacity .4s;pointer-events:none}
 #ghost-finger span{position:absolute;left:30px;top:4px;white-space:nowrap;font-size:11px;color:var(--ink-3)}
 /* "Maya is drawing…" — ink pill, bottom-left, p2 verbatim */
@@ -500,7 +506,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .warm-spot{position:absolute;border-radius:99px;pointer-events:none;transform:translate(-50%,-50%);
   background:radial-gradient(circle,rgba(233,161,59,.45),rgba(233,161,59,0) 68%)}
 #bloom{position:absolute;z-index:5;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:99px;
-  background:radial-gradient(circle,rgba(226,51,67,.35),rgba(226,51,67,0) 66%);opacity:0;
+  background:radial-gradient(circle,rgba(var(--red-rgb),.35),rgba(var(--red-rgb),0) 66%);opacity:0;
   pointer-events:none;transition:opacity .5s}
 #canvas-tag{position:absolute;z-index:7;right:16px;top:14px;padding:6px 12px;border-radius:999px;
   background:var(--emph);color:var(--emph-ink);font-size:12px;opacity:0;transition:opacity .3s}

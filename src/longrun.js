@@ -52,7 +52,7 @@ const split = (a, label) => `
   <div style="padding:16px 24px 0;flex:none">
     <div style="height:10px;border-radius:99px;background:var(--ground-alt);overflow:hidden;display:flex">
       <div style="width:${a}%;background:var(--ink)"></div>
-      <div style="flex:1;background:var(--red)"></div></div>
+      <div style="flex:1;background:var(--ink-5)"></div></div>
     <div style="display:flex;justify-content:space-between;padding-top:8px;font-size:12px;color:var(--ink-3)">
       ${label}</div></div>`;
 
@@ -80,7 +80,7 @@ function renderDrift() {
               /* the colour is the trend, not a threshold — the last weeks are
                  red because they are the recent ones, not because they failed */
               const t = i / (d.length - 1);
-              const c = t < .5 ? 'var(--ink)' : `rgba(226,51,67,${(0.5 + t * 0.5).toFixed(2)})`;
+              const c = t < .5 ? 'var(--ink)' : `rgba(var(--red-rgb),${(0.5 + t * 0.5).toFixed(2)})`;
               return `<div style="width:24px;height:${Math.round((v / max) * 100)}%;border-radius:6px;background:${c}"></div>`;
             }).join('')}
           </div>

@@ -51,19 +51,19 @@ function skyPicker() {
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px"></div>');
     let cursky = store.get('sky', { name: 'paper', strength: 0 });
     for (const [name, c] of Object.entries(SKIES)) {
-      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? 'var(--red)' : 'var(--hairline)'};
+      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? 'var(--lip)' : 'var(--hairline)'};
         background:linear-gradient(180deg,${c[0]},${c[1]} 45%,${c[2]} 70%,${c[3]});position:relative;overflow:hidden">
         <span style="position:absolute;left:5px;bottom:4px;font:700 8px ui-monospace,monospace;color:${name === 'daylight' ? 'var(--ground-alt)' : '#fff'};opacity:.85">${name}</span></button>`);
       b.addEventListener('click', () => {
         cursky = { ...cursky, name };
-        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? 'var(--red)' : 'var(--hairline)');
+        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? 'var(--lip)' : 'var(--hairline)');
         applySky(name, cursky.strength); buzz(8); log('sky → ' + name);
       });
       grid.appendChild(b);
     }
     body.appendChild(grid);
     body.appendChild(el('<div class="p-note" style="margin-top:6px">strength</div>'));
-    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:var(--red)">`);
+    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:var(--ink)">`);
     sl.addEventListener('input', () => { cursky.strength = sl.value / 100; applySky(cursky.name, cursky.strength); });
     body.appendChild(sl);
     body.appendChild(hint('the same sky is on her phone right now'));
@@ -312,7 +312,7 @@ function yearInMarks() {
     /* twelve months as one ramp in the palette the app actually owns — paper,
      through red, into ink — rather than six blues, a green and two navies */
     const cols = ['var(--ground)', 'var(--ground-alt)', 'var(--ground-deep)', 'var(--red-wash)',
-      'rgba(226,51,67,.18)', 'rgba(226,51,67,.28)', 'rgba(226,51,67,.42)', 'rgba(226,51,67,.58)',
+      'rgba(var(--red-rgb),.18)', 'rgba(var(--red-rgb),.28)', 'rgba(var(--red-rgb),.42)', 'rgba(var(--red-rgb),.58)',
       'rgba(26,26,26,.25)', 'rgba(26,26,26,.45)', 'rgba(26,26,26,.7)', 'var(--ink)'];
     MO.forEach((m, i) => {
       const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:linear-gradient(180deg,${cols[i]},var(--scrim))"></div>`);
@@ -362,7 +362,7 @@ function translateThis() {
     const votes = store.get('translateVotes', [12, 31, 57]);
     answers.forEach((a, i) => {
       const b = el(`<button style="position:relative;width:100%;padding:13px 15px;border-radius:14px;background:var(--surface);color:var(--ground-alt);font-size:13.5px;font-weight:600;text-align:left;overflow:hidden">
-        <span style="position:absolute;inset:0;width:${votes[i]}%;background:rgba(226,51,67,.22)"></span>
+        <span style="position:absolute;inset:0;width:${votes[i]}%;background:rgba(var(--red-rgb),.22)"></span>
         <span style="position:relative">${a}</span>
         <span style="position:relative;float:right;font:700 12px ui-monospace,monospace">${votes[i]}%</span></button>`);
       b.addEventListener('click', () => { toast(i === 2 ? 'it was the third one. it’s always the third one.' : 'nope.'); buzz(10); log('translate vote: ' + a); });
@@ -386,7 +386,7 @@ function moments() {
     ];
     for (const [m, moment, format] of rows) {
       body.appendChild(el(`<div style="display:flex;align-items:baseline;gap:12px;padding:9px 2px;border-bottom:1px solid var(--surface)">
-        <b style="font:700 10px ui-monospace,monospace;color:var(--red);width:30px;flex:none">${m}</b>
+        <b style="font:700 10px ui-monospace,monospace;color:var(--ink-70);width:30px;flex:none">${m}</b>
         <span style="flex:1;font-size:12.5px">${moment}</span>
         <i style="font-style:normal;font-size:11px;color:var(--ink-3)">${format}</i></div>`));
     }

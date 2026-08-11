@@ -170,7 +170,7 @@ function androidHome() {
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:var(--surface);
           border:1px solid var(--hairline);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${lm ? 'LEAVING NOW' : 'GOODNIGHT'}</div>
-          <div style="font-size:24px;font-weight:600;color:var(--red)">${lm ? lm + ' min' : '27:14'}</div></div>
+          <div style="font-size:24px;font-weight:600;color:var(--ink)">${lm ? lm + ' min' : '27:14'}</div></div>
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
           border:1px solid var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${db.mission ? 'MISSION' : 'GROCERIES'}</div>
@@ -241,7 +241,7 @@ function tabletBoard() {
           <div style="width:250px;display:flex;flex-direction:column;gap:12px">
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Goodnight in</div>
-              <div style="font-size:26px;font-weight:600;color:var(--red);margin-top:2px">2h 14m</div></div>
+              <div style="font-size:26px;font-weight:600;color:var(--ink);margin-top:2px">2h 14m</div></div>
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Left to do</div>
               <div style="font-size:26px;font-weight:600;margin-top:2px">${t.length} things</div></div>

@@ -284,7 +284,7 @@ function renderMoving() {
       <div style="padding:18px 24px 0;flex:none">
         <div style="height:10px;border-radius:99px;background:var(--ground-alt);overflow:hidden;display:flex">
           <div style="width:${m.you}%;background:var(--ink)"></div>
-          <div style="width:${m.them}%;background:var(--red)"></div>
+          <div style="width:${m.them}%;background:var(--ink-5)"></div>
         </div>
         <div style="display:flex;justify-content:space-between;padding-top:8px;font-size:12px;color:var(--ink-3)">
           <span>${m.you}% you</span><span>${m.them}% Maya</span><span>${m.you + m.them}% done</span></div>

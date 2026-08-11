@@ -87,6 +87,10 @@
   /* the one chromatic value */
   --red:#FF2D46;
   --red-text:#FF5468;        /* red as small text on this ground */
+  /* Alpha-capable, so a translucent red can never drift from the brand red.
+     Eight rgba() literals across the JS were still the PREVIOUS brand red,
+     rendering beside the new one — a CSS-only audit could not see them. */
+  --red-rgb:255,45,70; --amber-rgb:233,161,59;
   --red-wash:rgba(255,45,70,.15);
   --red-line:rgba(255,45,70,.38);
   --red-deep:#D01E32;        /* the only fill white text may ever sit on */
@@ -151,6 +155,7 @@
 
   --red:#FF2D46;
   --red-text:#C4001C;        /* red as small text on paper — clears AA */
+  --red-rgb:255,45,70; --amber-rgb:233,161,59;
   --red-wash:rgba(255,45,70,.10);
   --red-line:rgba(255,45,70,.32);
   --red-deep:#C4001C;
@@ -191,7 +196,8 @@
     --veil:linear-gradient(180deg,rgba(248,247,249,.74),rgba(248,247,249,.62) 46%,rgba(248,247,249,.80));
     --ink:#0C0B0F;--ink-70:rgba(12,11,15,.70);--ink-2:rgba(12,11,15,.58);
     --ink-3:rgba(12,11,15,.46);--ink-4:rgba(12,11,15,.40);--ink-5:rgba(12,11,15,.28);
-    --red:#FF2D46;--red-text:#C4001C;--red-wash:rgba(255,45,70,.10);
+    --red:#FF2D46;--red-text:#C4001C;
+    --red-rgb:255,45,70;--amber-rgb:233,161,59;--red-wash:rgba(255,45,70,.10);
     --red-line:rgba(255,45,70,.32);--red-deep:#C4001C;--on-red:#FFFFFF;
     --emph:rgba(12,11,15,.06);--emph-ink:#0C0B0F;--emph-ink-2:rgba(12,11,15,.75);
     --emph-ink-3:rgba(12,11,15,.6);--emph-ink-4:rgba(12,11,15,.45);
@@ -496,7 +502,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 #card-light{position:absolute;inset:0;background:none}
 #ink{position:absolute;inset:0;width:100%;height:100%}
 #ghost-finger{position:absolute;z-index:8;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:99px;
-  background:radial-gradient(circle,rgba(226,51,67,.7),rgba(226,51,67,0) 70%);opacity:0;
+  background:radial-gradient(circle,rgba(var(--red-rgb),.7),rgba(var(--red-rgb),0) 70%);opacity:0;
   transition:opacity .4s;pointer-events:none}
 #ghost-finger span{position:absolute;left:30px;top:4px;white-space:nowrap;font-size:11px;color:var(--ink-3)}
 /* "Maya is drawing…" — ink pill, bottom-left, p2 verbatim */
@@ -518,7 +524,7 @@ button.who{min-height:44px;display:inline-flex;align-items:center;justify-conten
 .warm-spot{position:absolute;border-radius:99px;pointer-events:none;transform:translate(-50%,-50%);
   background:radial-gradient(circle,rgba(233,161,59,.45),rgba(233,161,59,0) 68%)}
 #bloom{position:absolute;z-index:5;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:99px;
-  background:radial-gradient(circle,rgba(226,51,67,.35),rgba(226,51,67,0) 66%);opacity:0;
+  background:radial-gradient(circle,rgba(var(--red-rgb),.35),rgba(var(--red-rgb),0) 66%);opacity:0;
   pointer-events:none;transition:opacity .5s}
 #canvas-tag{position:absolute;z-index:7;right:16px;top:14px;padding:6px 12px;border-radius:999px;
   background:var(--emph);color:var(--emph-ink);font-size:12px;opacity:0;transition:opacity .3s}
@@ -1481,7 +1487,7 @@ function toggleRow(body, label, sub, on, onChange) {
     <span><b style="display:block;font-size:14px;font-weight:600">${label}</b><i style="display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:2px">${sub}</i></span>
     <span class="tg" style="flex:none;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s"><i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i></span></button>`);
   const k = row.querySelector('.tg');
-  const paint = () => { k.style.background = on ? 'var(--red)' : 'var(--track)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
+  const paint = () => { k.style.background = on ? 'var(--ink)' : 'var(--track)'; k.firstChild.style.transform = on ? 'translateX(18px)' : ''; };
   paint();
   row.addEventListener('click', () => { on = !on; paint(); buzz(8); onChange && onChange(on); });
   body.appendChild(row);
@@ -1614,7 +1620,7 @@ function heartRate() {
   openPanel('my heart rate, right now', (body) => {
     body.appendChild(noteEl('Not a number you send. A pulse she feels in her hand, live, for as long as you hold it.'));
     const ring = el(`<div style="position:relative;height:230px;display:flex;align-items:center;justify-content:center">
-      <div class="hr" style="width:130px;height:130px;border-radius:99px;background:radial-gradient(circle,rgba(226,51,67,.9),rgba(226,51,67,.15) 70%);box-shadow:0 0 60px rgba(226,51,67,.45);transition:transform .12s"></div></div>`);
+      <div class="hr" style="width:130px;height:130px;border-radius:99px;background:radial-gradient(circle,rgba(var(--red-rgb),.9),rgba(var(--red-rgb),.15) 70%);box-shadow:0 0 60px rgba(var(--red-rgb),.45);transition:transform .12s"></div></div>`);
     body.appendChild(ring);
     const bpmEl = el('<div class="p-stat">— bpm</div>'); body.appendChild(bpmEl);
     const who = el('<div class="p-hint">hold to send yours</div>'); body.appendChild(who);
@@ -1651,7 +1657,7 @@ function keepAlive() {
     const { wrap } = canvas();
     if (!wrap.isConnected) return clearInterval(decay);
     alive -= .012;
-    s.c = `rgba(233,161,59,${Math.max(0, alive)})`;
+    s.c = `rgba(var(--amber-rgb),${Math.max(0, alive)})`;
     redraw();
     if (alive <= 0) {
       clearInterval(decay);
@@ -1667,7 +1673,7 @@ function keepAlive() {
     const p = { x: e.clientX - r.left, y: e.clientY - r.top };
     for (const q of s.pts) if (Math.hypot(p.x - q.x, p.y - q.y) < 22) {
       alive = Math.min(1, alive + .06);
-      s.c = `rgba(233,161,59,${alive})`;
+      s.c = `rgba(var(--amber-rgb),${alive})`;
       if (alive > .95) note('alive again. for now.');
       redraw(); break;
     }
@@ -1964,7 +1970,7 @@ function replayExport() {
     const mine = strokes.all().filter(s => s.who !== 'fx');
     const total = mine.reduce((n, s) => n + s.pts.length, 0) || 1;
     const sliderWrap = el('<div style="display:flex;gap:5px;align-items:center"></div>');
-    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:var(--red)">');
+    const range = el('<input type="range" min="0" max="100" value="100" style="flex:1;accent-color:var(--ink)">');
     sliderWrap.appendChild(range);
     body.appendChild(sliderWrap);
     const tl = el('<div style="display:flex;justify-content:space-between;font:11px ui-monospace,monospace;color:var(--ink-3)"><span>first stroke</span><span>6.0s</span></div>');
@@ -2330,19 +2336,19 @@ function skyPicker() {
     const grid = el('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px"></div>');
     let cursky = store.get('sky', { name: 'paper', strength: 0 });
     for (const [name, c] of Object.entries(SKIES)) {
-      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? 'var(--red)' : 'var(--hairline)'};
+      const b = el(`<button style="aspect-ratio:.72;border-radius:14px;border:2px solid ${name === cursky.name ? 'var(--lip)' : 'var(--hairline)'};
         background:linear-gradient(180deg,${c[0]},${c[1]} 45%,${c[2]} 70%,${c[3]});position:relative;overflow:hidden">
         <span style="position:absolute;left:5px;bottom:4px;font:700 8px ui-monospace,monospace;color:${name === 'daylight' ? 'var(--ground-alt)' : '#fff'};opacity:.85">${name}</span></button>`);
       b.addEventListener('click', () => {
         cursky = { ...cursky, name };
-        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? 'var(--red)' : 'var(--hairline)');
+        [...grid.children].forEach((x, i) => x.style.borderColor = Object.keys(SKIES)[i] === name ? 'var(--lip)' : 'var(--hairline)');
         applySky(name, cursky.strength); buzz(8); log('sky → ' + name);
       });
       grid.appendChild(b);
     }
     body.appendChild(grid);
     body.appendChild(el('<div class="p-note" style="margin-top:6px">strength</div>'));
-    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:var(--red)">`);
+    const sl = el(`<input type="range" min="0" max="100" value="${cursky.strength * 100}" style="width:100%;accent-color:var(--ink)">`);
     sl.addEventListener('input', () => { cursky.strength = sl.value / 100; applySky(cursky.name, cursky.strength); });
     body.appendChild(sl);
     body.appendChild(hint('the same sky is on her phone right now'));
@@ -2591,7 +2597,7 @@ function yearInMarks() {
     /* twelve months as one ramp in the palette the app actually owns — paper,
      through red, into ink — rather than six blues, a green and two navies */
     const cols = ['var(--ground)', 'var(--ground-alt)', 'var(--ground-deep)', 'var(--red-wash)',
-      'rgba(226,51,67,.18)', 'rgba(226,51,67,.28)', 'rgba(226,51,67,.42)', 'rgba(226,51,67,.58)',
+      'rgba(var(--red-rgb),.18)', 'rgba(var(--red-rgb),.28)', 'rgba(var(--red-rgb),.42)', 'rgba(var(--red-rgb),.58)',
       'rgba(26,26,26,.25)', 'rgba(26,26,26,.45)', 'rgba(26,26,26,.7)', 'var(--ink)'];
     MO.forEach((m, i) => {
       const cell = el(`<div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:linear-gradient(180deg,${cols[i]},var(--scrim))"></div>`);
@@ -2641,7 +2647,7 @@ function translateThis() {
     const votes = store.get('translateVotes', [12, 31, 57]);
     answers.forEach((a, i) => {
       const b = el(`<button style="position:relative;width:100%;padding:13px 15px;border-radius:14px;background:var(--surface);color:var(--ground-alt);font-size:13.5px;font-weight:600;text-align:left;overflow:hidden">
-        <span style="position:absolute;inset:0;width:${votes[i]}%;background:rgba(226,51,67,.22)"></span>
+        <span style="position:absolute;inset:0;width:${votes[i]}%;background:rgba(var(--red-rgb),.22)"></span>
         <span style="position:relative">${a}</span>
         <span style="position:relative;float:right;font:700 12px ui-monospace,monospace">${votes[i]}%</span></button>`);
       b.addEventListener('click', () => { toast(i === 2 ? 'it was the third one. it’s always the third one.' : 'nope.'); buzz(10); log('translate vote: ' + a); });
@@ -2665,7 +2671,7 @@ function moments() {
     ];
     for (const [m, moment, format] of rows) {
       body.appendChild(el(`<div style="display:flex;align-items:baseline;gap:12px;padding:9px 2px;border-bottom:1px solid var(--surface)">
-        <b style="font:700 10px ui-monospace,monospace;color:var(--red);width:30px;flex:none">${m}</b>
+        <b style="font:700 10px ui-monospace,monospace;color:var(--ink-70);width:30px;flex:none">${m}</b>
         <span style="flex:1;font-size:12.5px">${moment}</span>
         <i style="font-style:normal;font-size:11px;color:var(--ink-3)">${format}</i></div>`));
     }
@@ -4000,7 +4006,7 @@ function openString() {
         x.quadraticCurveTo(w / 2, y0 + sag - pull * 1.6, w - 26, y0);
         x.stroke();
       } else {
-        x.strokeStyle = 'rgba(233,161,59,.4)'; x.lineWidth = 4;
+        x.strokeStyle = 'rgba(var(--amber-rgb),.4)'; x.lineWidth = 4;
         x.beginPath(); x.moveTo(26, y0); x.quadraticCurveTo(w * .3, y0 + 30, w * .42, y0 + 60); x.stroke();
         x.beginPath(); x.moveTo(w - 26, y0); x.quadraticCurveTo(w * .7, y0 + 30, w * .58, y0 + 60); x.stroke();
       }
@@ -4391,7 +4397,7 @@ function mkToggle(body, label, on) {
   const row = document.createElement('button');
   row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline);color:var(--ink);font-size:13.5px';
   const k = document.createElement('span');
-  const paint = () => k.style.cssText = `width:46px;height:28px;border-radius:99px;position:relative;transition:background .2s;background:${on ? 'var(--red)' : 'var(--track)'}`;
+  const paint = () => k.style.cssText = `width:46px;height:28px;border-radius:99px;position:relative;transition:background .2s;background:${on ? 'var(--ink)' : 'var(--track)'}`;
   k.innerHTML = '<i style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:transform .2s"></i>';
   const knob = () => k.firstChild.style.transform = on ? 'translateX(18px)' : '';
   paint(); requestAnimationFrame(knob);
@@ -4707,7 +4713,7 @@ function firstRun() {
     const raw = field.value.trim().toLowerCase();
     /* a real error state, not a silent fallback: codes are 5 chars, a-z 0-9 */
     if (raw && !/^[a-z0-9]{5}$/.test(raw)) {
-      field.style.borderColor = 'var(--red)';
+      field.style.borderColor = 'var(--red-line)';
       field.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-7px)' },
         { transform: 'translateX(7px)' }, { transform: 'translateX(0)' }], { duration: 240 });
       toast('codes are 5 letters or numbers — check theirs again');
@@ -5253,7 +5259,7 @@ const ROOM_VIEWS = {
 
   /* 19h — memory */
   Memory() {
-    const shades = ['var(--grid-empty)', 'rgba(226,51,67,.18)', 'rgba(226,51,67,.42)', 'var(--red)', 'var(--ink)'];
+    const shades = ['var(--grid-empty)', 'rgba(var(--red-rgb),.18)', 'rgba(var(--red-rgb),.42)', 'var(--red)', 'var(--ink)'];
     const heat = Array.from({ length: 98 }, (_, n) => {
       const h = ((n * 2654435761) >>> 0) % 10;
       return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -5284,8 +5290,8 @@ const ROOM_VIEWS = {
       { n: 0, name: 'Bright', g: '#E9A13B' },
       { n: 1, name: 'Soft', g: '#F7D8A8' },
       { n: 2, name: 'Grey', g: '#F0A9B0' },
-      { n: 3, name: 'Heavy', g: '#E23343' },
-      { n: 4, name: 'Storm', g: '#B3202E' },
+      { n: 3, name: 'Heavy', g: 'var(--red)' },
+      { n: 4, name: 'Storm', g: 'var(--red-deep)' },
     ];
     const mine = db.mood >= 0 ? MOODS[db.mood] : null;
     const hers = MOODS[db.herMood];
@@ -5610,7 +5616,7 @@ function renderStates() {
       <button class="icob" data-close><svg class="ts-i"><use href="#i-close"/></svg></button></div>
     <div class="body" style="padding-top:18px;gap:10px">
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--red)',
-        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:6px"></span>Goodnight in',
+        '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ink);margin-right:6px"></span>Goodnight in',
         '27:14', 'shows nightly<br>from 9 PM', true)}
       ${card('var(--hairline)', 'linear-gradient(160deg,var(--surface),var(--surface))', 'var(--ink-2)', 'Groceries',
         `${db.items.length - count(db.got)} <span style="font-size:13px;font-weight:500;color:var(--ink-3)">left · he’s at the shop</span>`,
@@ -6316,10 +6322,10 @@ R.addSub('load', 'mental load', (body) => {
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
       <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--ink)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
-    body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
+    body.appendChild(el(bar(pct, 'var(--ink)', 'var(--ink-5)')));
     db.load.forEach((l) => {
       const r = el(`<div class="row"><span style="width:8px;height:8px;border-radius:50%;flex:none;
-        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--ink)'}"></span>
+        background:${l.who === 'Maya' ? 'var(--ink)' : 'var(--ink-5)'}"></span>
         <span class="grow"><span class="n light">${esc(l.t)}</span></span>
         <button class="who ${l.who === 'Maya' ? 'them' : ''}">${l.who}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
@@ -6366,7 +6372,7 @@ R.addSub('money', 'money truth', (body) => {
   body.appendChild(el(bigNum('€' + m.free, 'Free to spend, this month')));
   body.appendChild(note('After rent, bills, the standing orders, and what you both said you’d save.'));
   body.appendChild(el(kv('In', '€' + m.in.toLocaleString('en-US'), 'var(--ink)')));
-  body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--red)')));
+  body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--ink)')));
   body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--ink)')));
   body.appendChild(note('One number, both phones, updated nightly. No categories, no budgets to break, no lecture — just the truth you’d otherwise argue about at 11 PM.'));
   const st = doorRow('Settle up', 'The number, with no verdict attached', 'settleup');
@@ -6415,14 +6421,14 @@ R.addSub('energy', 'energy match', (body) => {
         border:1px solid ${on ? 'var(--ink-5)' : 'var(--surface)'};color:var(--ink)">
         <div style="display:flex;gap:6px;align-items:flex-end;justify-content:center;height:90px">
           <span style="width:14px;border-radius:99px;background:var(--ink);height:${b.you}%"></span>
-          <span style="width:14px;border-radius:99px;background:var(--red);height:${b.her}%"></span></div>
+          <span style="width:14px;border-radius:99px;background:var(--ink-3);height:${b.her}%"></span></div>
         <div style="font-size:14px;font-weight:600;margin-top:8px">${b.t}</div>
         <div style="font-size:11px;color:var(--ink-3)">${b.s}</div></button>`);
       c.addEventListener('click', () => { db.energy = b.n; save(); buzz(8); draw(); });
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red-text)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--ink-3)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
     body.appendChild(doorRow('Right now', db.awake ? 'She’s awake' : 'She’s asleep — nothing buzzes', 'sleep'));
   };
   draw();
@@ -6459,7 +6465,7 @@ R.addSub('rsvp', 'yes / no board', (body) => {
             background:${v === 'y' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">Yes</button>
           <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
-            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
+            background:${v === 'n' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">No</button>
         </div>
         <div class="s">${v === 'y' ? 'Both in — added to the week' : v === 'n' ? 'Declined — nobody has to explain' : 'Waiting on you both'}</div>
       </div>`);
@@ -6516,7 +6522,7 @@ R.addSub('guest', 'guest mode', (body) => {
     });
     body.appendChild(sw);
     ROWS.forEach(([k, g, n]) => body.appendChild(el(kv(k, db.guest ? g : n,
-      (db.guest ? g : n) === 'visible' ? 'var(--ink)' : 'var(--red)'))));
+      (db.guest ? g : n) === 'visible' ? 'var(--ink)' : 'var(--ink-3)'))));
     body.appendChild(note('Ends itself at midnight. Maya’s widget shows a small “guests” dot, nothing more.'));
   };
   draw();
@@ -6529,7 +6535,7 @@ R.addSub('doctor', 'doctor’s note', (body) => {
   d.qs.forEach((q) => body.appendChild(el(
     `<div class="chip hand" style="font-size:23px;line-height:1.25">${esc(q)}</div>`)));
   body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--red-text)')));
-  body.appendChild(el(kv('Details', 'hers to share', 'var(--red)')));
+  body.appendChild(el(kv('Details', 'hers to share', 'var(--ink)')));
   body.appendChild(note('Health is the one room Trace never summarizes, never trends, never guesses. It just holds the questions you’d forget in the chair.'));
   const b = el(`<button class="${d.sent ? 'p-ghost' : 'p-cta'}">${d.sent ? 'On her widget ✓' : 'Send to her widget'}</button>`);
   b.addEventListener('click', () => {
@@ -6573,7 +6579,7 @@ R.addSub('tiny', 'the tiny one', (body) => {
       body.appendChild(el(`<div class="chip">${esc(l)}</div>`)));
     [['Reads drawings', 'never'], ['Gives advice', 'never'], ['Leaves the device', 'never'],
      ['Counts things you both own', 'that’s all']].forEach(([k, v]) =>
-      body.appendChild(el(kv(k, v, v === 'never' ? 'var(--red)' : 'var(--ink)'))));
+      body.appendChild(el(kv(k, v, v === 'never' ? 'var(--ink-3)' : 'var(--ink)'))));
     const off = el(`<button class="p-ghost">${db.tiny ? 'Turn it off' : 'Turn it back on'}</button>`);
     off.addEventListener('click', () => { db.tiny = !db.tiny; save(); buzz(8); draw();
       toast(db.tiny ? 'back on — counts only' : 'off. it never ran anywhere else anyway.'); });
@@ -6655,7 +6661,7 @@ R.addSub('sleep', 'her state', (body) => {
       <div style="font-size:24px;font-weight:600;margin-top:14px">${a ? 'She just woke up' : 'Maya is asleep'}</div>
       <div style="font-size:14px;color:var(--ink-3);margin-top:4px">${a ? 'Berlin, 7:02 AM · your marks are waiting for her' : 'Berlin, 2:41 AM · nothing will buzz on her side'}</div></div>`));
     [['Your marks', 'wait quietly'], ['Her widget', 'dims, doesn’t update'], ['The flare', 'still gets through']]
-      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--ink)'))));
+      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red-text)' : 'var(--ink)'))));
     const b = el(`<button class="p-ghost">${a ? 'Show her asleep' : 'Show her awake'}</button>`);
     b.addEventListener('click', () => { db.awake = !db.awake; save(); buzz(8); draw(); paint(); });
     body.append(b, note('Sleep is a state, not a status. No times, no tracking — just awake or not.'));
@@ -6732,7 +6738,7 @@ R.addSub('wall', 'the wall', (body) => {
   const COLS = ['var(--red-text)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
   for (let i = 0; i < db.wallKept; i++) {
     grid.appendChild(el(`<div style="aspect-ratio:1;border-radius:14px;background:var(--surface);
-      border:1px solid ${i === db.wallKept - 1 ? 'rgba(233,161,59,.4)' : 'var(--surface)'};
+      border:1px solid ${i === db.wallKept - 1 ? 'rgba(var(--amber-rgb),.4)' : 'var(--surface)'};
       display:flex;align-items:center;justify-content:center;position:relative">
       <svg viewBox="0 0 70 70" style="width:80%;height:80%"><path d="M14 44 C28 18,40 52,58 26"
         stroke="${COLS[i % 5]}" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
@@ -6863,7 +6869,7 @@ R.addSub('pocket', 'the pocket', (body) => {
       r.addEventListener('click', () => { st.done = !st.done; save(); buzz(8); draw(); });
       body.appendChild(r);
     });
-    body.appendChild(el(kv(p.reveal, 'as one drawing', 'var(--red)')));
+    body.appendChild(el(kv(p.reveal, 'as one drawing', 'var(--ink)')));
     body.appendChild(note('Not even in her search. Not in the shared backup. Nowhere.'));
   };
   draw();
@@ -6917,7 +6923,7 @@ R.addSub('movie', 'memory movie · June', (body) => {
     body.appendChild(el(`<div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:12px;color:var(--ink-3);width:74px">0:${String(Math.round(db.movie * .41)).padStart(2, '0')} / 0:41</span>
       <span style="flex:1;height:6px;border-radius:99px;background:var(--hairline);overflow:hidden;display:block">
-        <span style="display:block;height:100%;width:${db.movie}%;background:var(--red)"></span></span></div>`));
+        <span style="display:block;height:100%;width:${db.movie}%;background:var(--ink)"></span></span></div>`));
     const row = el(`<div class="p-row"></div>`);
     [['<svg class="ts-i"><use href="#i-undo"/></svg>', () => { db.movie = 0; }], ['<svg class="ts-i"><use href="#i-play"/></svg>', () => { db.movie = (db.movie + 17) % 100; }], ['<svg class="ts-i"><use href="#i-download"/></svg>', null]]
       .forEach(([g, fn]) => {
@@ -6980,7 +6986,7 @@ R.addCard((d) => {
   return { pri: 0, kind: 'flare', tint: 'var(--red)', head: 'I need you', foot: 'the flare',
     render(b) {
       b.innerHTML = `<div class="w-mid"><div class="w-orb" style="background:radial-gradient(circle at 40% 35%,#FF8A94,var(--red));
-        box-shadow:0 0 44px rgba(226,51,67,.7)"></div><b>I need you</b>
+        box-shadow:0 0 44px rgba(var(--red-rgb),.7)"></div><b>I need you</b>
         <i>Breaks armour, quiet hours, everything</i></div>`;
       return {};
     } };
@@ -7207,7 +7213,7 @@ function androidHome() {
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:var(--surface);
           border:1px solid var(--hairline);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${lm ? 'LEAVING NOW' : 'GOODNIGHT'}</div>
-          <div style="font-size:24px;font-weight:600;color:var(--red)">${lm ? lm + ' min' : '27:14'}</div></div>
+          <div style="font-size:24px;font-weight:600;color:var(--ink)">${lm ? lm + ' min' : '27:14'}</div></div>
         <div style="flex:1;aspect-ratio:1;border-radius:30px;background:linear-gradient(160deg,var(--ground-alt),var(--ground-alt));
           border:1px solid var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:11px;color:var(--ink-3)">${db.mission ? 'MISSION' : 'GROCERIES'}</div>
@@ -7278,7 +7284,7 @@ function tabletBoard() {
           <div style="width:250px;display:flex;flex-direction:column;gap:12px">
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Goodnight in</div>
-              <div style="font-size:26px;font-weight:600;color:var(--red);margin-top:2px">2h 14m</div></div>
+              <div style="font-size:26px;font-weight:600;color:var(--ink);margin-top:2px">2h 14m</div></div>
             <div style="border-radius:20px;background:var(--surface);border:1px solid var(--surface);padding:16px">
               <div style="font-size:12px;color:var(--ink-3)">Left to do</div>
               <div style="font-size:26px;font-weight:600;margin-top:2px">${t.length} things</div></div>
@@ -7623,7 +7629,7 @@ R.addSub('key', 'your key', (body) => {
   const go = el(`<button class="p-ghost">Restore from it</button>`);
   go.addEventListener('click', () => {
     const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());
-    if (!m) { field.style.borderColor = 'var(--red)'; toast('that’s not a trace key'); return; }
+    if (!m) { field.style.borderColor = 'var(--red-line)'; toast('that’s not a trace key'); return; }
     localStorage.setItem('trace:pairCode', m[1]);
     try { localStorage.setItem('trace:myname', decodeURIComponent(escape(atob(m[2])))); } catch (e) {}
     if (window.TRACE_NET) TRACE_NET.join(m[1], 'supabase', () => {});
@@ -7653,7 +7659,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--red-text)')));
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
-  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
+  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--ink)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
   const hold = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
@@ -7874,7 +7880,7 @@ function openPad() {
   $$('#wp-fonts [data-font]', pad).forEach((b) => b.addEventListener('click', () => {
     font = b.dataset.font; buzz(6); wobble();
     $$('#wp-fonts [data-font]', pad).forEach((x) => x.style.borderColor =
-      x === b ? 'var(--red)' : 'var(--hairline)');
+      x === b ? 'var(--lip)' : 'var(--hairline)');
   }));
   $('#wp-size', pad).addEventListener('input', (e) => { size = +e.target.value; wobble(); });
   const send = () => {
@@ -7990,7 +7996,7 @@ function renderGoodnight() {
       <button class="icob" data-close><svg class="ts-i"><use href="#i-close"/></svg></button></div>
     <div style="text-align:center;padding:44px 24px 0;flex:none">
       <div style="font-size:15px;color:var(--ink-70)">${sealed ? 'Tonight’s canvas is sealed' : 'Tonight’s canvas seals in'}</div>
-      <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--red);margin-top:6px;
+      <div id="gn-count" style="font-size:60px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-top:6px;
         font-variant-numeric:tabular-nums">${sealed ? '—' : clock(untilSeal())}</div>
     </div>
     <div style="margin:32px 56px 0;height:240px;border-radius:24px;background:var(--surface);
@@ -8042,7 +8048,7 @@ function pickSealTime() {
     const row = el(`<div class="p-row" style="flex-wrap:wrap"></div>`);
     for (const t of ['21:30', '22:00', '22:30', '23:00', '23:30', '00:00']) {
       const b = el(`<button class="chip" style="text-align:center;flex:0 0 30%">${t}</button>`);
-      if (t === db.sealAt) { b.style.borderColor = 'var(--red)'; b.style.background = 'var(--red-wash)'; }
+      if (t === db.sealAt) { b.style.borderColor = 'var(--lip)'; b.style.background = 'var(--pane-2)'; }
       b.addEventListener('click', () => {
         db.sealAt = t; save(); buzz(8); toast('the day now ends at ' + t);
         APP.closePanel ? APP.closePanel() : null;
@@ -8571,7 +8577,7 @@ function renderEnd() {
     const t = $('.t', b);
     if (!b.dataset.armed) {
       b.dataset.armed = '1';
-      b.style.borderColor = 'var(--red)';
+      b.style.borderColor = 'var(--red-line)';
       t.textContent = kind === 'pause' ? 'Tap again to pause everything' : 'Tap again — both archives are sent first';
       setTimeout(() => { if (b.isConnected && b.dataset.armed) renderEnd(); }, 5000);
       return;
@@ -9408,7 +9414,7 @@ function renderMoving() {
       <div style="padding:18px 24px 0;flex:none">
         <div style="height:10px;border-radius:99px;background:var(--ground-alt);overflow:hidden;display:flex">
           <div style="width:${m.you}%;background:var(--ink)"></div>
-          <div style="width:${m.them}%;background:var(--red)"></div>
+          <div style="width:${m.them}%;background:var(--ink-5)"></div>
         </div>
         <div style="display:flex;justify-content:space-between;padding-top:8px;font-size:12px;color:var(--ink-3)">
           <span>${m.you}% you</span><span>${m.them}% Maya</span><span>${m.you + m.them}% done</span></div>
@@ -9606,7 +9612,7 @@ const split = (a, label) => `
   <div style="padding:16px 24px 0;flex:none">
     <div style="height:10px;border-radius:99px;background:var(--ground-alt);overflow:hidden;display:flex">
       <div style="width:${a}%;background:var(--ink)"></div>
-      <div style="flex:1;background:var(--red)"></div></div>
+      <div style="flex:1;background:var(--ink-5)"></div></div>
     <div style="display:flex;justify-content:space-between;padding-top:8px;font-size:12px;color:var(--ink-3)">
       ${label}</div></div>`;
 
@@ -9634,7 +9640,7 @@ function renderDrift() {
               /* the colour is the trend, not a threshold — the last weeks are
                  red because they are the recent ones, not because they failed */
               const t = i / (d.length - 1);
-              const c = t < .5 ? 'var(--ink)' : `rgba(226,51,67,${(0.5 + t * 0.5).toFixed(2)})`;
+              const c = t < .5 ? 'var(--ink)' : `rgba(var(--red-rgb),${(0.5 + t * 0.5).toFixed(2)})`;
               return `<div style="width:24px;height:${Math.round((v / max) * 100)}%;border-radius:6px;background:${c}"></div>`;
             }).join('')}
           </div>
@@ -10081,7 +10087,7 @@ function renderMemory() {
   /* empty days are a pale ink tint, not white — on paper, white cells would be
      the brightest thing on the grid and the blank weeks would read as the loud
      ones. SCREENS.md p21: "Empty days are pale, never red." */
-  const shades = ['var(--grid-empty)', 'rgba(226,51,67,.35)', 'rgba(226,51,67,.6)', 'var(--red)', 'var(--ink)'];
+  const shades = ['var(--grid-empty)', 'rgba(var(--red-rgb),.35)', 'rgba(var(--red-rgb),.6)', 'var(--red)', 'var(--ink)'];
   const cells = Array.from({ length: 98 }, (_, n) => {
     const h = ((n * 2654435761) >>> 0) % 10;
     return shades[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 9 ? 3 : 4];
@@ -10300,7 +10306,7 @@ function renderSettle() {
     <div class="page">
       <div style="padding:32px 30px 0;text-align:center;flex:none">
         <div style="font-size:14px;color:var(--ink-3)">This month, between you</div>
-        <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--red);margin-top:4px">€${gap}</div>
+        <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--ink);margin-top:4px">€${gap}</div>
         <div style="font-size:15px;color:var(--ink-70);margin-top:6px">${ahead
           ? ahead + ' ahead. That’s all it says.'
           : 'Even. That’s all it says.'}</div>

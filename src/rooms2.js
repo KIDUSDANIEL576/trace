@@ -206,10 +206,10 @@ R.addSub('load', 'mental load', (body) => {
     body.appendChild(el(`<div style="text-align:center;padding:6px 0 2px">
       <div style="font-size:15px;color:var(--ink-70)">Who is <span style="color:var(--ink)">remembering</span>, not doing</div>
       <div style="font-size:30px;font-weight:600;margin-top:4px">Maya holds ${pct}%</div></div>`));
-    body.appendChild(el(bar(pct, 'var(--red)', 'var(--ink)')));
+    body.appendChild(el(bar(pct, 'var(--ink)', 'var(--ink-5)')));
     db.load.forEach((l) => {
       const r = el(`<div class="row"><span style="width:8px;height:8px;border-radius:50%;flex:none;
-        background:${l.who === 'Maya' ? 'var(--red)' : 'var(--ink)'}"></span>
+        background:${l.who === 'Maya' ? 'var(--ink)' : 'var(--ink-5)'}"></span>
         <span class="grow"><span class="n light">${esc(l.t)}</span></span>
         <button class="who ${l.who === 'Maya' ? 'them' : ''}">${l.who}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
@@ -256,7 +256,7 @@ R.addSub('money', 'money truth', (body) => {
   body.appendChild(el(bigNum('€' + m.free, 'Free to spend, this month')));
   body.appendChild(note('After rent, bills, the standing orders, and what you both said you’d save.'));
   body.appendChild(el(kv('In', '€' + m.in.toLocaleString('en-US'), 'var(--ink)')));
-  body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--red)')));
+  body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--ink)')));
   body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--ink)')));
   body.appendChild(note('One number, both phones, updated nightly. No categories, no budgets to break, no lecture — just the truth you’d otherwise argue about at 11 PM.'));
   const st = doorRow('Settle up', 'The number, with no verdict attached', 'settleup');
@@ -305,14 +305,14 @@ R.addSub('energy', 'energy match', (body) => {
         border:1px solid ${on ? 'var(--ink-5)' : 'var(--surface)'};color:var(--ink)">
         <div style="display:flex;gap:6px;align-items:flex-end;justify-content:center;height:90px">
           <span style="width:14px;border-radius:99px;background:var(--ink);height:${b.you}%"></span>
-          <span style="width:14px;border-radius:99px;background:var(--red);height:${b.her}%"></span></div>
+          <span style="width:14px;border-radius:99px;background:var(--ink-3);height:${b.her}%"></span></div>
         <div style="font-size:14px;font-weight:600;margin-top:8px">${b.t}</div>
         <div style="font-size:11px;color:var(--ink-3)">${b.s}</div></button>`);
       c.addEventListener('click', () => { db.energy = b.n; save(); buzz(8); draw(); });
       row.appendChild(c);
     });
     body.append(row, note(TIPS[db.energy]),
-      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red-text)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+      note('<b style="color:var(--ink)">You</b> · <b style="color:var(--ink-3)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
     body.appendChild(doorRow('Right now', db.awake ? 'She’s awake' : 'She’s asleep — nothing buzzes', 'sleep'));
   };
   draw();
@@ -349,7 +349,7 @@ R.addSub('rsvp', 'yes / no board', (body) => {
             background:${v === 'y' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">Yes</button>
           <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
-            background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
+            background:${v === 'n' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">No</button>
         </div>
         <div class="s">${v === 'y' ? 'Both in — added to the week' : v === 'n' ? 'Declined — nobody has to explain' : 'Waiting on you both'}</div>
       </div>`);
@@ -406,7 +406,7 @@ R.addSub('guest', 'guest mode', (body) => {
     });
     body.appendChild(sw);
     ROWS.forEach(([k, g, n]) => body.appendChild(el(kv(k, db.guest ? g : n,
-      (db.guest ? g : n) === 'visible' ? 'var(--ink)' : 'var(--red)'))));
+      (db.guest ? g : n) === 'visible' ? 'var(--ink)' : 'var(--ink-3)'))));
     body.appendChild(note('Ends itself at midnight. Maya’s widget shows a small “guests” dot, nothing more.'));
   };
   draw();
@@ -419,7 +419,7 @@ R.addSub('doctor', 'doctor’s note', (body) => {
   d.qs.forEach((q) => body.appendChild(el(
     `<div class="chip hand" style="font-size:23px;line-height:1.25">${esc(q)}</div>`)));
   body.appendChild(el(kv('After, on your widget', 'one line only', 'var(--red-text)')));
-  body.appendChild(el(kv('Details', 'hers to share', 'var(--red)')));
+  body.appendChild(el(kv('Details', 'hers to share', 'var(--ink)')));
   body.appendChild(note('Health is the one room Trace never summarizes, never trends, never guesses. It just holds the questions you’d forget in the chair.'));
   const b = el(`<button class="${d.sent ? 'p-ghost' : 'p-cta'}">${d.sent ? 'On her widget ✓' : 'Send to her widget'}</button>`);
   b.addEventListener('click', () => {
@@ -463,7 +463,7 @@ R.addSub('tiny', 'the tiny one', (body) => {
       body.appendChild(el(`<div class="chip">${esc(l)}</div>`)));
     [['Reads drawings', 'never'], ['Gives advice', 'never'], ['Leaves the device', 'never'],
      ['Counts things you both own', 'that’s all']].forEach(([k, v]) =>
-      body.appendChild(el(kv(k, v, v === 'never' ? 'var(--red)' : 'var(--ink)'))));
+      body.appendChild(el(kv(k, v, v === 'never' ? 'var(--ink-3)' : 'var(--ink)'))));
     const off = el(`<button class="p-ghost">${db.tiny ? 'Turn it off' : 'Turn it back on'}</button>`);
     off.addEventListener('click', () => { db.tiny = !db.tiny; save(); buzz(8); draw();
       toast(db.tiny ? 'back on — counts only' : 'off. it never ran anywhere else anyway.'); });
@@ -545,7 +545,7 @@ R.addSub('sleep', 'her state', (body) => {
       <div style="font-size:24px;font-weight:600;margin-top:14px">${a ? 'She just woke up' : 'Maya is asleep'}</div>
       <div style="font-size:14px;color:var(--ink-3);margin-top:4px">${a ? 'Berlin, 7:02 AM · your marks are waiting for her' : 'Berlin, 2:41 AM · nothing will buzz on her side'}</div></div>`));
     [['Your marks', 'wait quietly'], ['Her widget', 'dims, doesn’t update'], ['The flare', 'still gets through']]
-      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red)' : 'var(--ink)'))));
+      .forEach(([k, v]) => body.appendChild(el(kv(k, v, k === 'The flare' ? 'var(--red-text)' : 'var(--ink)'))));
     const b = el(`<button class="p-ghost">${a ? 'Show her asleep' : 'Show her awake'}</button>`);
     b.addEventListener('click', () => { db.awake = !db.awake; save(); buzz(8); draw(); paint(); });
     body.append(b, note('Sleep is a state, not a status. No times, no tracking — just awake or not.'));
@@ -622,7 +622,7 @@ R.addSub('wall', 'the wall', (body) => {
   const COLS = ['var(--red-text)', 'var(--red)', 'var(--ink)', 'var(--ink)', 'var(--ink)'];
   for (let i = 0; i < db.wallKept; i++) {
     grid.appendChild(el(`<div style="aspect-ratio:1;border-radius:14px;background:var(--surface);
-      border:1px solid ${i === db.wallKept - 1 ? 'rgba(233,161,59,.4)' : 'var(--surface)'};
+      border:1px solid ${i === db.wallKept - 1 ? 'rgba(var(--amber-rgb),.4)' : 'var(--surface)'};
       display:flex;align-items:center;justify-content:center;position:relative">
       <svg viewBox="0 0 70 70" style="width:80%;height:80%"><path d="M14 44 C28 18,40 52,58 26"
         stroke="${COLS[i % 5]}" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
@@ -753,7 +753,7 @@ R.addSub('pocket', 'the pocket', (body) => {
       r.addEventListener('click', () => { st.done = !st.done; save(); buzz(8); draw(); });
       body.appendChild(r);
     });
-    body.appendChild(el(kv(p.reveal, 'as one drawing', 'var(--red)')));
+    body.appendChild(el(kv(p.reveal, 'as one drawing', 'var(--ink)')));
     body.appendChild(note('Not even in her search. Not in the shared backup. Nowhere.'));
   };
   draw();
@@ -807,7 +807,7 @@ R.addSub('movie', 'memory movie · June', (body) => {
     body.appendChild(el(`<div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:12px;color:var(--ink-3);width:74px">0:${String(Math.round(db.movie * .41)).padStart(2, '0')} / 0:41</span>
       <span style="flex:1;height:6px;border-radius:99px;background:var(--hairline);overflow:hidden;display:block">
-        <span style="display:block;height:100%;width:${db.movie}%;background:var(--red)"></span></span></div>`));
+        <span style="display:block;height:100%;width:${db.movie}%;background:var(--ink)"></span></span></div>`));
     const row = el(`<div class="p-row"></div>`);
     [['↺', () => { db.movie = 0; }], ['▶', () => { db.movie = (db.movie + 17) % 100; }], ['⤓', null]]
       .forEach(([g, fn]) => {
@@ -870,7 +870,7 @@ R.addCard((d) => {
   return { pri: 0, kind: 'flare', tint: 'var(--red)', head: 'I need you', foot: 'the flare',
     render(b) {
       b.innerHTML = `<div class="w-mid"><div class="w-orb" style="background:radial-gradient(circle at 40% 35%,#FF8A94,var(--red));
-        box-shadow:0 0 44px rgba(226,51,67,.7)"></div><b>I need you</b>
+        box-shadow:0 0 44px rgba(var(--red-rgb),.7)"></div><b>I need you</b>
         <i>Breaks armour, quiet hours, everything</i></div>`;
       return {};
     } };

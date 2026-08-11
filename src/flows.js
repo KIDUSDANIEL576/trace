@@ -258,7 +258,7 @@ R.addSub('key', 'your key', (body) => {
   const go = el(`<button class="p-ghost">Restore from it</button>`);
   go.addEventListener('click', () => {
     const m = /^trace-([a-z0-9]{5})-([a-z0-9+/]+)$/i.exec(field.value.trim());
-    if (!m) { field.style.borderColor = 'var(--red)'; toast('that’s not a trace key'); return; }
+    if (!m) { field.style.borderColor = 'var(--red-line)'; toast('that’s not a trace key'); return; }
     localStorage.setItem('trace:pairCode', m[1]);
     try { localStorage.setItem('trace:myname', decodeURIComponent(escape(atob(m[2])))); } catch (e) {}
     if (window.TRACE_NET) TRACE_NET.join(m[1], 'supabase', () => {});
@@ -288,7 +288,7 @@ R.addSub('unpair', 'unpair', (body) => {
   body.appendChild(el(kv('The canvas', 'seals — read-only, both phones', 'var(--red-text)')));
   body.appendChild(el(kv('Your history', 'stays on your phone', 'var(--ink)')));
   body.appendChild(el(kv('Her history', 'stays on hers — you delete only yours', 'var(--ink)')));
-  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--red)')));
+  body.appendChild(el(kv('The pocket', 'burns, unread, both sides', 'var(--ink)')));
   body.appendChild(el(kv('The widget', 'goes quiet. No last message.', 'var(--ink)')));
   const hold = el(`<button class="p-cta" style="background:var(--pane-2);color:var(--red-text);box-shadow:inset 0 0 0 1px var(--red-line);min-height:60px;font-weight:700">Hold three seconds to unpair</button>`);
   let t = null;
