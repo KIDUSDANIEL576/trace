@@ -143,6 +143,13 @@ function renderRepair() {
       <button class="card ink" data-act="ready"><div class="t">I’m ready to talk</div>
         <div class="d">She sees it only when she opens the app. Never a buzz.</div></button>
     </div>
+    <div class="eyebrow" style="padding:16px 20px 2px;flex:none">Other doors into the same talk</div>
+    <div style="padding:0 20px;flex:none">
+      <button class="row" data-door="unsaid" style="width:100%"><span class="grow"><span class="n">The unsaid</span>
+        <span class="s">Held here, private, until you mean it</span></span><span class="chev">›</span></button>
+      <button class="row" data-door="drift" style="width:100%"><span class="grow"><span class="n">The drift</span>
+        <span class="s">Six weeks of hours together, no verdict</span></span><span class="chev">›</span></button>
+    </div>
     <div class="spacer"></div>
     <div style="padding:0 20px;flex:none">
       <div class="note">Trace never asks what happened, never scores it, never remembers it in
@@ -160,6 +167,7 @@ function renderRepair() {
     toast(db.modes.repair ? 'the app has gone quiet' : 'welcome back');
     renderRepair();
   }));
+  $$('[data-door]', s).forEach((b) => b.addEventListener('click', () => show(b.dataset.door)));
   $$('[data-act]', s).forEach((b) => b.addEventListener('click', () => {
     const a = b.dataset.act;
     if (!db.modes.repair) setMode('repair', true);

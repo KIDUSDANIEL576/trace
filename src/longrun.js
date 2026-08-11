@@ -355,6 +355,11 @@ function renderVisitor() {
             <span class="v${red ? ' red' : ''}">${val}</span></div>`).join('')}
         </div>
       </div>
+      <div style="padding:8px 20px 0;flex:none">
+        <button class="row" data-guest style="width:100%"><span class="grow"><span class="n">Guest mode</span>
+          <span class="s">${v.on ? 'On — ends at midnight' : 'The board goes vague while he can see it'}</span></span>
+          <span class="chev">›</span></button>
+      </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">The pact is shown while it still matters. Trace will not raise it afterwards,
@@ -366,6 +371,7 @@ function renderVisitor() {
       </div>
     </div>`;
   back(s);
+  $$('[data-guest]', s).forEach((b) => b.addEventListener('click', () => R.openSub('guest')));
   /* sent from the kitchen, and it reaches her without reaching the room */
   $$('[data-rescue]', s).forEach((b) => b.addEventListener('click', () => {
     R.push('rescue', { mins: 10 }); buzz(14);
@@ -386,7 +392,6 @@ R.addScreen('solo', renderSolo);
 R.addScreen('care', renderCare);
 R.addScreen('visitor', renderVisitor);
 
-R.addBeyond('The drift', 'Six weeks of hours together, no verdict', 'drift', 'The long run');
 R.addBeyond('Let one person in', 'A third pair of eyes, read-only, expiring', 'friend', 'The long run');
 R.addBeyond('Solo nights', 'One protected night each, on purpose', 'solo', 'The long run');
 R.addBeyond('Ageing parents', 'The care one of you is carrying', 'care', 'The long run');

@@ -78,7 +78,20 @@ for (const [kind, map] of Object.entries(seen)) {
 const rows = new Set(seen.row.keys());
 const dests = new Set([...seen.nav.keys(), ...seen.panel.keys()]);
 const dead = [...rows].filter((k) => !dests.has(k));
-const unreachable = [...seen.nav.keys()].filter((k) => !rows.has(k));
+/* The audit folded these into a survivor: they are reachable through exactly
+   one door inside another feature, not from the directory. A key on this list
+   without a matching openSub(...) call in src/ would be genuinely dead, so the
+   list is verified against the source rather than trusted. */
+const ABSORBED = ['findtime', 'clash', 'wheel', 'memoryyear'];
+const src = readdirSync('src').filter((f) => f.endsWith('.js'))
+  .map((f) => readFileSync(join(SRC, f), 'utf8')).join('\n');
+for (const k of ABSORBED) {
+  /* a door is an explicit openSub, a data-sub row, or a doorRow(..., 'k') */
+  if (!src.includes(`openSub('${k}')`) && !src.includes(`data-sub="${k}"`) && !src.includes(`, '${k}')`)) {
+    bad++; console.log(`\nABSORBED lists '${k}' but no door in src/ opens it`);
+  }
+}
+const unreachable = [...seen.nav.keys()].filter((k) => !rows.has(k) && !ABSORBED.includes(k));
 if (dead.length) { bad++; console.log(`\nrows that go nowhere: ${dead.join(', ')}`); }
 if (unreachable.length) { bad++; console.log(`\ndestinations with no row: ${unreachable.join(', ')}`); }
 

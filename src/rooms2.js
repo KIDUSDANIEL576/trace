@@ -15,6 +15,16 @@ const { el, esc, count, tickRow, save, push, paint, ui, resetDeck } = R;
 const db = R.db;
 const toast = ui.toast, buzz = ui.buzz;
 
+
+/* A feature that used to be its own directory row now lives inside its
+   survivor. One row, one door — the audit's "become one" made real. */
+const doorRow = (name, sub, kind) => {
+  const r = el(`<button class="row"><span class="grow"><span class="n">${esc(name)}</span>
+    <span class="s">${esc(sub)}</span></span><span class="chev">›</span></button>`);
+  r.addEventListener('click', () => R.openSub(kind));
+  return r;
+};
+
 /* ------------------------------------------------------------- new state */
 
 R.defaults({
@@ -233,6 +243,9 @@ R.addSub('waiting', 'the waiting room', (body) => {
         body.appendChild(r);
       });
     }
+    body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">Also stuck here</div>`));
+    body.appendChild(doorRow('Decisions you owe', `${db.debts.length - count(db.decided)} open, ageing`, 'debt'));
+    body.appendChild(doorRow('Yes / no', `${db.invites.length - count(db.rsvp)} unanswered`, 'rsvp'));
     body.appendChild(note(`One number on her widget: <b>${db.blocked.filter((b) => b.on === 'Maya' && !db.unblocked[b.id]).length} waiting</b>. No nagging, just visible.`));
   };
   draw();
@@ -246,6 +259,9 @@ R.addSub('money', 'money truth', (body) => {
   body.appendChild(el(kv('Committed', '−€' + m.committed.toLocaleString('en-US'), 'var(--red)')));
   body.appendChild(el(kv('Kyoto, agreed', '−€' + m.agreed, 'var(--ink)')));
   body.appendChild(note('One number, both phones, updated nightly. No categories, no budgets to break, no lecture — just the truth you’d otherwise argue about at 11 PM.'));
+  const st = doorRow('Settle up', 'The number, with no verdict attached', 'settleup');
+  st.addEventListener('click', () => R.show('settle'));
+  body.appendChild(st);
   body.appendChild(note('Read-only from your banks. Trace never moves money.'));
 });
 
@@ -297,6 +313,7 @@ R.addSub('energy', 'energy match', (body) => {
     });
     body.append(row, note(TIPS[db.energy]),
       note('<b style="color:var(--ink)">You</b> · <b style="color:var(--red-text)">Maya</b> — measured from when you each actually do things, never from a wearable.'));
+    body.appendChild(doorRow('Right now', db.awake ? 'She’s awake' : 'She’s asleep — nothing buzzes', 'sleep'));
   };
   draw();
 });
@@ -477,6 +494,10 @@ R.addSub('rituals', 'your rituals', (body) => {
     body.appendChild(el(`<div class="eyebrow" style="padding:10px 0 2px">Tonight’s ritual · Tea at 9 — in 3 hours</div>`));
     const b = el(`<button class="${db.ritualDone ? 'p-ghost' : 'p-cta'}">${db.ritualDone ? '143 nights ✓ — she knows' : 'I’ll put the kettle on'}</button>`);
     b.addEventListener('click', () => { db.ritualDone = true; push('ritual', {}); buzz(16); draw(); });
+    body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">The standing ones</div>`));
+    body.appendChild(doorRow('Weekly ten minutes', 'Sunday, 6 PM — the reset', 'weekly10'));
+    body.appendChild(doorRow('The tiny one', db.tiny ? 'On device, counts only' : 'Off', 'tiny'));
+    body.appendChild(doorRow('Couple focus', 'One thing, together, this month', 'focus'));
     body.append(b, note('Noticed, never enforced. Break one and nothing happens — that’s the deal.'));
   };
   draw();
@@ -609,6 +630,7 @@ R.addSub('wall', 'the wall', (body) => {
     </div>`));
   }
   body.appendChild(grid);
+  body.appendChild(doorRow('Zoom out', 'The year, in marks — one square a day', 'memoryyear'));
   body.appendChild(note('Everything else fades at midnight. These both of you chose to keep.'));
 });
 
@@ -622,6 +644,9 @@ R.addSub('week7', 'week 32', (body) => {
       r.addEventListener('click', () => editDay(d, n, t, draw));
       body.appendChild(r);
     });
+    body.appendChild(el(`<div class="eyebrow" style="padding:12px 0 2px">Same seven days</div>`));
+    body.appendChild(doorRow('Find us a time', 'Windows you’re both free — and awake', 'findtime'));
+    body.appendChild(doorRow('When plans collide', 'Three doors, no verdict', 'clash'));
     body.appendChild(note('Type it, she sees it in your handwriting. Whatever’s next also rides her widget.'));
   };
   draw();
@@ -751,6 +776,10 @@ R.addSub('journal', 'journal', (body) => {
   body.appendChild(el(`<div class="eyebrow" style="padding:10px 0 2px">Noticed, not judged</div>`));
   body.appendChild(el(`<div class="chip" style="font-style:italic">Fridays are your quietest day. Thursdays, Maya draws first.</div>`));
   body.appendChild(note('Counts only. It never reads a word or a drawing’s meaning.'));
+  body.appendChild(el(`<div class="eyebrow" style="padding:10px 0 2px">The same days, retold</div>`));
+  body.appendChild(doorRow('Chapters', `${db.chapters.length} — the story shelves itself`, 'chapters'));
+  body.appendChild(doorRow('Memory movie', 'June · 31 days, replayed', 'movie'));
+  body.appendChild(doorRow('The year, as a book', '365 pages, edition of one', 'legacy'));
   const b = el(`<button class="p-ghost">Add a line in your hand</button>`);
   b.addEventListener('click', () => { R.show('canvas'); toast('write it on the canvas — it files itself'); });
   body.appendChild(b);
@@ -805,37 +834,24 @@ R.addSub('weekly10', 'weekly ten minutes', (body) => {
 
 const openN = () => db.blocked.filter((b) => !db.unblocked[b.id]).length;
 
-R.addRow('Household', 'debt', 'Decision debt', () => `${db.debts.length - count(db.decided)} open, ageing`);
-R.addRow('Household', 'load', 'Mental load', () => 'The work nobody counts');
-R.addRow('Household', 'waiting', 'The waiting room', () => `${openN()} blocked`);
-R.addRow('Household', 'rsvp', 'Yes / no board', () => `${db.invites.length - count(db.rsvp)} unanswered`);
+R.addRow('Household', 'waiting', 'The waiting room', () => `${openN()} blocked · ${db.invites.length - count(db.rsvp)} to answer · ${db.debts.length - count(db.decided)} to decide`);
 R.addRow('Household', 'renewals', 'Renewal radar', () => '€94/mo you forgot');
 R.addRow('Household', 'where', 'Where is it', () => `${db.things.length} things, findable`);
-R.addRow('Household', 'brief', 'The brief', () => db.brief.got ? 'Handed over ✓' : db.brief.task);
 R.addRow('Household', 'ask', 'Recurring + ask nicely', () => 'Bins out · yours this week');
 R.addRow('Household', 'letter', 'Photo of the letter', () => db.letter.added ? 'Added ✓' : `${db.letter.from} · by ${db.letter.by}`);
-R.addRow('Household', 'kids', 'Kid’s corner', () => 'And the wrong-answer bin');
 R.addRow('Household', 'week7', 'The week', () => 'Typed, shown in your hand');
 
 R.addRow('Together', 'money', 'Money truth', () => `€${db.money.free} free this month`);
 R.addRow('Together', 'pocket', 'The pocket', () => 'Does not exist on her device');
-R.addRow('Together', 'weekly10', 'Weekly ten minutes', () => 'Sunday, 6 PM');
 
-R.addRow('Memory', 'chapters', 'Chapters', () => `${db.chapters.length} · the story shelves itself`);
-R.addRow('Memory', 'movie', 'Memory movie', () => 'June · 31 days, replayed');
-R.addRow('Memory', 'journal', 'Journal', () => 'Counts only, never meaning');
-R.addRow('Memory', 'wall', 'The wall', () => `${db.wallKept} kept forever`);
+R.addRow('Memory', 'journal', 'Journal', () => 'Chapters, the movie, the book — counts only');
+R.addRow('Memory', 'wall', 'The wall', () => `${db.wallKept} kept forever · zoom to the year`);
 R.addRow('Memory', 'daymap', 'Map of your day', () => 'Drawn from your steps');
-R.addRow('Memory', 'legacy', 'The year, as a book', () => '365 pages, edition of one');
 
-R.addRow('Wellbeing', 'energy', 'Energy match', () => 'When each of you is sharp');
+R.addRow('Wellbeing', 'energy', 'Energy match', () => db.awake ? 'When each of you is sharp' : 'She’s asleep — nothing buzzes');
 R.addRow('Wellbeing', 'doctor', 'Doctor’s note', () => db.doctor.sent ? 'On her widget ✓' : `Maya · ${db.doctor.when}`);
-R.addRow('Wellbeing', 'rituals', 'Your rituals', () => `${db.rituals.length} learned, none enforced`);
-R.addRow('Wellbeing', 'tiny', 'The tiny one', () => db.tiny ? 'On device, counts only' : 'Off');
-R.addRow('Wellbeing', 'handoff', 'Morning handoff', () => 'What she left overnight');
+R.addRow('Wellbeing', 'rituals', 'Your rituals', () => `${db.rituals.length} learned · the ten minutes, the tiny one`);
 
-R.addRow('Board', 'guest', 'Guest mode', () => db.guest ? 'On — ends at midnight' : 'Someone’s coming');
-R.addRow('Board', 'sleep', 'Her state', () => db.awake ? 'Awake' : 'Asleep — nothing buzzes');
 R.addRow('Board', 'car', 'Car mode', () => db.carMode ? 'On — ETA on her widget' : 'Off');
 R.addRow('Board', 'stack', 'Widget stack order', () => db.stack[0] + ' first');
 

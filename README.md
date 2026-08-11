@@ -165,6 +165,15 @@ clean result. This one prints the scope it walked, every run, for that reason.
 
 ### Auditing the product, not the build
 
+**The consolidation (Aug 2026).** The audit found sixteen families of features
+doing one job each — five task lists, four retrospectives, three money screens,
+two dinner-deciders. Each family now has one front door: the survivor keeps a
+directory row, and what it absorbed opens from inside it (`doorRow` in
+rooms2.js, `data-door`/`data-sub` rows elsewhere). The directory fell from 72
+rows to ~50. `qa/registry.mjs` verifies the ABSORBED list against the source,
+so a door that disappears fails the build instead of orphaning a screen.
+
+
 ```
 node qa/inventory.mjs                           walk every surface: shot + what it offers
 node qa/inventory.mjs --fast                    structure only, no screenshots

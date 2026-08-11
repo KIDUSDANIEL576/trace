@@ -38,7 +38,7 @@ R.defaults({
   shock: { free: 118, held: 3180, runway: 7, cancel: 94 },
 });
 
-for (const id of ['unsaid', 'newborn', 'grieving', 'moving', 'money']) {
+for (const id of ['unsaid', 'newborn', 'grieving', 'moving', 'money', 'seasons']) {
   const sec = document.createElement('section');
   sec.className = 'scr hidden'; sec.id = 'sc-' + id;
   $('#stack').appendChild(sec);
@@ -391,11 +391,30 @@ R.addScreen('grieving', renderGrief);
 R.addScreen('moving', renderMoving);
 R.addScreen('money', renderMoney);
 
-R.addBeyond('The unsaid', 'Held here, private, until you mean it', 'unsaid', 'Life happens');
-R.addBeyond('Newborn mode', 'Whose turn to sleep — the only nag', 'newborn', 'Life happens');
-R.addBeyond('A hard anniversary', 'The date it remembers so you don’t have to', 'grieving', 'Life happens');
-R.addBeyond('Moving', 'One project, two people', 'moving', 'Life happens');
-R.addBeyond('Money changed', 'Recalculated, without the warnings', 'money', 'Life happens');
+/* Four seasons, one mechanism: each quiets the machinery and changes what the
+   app should be for a while. They used to be four directory rows pretending to
+   be four features; the hub says the truth — one mode, four names. The unsaid
+   moved into Repair, which is the conversation it was always the start of. */
+function renderSeasons() {
+  const sec = screens.seasons;
+  sec.dataset.ground = 'alt';
+  sec.innerHTML = `
+    <div class="hd"><button class="pill" data-back>When life happens</button></div>
+    <div class="page">
+      ${head('One mode, four names', 'It goes quiet with you',
+        'Each of these hushes the counts, the streaks and the suggestions — the same silence, worn four ways.', true)}
+      ${[['newborn', 'Newborn', 'Whose turn to sleep — the only nag'],
+         ['grieving', 'A hard anniversary', 'The date it remembers so you don’t have to'],
+         ['moving', 'Moving', 'One project, two people'],
+         ['money', 'Money changed', 'Recalculated, without the warnings']]
+        .map(([go, n, sub]) => `<button class="row" data-go="${go}"><span class="grow">
+          <span class="n">${n}</span><span class="s">${sub}</span></span><span class="chev">›</span></button>`).join('')}
+    </div>`;
+  back(sec);
+  $$('[data-go]', sec).forEach((b) => b.addEventListener('click', () => show(b.dataset.go)));
+}
+R.addScreen('seasons', renderSeasons);
+R.addBeyond('When life happens', 'Newborn · grief · moving · money — it goes quiet', 'seasons', 'Life happens');
 
 renderUnsaid(); renderNewborn(); renderGrief(); renderMoving(); renderMoney();
 

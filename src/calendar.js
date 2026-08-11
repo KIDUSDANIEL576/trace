@@ -409,11 +409,9 @@ R.addScreen('trip', renderTrip);
 R.addScreen('dates', renderDates);
 R.addScreen('clocks', renderClocks);
 
-R.addRow('Household', 'findtime', 'Find us a time', () => 'Windows you’re both free — and awake');
 R.addNav('findtime', () => show('findtime'));
 R.addRow('Household', 'newevent', 'New event', () => 'Four fields, and what Trace noticed');
 R.addNav('newevent', () => show('newevent'));
-R.addRow('Household', 'clash', 'A clash', () => 'Three doors, no verdict');
 R.addNav('clash', () => show('clash'));
 R.addRow('Together', 'trip', 'Trips', () => 'The countdown, the money, the prep');
 R.addNav('trip', () => show('trip'));

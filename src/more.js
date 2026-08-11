@@ -248,6 +248,10 @@ function renderKid() {
             <span class="grow" style="font-size:15px">${esc(r.t)}</span>
             <span class="who${r.who === 'Maya' ? ' them' : ''}">${r.who}</span></div>`).join('')}
       </div>
+      <div style="padding:8px 20px 0;flex:none">
+        <button class="row" data-kids style="width:100%"><span class="grow"><span class="n">His drawings</span>
+          <span class="s">And the wrong-answer bin</span></span><span class="chev">›</span></button>
+      </div>
       <div class="spacer"></div>
       <div style="padding:0 20px;flex:none">
         <div class="note">Nothing he draws is counted, shared outside this phone, or kept as a
@@ -256,6 +260,7 @@ function renderKid() {
       <div class="foot">He has no account, and never will.</div>
     </div>`;
   back(s);
+  $$('[data-kids]', s).forEach((b) => b.addEventListener('click', () => R.openSub('kids')));
 }
 
 /* =========================================================== p48 the people layer
@@ -403,16 +408,13 @@ R.addScreen('kid', renderKid);
 R.addScreen('people', renderPeople);
 R.addScreen('settle', renderSettle);
 
-R.addRow('Household', 'wheel', 'Meal wheel', () => 'Nobody decides, so the wheel does');
 R.addNav('wheel', () => show('wheel'));
-R.addRow('Household', 'kid', 'Kid’s corner', () => 'His patch, and the school run');
+R.addRow('Household', 'kid', 'Kid’s corner', () => 'His patch, his drawings, the school run');
 R.addNav('kid', () => show('kid'));
-R.addRow('Memory', 'memoryyear', 'The year, in marks', () => 'Chapters, the grid, the jar');
 R.addNav('memoryyear', () => show('memory'));
 
 R.addBeyond('The daily loop', 'Four moments, ninety seconds, three rules', 'loop');
 R.addBeyond('Your people', 'Who to call, and who calls them', 'people');
-R.addBeyond('Settle up', 'The number, with no verdict attached', 'settle', 'The hard parts');
 /* p16 — her phone, with your board on it. A demo surface, so it is a door in
    the directory rather than the screen the app opens on (invariant 1). */
 R.addBeyond('Her home screen', 'What your board looks like from her side',

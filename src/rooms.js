@@ -252,7 +252,6 @@ function renderRooms(query) {
        them, because one flat list of that length is a wall, not a directory. */
     const groups = [['Beyond the rooms', [
       ['Your board', 'What her widget shows — you decide', () => show('board')],
-      ['Every widget state', 'And who wins when they compete', () => show('states')],
       ['Quiet & private', 'Three rules the app can’t break', () => show('rules')],
       ['Every surface', 'Watch, lock screen, Android, tablet', () => show('surfaces')],
     ]]];
@@ -333,13 +332,15 @@ const ROOM_VIEWS = {
               <span class="s">${esc(meta)}</span></span>
             <span class="who ${who === 'Free' ? 'free' : who === 'You' || who === 'Both' ? '' : 'them'}">${who}</span></button>`;
         }).join('')}
+        <button class="row" data-sub="sprint"><span class="grow">
+            <span class="n">Two-minute pile</span><span class="s">${db.minis.length - count(db.miniDone)} quick ones — clear them in a burst</span></span>
+            <span class="chev">›</span></button>
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Household</div>
         ${[['list', 'Groceries', `${db.items.length - count(db.got)} left`],
            ['meal', 'What’s for dinner', db.meals[db.mealIdx]],
            ['split', 'Fair split', 'A month, not a scoreboard'],
            ['baton', 'Handover baton', db.baton ? 'You’re carrying it' : 'Nobody has it'],
-           ['doses', 'Doses', `${count(db.dosed)} of ${db.doses.length} today`],
-           ['sprint', 'Two-minute pile', `${db.minis.length - count(db.miniDone)} left`]]
+           ['doses', 'Doses', `${count(db.dosed)} of ${db.doses.length} today`]]
           .map(([k, n, s2]) => `<button class="row" data-sub="${k}"><span class="grow">
             <span class="n">${esc(n)}</span><span class="s">${esc(s2)}</span></span>
             <span class="chev">›</span></button>`).join('')}
@@ -369,14 +370,9 @@ const ROOM_VIEWS = {
         <div class="eyebrow" style="padding:10px 4px 2px">Dream board</div>
         ${db.dreams.map((d) => `<div class="row"><span class="grow"><span class="n">${esc(d.t)}</span>
           <span class="s">${esc(d.s)}</span></span></div>`).join('')}
-        <button class="row" data-sub="promise"><span class="grow"><span class="n">Co-signed promise</span>
-          <span class="s hand" style="font-size:20px;color:var(--ink)">${esc(db.promise)}</span></span><span class="chev">✒</span></button>
         <button class="row" data-sub="bucket"><span class="grow"><span class="n">Bucket list</span>
-          <span class="s">${db.buckets.length - count(db.bucket)} open · ${count(db.bucket)} done</span></span>
-          <span class="chev">›</span></button>
-        <button class="row" data-sub="mission"><span class="grow"><span class="n">Missions</span>
-          <span class="s">${db.mission ? 'Both in' : 'One waiting on the other'}</span></span>
-          <span class="chev">›</span></button>
+          <span class="s hand" style="font-size:20px;color:var(--ink)">${esc(db.promise)}</span></span>
+          <span class="chev">✒</span></button>
         ${subRows('Together')}
         ${featureRows('Together')}
       </div>`;
@@ -449,9 +445,6 @@ const ROOM_VIEWS = {
           <span style="display:flex;gap:5px">${h.days.map((d) => `<span style="width:9px;height:9px;border-radius:50%;
             background:${d ? 'var(--ink)' : 'var(--hairline)'}"></span>`).join('')}</span></div>`).join('')}
         <div class="eyebrow" style="padding:14px 4px 2px">Also in Wellbeing</div>
-        <button class="row" data-sub="focus"><span class="grow"><span class="n">Couple focus</span>
-          <span class="s">${db.focusOn ? 'Both phones are down' : 'It only counts if you both put the phone down'}</span></span>
-          <span class="chev">›</span></button>
         <button class="row" data-sw="armour"><span class="grow"><span class="n">Meeting armour</span>
           <span class="s">${db.armour ? 'Armoured until 3:30' : 'Armour is off'}</span></span>
           <span class="sw${db.armour ? ' on' : ''}"><i></i></span></button>
@@ -519,7 +512,12 @@ function subRows(room) {
 }
 
 function openSub(kind) {
-  if (NAVS[kind]) return NAVS[kind]();            /* goes to a screen, not a panel */
+  if (NAVS[kind]) {                               /* goes to a screen, not a panel */
+    /* a door inside a panel can lead here; the panel must not stay parked
+       over the screen it opened */
+    if (APP.closePanel) APP.closePanel();
+    return NAVS[kind]();
+  }
   const P = APP.openPanel; if (!P) return;
   if (SUBS[kind]) return P(SUBS[kind].title, SUBS[kind].build);
   if (kind === 'list') {
@@ -554,7 +552,10 @@ function openSub(kind) {
         db.mealIdx = (db.mealIdx + 1 + Math.floor(Math.random() * 3)) % db.meals.length;
         big.textContent = db.meals[db.mealIdx]; buzz(14); push('meal', { i: db.mealIdx });
       });
-      body.append(big, b, el(`<div class="p-note">Neither of you decides. That’s the point.</div>`));
+      body.append(big, b, (() => { const d = el(`<button class="row"><span class="grow"><span class="n">Make it a ceremony</span>
+        <span class="s">The meal wheel — spin it together</span></span><span class="chev">›</span></button>`);
+        d.addEventListener('click', () => openSub('wheel')); return d; })(),
+        el(`<div class="p-note">Neither of you decides. That’s the point.</div>`));
     });
   }
   if (kind === 'split') {
@@ -563,6 +564,9 @@ function openSub(kind) {
         el(`<div class="p-stat">${db.split}% / ${100 - db.split}%</div>`),
         el(`<div class="p-hint">You / Maya, this month</div>`),
         el(`<div class="splitbar" style="margin:6px 0"><div class="a" style="width:${db.split}%"></div><div class="b"></div></div>`),
+        (() => { const d = el(`<button class="row"><span class="grow"><span class="n">The invisible column</span>
+        <span class="s">Mental load — the work nobody counts</span></span><span class="chev">›</span></button>`);
+        d.addEventListener('click', () => openSub('load')); return d; })(),
         el(`<div class="p-note">A month, not a scoreboard. It resets on the 1st and nobody gets a notification about it.</div>`));
     });
   }
@@ -575,7 +579,14 @@ function openSub(kind) {
         b.className = db.baton ? 'p-ghost' : 'p-cta';
         toast(db.baton ? 'you’re carrying today' : 'passed back');
       });
-      body.append(el(`<div class="p-note">One of you is carrying the day. Taking the baton tells her she can stop holding it — no message needed.</div>`), b);
+      body.append(el(`<div class="p-note">One of you is carrying the day. Taking the baton tells her she can stop holding it — no message needed.</div>`), b,
+        el(`<div class="eyebrow" style="padding:12px 0 2px">It travels with</div>`),
+        (() => { const d = el(`<button class="row"><span class="grow"><span class="n">The brief</span>
+        <span class="s">Everything the day needs, attached</span></span><span class="chev">›</span></button>`);
+        d.addEventListener('click', () => openSub('brief')); return d; })(),
+        (() => { const d = el(`<button class="row"><span class="grow"><span class="n">Morning handoff</span>
+        <span class="s">What she left overnight</span></span><span class="chev">›</span></button>`);
+        d.addEventListener('click', () => openSub('handoff')); return d; })());
     });
   }
   if (kind === 'doses') {
@@ -610,12 +621,17 @@ function openSub(kind) {
     P('bucket list', (body) => {
       const draw = () => {
         body.innerHTML = '';
+        body.appendChild(el(`<div class="p-stat hand" style="font-size:24px;line-height:1.35;padding:8px 0 2px">${esc(db.promise)}</div>`));
+        body.appendChild(el(`<div class="p-hint">Co-signed. It can be dropped, but only together.</div>`));
         db.buckets.forEach((b2) => {
           const r = el(tickRow({ on: !!db.bucket[b2.id], title: b2.t, meta: null,
             right: `<span class="who">${b2.who}</span>` }));
           r.addEventListener('click', () => { db.bucket[b2.id] = !db.bucket[b2.id]; buzz(10); push('bucket', { id: b2.id }); draw(); });
           body.appendChild(r);
         });
+        body.appendChild((() => { const d = el(`<button class="row"><span class="grow"><span class="n">Missions</span>
+        <span class="s">${db.mission ? 'Both in' : 'One waiting on the other'}</span></span><span class="chev">›</span></button>`);
+        d.addEventListener('click', () => openSub('mission')); return d; })());
       };
       draw();
     });
@@ -691,6 +707,8 @@ function renderBoard() {
       ${PUBS.map((p) => swRow(p.id, p.name, p.sub, !!db.pub[p.id])).join('')}
       ${subRows('Board') ? '<div class="eyebrow" style="padding:14px 4px 2px">How the widget behaves</div>' + subRows('Board') : ''}
     </div>
+      <button class="row" data-states style="margin-top:8px"><span class="grow"><span class="n">Every widget state</span>
+        <span class="s">And who wins when they compete</span></span><span class="chev">›</span></button>
     <div class="foot">She curates hers the same way. You never see your own widget.</div>`;
   $$('[data-back]', s).forEach((b) => b.addEventListener('click', () => show('rooms')));
   $$('[data-states]', s).forEach((b) => b.addEventListener('click', () => show('states')));
