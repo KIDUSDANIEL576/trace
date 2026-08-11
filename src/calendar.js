@@ -168,7 +168,7 @@ function renderNew() {
           `<button data-remind="${t}" class="chipbtn" style="padding:0 15px;border-radius:999px;font-size:13px;
             font-weight:${t === d.remind ? 600 : 400};
             background:${t === d.remind ? 'var(--emph)' : 'var(--surface)'};
-            color:${t === d.remind ? 'var(--emph-ink)' : 'var(--ink)'};
+            color:var(--ink);
             border:1px solid ${t === d.remind ? 'transparent' : 'var(--hairline)'}">${t}</button>`).join('')}
       </div>
       <div class="foot">A reminder both of you can see is the only kind that may ring.</div>

@@ -6137,7 +6137,7 @@ R.addSub('debt', 'decision debt', (body) => {
       const r = el(`<div class="row" style="${on ? 'background:var(--ground-alt);border-color:var(--hairline);opacity:.6' : ''}">
         <span class="grow"><span class="n">${esc(d.t)}</span>
           <span class="s">${d.n} times deferred · ${esc(d.w)} old</span></span>
-        <button class="who" style="background:${on ? 'var(--ground-alt)' : 'var(--ink)'};color:${on ? 'var(--ink)' : 'var(--emph-ink)'}">
+        <button class="who" style="background:${on ? 'var(--emph)' : 'var(--ink)'};color:${on ? 'var(--ink)' : 'var(--ground)'}">
           ${on ? 'Decided ✓' : 'Decide in 2 min'}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
         db.decided[d.id] = !db.decided[d.id]; buzz(12); push('decided', { id: d.id }); draw();
@@ -6300,7 +6300,7 @@ R.addSub('rsvp', 'yes / no board', (body) => {
         <div style="display:flex;gap:8px">
           <button data-v="y" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'y' ? 'transparent' : 'var(--hairline)'};
-            background:${v === 'y' ? 'var(--emph)' : 'var(--surface)'};color:${v === 'y' ? 'var(--emph-ink)' : 'var(--ink)'}">Yes</button>
+            background:${v === 'y' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">Yes</button>
           <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
             background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
@@ -6937,7 +6937,7 @@ function watchFaces() {
               <div style="font-size:15px;font-weight:600">${left}</div></div>
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:12px;color:var(--ink-3)">NIGHT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--red-text)">27m</div></div>
+              <div style="font-size:15px;font-weight:600;color:var(--ink)">27m</div></div>
           </div>
         </div>
         <span style="font-size:12px;color:var(--ink-3)">Apple Watch · complication + trace</span>
@@ -7161,7 +7161,7 @@ function render() {
     <div class="deck" style="padding:16px 20px 0">
       ${TABS.map(([k, label]) => `<button class="c" data-tab="${k}" style="min-width:0;height:38px;padding:0 16px;
         display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:600;
-        background:${k === tab ? 'var(--ink)' : 'var(--surface)'};color:${k === tab ? 'var(--emph-ink)' : 'var(--ink)'};
+        background:${k === tab ? 'var(--ink)' : 'var(--pane-2)'};color:${k === tab ? 'var(--ground)' : 'var(--ink)'};
         border:1px solid ${k === tab ? 'transparent' : 'var(--hairline)'}">${label}</button>`).join('')}
     </div>
     <div class="body" style="padding:10px 0 0;gap:0">${cur[4]()}</div>`;
@@ -7422,7 +7422,7 @@ R.addSub('loud', 'how loud', (body) => {
           const on = cur === lv;
           return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;min-height:44px;border-radius:12px;
             font-size:12.5px;font-weight:600;opacity:${dis ? .3 : 1};
-            background:${on ? 'var(--ink)' : 'var(--surface)'};color:${on ? 'var(--emph-ink)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
+            background:${on ? 'var(--ink)' : 'var(--pane-2)'};color:${on ? 'var(--ground)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
         }).join('')}</div></div>`);
       row.querySelectorAll('[data-lv]').forEach((b) => b.addEventListener('click', () => {
         if (k.locked) return;
@@ -8630,7 +8630,7 @@ function renderNew() {
           `<button data-remind="${t}" class="chipbtn" style="padding:0 15px;border-radius:999px;font-size:13px;
             font-weight:${t === d.remind ? 600 : 400};
             background:${t === d.remind ? 'var(--emph)' : 'var(--surface)'};
-            color:${t === d.remind ? 'var(--emph-ink)' : 'var(--ink)'};
+            color:var(--ink);
             border:1px solid ${t === d.remind ? 'transparent' : 'var(--hairline)'}">${t}</button>`).join('')}
       </div>
       <div class="foot">A reminder both of you can see is the only kind that may ring.</div>
@@ -10079,8 +10079,8 @@ function renderPeople() {
       <div class="card line" style="border-radius:16px;padding:12px 16px">
         <span style="width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;
           justify-content:center;font-size:14px;font-weight:700;
-          background:${p.red ? 'var(--red)' : 'var(--emph)'};
-          color:${p.red ? 'var(--on-red)' : 'var(--emph-ink)'}">${p.tag}</span>
+          background:var(--emph);box-shadow:inset 0 0 0 1px var(--rim);
+          color:var(--ink)">${p.tag}</span>
         <span class="grow"><span class="t" style="font-size:15px;font-weight:600">${esc(p.n)}</span>
           <span class="d">${esc(p.s)}</span></span>
         <button class="callbtn" data-call="${p.id}"><svg class="ts-i"><use href="#i-phone"/></svg></button></div>`).join('')

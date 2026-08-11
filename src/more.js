@@ -277,8 +277,8 @@ function renderPeople() {
       <div class="card line" style="border-radius:16px;padding:12px 16px">
         <span style="width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;
           justify-content:center;font-size:14px;font-weight:700;
-          background:${p.red ? 'var(--red)' : 'var(--emph)'};
-          color:${p.red ? 'var(--on-red)' : 'var(--emph-ink)'}">${p.tag}</span>
+          background:var(--emph);box-shadow:inset 0 0 0 1px var(--rim);
+          color:var(--ink)">${p.tag}</span>
         <span class="grow"><span class="t" style="font-size:15px;font-weight:600">${esc(p.n)}</span>
           <span class="d">${esc(p.s)}</span></span>
         <button class="callbtn" data-call="${p.id}">✆</button></div>`).join('')

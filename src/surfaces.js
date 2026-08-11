@@ -56,7 +56,7 @@ function watchFaces() {
               <div style="font-size:15px;font-weight:600">${left}</div></div>
             <div style="flex:1;border-radius:10px;background:var(--hairline);padding:6px 8px">
               <div style="font-size:12px;color:var(--ink-3)">NIGHT</div>
-              <div style="font-size:15px;font-weight:600;color:var(--red-text)">27m</div></div>
+              <div style="font-size:15px;font-weight:600;color:var(--ink)">27m</div></div>
           </div>
         </div>
         <span style="font-size:12px;color:var(--ink-3)">Apple Watch · complication + trace</span>
@@ -280,7 +280,7 @@ function render() {
     <div class="deck" style="padding:16px 20px 0">
       ${TABS.map(([k, label]) => `<button class="c" data-tab="${k}" style="min-width:0;height:38px;padding:0 16px;
         display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:13px;font-weight:600;
-        background:${k === tab ? 'var(--ink)' : 'var(--surface)'};color:${k === tab ? 'var(--emph-ink)' : 'var(--ink)'};
+        background:${k === tab ? 'var(--ink)' : 'var(--pane-2)'};color:${k === tab ? 'var(--ground)' : 'var(--ink)'};
         border:1px solid ${k === tab ? 'transparent' : 'var(--hairline)'}">${label}</button>`).join('')}
     </div>
     <div class="body" style="padding:10px 0 0;gap:0">${cur[4]()}</div>`;

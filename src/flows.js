@@ -213,7 +213,7 @@ R.addSub('loud', 'how loud', (body) => {
           const on = cur === lv;
           return `<button data-lv="${lv}" ${dis ? 'disabled' : ''} style="flex:1;min-height:44px;border-radius:12px;
             font-size:12.5px;font-weight:600;opacity:${dis ? .3 : 1};
-            background:${on ? 'var(--ink)' : 'var(--surface)'};color:${on ? 'var(--emph-ink)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
+            background:${on ? 'var(--ink)' : 'var(--pane-2)'};color:${on ? 'var(--ground)' : 'var(--ink)'}">${LEVEL_LABEL[lv]}</button>`;
         }).join('')}</div></div>`);
       row.querySelectorAll('[data-lv]').forEach((b) => b.addEventListener('click', () => {
         if (k.locked) return;

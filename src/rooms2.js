@@ -183,7 +183,7 @@ R.addSub('debt', 'decision debt', (body) => {
       const r = el(`<div class="row" style="${on ? 'background:var(--ground-alt);border-color:var(--hairline);opacity:.6' : ''}">
         <span class="grow"><span class="n">${esc(d.t)}</span>
           <span class="s">${d.n} times deferred · ${esc(d.w)} old</span></span>
-        <button class="who" style="background:${on ? 'var(--ground-alt)' : 'var(--ink)'};color:${on ? 'var(--ink)' : 'var(--emph-ink)'}">
+        <button class="who" style="background:${on ? 'var(--emph)' : 'var(--ink)'};color:${on ? 'var(--ink)' : 'var(--ground)'}">
           ${on ? 'Decided ✓' : 'Decide in 2 min'}</button></div>`);
       r.querySelector('button').addEventListener('click', () => {
         db.decided[d.id] = !db.decided[d.id]; buzz(12); push('decided', { id: d.id }); draw();
@@ -346,7 +346,7 @@ R.addSub('rsvp', 'yes / no board', (body) => {
         <div style="display:flex;gap:8px">
           <button data-v="y" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'y' ? 'transparent' : 'var(--hairline)'};
-            background:${v === 'y' ? 'var(--emph)' : 'var(--surface)'};color:${v === 'y' ? 'var(--emph-ink)' : 'var(--ink)'}">Yes</button>
+            background:${v === 'y' ? 'var(--emph)' : 'var(--pane-2)'};color:var(--ink)">Yes</button>
           <button data-v="n" style="flex:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:600;
             border:1px solid ${v === 'n' ? 'transparent' : 'var(--hairline)'};
             background:${v === 'n' ? 'var(--red)' : 'var(--surface)'};color:${v === 'n' ? 'var(--on-red)' : 'var(--ink)'}">No</button>
