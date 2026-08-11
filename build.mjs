@@ -569,7 +569,7 @@ const EDGES = `:root{${PAPER}}\n:root[data-theme="dark"]{${NIGHT}}\n` +
   `@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){${NIGHT}}}\n`;
 
 const APP_JS = ['app-extra', 'app-sync', 'app-extra2', 'app', 'rooms', 'rooms2', 'surfaces',
-  'flows', 'write', 'rituals', 'hard', 'calendar', 'life', 'longrun', 'more'];
+  'flows', 'write', 'rituals', 'hard', 'calendar', 'life', 'longrun', 'more', 'us', 'motion', 'reveal'];
 const appCss = read('src/app.css');
 if (!appCss.includes('/*DRAWN-EDGES*/')) throw new Error('app.css lost its /*DRAWN-EDGES*/ marker');
 const appHtml = drawIcons(read('src/app.html'))

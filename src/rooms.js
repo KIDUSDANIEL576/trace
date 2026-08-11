@@ -185,6 +185,10 @@ function show(name, room) {
   if (name === 'rooms') renderRooms($('#room-search') ? $('#room-search').value : '');
   current = name;
   for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
+  /* Entrances run once per mount, on whatever screen actually opted in with
+     .rise. Every other screen holds still on purpose — one authored moment
+     means the rest of the app does not perform. */
+  if (window.TRACE_ROOMS && TRACE_ROOMS.motion && screens[name]) TRACE_ROOMS.motion.enter(screens[name]);
   if (room) activeRoom = room;
   if (name === 'canvas') activeRoom = 'Canvas';
   if (name === 'rooms') activeRoom = 'Rooms';

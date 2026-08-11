@@ -2039,6 +2039,24 @@ setTimeout(() => {
 }, 1600);
 /* receive side for real pairing (TRACE_NET) + the surface rooms.js drives */
 const remote = {};   // id -> stroke
+let burst = [], burstT = 0;
+
+/* Normalised, because the sender's canvas is not this one: a trace that
+   arrives 10% out of place is a different drawing. */
+function armReveal() {
+  clearTimeout(burstT);
+  burstT = setTimeout(() => {
+    const list = burst.splice(0).filter((s2) => s2.pts && s2.pts.length > 1);
+    if (!list.length) return;
+    if (cur) return;                                   /* you are mid-stroke */
+    if (window.TRACE_ROOMS && TRACE_ROOMS.quiet && TRACE_ROOMS.quiet()) return;
+    if (!window.TRACE_REVEAL || !W || !H) return;
+    TRACE_REVEAL.play(list.map((s2) => ({
+      c: s2.c, w: s2.w, alpha: s2.alpha,
+      pts: s2.pts.map((p) => [p.x / W, p.y / H]),
+    })), 'Maya');
+  }, 420);
+}
 window.TRACE_APP = {
   /* --- what the clean shell (rooms.js) needs from the engine --- */
   toast, buzz, log, openPanel, closePanel, openFeature, openSheet,
@@ -2063,9 +2081,17 @@ window.TRACE_APP = {
   },
   addTextStroke,
   remoteBoard(p) { window.TRACE_BOARD && TRACE_BOARD.receive(p); },
+  /* The inversion fires once per burst, 420ms after the last stroke settles.
+     Firing per stroke would invert the screen three times for one heart. It
+     is suppressed while you are drawing — taking the canvas away mid-stroke to
+     show you someone else's is the rudest thing the app could do — and while
+     the app is quiet, because the quiet modes mean nothing performs. */
   remoteBegin(p) {
     remote[p.id] = { pts: [], c: p.c, w: p.w, alpha: p.alpha, taper: p.taper, brush: p.brush, who: 'partner', born: now(), mirror: p.mirror, id: p.id };
     strokes.push(remote[p.id]);
+    /* one trace is every stroke that arrives in one burst, not one stroke —
+       a heart is two strokes and it is still one thing she sent */
+    burst.push(remote[p.id]);
     sara.presence(true);
   },
   remotePts(p) {
@@ -2080,6 +2106,7 @@ window.TRACE_APP = {
   remoteEnd(p) {
     lastInkAt = Date.now(); sara.presence(false); sara.finger(0, 0, false); buzz(16); redraw();
     window.TRACE_BOARD && TRACE_BOARD.inked();
+    armReveal();
   },
   remoteHeart() { heartArrive('partner'); },
   remoteClear() { strokes = strokes.filter(k => k.who === 'fx'); syncPageRef(); redraw(); toast('they cleared the canvas'); },
