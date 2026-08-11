@@ -3,22 +3,29 @@
  *   node qa/inventory.mjs && node qa/audit.mjs
  *   → site/audit.html
  *
- * The page is one sheet per surface: the screenshot on the left, what the
- * surface offers on the right, and Keep / Rework / Cut against each line. It
- * remembers what you decided in localStorage and exports the whole verdict as
- * text you can hand back.
+ * One sheet per surface: screenshot left, what it offers right, Keep / Rework
+ * / Cut against each line. Decisions save in localStorage; Export gives back
+ * text to paste.
  *
- * Two things it borrows from the app rather than inventing:
+ * The sheets are filed by JOB, not by where a screen happens to live in the
+ * nav. Sorting by navigation scattered every family of related features
+ * across four groups — the five task lists sat in three places, the four
+ * retrospectives in two — and the whole point of the audit is to see those
+ * families side by side. Each category can also name overlap CLUSTERS: N
+ * features doing the same job, judged as a set (become one / keep apart /
+ * cut all), which is the audit's sharpest question and deserves its own
+ * verdict rather than being reconstructed from single votes.
  *
- *   the palette   paper, ink, and one red. A verdict is not colour-coded
- *                 green/amber/red — red is the only accent this product has,
- *                 so Keep is ink, Cut is red, and Rework is an outline.
+ * Two things borrowed from the app rather than invented:
+ *
+ *   the palette   paper, ink, and one red. Keep is ink, Cut is red, Rework is
+ *                 an outline — no traffic lights, red has to keep meaning
+ *                 "this matters".
  *   the type rule system sans for what the app says, Caveat for what a person
- *                 wrote. Your notes are in your hand; the feature names are
- *                 the app's.
+ *                 wrote. Your notes are in your hand; the copy is the app's.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { drawnEdge, drawnRule } from '../src/icons.mjs';
+import { drawnEdge, drawnRule, drawnMark } from '../src/icons.mjs';
 
 const inv = JSON.parse(readFileSync('qa/inventory.json', 'utf8'));
 
@@ -31,45 +38,204 @@ const cssUrl = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)
 
 const edge = (id, colour, o = {}) => cssUrl(drawnEdge(id, { size: 64, inset: 3, radius: 14, width: 0.75, colour, ...o }));
 const rule = (id, colour) => cssUrl(drawnRule(id, { w: 120, h: 6, width: 0.8, colour }));
+const mark = (colour) => cssUrl(drawnMark(colour));
 
 /* Every non-ASCII character becomes a numeric reference, so the page does not
    depend on anybody declaring a charset. The app's copy is full of curly
    quotes and em-dashes, and served without `charset=utf-8` they arrive as
-   `Trace â€” feature audit`. An artifact is wrapped in someone else's <head>;
-   this is the one encoding decision that survives that. Entities do not work
-   inside <style> or <script>, so those two blocks are kept ASCII by hand. */
+   mojibake. An artifact is wrapped in someone else's <head>; this is the one
+   encoding decision that survives that. Entities do not work inside <style>
+   or <script>, so those two blocks are kept ASCII by hand. */
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-  .replace(/[\u0080-\uFFFF]/g, (c) => '&#' + c.charCodeAt(0) + ';');
+  .replace(/[-￿]/g, (c) => '&#' + c.charCodeAt(0) + ';');
 
-/* Group order is the order a person meets the app, not alphabetical. */
-const ORDER = ['Getting in', 'The canvas', 'Five rooms', 'Household', 'Together', 'Memory',
-  'Wellbeing', 'Beyond the rooms', 'The hard parts', 'Life happens', 'The long run', 'Panels'];
-const groups = [];
-for (const s of inv.surfaces) {
-  let g = groups.find((x) => x.name === s.group);
-  if (!g) groups.push((g = { name: s.group, items: [] }));
-  g.items.push(s);
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/* Eight panels are keyed, not named — no room row ever spells them out, so
+   the walk records them as `flare`, `sleep`, `car`. A sheet titled "sleep"
+   reads like a bug; give them the names the design uses. */
+const NICE = {
+  'panel:guest': 'Guest mode', 'panel:flare': 'The flare', 'panel:sleep': 'Her state',
+  'panel:car': 'Car mode', 'panel:stack': 'Widget stack', 'panel:loud': 'How loud',
+  'panel:key': 'Your key', 'panel:unpair': 'Unpair',
+};
+
+/* ------------------------------------------------------------ the taxonomy
+ *
+ * Ids are inventory ids, exactly as walked. Order inside a category is the
+ * order to judge in: the hub first, then its satellites. A feature may sit in
+ * one category only, but may appear in any number of clusters — "Money
+ * changed" files under Money and still belongs to the seasons cluster.
+ */
+const CATS = [
+  { name: 'Getting in', desc: 'The ninety seconds before the app is yours.',
+    ids: ['splash'], clusters: [] },
+
+  { name: 'The canvas', desc: 'Home. The drawing, and the tools that only exist while you are drawing.',
+    ids: ['canvas', 'dock', 'brushpop', 'writepad', 'Canvas extras'], clusters: [] },
+
+  { name: 'Tasks & handing over', desc: 'Lists, blockers, fairness, and moving work between you.',
+    ids: ['Household', 'Household:Two-minute pile', 'panel:debt', 'panel:waiting', 'panel:rsvp',
+      'Household:Fair split', 'panel:load', 'Household:Handover baton', 'panel:brief', 'panel:ask',
+      'panel:where', 'panel:letter'],
+    clusters: [
+      { t: 'Five lists of things to do',
+        line: 'Left to do, the Two-minute pile, Decision debt, the Waiting room and the Yes / no board are five flavours of one list.',
+        ids: ['Household', 'Household:Two-minute pile', 'panel:debt', 'panel:waiting', 'panel:rsvp'] },
+      { t: 'Who carries what, three times',
+        line: 'The 60% bar on Household, Fair split and Mental load all measure the same imbalance.',
+        ids: ['Household', 'Household:Fair split', 'panel:load'] },
+      { t: 'Four ways to hand the day over',
+        line: 'The baton, the morning handoff, the brief and ask-nicely all move work from one of you to the other.',
+        ids: ['Household:Handover baton', 'panel:handoff', 'panel:brief', 'panel:ask'] },
+    ] },
+
+  { name: 'Food', desc: 'One question, asked every day.',
+    ids: ['Household:Groceries', 'Household:What’s for dinner', 'Household:Meal wheel'],
+    clusters: [
+      { t: 'Dinner, answered twice',
+        line: 'What’s-for-dinner and the Meal wheel answer the same question.',
+        ids: ['Household:What’s for dinner', 'Household:Meal wheel'] },
+    ] },
+
+  { name: 'Time & plans', desc: 'The calendar, and everything that feeds it.',
+    ids: ['panel:week7', 'Household:Find us a time', 'Household:New event', 'Household:A clash',
+      'Together:Trips', 'Memory:Anniversaries'],
+    clusters: [
+      { t: 'Three windows onto one calendar',
+        line: 'The week, Find-us-a-time and the Clash are the same seven days, drawn three ways.',
+        ids: ['panel:week7', 'Household:Find us a time', 'Household:A clash'] },
+    ] },
+
+  { name: 'Money', desc: 'Every place money shows up.',
+    ids: ['panel:money', 'Settle up', 'panel:renewals', 'Money changed'],
+    clusters: [
+      { t: 'Money in three rooms',
+        line: 'Money truth, Settle up and Money-changed carry one subject across three screens.',
+        ids: ['panel:money', 'Settle up', 'Money changed'] },
+    ] },
+
+  { name: 'Together & rituals', desc: 'Promises, missions, and the small repeated things.',
+    ids: ['Together', 'Together:Co-signed promise', 'Together:Bucket list', 'Together:Missions',
+      'panel:weekly10', 'panel:tiny', 'panel:rituals', 'Wellbeing:Couple focus', 'panel:pocket'],
+    clusters: [
+      { t: 'Three shapes of a promise',
+        line: 'Co-signed promise, Bucket list and Missions are one commitment mechanic in three costumes.',
+        ids: ['Together:Co-signed promise', 'Together:Bucket list', 'Together:Missions'] },
+      { t: 'Four standing dates',
+        line: 'Weekly ten minutes, the Tiny one, Your rituals and Couple focus are four repeating appointments.',
+        ids: ['panel:weekly10', 'panel:tiny', 'panel:rituals', 'Wellbeing:Couple focus'] },
+    ] },
+
+  { name: 'Memory', desc: 'What the days leave behind.',
+    ids: ['Memory', 'Memory:Gratitude jar', 'panel:journal', 'panel:chapters', 'panel:legacy',
+      'panel:movie', 'panel:wall', 'panel:daymap', 'Memory:The year, in marks'],
+    clusters: [
+      { t: 'Four retellings of the same days',
+        line: 'Journal, Chapters, the Year-as-a-book and Memory movie retell the same days at four speeds.',
+        ids: ['panel:journal', 'panel:chapters', 'panel:legacy', 'panel:movie'] },
+      { t: 'Two walls of marks',
+        line: 'The wall and the Year-in-marks hang the same marks twice.',
+        ids: ['panel:wall', 'Memory:The year, in marks'] },
+    ] },
+
+  { name: 'Wellbeing', desc: 'How each of you is doing, said out loud.',
+    ids: ['Wellbeing', 'panel:energy', 'panel:sleep', 'panel:handoff', 'panel:doctor', 'Household:Doses'],
+    clusters: [
+      { t: 'Three ways to say how today is',
+        line: 'Energy match, Her state and the Morning handoff each report the same weather.',
+        ids: ['panel:energy', 'panel:sleep', 'panel:handoff'] },
+    ] },
+
+  { name: 'The hard parts', desc: 'Conflict, silence, and the exits.',
+    ids: ['Repair', 'The unsaid', 'The drift', 'Cover me', 'Every interruption', 'panel:flare',
+      'Solo nights', 'If it ends'],
+    clusters: [
+      { t: 'Three doors into one conversation',
+        line: 'Repair, the Unsaid and the Drift all open the talk you are not having.',
+        ids: ['Repair', 'The unsaid', 'The drift'] },
+    ] },
+
+  { name: 'When life happens', desc: 'Seasons that change what the app should be.',
+    ids: ['Newborn mode', 'A hard anniversary', 'Moving'],
+    clusters: [
+      { t: 'Four seasons, one mechanism',
+        line: 'Newborn, a hard anniversary, moving and money-changed each quiet the machinery. That is one mode with four names.',
+        ids: ['Newborn mode', 'A hard anniversary', 'Moving', 'Money changed'] },
+    ] },
+
+  { name: 'Other people', desc: 'Everyone who is not the two of you.',
+    ids: ['Your people', 'Let one person in', 'Ageing parents', 'A visitor', 'panel:guest', 'panel:kids'],
+    clusters: [
+      { t: 'The same houseguest twice',
+        line: 'A visitor and Guest mode host the same person.',
+        ids: ['A visitor', 'panel:guest'] },
+    ] },
+
+  { name: 'Widgets & surfaces', desc: 'The app outside the app: home screen, watch, car.',
+    ids: ['Your board', 'Every widget state', 'panel:stack', 'Every surface', 'panel:car',
+      'Her home screen', 'The daily loop'],
+    clusters: [
+      { t: 'The widget, three times',
+        line: 'Your board, Every-widget-state and the Widget stack describe one widget.',
+        ids: ['Your board', 'Every widget state', 'panel:stack'] },
+    ] },
+
+  { name: 'Quiet & private', desc: 'What it never does, and who holds the keys.',
+    ids: ['Quiet & private', 'panel:loud', 'panel:key', 'panel:unpair'],
+    clusters: [
+      { t: 'Volume, twice',
+        line: 'Quiet-and-private and How-loud both set the volume.',
+        ids: ['Quiet & private', 'panel:loud'] },
+    ] },
+];
+
+/* -------------------------------------------------- resolve, and fail loud */
+const byId = new Map(inv.surfaces.map((s) => [s.id, s]));
+const filed = new Set();
+for (const c of CATS) {
+  c.slug = slug(c.name);
+  c.surfaces = [];
+  for (const id of c.ids) {
+    const s = byId.get(id);
+    if (!s) { console.error(`taxonomy names a surface the walk never found: ${id}`); process.exit(1); }
+    if (filed.has(id)) { console.error(`filed twice: ${id}`); process.exit(1); }
+    filed.add(id);
+    c.surfaces.push(s);
+  }
+  for (const cl of c.clusters) {
+    cl.slug = slug(cl.t);
+    cl.members = cl.ids.map((id) => {
+      const s = byId.get(id);
+      if (!s) { console.error(`cluster "${cl.t}" names a surface the walk never found: ${id}`); process.exit(1); }
+      return s;
+    });
+  }
 }
-groups.sort((a, b) => {
-  const i = ORDER.indexOf(a.name), j = ORDER.indexOf(b.name);
-  return (i < 0 ? 99 : i) - (j < 0 ? 99 : j);
-});
+const unfiled = inv.surfaces.filter((s) => !filed.has(s.id));
+if (unfiled.length) {
+  /* a new walk found surfaces the taxonomy has no opinion on — show them,
+     loudly, rather than dropping them */
+  CATS.push({ name: 'Unsorted', slug: 'unsorted', desc: 'Walked, but not yet filed. File them in qa/audit.mjs.',
+    surfaces: unfiled, clusters: [] });
+  console.error(`WARNING: ${unfiled.length} surfaces unfiled: ${unfiled.map((s) => s.id).join(', ')}`);
+}
+
+const label = (s) => NICE[s.id] || s.label;
 
 const KIND = {
   opens: 'opens a screen', switch: 'a switch', action: 'a button',
   card: 'a card', note: 'a note', input: 'a field', row: 'sample',
 };
 
-/* A room's list of sub-rows is a table of contents, and each entry already has
-   a sheet of its own further down. Judging "Groceries" twice — once as a row
-   in Household, once as itself — is the kind of duplication that makes an
-   audit feel endless, so the row becomes a link and the sheet keeps the vote. */
+/* A room's list of sub-rows is a table of contents, and each entry already
+   has a sheet of its own. The row becomes a link; the sheet keeps the vote. */
 const byLabel = new Map();
 for (const s of inv.surfaces) if (!byLabel.has(s.label)) byLabel.set(s.label, s.id);
 let judged = 0;
 
-const surfaceHTML = (s, n) => {
+const surfaceHTML = (s, n, total) => {
   const all = s.capabilities || [];
   const caps = [];
   const links = [];
@@ -79,21 +245,20 @@ const surfaceHTML = (s, n) => {
   }
   judged += caps.length;
   const content = s.content || [];
-  /* A panel's title is its own name, so echoing it under the heading just
-     prints the same words twice in two sizes. */
   const same = (a, x) => (a || '').toLowerCase() === (x || '').toLowerCase();
-  const meta = [s.kicker, same(s.title, s.label) ? '' : s.title].filter(Boolean).map(esc).join(' &middot; ');
+  const meta = [s.kicker, same(s.title, label(s)) || same(s.title, s.label) ? '' : s.title]
+    .filter(Boolean).map(esc).join(' &middot; ');
   return `
-<section class="sheet" id="s-${esc(s.id)}" data-surface="${esc(s.id)}">
+<section class="sheet" id="s-${esc(s.id)}" data-surface="${esc(s.id)}" data-cat="${esc(s._cat)}">
   <div class="shot">
-    ${s.image ? `<img src="${s.image}" alt="${esc(s.label)}" loading="lazy" width="${s.shotW || 390}" height="${s.shotH || 844}">`
+    ${s.image ? `<img src="${s.image}" alt="${esc(label(s))}" loading="lazy" width="${s.shotW || 390}" height="${s.shotH || 844}">`
       : `<div class="noshot">no screenshot<br><span>run without --fast</span></div>`}
   </div>
   <div class="detail">
     <header class="sh">
-      <div class="num">${n}</div>
+      <div class="num">${n}<i>/${total}</i></div>
       <div class="names">
-        <h3>${esc(s.label)}</h3>
+        <h3>${esc(label(s))}</h3>
         ${meta ? `<p class="meta">${meta}</p>` : ''}
         <p class="where"><code>${esc(s.path || s.id)}</code>${s.overlay ? '<span class="tag">overlay</span>' : ''}</p>
       </div>
@@ -145,15 +310,59 @@ const surfaceHTML = (s, n) => {
 </section>`;
 };
 
-let n = 0;
-const body = groups.map((g) => `
-<div class="group" id="g-${esc(g.name).replace(/\W+/g, '-')}">
-  <h2 class="grouphead"><span>${esc(g.name)}</span><em>${g.items.length} surface${g.items.length === 1 ? '' : 's'}</em></h2>
-  ${g.items.map((s) => surfaceHTML(s, ++n)).join('')}
-</div>`).join('');
+const clusterHTML = (cl) => `
+<aside class="cluster" data-ckey="${esc(cl.slug)}"
+  data-ctitle="${esc(cl.t)}"
+  data-members="${esc(cl.ids.join('||'))}"
+  data-mlabels="${esc(cl.members.map((m) => label(m)).join(', '))}">
+  <div class="clbadge">${cl.members.length} features &middot; one job</div>
+  <div class="clhead">
+    <h4>${esc(cl.t)}</h4>
+    <p>${esc(cl.line)}</p>
+  </div>
+  <div class="clchips">
+    ${cl.members.map((m) => `<a href="#s-${esc(m.id)}">${esc(label(m))}</a>`).join('')}
+  </div>
+  <div class="clverdict">
+    <button class="v c-one" data-cv="one">become one</button>
+    <button class="v c-apart" data-cv="apart">keep apart</button>
+    <button class="mini" data-ccut="1">cut all ${cl.members.length}</button>
+    <button class="v v-clear" data-cv="">clear</button>
+  </div>
+  <label class="notewrap">
+    <span>Which one survives, and what does it absorb?</span>
+    <textarea class="note" data-note="cluster:${esc(cl.slug)}" rows="1"
+      placeholder="e.g. keep the wheel, fold the list into it"></textarea>
+  </label>
+</aside>`;
 
-const totalCaps = judged;
+let body = '';
+for (const c of CATS) {
+  for (const s of c.surfaces) s._cat = c.slug;
+  body += `
+<div class="group" id="c-${esc(c.slug)}" data-catgroup="${esc(c.slug)}">
+  <header class="cathead">
+    <div class="catname"><h2>${esc(c.name)}</h2>
+      <em>${c.surfaces.length} screen${c.surfaces.length === 1 ? '' : 's'}${c.clusters.length
+    ? ` &middot; ${c.clusters.length} overlap${c.clusters.length === 1 ? '' : 's'}` : ''}</em></div>
+    <p class="catdesc">${esc(c.desc)}</p>
+  </header>
+  ${c.clusters.map(clusterHTML).join('')}
+  ${c.surfaces.map((s, i) => surfaceHTML(s, i + 1, c.surfaces.length)).join('')}
+</div>`;
+}
+
 const totalSurfaces = inv.surfaces.length;
+const totalClusters = CATS.reduce((n, c) => n + c.clusters.length, 0);
+
+const index = CATS.map((c) => `
+  <a class="ix" href="#c-${esc(c.slug)}" data-ix="${esc(c.slug)}">
+    <span class="ixt">${esc(c.name)}</span>
+    <span class="ixd">${esc(c.desc)}</span>
+    <span class="ixrow"><span class="ixn"><b data-ixdone>0</b>/${c.surfaces.length}</span>
+      ${c.clusters.length ? `<span class="ixc">${c.clusters.length} overlap${c.clusters.length === 1 ? '' : 's'}</span>` : ''}</span>
+    <span class="ixbar"><i data-ixbar></i></span>
+  </a>`).join('');
 
 const html = `<title>Trace &mdash; feature audit</title>
 <style>
@@ -167,7 +376,9 @@ ${caveat}
   --edge:${edge('audit-sheet', '#1A1A1A')};
   --edge-soft:${edge('audit-soft', 'rgba(26,26,26,.34)')};
   --edge-red:${edge('audit-red', '#E23343')};
+  --edge-note:${edge('audit-note', 'rgba(26,26,26,.5)', { dash: 3.4, width: 0.7 })};
   --rule:${rule('audit-rule', 'rgba(26,26,26,.28)')};
+  --mark:${mark('#E23343')};
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --hand:Caveat,ui-rounded,cursive;
 }
@@ -180,7 +391,9 @@ ${caveat}
   --edge:${edge('audit-sheet', '#F5EFE4')};
   --edge-soft:${edge('audit-soft', 'rgba(245,239,228,.36)')};
   --edge-red:${edge('audit-red', '#F04A58')};
+  --edge-note:${edge('audit-note', 'rgba(245,239,228,.5)', { dash: 3.4, width: 0.7 })};
   --rule:${rule('audit-rule', 'rgba(245,239,228,.3)')};
+  --mark:${mark('#F04A58')};
 }}
 :root[data-theme="dark"]{
   --ground:#15120E; --ground-alt:#1B1713; --surface:#211C17;
@@ -191,25 +404,28 @@ ${caveat}
   --edge:${edge('audit-sheet', '#F5EFE4')};
   --edge-soft:${edge('audit-soft', 'rgba(245,239,228,.36)')};
   --edge-red:${edge('audit-red', '#F04A58')};
+  --edge-note:${edge('audit-note', 'rgba(245,239,228,.5)', { dash: 3.4, width: 0.7 })};
   --rule:${rule('audit-rule', 'rgba(245,239,228,.3)')};
+  --mark:${mark('#F04A58')};
 }
 
 *{box-sizing:border-box}
 body{margin:0;background:var(--ground);color:var(--ink);
   font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
-h1,h2,h3{margin:0;text-wrap:balance}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2.5px solid var(--red);outline-offset:2px;border-radius:4px}
 
 /* ---------------------------------------------------------------- masthead */
 .top{position:sticky;top:0;z-index:20;background:var(--ground);
-  border-bottom:1px solid var(--hairline);backdrop-filter:saturate(1.2)}
-.topin{max-width:1180px;margin:0 auto;padding:14px 22px 12px;
-  display:flex;flex-wrap:wrap;gap:14px 20px;align-items:baseline}
+  border-bottom:1px solid var(--hairline)}
+.topin{max-width:1180px;margin:0 auto;padding:13px 22px 11px;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:baseline}
 .brand{display:flex;align-items:baseline;gap:10px}
-.brand h1{font-size:19px;font-weight:650;letter-spacing:-.015em}
+.brand h1{font-size:19px;font-weight:650;letter-spacing:-.015em;
+  padding-bottom:7px;background:var(--mark) no-repeat left bottom/54px 12px}
 .brand em{font-family:var(--hand);font-size:23px;font-style:normal;color:var(--red-text);line-height:1}
-.tally{margin-left:auto;display:flex;gap:16px;font-size:13px;color:var(--ink-70);
+.tally{margin-left:auto;display:flex;gap:15px;font-size:13px;color:var(--ink-70);
   font-variant-numeric:tabular-nums}
 .tally b{font-weight:650;color:var(--ink)}
 .tally .cutn b{color:var(--red-text)}
@@ -223,14 +439,13 @@ button{font:inherit;color:inherit;cursor:pointer}
   padding:7px 13px;font-size:13px;min-height:36px;color:var(--ink-70)}
 .chip[aria-pressed="true"]{background:var(--emph);color:var(--emph-ink);border-color:transparent}
 .chip.go{margin-left:auto;background:var(--red);color:var(--on-red);border-color:transparent;font-weight:600}
-select.chip{appearance:none;padding-right:26px}
 
-/* ------------------------------------------------------------------ sheets */
+/* ------------------------------------------------------------------- intro */
 main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
 .intro{border-width:1px;border-style:solid;border-image:var(--edge) 22/22px stretch;
-  background:var(--surface);padding:20px 22px;margin-bottom:30px}
+  background:var(--surface);padding:20px 22px;margin-bottom:22px}
 .intro h2{font-size:17px;font-weight:650;margin-bottom:8px}
-.intro p{margin:0 0 8px;color:var(--ink-70);max-width:66ch}
+.intro p{margin:0 0 8px;color:var(--ink-70);max-width:70ch}
 .intro kbd{font:600 12px/1 var(--sans);background:var(--ground-alt);border:1px solid var(--hairline);
   border-radius:5px;padding:3px 6px}
 .wish{width:100%;margin-top:10px;min-height:96px;resize:vertical;background:var(--ground-alt);
@@ -238,14 +453,55 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
   font:500 20px/1.45 var(--hand)}
 .wish::placeholder{color:var(--ink-3);font-family:var(--sans);font-size:14px;font-weight:400}
 
-.group{scroll-margin-top:196px}
-.grouphead{display:flex;align-items:baseline;gap:12px;margin:34px 0 14px;
-  font-size:13px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-70)}
-.grouphead span{flex:0 0 auto}
-.grouphead::after{content:"";flex:1 1 auto;height:6px;
-  background-image:var(--rule);background-size:120px 6px;background-repeat:repeat-x;opacity:.7}
-.grouphead em{font-style:normal;letter-spacing:0;text-transform:none;font-weight:400;color:var(--ink-3)}
+/* --------------------------------------------------------------- the index */
+.ixgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;
+  margin:0 0 14px}
+.ix{display:flex;flex-direction:column;gap:6px;padding:14px 16px 12px;text-decoration:none;
+  color:var(--ink);background:var(--surface);
+  border-width:1px;border-style:solid;border-image:var(--edge-soft) 22/22px stretch}
+.ix:hover .ixt{color:var(--red-text)}
+.ixt{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.ixd{font-size:12.5px;color:var(--ink-3);line-height:1.4;min-height:2.8em}
+.ixrow{display:flex;align-items:baseline;gap:8px;font-size:12px;color:var(--ink-70);
+  font-variant-numeric:tabular-nums}
+.ixn b{font-weight:650}
+.ixc{margin-left:auto;color:var(--red-text);font-size:11px;letter-spacing:.03em}
+.ixbar{height:4px;background:var(--ground-alt);border-radius:3px;overflow:hidden}
+.ixbar i{display:block;height:100%;width:0;background:var(--ink)}
 
+/* -------------------------------------------------------------- categories */
+.group{scroll-margin-top:196px}
+.cathead{margin:44px 0 16px}
+.catname{display:flex;align-items:baseline;gap:12px}
+.catname h2{font-size:24px;font-weight:650;letter-spacing:-.02em}
+.catname em{font-style:normal;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.catname::after{content:"";flex:1 1 auto;height:6px;align-self:center;
+  background-image:var(--rule);background-size:120px 6px;background-repeat:repeat-x;opacity:.7}
+.catdesc{margin:4px 0 0;font-size:14.5px;color:var(--ink-70);max-width:62ch}
+
+/* ---------------------------------------------------------------- clusters */
+/* round, not stretch: a stretched dash is a smear. Repeating the middle
+   slices keeps every dash the length the pen drew it, however wide the card. */
+.cluster{position:relative;background:var(--ground-alt);padding:18px 20px 14px;margin:0 0 14px;
+  border-width:1px;border-style:solid;border-image:var(--edge-note) 22/22px round}
+.clbadge{position:absolute;top:-9px;left:18px;background:var(--red);color:var(--on-red);
+  font-size:10.5px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;
+  border-radius:999px;padding:3px 10px}
+.clhead h4{font-size:17px;font-weight:650;letter-spacing:-.01em;margin-top:2px}
+.clhead p{margin:4px 0 0;font-size:14px;color:var(--ink-70);max-width:66ch}
+.clchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.clchips a{display:inline-flex;align-items:center;min-height:34px;padding:6px 13px;font-size:13px;
+  color:var(--ink);text-decoration:none;background:var(--surface);
+  border:1px solid var(--hairline);border-radius:999px}
+.clchips a::before{content:"\\2193";margin-right:6px;color:var(--ink-5)}
+.clchips a:hover{border-color:var(--ink-5)}
+.clverdict{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--hairline)}
+[data-c-set="one"] .c-one{background:var(--red);color:var(--on-red);border-color:transparent}
+[data-c-set="apart"] .c-apart{background:var(--emph);color:var(--emph-ink);border-color:transparent}
+.cluster .notewrap{margin-top:10px}
+
+/* ------------------------------------------------------------------ sheets */
 .sheet{display:grid;grid-template-columns:214px minmax(0,1fr);gap:22px;
   background:var(--surface);padding:20px;margin-bottom:18px;
   border-width:1px;border-style:solid;border-image:var(--edge-soft) 22/22px stretch;
@@ -263,7 +519,8 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
 .sh{display:flex;gap:12px;align-items:flex-start}
 .num{font-variant-numeric:tabular-nums;font-size:12px;font-weight:650;color:var(--ink-3);
   border:1px solid var(--hairline);border-radius:999px;min-width:30px;height:24px;
-  display:grid;place-content:center;flex:0 0 auto;margin-top:2px}
+  padding:0 8px;display:grid;place-content:center;flex:0 0 auto;margin-top:2px}
+.num i{font-style:normal;font-weight:400;color:var(--ink-5)}
 .names h3{font-size:20px;font-weight:650;letter-spacing:-.015em}
 .meta{margin:2px 0 0;font-size:14px;color:var(--ink-70)}
 .where{margin:6px 0 0;font-size:12px;color:var(--ink-3);display:flex;gap:8px;align-items:center}
@@ -351,6 +608,7 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
   .shot{position:static;max-width:280px}
   .cap{grid-template-columns:minmax(0,1fr) auto}
   .cap .k{display:none}
+  .ixd{min-height:0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
@@ -363,7 +621,8 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
       <span><b id="t-keep">0</b> keep</span>
       <span><b id="t-rework">0</b> rework</span>
       <span class="cutn"><b id="t-cut">0</b> cut</span>
-      <span><b id="t-caps">0</b> / ${totalCaps} features</span>
+      <span><b id="t-caps">0</b> features</span>
+      <span><b id="t-cl">0</b> / ${totalClusters} overlaps</span>
     </div>
     <div class="bar"><i class="bk" id="b-keep"></i><i class="br" id="b-rework"></i><i class="bc" id="b-cut"></i></div>
     <div class="tools">
@@ -372,10 +631,6 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
       <button class="chip" data-filter="keep" aria-pressed="false">keeping</button>
       <button class="chip" data-filter="rework" aria-pressed="false">reworking</button>
       <button class="chip" data-filter="cut" aria-pressed="false">cutting</button>
-      <select class="chip" id="jump" aria-label="Jump to a group">
-        <option value="">jump to&hellip;</option>
-        ${groups.map((g) => `<option value="g-${esc(g.name).replace(/\W+/g, '-')}">${esc(g.name)}</option>`).join('')}
-      </select>
       <button class="chip go" id="export">Export my verdict</button>
     </div>
   </div>
@@ -384,19 +639,23 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
 <main>
   <div class="intro">
     <h2>How to work this</h2>
-    <p>One sheet per screen, in the order you meet them: the screenshot on the left,
-      everything the screen offers on the right. Judge the whole screen, or go line by
-      line inside it. Nothing is sent anywhere &mdash; it saves in this browser, and
-      <b>Export my verdict</b> gives you text to paste back to me.</p>
+    <p>The app, filed by job &mdash; not by where a screen sits in the nav. ${CATS.length} categories,
+      ${totalSurfaces} screens, and <b>${totalClusters} overlaps</b>: places where several features do the
+      same job. Each overlap gets its own call &mdash; <b>become one</b>, <b>keep apart</b>, or cut the
+      lot &mdash; and each screen gets keep / rework / cut. Nothing is sent anywhere; it saves in this
+      browser, and <b>Export my verdict</b> gives you text to paste back to me.</p>
     <p><kbd>J</kbd> / <kbd>K</kbd> move &middot; <kbd>1</kbd> keep &middot; <kbd>2</kbd> rework &middot;
-      <kbd>3</kbd> cut &middot; <kbd>0</kbd> clear &middot; <kbd>N</kbd> note. Skipping something is fine &mdash;
-      <b>not judged</b> brings you back to it.</p>
+      <kbd>3</kbd> cut &middot; <kbd>0</kbd> clear &middot; <kbd>N</kbd> note. Skipping is fine &mdash;
+      <b>not judged</b> brings you back.</p>
     <label class="notewrap" style="margin-top:14px">
       <span>What's missing &mdash; things to add</span>
       <textarea class="wish" id="wish"
         placeholder="One per line. What should exist that doesn't?"></textarea>
     </label>
   </div>
+
+  <nav class="ixgrid" aria-label="Categories">${index}
+  </nav>
   ${body}
 </main>
 
@@ -419,8 +678,9 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
 
-  let db = { v: {}, notes: {}, wish: '' };
+  let db = { v: {}, c: {}, notes: {}, wish: '' };
   try { db = Object.assign(db, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  db.c = db.c || {};
   let saveT;
   const save = () => { clearTimeout(saveT); saveT = setTimeout(() => {
     try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {}
@@ -428,8 +688,11 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
 
   const rows = () => $$('[data-scope]');
   const SURF = $$('.sheet');
+  const CLUS = $$('.cluster');
+  /* surface id -> its whole-screen verdict row, for cluster "cut all" */
+  const surfRow = {};
+  for (const r of $$('.verdictrow[data-scope="surface"]')) surfRow[r.dataset.key] = r;
 
-  /* paint one row from the store */
   const paint = (el) => {
     const k = el.dataset.key;
     const v = db.v[k];
@@ -440,26 +703,40 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
       sheet.classList.toggle('is-keep', v === 'keep');
     }
   };
+  const paintCluster = (el) => {
+    const v = db.c[el.dataset.ckey];
+    if (v) el.setAttribute('data-c-set', v); else el.removeAttribute('data-c-set');
+  };
 
   const grow = (t) => { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; };
 
   const tally = () => {
-    let keep = 0, rework = 0, cut = 0, caps = 0;
+    let keep = 0, rework = 0, cut = 0, caps = 0, cl = 0;
+    const cat = {};
     for (const el of SURF) {
       const v = db.v[el.dataset.surface];
+      const c = el.dataset.cat;
+      cat[c] = cat[c] || { done: 0, total: 0 };
+      cat[c].total++;
+      if (v) cat[c].done++;
       if (v === 'keep') keep++; else if (v === 'rework') rework++; else if (v === 'cut') cut++;
     }
     for (const k in db.v) if (k.indexOf('#') > -1 && db.v[k]) caps++;
+    for (const k in db.c) if (db.c[k]) cl++;
     const done = keep + rework + cut, tot = SURF.length || 1;
     $('#t-done').textContent = done; $('#t-keep').textContent = keep;
     $('#t-rework').textContent = rework; $('#t-cut').textContent = cut;
-    $('#t-caps').textContent = caps;
+    $('#t-caps').textContent = caps; $('#t-cl').textContent = cl;
     $('#b-keep').style.width = (keep / tot * 100) + '%';
     $('#b-rework').style.width = (rework / tot * 100) + '%';
     $('#b-cut').style.width = (cut / tot * 100) + '%';
+    for (const ix of $$('.ix')) {
+      const c = cat[ix.dataset.ix] || { done: 0, total: 1 };
+      ix.querySelector('[data-ixdone]').textContent = c.done;
+      ix.querySelector('[data-ixbar]').style.width = (c.done / c.total * 100) + '%';
+    }
   };
 
-  /* ------------------------------------------------------------- judging */
   const set = (el, v) => {
     const k = el.dataset.key;
     if (v) db.v[k] = v; else delete db.v[k];
@@ -470,6 +747,22 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
     const b = e.target.closest('button');
     if (!b) return;
 
+    if (b.dataset.cv !== undefined) {
+      const cl = b.closest('.cluster');
+      const k = cl.dataset.ckey;
+      const v = db.c[k] === b.dataset.cv ? '' : b.dataset.cv;
+      if (v) db.c[k] = v; else delete db.c[k];
+      paintCluster(cl); save(); tally();
+      return;
+    }
+    if (b.dataset.ccut) {
+      const cl = b.closest('.cluster');
+      for (const id of cl.dataset.members.split('||')) {
+        const row = surfRow[id];
+        if (row) set(row, 'cut');
+      }
+      return;
+    }
     if (b.dataset.v !== undefined) {
       const row = b.closest('[data-scope]');
       here(row);
@@ -500,22 +793,21 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
     }
     if (b.id === 'wipe') {
       if (!confirm('Clear every decision and note on this page?')) return;
-      db = { v: {}, notes: {}, wish: '' };
+      db = { v: {}, c: {}, notes: {}, wish: '' };
       try { localStorage.removeItem(KEY); } catch (e) {}
       for (const r of rows()) paint(r);
+      for (const c of CLUS) paintCluster(c);
       for (const t of $$('textarea')) { t.value = ''; grow(t); }
       tally(); applyFilter(); $('#expover').hidden = true;
     }
   });
 
-  /* --------------------------------------------------------------- notes */
   document.addEventListener('input', (e) => {
     const t = e.target;
     if (t.id === 'wish') { db.wish = t.value; grow(t); save(); return; }
     if (t.dataset.note !== undefined) { db.notes[t.dataset.note] = t.value; grow(t); save(); }
   });
 
-  /* ------------------------------------------------------------- filters */
   const activeFilter = () => ($$('[data-filter]').find((c) => c.getAttribute('aria-pressed') === 'true')
     || { dataset: { filter: 'all' } }).dataset.filter;
 
@@ -526,12 +818,13 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
       const show = f === 'all' ? true : f === 'todo' ? !v : v === f;
       s.classList.toggle('hidden', !show);
     }
+    for (const c of CLUS) c.classList.toggle('hidden', f !== 'all' && f !== 'todo');
     for (const g of $$('.group')) {
-      g.classList.toggle('hidden', !$$('.sheet:not(.hidden)', g).length);
+      g.classList.toggle('hidden',
+        !$$('.sheet:not(.hidden)', g).length && !$$('.cluster:not(.hidden)', g).length);
     }
   }
 
-  /* ------------------------------------------------------- keyboard walk */
   let cur = null;
   function here(el) {
     if (cur) cur.classList.remove('here');
@@ -572,23 +865,29 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
     } else if (e.key === 'Escape') { $('#expover').hidden = true; }
   });
 
-  $('#jump').addEventListener('change', (e) => {
-    const el = document.getElementById(e.target.value);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    e.target.value = '';
-  });
-
-  /* -------------------------------------------------------------- export */
   function openExport() {
     const lines = ['# Trace \\u2014 feature audit', ''];
     const stamp = new Date().toISOString().slice(0, 10);
-    lines.push('Judged ' + $('#t-done').textContent + ' of ' + SURF.length + ' screens on ' + stamp + '.', '');
+    lines.push('Judged ' + $('#t-done').textContent + ' of ' + SURF.length + ' screens and ' +
+      $('#t-cl').textContent + ' of ' + CLUS.length + ' overlaps on ' + stamp + '.', '');
 
     if ((db.wish || '').trim()) {
       lines.push('## Add', '');
       for (const l of db.wish.split('\\n')) if (l.trim()) lines.push('- ' + l.trim());
       lines.push('');
     }
+
+    const one = [], apart = [];
+    for (const cl of CLUS) {
+      const v = db.c[cl.dataset.ckey];
+      const note = (db.notes['cluster:' + cl.dataset.ckey] || '').trim();
+      const head = '**' + cl.dataset.ctitle + '** \\u2014 ' + cl.dataset.mlabels;
+      if (v === 'one') one.push('- ' + head + (note ? '\\n  > ' + note : ''));
+      else if (v === 'apart') apart.push('- ' + head + (note ? '\\n  > ' + note : ''));
+      else if (note) apart.push('- (undecided) ' + head + '\\n  > ' + note);
+    }
+    if (one.length) lines.push('## Become one', '', one.join('\\n'), '');
+    if (apart.length) lines.push('## Stay apart', '', apart.join('\\n'), '');
 
     const bucket = { cut: [], rework: [], keep: [] };
     for (const s of SURF) {
@@ -623,8 +922,8 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
     $('#exptext').scrollTop = 0;
   }
 
-  /* ---------------------------------------------------------------- boot */
   for (const r of rows()) paint(r);
+  for (const c of CLUS) paintCluster(c);
   for (const t of $$('.note')) { t.value = db.notes[t.dataset.note] || ''; grow(t); }
   $('#wish').value = db.wish || ''; grow($('#wish'));
   tally(); applyFilter();
@@ -642,5 +941,5 @@ if (stray.length) {
 
 writeFileSync('site/audit.html', html);
 console.log(`site/audit.html - ${(html.length / 1024 / 1024).toFixed(2)} MB`);
-console.log(`${totalSurfaces} sheets, ${totalCaps} features, ${inv.content} sample rows set aside`);
-console.log(`${groups.length} groups: ${groups.map((g) => g.name + ' ' + g.items.length).join(', ')}`);
+console.log(`${totalSurfaces} sheets, ${judged} features, ${totalClusters} overlap clusters`);
+console.log(CATS.map((c) => `${c.name} ${c.surfaces.length}${c.clusters.length ? '+' + c.clusters.length + 'cl' : ''}`).join(', '));
