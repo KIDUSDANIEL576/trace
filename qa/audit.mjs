@@ -59,6 +59,11 @@ const NICE = {
   'panel:guest': 'Guest mode', 'panel:flare': 'The flare', 'panel:sleep': 'Her state',
   'panel:car': 'Car mode', 'panel:stack': 'Widget stack', 'panel:loud': 'How loud',
   'panel:key': 'Your key', 'panel:unpair': 'Unpair',
+  /* named by the row that used to open them, before it was absorbed */
+  'panel:debt': 'Decision debt', 'panel:load': 'Mental load', 'panel:rsvp': 'Yes / no board',
+  'panel:brief': 'The brief', 'panel:handoff': 'Morning handoff', 'panel:tiny': 'The tiny one',
+  'panel:weekly10': 'Weekly ten minutes', 'panel:chapters': 'Chapters', 'panel:movie': 'Memory movie',
+  'panel:legacy': 'The year, as a book', 'panel:kids': 'His drawings',
 };
 
 /* ------------------------------------------------------------ the taxonomy
@@ -75,120 +80,52 @@ const CATS = [
   { name: 'The canvas', desc: 'Home. The drawing, and the tools that only exist while you are drawing.',
     ids: ['canvas', 'dock', 'brushpop', 'writepad', 'Canvas extras'], clusters: [] },
 
-  { name: 'Tasks & handing over', desc: 'Lists, blockers, fairness, and moving work between you.',
-    ids: ['Household', 'Household:Two-minute pile', 'panel:debt', 'panel:waiting', 'panel:rsvp',
+  { name: 'Tasks & handing over', desc: 'One list, one waiting room, one baton. The five lists became the list; the four handovers travel with the baton.',
+    ids: ['Household', 'Household:Two-minute pile', 'panel:waiting', 'panel:debt', 'panel:rsvp',
       'Household:Fair split', 'panel:load', 'Household:Handover baton', 'panel:brief', 'panel:ask',
-      'panel:where', 'panel:letter'],
-    clusters: [
-      { t: 'Five lists of things to do',
-        line: 'Left to do, the Two-minute pile, Decision debt, the Waiting room and the Yes / no board are five flavours of one list.',
-        ids: ['Household', 'Household:Two-minute pile', 'panel:debt', 'panel:waiting', 'panel:rsvp'] },
-      { t: 'Who carries what, three times',
-        line: 'The 60% bar on Household, Fair split and Mental load all measure the same imbalance.',
-        ids: ['Household', 'Household:Fair split', 'panel:load'] },
-      { t: 'Four ways to hand the day over',
-        line: 'The baton, the morning handoff, the brief and ask-nicely all move work from one of you to the other.',
-        ids: ['Household:Handover baton', 'panel:handoff', 'panel:brief', 'panel:ask'] },
-    ] },
+      'panel:where', 'panel:letter'], clusters: [] },
 
-  { name: 'Food', desc: 'One question, asked every day.',
-    ids: ['Household:Groceries', 'Household:What’s for dinner', 'Household:Meal wheel'],
-    clusters: [
-      { t: 'Dinner, answered twice',
-        line: 'What’s-for-dinner and the Meal wheel answer the same question.',
-        ids: ['Household:What’s for dinner', 'Household:Meal wheel'] },
-    ] },
+  { name: 'Food', desc: 'One question, one door. The wheel spins inside What\u2019s-for-dinner now.',
+    ids: ['Household:Groceries', 'Household:What\u2019s for dinner'], clusters: [] },
 
-  { name: 'Time & plans', desc: 'The calendar, and everything that feeds it.',
-    ids: ['panel:week7', 'Household:Find us a time', 'Household:New event', 'Household:A clash',
-      'Together:Trips', 'Memory:Anniversaries'],
-    clusters: [
-      { t: 'Three windows onto one calendar',
-        line: 'The week, Find-us-a-time and the Clash are the same seven days, drawn three ways.',
-        ids: ['panel:week7', 'Household:Find us a time', 'Household:A clash'] },
-    ] },
+  { name: 'Time & plans', desc: 'The week is the calendar\u2019s one door; finding a time and the clash live inside it.',
+    ids: ['panel:week7', 'Household:New event', 'Together:Trips', 'Memory:Anniversaries'], clusters: [] },
 
-  { name: 'Money', desc: 'Every place money shows up.',
-    ids: ['panel:money', 'Settle up', 'panel:renewals', 'Money changed'],
-    clusters: [
-      { t: 'Money in three rooms',
-        line: 'Money truth, Settle up and Money-changed carry one subject across three screens.',
-        ids: ['panel:money', 'Settle up', 'Money changed'] },
-    ] },
+  { name: 'Money', desc: 'Money truth is the one money screen; settling up happens inside it.',
+    ids: ['panel:money', 'panel:renewals'], clusters: [] },
 
-  { name: 'Together & rituals', desc: 'Promises, missions, and the small repeated things.',
-    ids: ['Together', 'Together:Co-signed promise', 'Together:Bucket list', 'Together:Missions',
-      'panel:weekly10', 'panel:tiny', 'panel:rituals', 'Wellbeing:Couple focus', 'panel:pocket'],
-    clusters: [
-      { t: 'Three shapes of a promise',
-        line: 'Co-signed promise, Bucket list and Missions are one commitment mechanic in three costumes.',
-        ids: ['Together:Co-signed promise', 'Together:Bucket list', 'Together:Missions'] },
-      { t: 'Four standing dates',
-        line: 'Weekly ten minutes, the Tiny one, Your rituals and Couple focus are four repeating appointments.',
-        ids: ['panel:weekly10', 'panel:tiny', 'panel:rituals', 'Wellbeing:Couple focus'] },
-    ] },
+  { name: 'Together & rituals', desc: 'The bucket list carries the promise and the missions; the rituals hold the standing dates.',
+    ids: ['Together', 'Together:Bucket list', 'panel:weekly10', 'panel:tiny', 'panel:rituals', 'panel:pocket'],
+    clusters: [] },
 
-  { name: 'Memory', desc: 'What the days leave behind.',
+  { name: 'Memory', desc: 'The journal retells the days; the wall holds the marks and zooms to the year.',
     ids: ['Memory', 'Memory:Gratitude jar', 'panel:journal', 'panel:chapters', 'panel:legacy',
-      'panel:movie', 'panel:wall', 'panel:daymap', 'Memory:The year, in marks'],
-    clusters: [
-      { t: 'Four retellings of the same days',
-        line: 'Journal, Chapters, the Year-as-a-book and Memory movie retell the same days at four speeds.',
-        ids: ['panel:journal', 'panel:chapters', 'panel:legacy', 'panel:movie'] },
-      { t: 'Two walls of marks',
-        line: 'The wall and the Year-in-marks hang the same marks twice.',
-        ids: ['panel:wall', 'Memory:The year, in marks'] },
-    ] },
+      'panel:movie', 'panel:wall', 'panel:daymap'], clusters: [] },
 
-  { name: 'Wellbeing', desc: 'How each of you is doing, said out loud.',
+  { name: 'Wellbeing', desc: 'Energy match says how today is \u2014 including whether she is asleep.',
     ids: ['Wellbeing', 'panel:energy', 'panel:sleep', 'panel:handoff', 'panel:doctor', 'Household:Doses'],
-    clusters: [
-      { t: 'Three ways to say how today is',
-        line: 'Energy match, Her state and the Morning handoff each report the same weather.',
-        ids: ['panel:energy', 'panel:sleep', 'panel:handoff'] },
-    ] },
+    clusters: [] },
 
-  { name: 'The hard parts', desc: 'Conflict, silence, and the exits.',
-    ids: ['Repair', 'The unsaid', 'The drift', 'Cover me', 'Every interruption', 'panel:flare',
-      'Solo nights', 'If it ends'],
-    clusters: [
-      { t: 'Three doors into one conversation',
-        line: 'Repair, the Unsaid and the Drift all open the talk you are not having.',
-        ids: ['Repair', 'The unsaid', 'The drift'] },
-    ] },
+  { name: 'The hard parts', desc: 'Repair is the one door in; the unsaid and the drift open from inside it.',
+    ids: ['Repair', 'Cover me', 'Every interruption', 'panel:flare', 'Solo nights', 'If it ends'],
+    clusters: [] },
 
-  { name: 'When life happens', desc: 'Seasons that change what the app should be.',
-    ids: ['Newborn mode', 'A hard anniversary', 'Moving'],
-    clusters: [
-      { t: 'Four seasons, one mechanism',
-        line: 'Newborn, a hard anniversary, moving and money-changed each quiet the machinery. That is one mode with four names.',
-        ids: ['Newborn mode', 'A hard anniversary', 'Moving', 'Money changed'] },
-    ] },
+  { name: 'When life happens', desc: 'One mode, four names \u2014 newborn, grief, moving, money.',
+    ids: ['When life happens'], clusters: [] },
 
-  { name: 'Other people', desc: 'Everyone who is not the two of you.',
+  { name: 'Other people', desc: 'Everyone who is not the two of you. The visitor hosts guest mode.',
     ids: ['Your people', 'Let one person in', 'Ageing parents', 'A visitor', 'panel:guest', 'panel:kids'],
-    clusters: [
-      { t: 'The same houseguest twice',
-        line: 'A visitor and Guest mode host the same person.',
-        ids: ['A visitor', 'panel:guest'] },
-    ] },
+    clusters: [] },
 
-  { name: 'Widgets & surfaces', desc: 'The app outside the app: home screen, watch, car.',
-    ids: ['Your board', 'Every widget state', 'panel:stack', 'Every surface', 'panel:car',
-      'Her home screen', 'The daily loop'],
-    clusters: [
-      { t: 'The widget, three times',
-        line: 'Your board, Every-widget-state and the Widget stack describe one widget.',
-        ids: ['Your board', 'Every widget state', 'panel:stack'] },
-    ] },
+  { name: 'Widgets & surfaces', desc: 'Your board is the widget\u2019s one home; every state opens from it.',
+    ids: ['Your board', 'panel:stack', 'Every surface', 'panel:car', 'Her home screen', 'The daily loop'],
+    clusters: [] },
 
   { name: 'Quiet & private', desc: 'What it never does, and who holds the keys.',
-    ids: ['Quiet & private', 'panel:loud', 'panel:key', 'panel:unpair'],
-    clusters: [
-      { t: 'Volume, twice',
-        line: 'Quiet-and-private and How-loud both set the volume.',
-        ids: ['Quiet & private', 'panel:loud'] },
-    ] },
+    ids: ['Quiet & private', 'panel:loud', 'panel:key', 'panel:unpair'], clusters: [] },
+
+  { name: 'Kid\u2019s corner', desc: 'His patch. No account, no counts.',
+    ids: ['Household:Kid\u2019s corner'], clusters: [] },
 ];
 
 /* -------------------------------------------------- resolve, and fail loud */
@@ -639,10 +576,11 @@ main{max-width:1180px;margin:0 auto;padding:26px 22px 120px}
 <main>
   <div class="intro">
     <h2>How to work this</h2>
-    <p>The app, filed by job &mdash; not by where a screen sits in the nav. ${CATS.length} categories,
-      ${totalSurfaces} screens, and <b>${totalClusters} overlaps</b>: places where several features do the
-      same job. Each overlap gets its own call &mdash; <b>become one</b>, <b>keep apart</b>, or cut the
-      lot &mdash; and each screen gets keep / rework / cut. Nothing is sent anywhere; it saves in this
+    <p>The app, filed by job ${totalClusters ? '' : '&mdash; after the consolidation'} &mdash;
+      ${CATS.length} categories, ${totalSurfaces} screens${totalClusters
+        ? ` and <b>${totalClusters} overlaps</b>: places where several features do the same job`
+        : '. The sixteen overlap families were merged: every job now has one front door, and what a door absorbed is written under its category name'}.
+      Each screen gets keep / rework / cut. Nothing is sent anywhere; it saves in this
       browser, and <b>Export my verdict</b> gives you text to paste back to me.</p>
     <p><kbd>J</kbd> / <kbd>K</kbd> move &middot; <kbd>1</kbd> keep &middot; <kbd>2</kbd> rework &middot;
       <kbd>3</kbd> cut &middot; <kbd>0</kbd> clear &middot; <kbd>N</kbd> note. Skipping is fine &mdash;
