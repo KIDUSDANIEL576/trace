@@ -378,6 +378,16 @@ wrap.addEventListener('pointerdown', (e) => {
   if (curPage === 'hers') { toast('her page — it arrives, you watch'); return; }
   if (state.mode === 'passpen' && state.penHolder !== 'you') { toast("she has the pen"); return; }
   try { wrap.setPointerCapture(e.pointerId); } catch {}
+  /* The listener above this one just entered draw mode, and draw mode makes
+     the canvas full-bleed: the board goes from 333x451 to 360x787 between the
+     press and this line. The ResizeObserver that normally keeps W/H honest
+     fires asynchronously — after this handler — so without a synchronous
+     re-size the first point of every stroke is measured against the box the
+     canvas has just stopped being. Vertically that is 451 against 787, which
+     is why the ink started a long way from the finger.
+     Only the first point needs this; the geometry is stable by the time any
+     pointermove arrives. */
+  sizeCanvas();
   const p = pos(e);
   smooth = { ...p };
   if (featureHooks.down && featureHooks.down(p)) return;
@@ -413,9 +423,26 @@ const up = (e) => {
 wrap.addEventListener('pointerup', up);
 wrap.addEventListener('pointercancel', up);
 
+/* Where the finger is, in engine space.
+ *
+ * This cannot be `clientX - rect.left`. The phone is fitted with CSS `zoom`
+ * (fitPhone), so getBoundingClientRect returns VISUAL pixels while the canvas
+ * is set up in LAYOUT pixels — the two differ by the zoom factor, and the
+ * error grows with distance from the top-left corner. A stroke that starts
+ * under your finger at the corner is 20px away from it by mid-screen.
+ *
+ * Worth knowing: `zoom` is invisible to getComputedStyle().transform, so an
+ * ancestor scan for transforms finds nothing and the bug looks impossible.
+ *
+ * So derive the mapping from the surface itself: the ink canvas's painted rect
+ * against the engine's own W/H. That is correct under zoom, under a CSS
+ * transform, under a scaled iframe, and it also drops the wrapper's 1px border
+ * for free, because #ink is inset:0 inside it. */
 function pos(e) {
-  const r = wrap.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
+  const r = cv.getBoundingClientRect();
+  const sx = r.width ? W / r.width : 1;
+  const sy = r.height ? H / r.height : 1;
+  return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
 }
 /* real stylus pressure when the hardware reports it (Pencil, S-Pen);
    fingers and mice report a flat .5/0 — those stay 1 so nothing changes */
@@ -1867,6 +1894,10 @@ function fitPhone() {
   const simW = innerWidth > 760 ? 280 : 0;
   const z = Math.min((innerWidth - simW - 16) / 406, (innerHeight - 16) / 860);
   document.getElementById('phone').style.zoom = z.toFixed(3);
+  /* A zoom change repaints the canvas at a new size without changing its
+     layout box, so the ResizeObserver never fires — re-size explicitly or the
+     backing store stays at the previous scale. */
+  sizeCanvas();
 }
 addEventListener('resize', fitPhone); fitPhone();
 
@@ -2064,6 +2095,14 @@ window.TRACE_APP = {
   strokeCount: () => strokes.filter(k => k.who !== 'fx').length,
   handCount: () => new Set(strokes.filter(k => k.who !== 'fx').map(k => k.who)).size || 1,
   partnerDrawing: () => drawingNow,
+  /* Where the last mark actually landed, in canvas space. The pointer path is
+     the only interaction a screenshot cannot verify — the stroke can be drawn
+     perfectly and still start somewhere your finger is not. */
+  lastPoint() {
+    const mine = strokes.filter((k) => k.who !== 'fx' && k.who !== 'partner' && k.pts && k.pts.length);
+    const s2 = mine[mine.length - 1];
+    return s2 ? { x: Math.round(s2.pts[0].x), y: Math.round(s2.pts[0].y), W, H } : null;
+  },
   paintWidgetInk: (cv) => paintWidget(cv),
   showApp, showHome, brushPop: toggleBrushPop,
   setPage, curPage: () => curPage,
