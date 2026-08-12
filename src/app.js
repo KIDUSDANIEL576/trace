@@ -1842,6 +1842,10 @@ function showApp() {
   requestAnimationFrame(sizeCanvas);
 }
 function showHome() {
+  /* Draw mode is a state of the canvas, not of the session. Leaving it on put
+     "Done ✓" and the mark counter over the springboard, which belongs to the
+     phone and not to Trace at all. */
+  setDrawMode(false);
   appEl.classList.add('hidden'); homeEl.classList.remove('hidden');
   document.getElementById('screen').classList.add('on-home');
   window.TRACE_BOARD && TRACE_BOARD.inked();
@@ -1863,11 +1867,35 @@ function paintWidget(target) {
   wx.clearRect(0, 0, r.width, r.height);
   const src = pages.hers.length ? pages.hers : (pages.us === strokes ? strokes : pages.us);
   const mine = src.filter(k => k.who !== 'fx');
-  const SW2 = W || 320, SH2 = H || 320;
   if (!mine.length) return;
-  const k = Math.max(r.width / SW2, r.height / SH2) * .9;
+
+  /* Frame the DRAWING, not the canvas.
+   *
+   * This used to fit the whole board — W by H — into the widget with
+   * Math.max, which is a cover fit: the board's 360x787 forced into a
+   * 296x74 strip cropped almost all of it, so a mark low on the page simply
+   * was not in the preview. And W/H change when draw mode makes the board
+   * full-bleed, so the same drawing previewed at two different scales
+   * depending on which mode the canvas happened to be in last.
+   *
+   * The marks' own bounding box has neither problem: it is what the person
+   * drew, it is independent of the canvas size, and Math.min contains it so
+   * nothing is cut off. A preview that crops the drawing is not a preview. */
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const s2 of mine) {
+    if (s2.type === 'text') { x0 = Math.min(x0, s2.x); y0 = Math.min(y0, s2.y - s2.size);
+      x1 = Math.max(x1, s2.x + s2.size * (s2.text || '').length * .6); y1 = Math.max(y1, s2.y + s2.size * .4); continue; }
+    for (const p of (s2.pts || [])) {
+      if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x;
+      if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y;
+    }
+  }
+  if (!isFinite(x0)) return;
+  const pad = 10;                                   /* room for the pen's own width */
+  const bw = Math.max(1, x1 - x0) + pad * 2, bh = Math.max(1, y1 - y0) + pad * 2;
+  const k = Math.min(r.width / bw, r.height / bh);
   wx.save();
-  wx.translate((r.width - SW2 * k) / 2, (r.height - SH2 * k) / 2);
+  wx.translate((r.width - bw * k) / 2 - (x0 - pad) * k, (r.height - bh * k) / 2 - (y0 - pad) * k);
   wx.scale(k, k);
   wx.lineCap = wx.lineJoin = 'round';
   for (const s of mine) {
